@@ -1,217 +1,68 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="UTF-8">
-  <title>Focus Academy</title>
-  <style>
-    :root {
-      --primary: #6366f1;
-      --primary-dark: #4f46e5;
-      --bg-light: #f8fafc;
-      --bg-white: #ffffff;
-      --text-dark: #1e293b;
-      --text-light: #64748b;
-      --radius: 12px;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      margin: 0;
-      background: var(--bg-light);
-      color: var(--text-dark);
-    }
-
-    header {
-      background: linear-gradient(90deg, var(--primary-dark), var(--primary));
-      color: white;
-      padding: 14px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-
-    header h1 {
-      font-size: 1.4em;
-      margin: 0;
-      font-weight: 600;
-    }
-
-    nav a {
-      color: white;
-      margin: 0 12px;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    nav a:hover { text-decoration: underline; }
-
-    main {
-      padding: 30px 20px;
-      max-width: 1000px;
-      margin: auto;
-    }
-
-    h2 {
-      font-size: 1.6em;
-      font-weight: 700;
-      margin-top: 40px;
-      margin-bottom: 15px;
-    }
-
-    p {
-      color: var(--text-light);
-    }
-
-    .subjects {
-      display: grid;
-      grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
-      gap: 16px;
-    }
-
-    .subject {
-      background: var(--bg-white);
-      padding: 16px;
-      border-radius: var(--radius);
-      border: 1px solid #e2e8f0;
-      cursor: pointer;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      transition: all 0.2s ease;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .subject:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
-      background: #eef2ff;
-    }
-    .subject span {
-      font-size: 1.4em;
-    }
-
-    .box {
-      background: var(--bg-white);
-      border: 1px solid #e2e8f0;
-      padding: 20px;
-      border-radius: var(--radius);
-      margin-top: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    button {
-      cursor: pointer;
-      padding: 8px 14px;
-      border-radius: var(--radius);
-      border: none;
-      font-weight: 500;
-      transition: all 0.2s ease;
-      background: var(--primary);
-      color: white;
-    }
-    button:hover {
-      background: var(--primary-dark);
-    }
-    input, select {
-      padding: 8px;
-      border-radius: var(--radius);
-      border: 1px solid #cbd5e1;
-      width: 100%;
-      margin-bottom: 10px;
-    }
-
-    .quiz-question {
-      margin: 10px 0;
-      padding: 14px;
-      background: #f1f5f9;
-      border-radius: var(--radius);
-    }
-
-    .choices button {
-      margin: 4px;
-      background: #e2e8f0;
-      color: var(--text-dark);
-      border: 1px solid transparent;
-    }
-    .choices button:hover {
-      background: #cbd5e1;
-    }
-    .correct { background: #bbf7d0 !important; }
-    .wrong { background: #fecaca !important; }
-  </style>
+<meta charset="UTF-8">
+<title>Focus Academy - Matemàtiques</title>
+<style>
+  :root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --bg-light: #f8fafc;
+    --bg-white: #ffffff;
+    --text-dark: #1e293b;
+    --text-light: #64748b;
+    --radius: 12px;
+  }
+  body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-light); color: var(--text-dark); }
+  header { background: linear-gradient(90deg, var(--primary-dark), var(--primary)); color: white; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; }
+  header h1 { font-size: 1.4em; margin: 0; font-weight: 600; }
+  main { padding: 30px 20px; max-width: 1000px; margin: auto; }
+  h2 { font-size: 1.6em; font-weight: 700; margin-top: 40px; margin-bottom: 15px; }
+  p { color: var(--text-light); }
+  .topics { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 12px; margin-top: 20px; }
+  .topic { background: var(--bg-white); padding: 12px; border: 1px solid #e2e8f0; border-radius: var(--radius); cursor: pointer; text-align: center; transition: 0.2s; }
+  .topic:hover { background: #eef2ff; }
+  .box { background: var(--bg-white); border: 1px solid #e2e8f0; padding: 20px; border-radius: var(--radius); margin-top: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+  button { cursor: pointer; padding: 8px 14px; border-radius: var(--radius); border: none; font-weight: 500; transition: all 0.2s ease; background: var(--primary); color: white; }
+  button:hover { background: var(--primary-dark); }
+  input { padding: 8px; border-radius: var(--radius); border: 1px solid #cbd5e1; width: 100%; margin-bottom: 10px; }
+  .quiz-question { margin: 10px 0; padding: 14px; background: #f1f5f9; border-radius: var(--radius); }
+  .choices button { margin: 4px; background: #e2e8f0; color: var(--text-dark); border: 1px solid transparent; }
+  .choices button:hover { background: #cbd5e1; }
+  .correct { background: #bbf7d0 !important; }
+  .wrong { background: #fecaca !important; }
+  #teacher-btn { background: white; color: var(--primary-dark); padding: 6px 12px; border-radius: var(--radius); font-weight: 500; border: none; }
+  #teacher-btn:hover { background: #f1f5f9; }
+  .hidden { display: none; }
+</style>
 </head>
 <body>
 
 <header>
-  <h1>Focus Academy</h1>
-  <nav>
-    <a href="#subjects">Assignatures</a>
-    <a href="#quick-test">Prova ràpida</a>
-    <a href="#teacher">Professorat</a>
-  </nav>
+  <h1>Focus Academy - Matemàtiques</h1>
+  <button id="teacher-btn" onclick="toggleTeacherPanel()">👩‍🏫 Professor</button>
 </header>
 
 <main>
-  <section id="hero">
-    <h2>Proves i qüestionaris online, sense complicacions.</h2>
-    <p>Practica per assignatures, crea exàmens i segueix el progrés en temps real.</p>
+  <section id="topics-section">
+    <h2>Temes de Matemàtiques</h2>
+    <div class="topics" id="topics-list"></div>
   </section>
 
-  <section id="subjects">
-    <h2>Assignatures</h2>
-    <div class="subjects">
-      <div class="subject" data-subject="math"><span>➗</span> Matemàtiques</div>
-      <div class="subject" data-subject="cat"><span>🗣️</span> Català</div>
-      <div class="subject" data-subject="spa"><span>📝</span> Castellà</div>
-      <div class="subject" data-subject="eng"><span>🇬🇧</span> Anglès</div>
-      <div class="subject" data-subject="sci"><span>🔬</span> Ciències</div>
-      <div class="subject" data-subject="his"><span>🏺</span> Història</div>
-      <div class="subject" data-subject="geo"><span>🗺️</span> Geografia</div>
-      <div class="subject" data-subject="phy"><span>⚙️</span> Física</div>
-      <div class="subject" data-subject="chem"><span>⚗️</span> Química</div>
-    </div>
+  <section id="quiz-section" class="hidden">
+    <h2 id="quiz-title"></h2>
+    <div id="quiz-container" class="box"></div>
+    <div id="quiz-result" class="box hidden"></div>
+    <button id="back-btn" class="hidden" onclick="backToMenu()">Tornar al menú</button>
   </section>
 
-  <section id="quick-test">
-    <h2>Prova ràpida</h2>
-    <div class="box">
-      <label>Tria una assignatura</label>
-      <select id="subject-select">
-        <option value="math">Matemàtiques</option>
-        <option value="cat">Català</option>
-        <option value="spa">Castellà</option>
-      </select>
-      <label>Nivell</label>
-      <select id="level-select">
-        <option value="easy">Fàcil</option>
-        <option value="med">Mitjà</option>
-        <option value="hard">Difícil</option>
-      </select>
-      <button onclick="startQuiz()">Començar</button>
-    </div>
-    <div id="quiz-container" class="box hidden"></div>
-  </section>
-
-  <section id="teacher">
-    <h2>Accés Professor</h2>
-    <div class="box" id="teacher-login">
-      <input type="password" id="teacher-code" placeholder="Codi professor">
-      <button onclick="loginTeacher()">Entrar</button>
-    </div>
-    <div class="box hidden" id="teacher-panel">
-      <button onclick="createExam()">Crear Examen</button>
+  <section id="teacher-panel" class="box hidden">
+    <h2>Creador d'exàmens</h2>
+    <input type="password" id="teacher-code" placeholder="Codi professor">
+    <button onclick="loginTeacher()">Entrar</button>
+    <div id="exam-creator" class="hidden">
+      <button onclick="createExam()">Crear nou examen</button>
       <p id="exam-code-output"></p>
-    </div>
-  </section>
-
-  <section id="student">
-    <h2>Accés Alumne</h2>
-    <div class="box">
-      <input type="text" id="student-code" placeholder="Codi examen">
-      <button onclick="joinExam()">Entrar</button>
-      <p id="student-message"></p>
     </div>
   </section>
 </main>
@@ -219,68 +70,49 @@
 <script>
   const PROFESSOR_CODE = "secret123";
   let currentExamCode = "";
-  
-  function loginTeacher() {
-    const code = document.getElementById("teacher-code").value;
-    if (code === PROFESSOR_CODE) {
-      document.getElementById("teacher-login").classList.add("hidden");
-      document.getElementById("teacher-panel").classList.remove("hidden");
-    } else {
-      alert("Codi incorrecte");
-    }
+
+  const questionBank = {
+    "Aritmètica": [
+      { q: "5 + 7 = ?", choices: [12, 13, 10, 11], correct: 12 },
+      { q: "15 - 9 = ?", choices: [7, 6, 5, 4], correct: 6 },
+      { q: "8 × 3 = ?", choices: [24, 26, 22, 28], correct: 24 },
+      { q: "20 ÷ 4 = ?", choices: [5, 4, 6, 8], correct: 5 },
+      { q: "9 + 6 = ?", choices: [14, 16, 15, 13], correct: 15 }
+    ],
+    "Geometria": [
+      { q: "Quants costats té un hexàgon?", choices: [5, 6, 7, 8], correct: 6 },
+      { q: "La suma d'angles d'un triangle és...", choices: ["90°", "180°", "270°", "360°"], correct: "180°" },
+      { q: "Un rectangle té...", choices: ["4 costats iguals", "2 parelles de costats iguals", "3 costats iguals", "cap costat igual"], correct: "2 parelles de costats iguals" },
+      { q: "El radi és...", choices: ["Meitat del diàmetre", "El diàmetre", "Un costat del quadrat", "Un tipus d'angle"], correct: "Meitat del diàmetre" },
+      { q: "Quants graus té un angle recte?", choices: ["45°", "90°", "180°", "360°"], correct: "90°" }
+    ],
+    "Àlgebra": [
+      { q: "Si x = 3, quant és 2x + 5?", choices: [11, 10, 12, 9], correct: 11 },
+      { q: "Resol: 3x = 12", choices: [3, 4, 5, 6], correct: 4 },
+      { q: "Simplifica: 4x + 2x", choices: ["6x", "8x", "2x", "x"], correct: "6x" },
+      { q: "Si x = 2, quant és x²?", choices: [2, 4, 6, 8], correct: 4 },
+      { q: "Factoritza: x² + 3x", choices: ["x(x+3)", "x(x-3)", "(x+1)(x+3)", "No es pot"], correct: "x(x+3)" }
+    ]
+  };
+
+  const topicsList = document.getElementById("topics-list");
+  for (let topicName in questionBank) {
+    const div = document.createElement("div");
+    div.className = "topic";
+    div.innerText = topicName;
+    div.onclick = () => startQuiz(topicName);
+    topicsList.appendChild(div);
   }
 
-  function createExam() {
-    currentExamCode = Math.random().toString(36).substr(2, 6).toUpperCase();
-    document.getElementById("exam-code-output").innerText = "Codi d'examen: " + currentExamCode;
-  }
-
-  function joinExam() {
-    const code = document.getElementById("student-code").value.toUpperCase();
-    if (code === currentExamCode && code !== "") {
-      document.getElementById("student-message").innerText = "Accés concedit! Pots començar l'examen.";
-    } else {
-      document.getElementById("student-message").innerText = "Codi incorrecte.";
-    }
-  }
-
-  function getMathQuestions(level) {
-    const ops = ["+", "-", "×", "÷"];
-    const rng = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-    const qs = [];
-    for (let i = 0; i < 5; i++) {
-      const a = level === "hard" ? rng(20, 99) : level === "med" ? rng(10, 49) : rng(1, 20);
-      const b = rng(1, 20);
-      const op = ops[rng(0, ops.length - 1)];
-      let correct;
-      switch (op) {
-        case "+": correct = a + b; break;
-        case "-": correct = a - b; break;
-        case "×": correct = a * b; break;
-        case "÷": correct = +(a / b).toFixed(2); break;
-      }
-      const choices = [correct];
-      while (choices.length < 4) {
-        const val = correct + rng(-10, 10);
-        if (!choices.includes(val)) choices.push(val);
-      }
-      qs.push({ q: `${a} ${op} ${b} = ?`, correct, choices: choices.sort(() => Math.random() - 0.5) });
-    }
-    return qs;
-  }
-
-  function startQuiz() {
-    const subject = document.getElementById("subject-select").value;
-    const level = document.getElementById("level-select").value;
+  function startQuiz(topicName) {
+    document.getElementById("topics-section").classList.add("hidden");
+    document.getElementById("quiz-title").innerText = topicName;
     const quizDiv = document.getElementById("quiz-container");
     quizDiv.innerHTML = "";
-    let questions = subject === "math" ? getMathQuestions(level) : [];
-    if (questions.length === 0) {
-      quizDiv.innerHTML = "<p>Encara no hi ha preguntes per aquesta assignatura.</p>";
-      quizDiv.classList.remove("hidden");
-      return;
-    }
+    const questions = questionBank[topicName];
     let score = 0;
+    let answered = 0;
+
     questions.forEach((q, idx) => {
       const div = document.createElement("div");
       div.className = "quiz-question";
@@ -291,17 +123,55 @@
         const btn = document.createElement("button");
         btn.innerText = c;
         btn.onclick = () => {
-          if (c === q.correct) { btn.classList.add("correct"); score++; }
-          else btn.classList.add("wrong");
+          if (!btn.classList.contains("correct") && !btn.classList.contains("wrong")) {
+            if (c === q.correct) { btn.classList.add("correct"); score++; }
+            else btn.classList.add("wrong");
+            answered++;
+            if (answered === questions.length) {
+              showResult(score, questions.length);
+            }
+          }
         };
         choicesDiv.appendChild(btn);
       });
       div.appendChild(choicesDiv);
       quizDiv.appendChild(div);
     });
-    quizDiv.classList.remove("hidden");
+
+    document.getElementById("quiz-section").classList.remove("hidden");
+  }
+
+  function showResult(score, total) {
+    const resultDiv = document.getElementById("quiz-result");
+    resultDiv.innerHTML = `<h3>Puntuació final: ${score}/${total}</h3>`;
+    resultDiv.classList.remove("hidden");
+    document.getElementById("back-btn").classList.remove("hidden");
+  }
+
+  function backToMenu() {
+    document.getElementById("quiz-section").classList.add("hidden");
+    document.getElementById("quiz-result").classList.add("hidden");
+    document.getElementById("back-btn").classList.add("hidden");
+    document.getElementById("topics-section").classList.remove("hidden");
+  }
+
+  function toggleTeacherPanel() {
+    document.getElementById("teacher-panel").classList.toggle("hidden");
+  }
+
+  function loginTeacher() {
+    const code = document.getElementById("teacher-code").value;
+    if (code === PROFESSOR_CODE) {
+      document.getElementById("exam-creator").classList.remove("hidden");
+    } else {
+      alert("Codi incorrecte");
+    }
+  }
+
+  function createExam() {
+    currentExamCode = Math.random().toString(36).substr(2, 4).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById("exam-code-output").innerText = "Codi d'examen: " + currentExamCode;
   }
 </script>
-
 </body>
 </html>
