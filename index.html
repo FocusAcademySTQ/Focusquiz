@@ -4,24 +4,142 @@
   <meta charset="UTF-8">
   <title>Focus Academy</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f9f9f9; }
-    header { background: #2c3e50; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-    header h1 { margin: 0; font-size: 1.4em; }
-    nav a { color: white; margin: 0 8px; text-decoration: none; }
-    main { padding: 20px; max-width: 900px; margin: auto; }
-    h2 { margin-top: 30px; }
-    .subjects { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; }
-    .subject { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; }
-    .subject:hover { background: #eef; }
-    .hidden { display: none; }
-    .box { background: white; border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-top: 15px; }
-    button { cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background: #eee; }
-    button:hover { background: #ddd; }
-    input { padding: 6px; border-radius: 4px; border: 1px solid #ccc; width: 100%; }
-    .quiz-question { margin: 10px 0; padding: 10px; background: #f7f7f7; border-radius: 6px; }
-    .choices button { margin: 4px; }
-    .correct { background: #c8f7c5; }
-    .wrong { background: #f7c5c5; }
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --bg-light: #f8fafc;
+      --bg-white: #ffffff;
+      --text-dark: #1e293b;
+      --text-light: #64748b;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      margin: 0;
+      background: var(--bg-light);
+      color: var(--text-dark);
+    }
+
+    header {
+      background: linear-gradient(90deg, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      font-size: 1.4em;
+      margin: 0;
+      font-weight: 600;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 12px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    nav a:hover { text-decoration: underline; }
+
+    main {
+      padding: 30px 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    h2 {
+      font-size: 1.6em;
+      font-weight: 700;
+      margin-top: 40px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      color: var(--text-light);
+    }
+
+    .subjects {
+      display: grid;
+      grid-template-columns: repeat(auto-fill,minmax(180px,1fr));
+      gap: 16px;
+    }
+
+    .subject {
+      background: var(--bg-white);
+      padding: 16px;
+      border-radius: var(--radius);
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .subject:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+      background: #eef2ff;
+    }
+    .subject span {
+      font-size: 1.4em;
+    }
+
+    .box {
+      background: var(--bg-white);
+      border: 1px solid #e2e8f0;
+      padding: 20px;
+      border-radius: var(--radius);
+      margin-top: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    button {
+      cursor: pointer;
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      border: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      background: var(--primary);
+      color: white;
+    }
+    button:hover {
+      background: var(--primary-dark);
+    }
+    input, select {
+      padding: 8px;
+      border-radius: var(--radius);
+      border: 1px solid #cbd5e1;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .quiz-question {
+      margin: 10px 0;
+      padding: 14px;
+      background: #f1f5f9;
+      border-radius: var(--radius);
+    }
+
+    .choices button {
+      margin: 4px;
+      background: #e2e8f0;
+      color: var(--text-dark);
+      border: 1px solid transparent;
+    }
+    .choices button:hover {
+      background: #cbd5e1;
+    }
+    .correct { background: #bbf7d0 !important; }
+    .wrong { background: #fecaca !important; }
   </style>
 </head>
 <body>
@@ -44,15 +162,15 @@
   <section id="subjects">
     <h2>Assignatures</h2>
     <div class="subjects">
-      <div class="subject" data-subject="math">➗ Matemàtiques</div>
-      <div class="subject" data-subject="cat">🗣️ Català</div>
-      <div class="subject" data-subject="spa">📝 Castellà</div>
-      <div class="subject" data-subject="eng">🇬🇧 Anglès</div>
-      <div class="subject" data-subject="sci">🔬 Ciències</div>
-      <div class="subject" data-subject="his">🏺 Història</div>
-      <div class="subject" data-subject="geo">🗺️ Geografia</div>
-      <div class="subject" data-subject="phy">⚙️ Física</div>
-      <div class="subject" data-subject="chem">⚗️ Química</div>
+      <div class="subject" data-subject="math"><span>➗</span> Matemàtiques</div>
+      <div class="subject" data-subject="cat"><span>🗣️</span> Català</div>
+      <div class="subject" data-subject="spa"><span>📝</span> Castellà</div>
+      <div class="subject" data-subject="eng"><span>🇬🇧</span> Anglès</div>
+      <div class="subject" data-subject="sci"><span>🔬</span> Ciències</div>
+      <div class="subject" data-subject="his"><span>🏺</span> Història</div>
+      <div class="subject" data-subject="geo"><span>🗺️</span> Geografia</div>
+      <div class="subject" data-subject="phy"><span>⚙️</span> Física</div>
+      <div class="subject" data-subject="chem"><span>⚗️</span> Química</div>
     </div>
   </section>
 
