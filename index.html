@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Focus Academy Quiz · Versió ThatQuiz (MVP)</title>
+  <meta name="description" content="Generador de qüestionaris autoavaluables per a Focus Academy. Estil atractiu per a estudiants. Versió inicial tipus ThatQuiz." />
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <!-- Favicon SVG (inline data URL) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121834'/%3E%3Cpath d='M16 44h32v4H16z' fill='%23a5b4fc'/%3E%3Ccircle cx='24' cy='24' r='8' fill='%237dd3fc'/%3E%3Ccircle cx='40' cy='24' r='8' fill='%23a5b4fc'/%3E%3C/svg%3E">
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121834; --card:#0f1536; --text:#eef2ff; --muted:#9aa5c9;
+      --accent:#7dd3fc; --accent2:#a5b4fc; /* blau i lila pastel corporatius */
+      --ok:#86efac; --warn:#fde68a; --error:#fca5a5;
+      --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.35),0 2px 8px rgba(0,0,0,.25);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto; color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 10% -10%, #1a234b, transparent 60%),
+        radial-gradient(900px 600px at 110% 10%, #2a2450, transparent 60%),
+        radial-gradient(1200px 900px at 50% 120%, #1d163f, #0b1020 60%);
+    }
+    a{color:inherit}
+    header{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(10px);background:#0b1020cc;border-bottom:1px solid #ffffff14}
+    .container{max-width:1100px;margin:0 auto;padding:20px}
+    .nav{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+    .logo{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow)}
+    .logo svg{width:24px;height:24px}
+    .pill{padding:8px 14px;border:1px solid #ffffff1a;border-radius:999px}
+    .btn{border:none;border-radius:999px;padding:10px 16px;font-weight:700;cursor:pointer;transition:.15s;color:#0b1020}
+    .btn:hover{filter:brightness(1.06)}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+    .btn-ghost{background:#ffffff12;color:var(--text)}
+    .grid{display:grid;gap:16px}
+    .two{grid-template-columns:1.2fr .8fr}
+    .card{background:linear-gradient(180deg,#121834cc,#0e1432cc);border:1px solid #ffffff1a;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card-inner{padding:20px}
+    .h1{font-size:clamp(28px,4vw,46px);font-weight:800;margin:6px 0 8px}
+    .h2{font-size:clamp(22px,3vw,28px);font-weight:800;margin:0 0 10px}
+    .h3{font-size:18px;font-weight:800;margin:0 0 6px}
+    p{color:#e6e9ff;line-height:1.6;margin:8px 0}
+    label{font-size:13px;color:var(--muted)}
+    input,select,textarea{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #ffffff22;background:#0f1536;color:var(--text)}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid #ffffff1a;background:#0f1536}
+    .kpi{padding:12px;border:1px solid #ffffff16;border-radius:14px;display:flex;flex-direction:column;gap:6px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .center{display:grid;place-items:center}
+    .hide{display:none}
+    .question{font-size:22px;font-weight:700;margin:8px 0}
+    .answers{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+    .ans{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #ffffff22;border-radius:12px;background:#0f1536}
+    .ans input[type="radio"]{transform:scale(1.2)}
+    .timer{font-weight:800}
+    .tag{font-size:12px;opacity:.85}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #ffffff16;padding:10px;text-align:left}
+    .right{color:var(--ok);font-weight:700}
+    .wrong{color:var(--error);font-weight:700}
+    .footer{opacity:.7;font-size:14px;padding:22px 0;border-top:1px solid #ffffff12;margin-top:24px}
+    @media (max-width:900px){.two{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <!-- Small inline SVG logo (mortarboard) -->
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Focus Academy">
+            <path d="M12 3L1 8l11 5 9-4.09V17h2V8L12 3z" fill="#0b1020"/>
+            <path d="M5 12v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4l-8 3-8-3z" fill="#a5b4fc"/>
+          </svg>
+        </div>
+        <div>Focus Academy Quiz</div>
+      </div>
+      <nav class="row">
+        <a class="pill" href="#" id="navHome">Inici</a>
+        <a class="pill" href="#" id="navTeacher">Mode professor/a</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- LANDING / SETUP -->
+    <section id="viewSetup" class="grid two">
+      <div class="card">
+        <div class="card-inner">
+          <div class="h1">Focus Academy Quiz ✨</div>
+          <p>Configura un qüestionari ràpid o carrega un conjunt personalitzat amb marca i estètica de la teva acadèmia.</p>
+          <div class="grid" style="grid-template-columns:1fr 1fr; gap:12px; margin-top:10px">
+            <div>
+              <label>Nom de l'alumne</label>
+              <input id="studentName" placeholder="Escriu el nom i cognoms" />
+            </div>
+            <div>
+              <label>Grup/Aula</label>
+              <input id="studentGroup" placeholder="Ex: 4tA, 2n Batx B" />
+            </div>
+            <div>
+              <label>Assignatura</label>
+              <select id="subject">
+                <option value="arith">Aritmètica</option>
+                <option value="fractions">Fraccions</option>
+                <option value="percent">Percentatges</option>
+                <option value="compare">Comparacions (&lt; = &gt;)</option>
+              </select>
+            </div>
+            <div>
+              <label>Nivell</label>
+              <select id="level">
+                <option value="easy">Fàcil</option>
+                <option value="med" selected>Normal</option>
+                <option value="hard">Difícil</option>
+              </select>
+            </div>
+            <div>
+              <label>Nombre de preguntes</label>
+              <input id="numQ" type="number" min="5" max="50" value="10" />
+            </div>
+            <div>
+              <label>Límit de temps (min)</label>
+              <input id="limitMin" type="number" min="0" max="120" value="0" />
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn btn-primary" id="startBtn">Començar</button>
+            <label class="row" style="gap:6px"><input type="checkbox" id="instantFeedback"> <span class="tag">Feedback immediat</span></label>
+          </div>
+
+          <div class="h3" style="margin-top:18px">Carrega conjunt (enllaç o fitxer)</div>
+          <div class="row">
+            <input id="shareUrl" placeholder="Enganxa un enllaç #set=..." />
+            <button class="btn btn-ghost" id="loadShare">Carrega</button>
+          </div>
+          <div class="row">
+            <input id="fileInput" type="file" accept="application/json" />
+            <button class="btn btn-ghost" id="loadFile">Importa JSON</button>
+          </div>
+
+          <div class="chips" style="margin-top:12px">
+            <span class="chip">Autoavaluació</span>
+            <span class="chip">Temporitzador</span>
+            <span class="chip">Exportació CSV</span>
+            <span class="chip">Conjunts personalitzats</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="h2">Indicadors</div>
+          <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="kpi"><span class="tag">Exercicis disponibles</span><strong>4 tipus</strong></div>
+            <div class="kpi"><span class="tag">Mode</span><strong id="modeTag">Alumne</strong></div>
+            <div class="kpi"><span class="tag">Data</span><strong id="today"></strong></div>
+          </div>
+          <p style="margin-top:8px" class="tag">Pots compartir qualsevol conjunt creat en el Mode professor/a amb un enllaç únic.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="viewQuiz" class="card hide">
+      <div class="card-inner">
+        <div class="row" style="justify-content:space-between">
+          <div class="h2" id="quizTitle">Qüestionari</div>
+          <div class="row"><span class="tag">Temps restant:</span> <span class="timer" id="timer">∞</span></div>
+        </div>
+        <div id="progress" class="tag">Pregunta 1/10</div>
+        <div id="qText" class="question">—</div>
+
+        <div id="answerArea"></div>
+
+        <div class="row" style="margin-top:14px">
+          <button class="btn btn-ghost" id="prevBtn">← Anterior</button>
+          <button class="btn btn-primary" id="nextBtn">Següent →</button>
+          <button class="btn btn-ghost" id="finishBtn">Finalitzar</button>
+        </div>
+        <div id="instantBox" class="tag" style="margin-top:10px"></div>
+      </div>
+    </section>
+
+    <!-- REPORT -->
+    <section id="viewReport" class="card hide">
+      <div class="card-inner">
+        <div class="h2">Informe de resultats</div>
+        <div class="row">
+          <div class="kpi"><span class="tag">Encerts</span><strong id="repCorrect">0</strong></div>
+          <div class="kpi"><span class="tag">Percentatge</span><strong id="repPct">0%</strong></div>
+          <div class="kpi"><span class="tag">Temps total</span><strong id="repTime">—</strong></div>
+        </div>
+        <div style="overflow:auto; margin-top:12px">
+          <table id="repTable">
+            <thead><tr><th>#</th><th>Pregunta</th><th>Resposta</th><th>Correcta</th><th>Temps (s)</th><th>Resultat</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn btn-primary" id="exportCSV">Descarrega CSV</button>
+          <button class="btn btn-ghost" id="exportJSON">Descarrega JSON</button>
+          <button class="btn btn-ghost" id="restart">Tornar a l'inici</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEACHER MODE -->
+    <section id="viewTeacher" class="card hide">
+      <div class="card-inner">
+        <div class="h2">Mode professor/a</div>
+        <p class="tag">Protegit per codi d'accés senzill. Per defecte: <strong>fa2025</strong></p>
+        <div id="authBox" class="row"><input id="pass" placeholder="Introdueix el codi"/><button class="btn btn-primary" id="btnAuth">Entrar</button></div>
+        <div id="teacherArea" class="hide">
+          <div class="grid two">
+            <div>
+              <div class="h3">Crea pregunta</div>
+              <div class="grid">
+                <input id="tqText" placeholder="Enunciat de la pregunta"/>
+                <select id="tqType">
+                  <option value="numeric">Resposta numèrica</option>
+                  <option value="mc">Opció múltiple</option>
+                  <option value="tf">Vertader/Fals</option>
+                </select>
+                <input id="tqCorrect" placeholder="Resposta correcta (o 'true'/'false')"/>
+                <input id="tqOptions" placeholder="Opcions (separades per ;) per a tipus múltiple"/>
+                <button class="btn btn-primary" id="addQ">Afegir a la llista</button>
+              </div>
+              <div class="row" style="margin-top:12px">
+                <button class="btn btn-ghost" id="clearQ">Buidar llista</button>
+                <button class="btn btn-ghost" id="previewQ">Previsualitza</button>
+              </div>
+            </div>
+            <div>
+              <div class="h3">Conjunt actual</div>
+              <textarea id="tqList" rows="12" placeholder='Veure/editar JSON del conjunt'></textarea>
+              <div class="row" style="margin-top:10px">
+                <button class="btn btn-primary" id="downloadSet">Descarrega JSON</button>
+                <button class="btn btn-ghost" id="shareSet">Compartir amb enllaç</button>
+              </div>
+              <div class="row" style="margin-top:6px">
+                <button class="btn btn-ghost" id="loadSetToPlay">Juga aquest conjunt</button>
+              </div>
+            </div>
+          </div>
+          <p class="tag" style="margin-top:10px">Format intern: { text, type: 'numeric'|'mc'|'tf', correct, options?:[] }</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">© <span id="year"></span> Focus Academy · FocusQuiz MVP</footer>
+  </main>
+
+<script>
+// ---------- Utils ----------
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const fmt = n => typeof n==='number'? n.toString() : n;
+const today = new Date();
+$('#today').textContent = today.toLocaleDateString('ca-ES');
+$('#year').textContent = today.getFullYear();
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a }
+function toCSV(rows){return rows.map(r=>r.map(x=>`"${String(x).replaceAll('"','""')}"`).join(',')).join('\\n')}
+function base64url(s){return btoa(unescape(encodeURIComponent(s))).replaceAll('+','-').replaceAll('/','_').replaceAll('=','.')}
+function fromBase64url(s){return decodeURIComponent(escape(atob(s.replaceAll('-','+').replaceAll('_','/').replaceAll('.','='))))}
+
+// ---------- State ----------
+let state = {
+  mode:'setup',
+  questions:[],
+  current:0,
+  answers:[],
+  times:[],
+  startTime:null,
+  perQuestionStart:null,
+  limitSec:0,
+  timerId:null,
+  instant:false,
+  customSet:null
+};
+
+function show(view){
+  ['#viewSetup','#viewQuiz','#viewReport','#viewTeacher'].forEach(v=>$(v).classList.add('hide'));
+  $(view).classList.remove('hide');
+}
+
+// ---------- Question generation ----------
+function genArithmetic(level){
+  const ranges={easy:[0,20],med:[-20,50],hard:[-100,100]};
+  const [min,max]=ranges[level]||ranges.med;
+  const ops=['+','-','×','÷'];
+  const op = ops[Math.floor(Math.random()*ops.length)];
+  let a = Math.floor(Math.random()*(max-min+1))+min;
+  let b = Math.floor(Math.random()*(max-min+1))+min;
+  if(op==='÷'){
+    b = Math.floor(Math.random()*19)+2; // 2..20
+    a = b * Math.floor(Math.random()*10); // divisible
+  }
+  const text = `${a} ${op} ${b}`;
+  const correct = op==='+'? a+b : op==='-'? a-b : op==='×'? a*b : a/b;
+  const type = Math.random()<0.5? 'numeric':'mc';
+  let options;
+  if(type==='mc'){
+    const noise = [correct+1, correct-1, correct + (Math.sign(correct) || 1)*2, correct===0? 3 : correct*1.1 ];
+    options = shuffle([correct,...noise.map(x=>Number.isInteger(correct)? Math.round(x): Number(x.toFixed(2)))]).slice(0,4);
+  }
+  return {text, type, correct, options};
+}
+
+function genFractions(level){
+  // Pregunta: simplifica fracció o calcula valor
+  const n = Math.floor(Math.random()*14)+2; // 2..15
+  const d = Math.floor(Math.random()*14)+2;
+  const g = gcd(n,d);
+  const num = n*g, den = d*g; // assegura que es pugui simplificar a n/d
+  const askSimplify = Math.random()<0.6;
+  if(askSimplify){
+    return {text:`Simplifica: ${num}/${den}`, type:'fraction', correct:`${n}/${d}`};
+  } else {
+    const correct = n/d;
+    const type = 'numeric';
+    return {text:`Valor decimal de ${n}/${d} (2 decimals)`, type, correct: Number((correct).toFixed(2))};
+  }
+}
+function gcd(a,b){ while(b){ [a,b]=[b,a%b] } return Math.abs(a) }
+
+function genPercent(level){
+  const base = level==='hard'? Math.floor(Math.random()*900)+100 : Math.floor(Math.random()*90)+10;
+  const p = [5,10,12.5,20,25,30,40,50,60,75][Math.floor(Math.random()*10)];
+  const correct = Number(((p/100)*base).toFixed(2));
+  const type = Math.random()<0.5? 'numeric':'mc';
+  const text = `Quant és ${p}% de ${base}?`;
+  let options;
+  if(type==='mc'){
+    options = shuffle([
+      correct,
+      Number((correct*0.9).toFixed(2)),
+      Number((correct*1.1).toFixed(2)),
+      Number(((p/100)*(base+10)).toFixed(2))
+    ]);
+  }
+  return {text, type, correct, options};
+}
+
+function genCompare(level){
+  const a = Math.floor(Math.random()*50);
+  const b = Math.floor(Math.random()*50);
+  const sign = a===b? '=' : a>b? '>' : '<';
+  return {text:`Tria el signe correcte: ${a} ? ${b}`, type:'mc', correct:sign, options:shuffle(['<','>','='])};
+}
+
+function generateSet(subject, level, n){
+  const gen = subject==='arith'? genArithmetic : subject==='fractions'? genFractions : subject==='percent'? genPercent : genCompare;
+  const set = Array.from({length:n}, ()=> gen(level));
+  return set;
+}
+
+// ---------- Render question ----------
+function renderCurrent(){
+  const q = state.questions[state.current];
+  if(!q) return;
+  $('#progress').textContent = `Pregunta ${state.current+1}/${state.questions.length}`;
+  $('#qText').textContent = q.text;
+  const area = $('#answerArea');
+  area.innerHTML='';
+
+  if(q.type==='mc'){
+    const wrap = document.createElement('div');
+    wrap.className='answers';
+    q.options.forEach((opt,i)=>{
+      const row = document.createElement('label'); row.className='ans';
+      const id = `opt_${i}`;
+      row.innerHTML = `<input type="radio" name="ans" value="${opt}"> <span>${opt}</span>`;
+      wrap.appendChild(row);
+    });
+    area.appendChild(wrap);
+    // restore
+    const saved = state.answers[state.current];
+    if(saved!=null){ $$('input[name="ans"]').forEach(el=>{ if(String(el.value)===String(saved)) el.checked=true; }); }
+  }
+  else {
+    const input = document.createElement('input');
+    input.placeholder = q.type==='fraction'? 'Ex: 3/5' : 'Escriu la resposta…';
+    input.value = state.answers[state.current] ?? '';
+    area.appendChild(input);
+  }
+}
+
+function readAnswer(){
+  const q = state.questions[state.current];
+  if(!q) return null;
+  if(q.type==='mc'){
+    const sel = $$('input[name="ans"]').find(x=>x.checked);
+    return sel? sel.value : '';
+  } else {
+    const val = $('#answerArea input')?.value ?? '';
+    return val.trim();
+  }
+}
+
+function checkAnswer(q, ans){
+  if(ans==='' || ans==null) return false;
+  if(q.type==='mc' || q.type==='tf') return String(ans)===String(q.correct);
+  if(q.type==='numeric') return Number(ans)===Number(q.correct);
+  if(q.type==='fraction'){
+    // Accepta a/b equivalents
+    const m = String(ans).match(/\\s*(\\-?\\d+)\\s*\\/\\s*(\\d+)\\s*/);
+    if(!m) return false;
+    const [_,a,b] = m; return Number(a)/Number(b) === fracToNum(q.correct);
+  }
+  return false;
+}
+function fracToNum(s){
+  if(typeof s==='number') return s; const m = String(s).split('/'); return Number(m[0])/Number(m[1]);
+}
+
+// ---------- Quiz flow ----------
+function startQuizFromSet(set, title){
+  state.questions = set; state.current = 0; state.answers = Array(set.length).fill(''); state.times = Array(set.length).fill(0);
+  state.startTime = Date.now(); state.perQuestionStart = Date.now();
+  $('#quizTitle').textContent = title || 'Qüestionari';
+  $('#progress').textContent = `Pregunta 1/${set.length}`;
+  // timer
+  const min = Number($('#limitMin').value||0); state.limitSec = Math.max(0, Math.floor(min*60));
+  if(state.limitSec>0){ $('#timer').textContent = fmtTime(state.limitSec); startTimer(); } else { $('#timer').textContent='∞' }
+  state.mode='quiz'; show('#viewQuiz'); renderCurrent();
+}
+
+function fmtTime(s){ const m=Math.floor(s/60), r=s%60; return `${m}:${String(r).padStart(2,'0')}` }
+function startTimer(){ clearInterval(state.timerId); let remain = state.limitSec; state.timerId = setInterval(()=>{
+  remain--; $('#timer').textContent = fmtTime(Math.max(0,remain)); if(remain<=0){ clearInterval(state.timerId); finishQuiz(); }
+},1000) }
+
+function next(){ saveTime(); const ans = readAnswer(); state.answers[state.current]=ans; if(state.instant){ showInstant(ans); }
+  if(state.current < state.questions.length-1){ state.current++; state.perQuestionStart = Date.now(); renderCurrent(); }
+}
+function prev(){ saveTime(); const ans = readAnswer(); state.answers[state.current]=ans; if(state.current>0){ state.current--; state.perQuestionStart = Date.now(); renderCurrent(); } }
+function saveTime(){ const now=Date.now(); state.times[state.current]+= Math.round((now-(state.perQuestionStart||now))/1000); state.perQuestionStart=now; }
+
+function showInstant(ans){ const q=state.questions[state.current]; const ok=checkAnswer(q, ans); const box=$('#instantBox'); box.textContent = ok? '✔ Correcte' : `✘ Incorrecte. Resposta: ${q.correct}`; box.style.color = ok? 'var(--ok)' : 'var(--error)'; }
+
+function finishQuiz(){ saveTime(); clearInterval(state.timerId); // grade
+  const rows=[]; let correct=0; for(let i=0;i<state.questions.length;i++){
+    const q=state.questions[i]; const ans=state.answers[i]; const ok=checkAnswer(q, ans); if(ok) correct++;
+    rows.push([i+1, q.text, ans||'—', q.correct, state.times[i], ok? '✔':'✘']);
+  }
+  const pct = Math.round(100*correct/state.questions.length);
+  $('#repCorrect').textContent = `${correct}/${state.questions.length}`;
+  $('#repPct').textContent = `${pct}%`;
+  $('#repTime').textContent = fmtTime(Math.round((Date.now()-state.startTime)/1000));
+  const tbody = $('#repTable tbody'); tbody.innerHTML='';
+  rows.forEach(r=>{
+    const tr=document.createElement('tr'); tr.innerHTML = `<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td class="${r[5]==='✔'?'right':'wrong'}">${r[5]}</td>`; tbody.appendChild(tr);
+  })
+  $('#exportCSV').onclick = ()=>{
+    const csv = toCSV([['#','Pregunta','Resposta','Correcta','Temps (s)','Resultat'], ...rows]);
+    const blob = new Blob([csv],{type:'text/csv'}); const url = URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download=`resultats_${(document.querySelector('#studentName')?.value||'sense_nom').split(' ').join('_')}.csv`; a.click(); URL.revokeObjectURL(url);
+  };
+  $('#exportJSON').onclick = ()=>{
+    const data = {meta:{date:new Date().toISOString(), student: (document.querySelector('#studentName')?.value||null), group: (document.querySelector('#studentGroup')?.value||null)}, rows};
+    const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const url = URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='resultats.json'; a.click(); URL.revokeObjectURL(url);
+  };
+  $('#restart').onclick = ()=>{ state.mode='setup'; show('#viewSetup'); };
+  state.mode='report'; show('#viewReport');
+}
+
+// ---------- Teacher Mode ----------
+let isAuthed = false; const PASS='fa2025';
+$('#btnAuth').addEventListener('click', ()=>{ isAuthed = ($('#pass').value.trim()===PASS); $('#teacherArea').classList.toggle('hide', !isAuthed); if(!isAuthed) alert('Codi incorrecte'); else $('#modeTag').textContent='Professor/a'; });
+
+const emptySet=()=>({ title:'Conjunt personalitzat', items:[] });
+let tSet = emptySet(); refreshTextarea();
+
+function refreshTextarea(){ $('#tqList').value = JSON.stringify(tSet,null,2); }
+
+$('#addQ').addEventListener('click', ()=>{
+  if(!isAuthed) return alert('Entra amb el codi primer.');
+  const text=$('#tqText').value.trim(); const type=$('#tqType').value; const correct=$('#tqCorrect').value.trim();
+  const options = $('#tqOptions').value.trim()? $('#tqOptions').value.split(';').map(s=>s.trim()) : undefined;
+  if(!text || !correct) return alert('Falten camps.');
+  const item={text,type,correct: type==='numeric'? Number(correct): correct}; if(options) item.options=options; tSet.items.push(item); refreshTextarea();
+  $('#tqText').value=''; $('#tqCorrect').value=''; $('#tqOptions').value='';
+});
+$('#clearQ').addEventListener('click', ()=>{ if(confirm('Buidar totes les preguntes?')){ tSet = emptySet(); refreshTextarea(); } });
+$('#previewQ').addEventListener('click', ()=>{ try{ tSet = JSON.parse($('#tqList').value); alert(`Preguntes al conjunt: ${tSet.items.length}`);} catch(e){ alert('JSON invàlid'); } });
+$('#downloadSet').addEventListener('click', ()=>{ const blob=new Blob([JSON.stringify(tSet,null,2)],{type:'application/json'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='conjunt.json'; a.click(); URL.revokeObjectURL(url); });
+$('#shareSet').addEventListener('click', ()=>{ const payload=base64url(JSON.stringify(tSet)); const link=location.origin+location.pathname+`#set=${payload}`; navigator.clipboard.writeText(link).then(()=>alert('Enllaç copiat!')).catch(()=>prompt('Copia aquest enllaç:',link)); });
+$('#loadSetToPlay').addEventListener('click', ()=>{ try{ const parsed=JSON.parse($('#tqList').value); startQuizFromSet(parsed.items, parsed.title); } catch(e){ alert('JSON invàlid'); }});
+
+// ---------- Setup interactions ----------
+$('#startBtn').addEventListener('click', ()=>{
+  state.instant = $('#instantFeedback').checked;
+  const subject=$('#subject').value; const level=$('#level').value; const n=Math.min(50, Math.max(5, Number($('#numQ').value||10)));
+  const set = generateSet(subject, level, n);
+  startQuizFromSet(set, `${labelSubject(subject)} · ${labelLevel(level)}`);
+});
+$('#prevBtn').addEventListener('click', prev);
+$('#nextBtn').addEventListener('click', next);
+$('#finishBtn').addEventListener('click', finishQuiz);
+$('#instantFeedback').addEventListener('change', ()=> state.instant = $('#instantFeedback').checked);
+
+$('#navHome').addEventListener('click', (e)=>{e.preventDefault(); state.mode='setup'; show('#viewSetup');});
+$('#navTeacher').addEventListener('click', (e)=>{e.preventDefault(); state.mode='teacher'; show('#viewTeacher');});
+
+$('#loadShare').addEventListener('click', ()=>{ const url=$('#shareUrl').value.trim(); const m=url.match(/#set=([\\w\\.-_]+)/); if(!m) return alert('No s\\'ha trobat cap #set=...'); try { const json=fromBase64url(m[1]); const obj=JSON.parse(json); startQuizFromSet(obj.items, obj.title); } catch(e){ alert('Enllaç invàlid'); }});
+$('#loadFile').addEventListener('click', ()=>{ const f=$('#fileInput').files[0]; if(!f) return alert('Tria un fitxer JSON'); const r=new FileReader(); r.onload=()=>{ try{ const obj=JSON.parse(r.result); startQuizFromSet(obj.items, obj.title); } catch(e){ alert('JSON invàlid'); } }; r.readAsText(f); });
+
+// Detect #set a l'arrencada
+window.addEventListener('load', ()=>{ const m=location.hash.match(/#set=([\\w\\.-_]+)/); if(m){ try{ const obj=JSON.parse(fromBase64url(m[1])); startQuizFromSet(obj.items, obj.title); } catch(e){ console.warn(e) } } });
+
+function labelSubject(s){ return {arith:'Aritmètica', fractions:'Fraccions', percent:'Percentatges', compare:'Comparacions'}[s]||s }
+function labelLevel(s){ return {easy:'Fàcil', med:'Normal', hard:'Difícil'}[s]||s }
+</script>
+</body>
+</html>
