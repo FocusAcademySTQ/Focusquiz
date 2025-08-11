@@ -1,187 +1,212 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Focus Academy · Matemàtiques (amb dibuixos)</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#0b1020; --panel:#121834; --card:#0f1536; --ink:#eef2ff; --muted:#b9c0e0;
-    --accent:#78d8ff; --accent2:#b9a9ff; --ok:#86efac; --err:#fda4af;
-    --chip-bg:#eef6ff; --chip-ink:#0b1320; --chip-active:#d8ecff; --chip-border:#cfe0ff;
-    --radius:22px; --shadow:0 18px 44px rgba(0,0,0,.35), 0 6px 16px rgba(0,0,0,.25);
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:var(--ink);
-    background:
-      radial-gradient(1000px 700px at 10% -10%, #1b2450, transparent 60%),
-      radial-gradient(900px 600px at 110% 10%, #2c2360, transparent 60%),
-      radial-gradient(1200px 900px at 50% 120%, #20184b, #0b1020 60%);
-  }
-  header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px); background:#0b1020cc; border-bottom:1px solid #ffffff22}
-  .container{max-width:1100px;margin:0 auto;padding:22px}
-  .topbar{display:flex;justify-content:space-between;align-items:center}
-  .brand{display:flex;align-items:center;gap:12px;font-weight:800}
-  .logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow);font-size:22px}
-  .pill{padding:10px 16px;border:1px solid #ffffff1a;border-radius:999px;text-decoration:none}
-  .grid{display:grid;gap:20px}
-  .two{grid-template-columns:1.2fr .8fr}
-  @media (max-width:900px){.two{grid-template-columns:1fr}}
-  .card{background:linear-gradient(180deg,#131a40cc,#0f1538cc);border:1px solid #ffffff1a;border-radius:var(--radius);box-shadow:var(--shadow)}
-  .card-inner{padding:22px}
-  h1{font-size:clamp(30px,4vw,48px);margin:8px 0 10px}
-  h2{font-size:clamp(22px,3vw,28px);margin:0 0 12px}
-  .hint{color:var(--muted)}
-  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
-  input,select{width:100%;padding:12px 14px;border-radius:14px;border:1px solid #ffffff22;background:#0f1536;color:var(--ink);outline:none}
-  input:focus,select:focus{box-shadow:0 0 0 6px #8bd9ff25; border-color:#8bd9ff80}
-  .btn{border:none;border-radius:14px;padding:12px 18px;font-weight:800;cursor:pointer;transition:transform .15s, filter .15s; color:#0b1020}
-  .btn:hover{filter:brightness(1.06); transform:translateY(-1px)}
-  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2))}
-  .btn-ghost{background:#ffffff14;color:var(--ink)}
-  .chips{display:flex;gap:10px;flex-wrap:wrap}
-  .chip{
-    appearance:none; border:1px solid var(--chip-border); background:var(--chip-bg); color:var(--chip-ink);
-    padding:10px 14px; border-radius:999px; cursor:pointer; font-weight:700; letter-spacing:.1px;
-    box-shadow:0 2px 0 #0000001a; transition:transform .12s, box-shadow .12s, background .12s;
-  }
-  .chip:hover{transform:translateY(-1px); box-shadow:0 6px 12px #00000022}
-  .chip.active{background:var(--chip-active); outline:3px solid #7dd3fc66}
-  .question{font-size:26px;font-weight:800;margin:12px 0}
-  .answers{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-  .ans{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid #ffffff22;border-radius:14px;background:#0f1536}
-  .progress-wrap{height:12px;background:#ffffff25;border-radius:999px;overflow:hidden}
-  .progress{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .25s}
-  table{width:100%;border-collapse:collapse}
-  th,td{border-bottom:1px solid #ffffff22;padding:10px;text-align:left}
-  .ok{color:var(--ok);font-weight:800}
-  .bad{color:var(--err);font-weight:800}
-  .figureBox{background:#0b1236;border:1px solid #ffffff22;border-radius:14px; padding:10px; margin:10px 0}
-  .svgLabel{font-size:12px; fill:#e6f0ff}
-  .footer{opacity:.7;border-top:1px solid #ffffff22;padding:18px 0;margin-top:24px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Focus Academy Quiz — Estètica millorada</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121834; --card:#0f1536; --ink:#eef2ff; --muted:#b9c0e0;
+      --accent:#78d8ff; --accent2:#b9a9ff; --ok:#86efac; --err:#fda4af; --warn:#fde68a;
+      --chip-bg:#eef6ff; --chip-ink:#0b1320; --chip-active:#d8ecff; --chip-border:#cfe0ff;
+      --radius:22px; --shadow:0 18px 44px rgba(0,0,0,.35), 0 6px 16px rgba(0,0,0,.25);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1000px 700px at 10% -10%, #1b2450, transparent 60%),
+        radial-gradient(900px 600px at 110% 10%, #2c2360, transparent 60%),
+        radial-gradient(1200px 900px at 50% 120%, #20184b, #0b1020 60%);
+    }
+
+    /* Topbar */
+    header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px); background:#0b1020cc; border-bottom:1px solid #ffffff22}
+    .container{max-width:1100px;margin:0 auto;padding:22px}
+    .topbar{display:flex;justify-content:space-between;align-items:center}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800}
+    .logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow);font-size:22px}
+    .pill{padding:10px 16px;border:1px solid #ffffff1a;border-radius:999px;text-decoration:none}
+
+    /* Cards & layout */
+    .grid{display:grid;gap:20px}
+    .two{grid-template-columns:1.2fr .8fr}
+    @media (max-width:900px){.two{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg,#131a40cc,#0f1538cc);border:1px solid #ffffff1a;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card-inner{padding:22px}
+    h1{font-size:clamp(30px,4vw,48px);margin:8px 0 10px;letter-spacing:.2px}
+    h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+    h2{font-size:clamp(22px,3vw,28px);margin:0 0 12px}
+    .hint{color:var(--muted)}
+
+    /* Inputs + selects */
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    input,select{width:100%;padding:12px 14px;border-radius:14px;border:1px solid #ffffff22;background:#0f1536;color:var(--ink);outline:none}
+    input:focus, select:focus{box-shadow:0 0 0 6px #8bd9ff25; border-color:#8bd9ff80}
+
+    /* Buttons */
+    .btn{border:none;border-radius:14px;padding:12px 18px;font-weight:800;cursor:pointer;transition:transform .15s, filter .15s; color:#0b1020}
+    .btn:hover{filter:brightness(1.06); transform:translateY(-1px)}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+    .btn-ghost{background:#ffffff14;color:var(--ink)}
+
+    /* Chips (temes) — CLARES i llegibles */
+    .chips{display:flex;gap:10px;flex-wrap:wrap}
+    .chip{
+      appearance:none; border:1px solid var(--chip-border); background:var(--chip-bg); color:var(--chip-ink);
+      padding:10px 14px; border-radius:999px; cursor:pointer; font-weight:700; letter-spacing:.1px;
+      box-shadow:0 2px 0 #0000001a;
+      transition:transform .12s, box-shadow .12s, background .12s;
+    }
+    .chip:hover{transform:translateY(-1px); box-shadow:0 6px 12px #00000022}
+    .chip.active{background:var(--chip-active); outline:3px solid #7dd3fc66}
+    .chip:focus-visible{outline:4px solid #7dd3fc88}
+
+    /* Quiz */
+    .question{font-size:26px;font-weight:800;margin:12px 0}
+    .answers{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+    .ans{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid #ffffff22;border-radius:14px;background:#0f1536;transition:border-color .12s, background .12s}
+    .ans:hover{background:#141b48}
+    .ans input[type="radio"]{transform:scale(1.15)}
+    .ans.selected{border-color:#8bd9ff80; background:#141b48}
+
+    .progress-wrap{height:12px;background:#ffffff25;border-radius:999px;overflow:hidden}
+    .progress{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .25s}
+
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #ffffff22;padding:10px;text-align:left}
+    .ok{color:var(--ok);font-weight:800}
+    .bad{color:var(--err);font-weight:800}
+
+    .footer{opacity:.7;border-top:1px solid #ffffff22;padding:18px 0;margin-top:24px}
+
+    /* Motion respect */
+    @media (prefers-reduced-motion: reduce){
+      .btn, .chip, .progress{transition:none}
+    }
+  </style>
 </head>
 <body>
-<header>
-  <div class="container topbar">
-    <div class="brand"><div class="logo">🎓</div><div>Focus Academy · Matemàtiques</div></div>
-    <nav><a class="pill" href="#" id="goSetup">Configuració</a></nav>
-  </div>
-</header>
+  <header>
+    <div class="container topbar">
+      <div class="brand"><div class="logo">🎓</div><div>Focus Academy Quiz</div></div>
+      <nav><a class="pill" href="#" id="goSetup">Configuració</a></nav>
+    </div>
+  </header>
 
-<main class="container">
-  <!-- SETUP -->
-  <section id="viewSetup" class="grid two">
-    <div class="card">
+  <main class="container">
+    <!-- SETUP -->
+    <section id="viewSetup" class="grid two">
+      <div class="card">
+        <div class="card-inner">
+          <h1><span class="grad">Configura</span> el teu examen</h1>
+          <p class="hint">1) Assignatura → 2) Tema(s) → 3) Nivell → 4) Nº de preguntes</p>
+
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:8px">
+            <div>
+              <label>Assignatura</label>
+              <select id="subject">
+                <option value="mates" selected>Matemàtiques</option>
+                <option value="cat">Llengua catalana</option>
+                <option value="nat">Ciències naturals</option>
+                <option value="soc">Ciències socials</option>
+              </select>
+            </div>
+            <div>
+              <label>Nivell</label>
+              <select id="level">
+                <option value="easy">Fàcil</option>
+                <option value="med" selected>Normal</option>
+                <option value="hard">Difícil</option>
+              </select>
+            </div>
+            <div>
+              <label>Nombre de preguntes</label>
+              <input id="numQ" type="number" min="5" max="50" value="10">
+            </div>
+            <div>
+              <label>Feedback immediat</label>
+              <select id="instant">
+                <option value="on" selected>Activat</option>
+                <option value="off">Desactivat</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:16px">
+            <label>Temes</label>
+            <div id="topics" class="chips"></div>
+            <div class="hint" id="topicsHint" style="margin-top:6px">Selecciona 1 o més temes.</div>
+          </div>
+
+          <div style="margin-top:16px">
+            <button class="btn btn-primary" id="startBtn">Començar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <h2>Indicadors</h2>
+          <div class="grid" style="grid-template-columns:repeat(3,1fr)">
+            <div><div class="hint">Data</div><div style="font-weight:800" id="today"></div></div>
+            <div><div class="hint">Mode</div><div style="font-weight:800" id="modeTag">Alumne</div></div>
+            <div><div class="hint">Versió</div><div style="font-weight:800">MVP</div></div>
+          </div>
+          <p class="hint" style="margin-top:10px">Estètica millorada: xips clares, contrast alt, focus visible i interaccions suaus.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="viewQuiz" class="card" hidden>
       <div class="card-inner">
-        <h1>Configura l’examen</h1>
-        <p class="hint">Tria bloc → subtema → nivell → nº de preguntes</p>
-
-        <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:8px">
-          <div>
-            <label>Bloc</label>
-            <select id="block">
-              <option value="arith" selected>Aritmètica</option>
-              <option value="areas">Àrees</option>
-              <option value="perims">Perímetres</option>
-              <option value="fracs">Fraccions</option>
-            </select>
-          </div>
-          <div>
-            <label>Nivell</label>
-            <select id="level">
-              <option value="easy">Fàcil</option>
-              <option value="med" selected>Normal</option>
-              <option value="hard">Difícil</option>
-            </select>
-          </div>
-          <div>
-            <label>Nombre de preguntes</label>
-            <input id="numQ" type="number" min="5" max="40" value="10">
-          </div>
-          <div>
-            <label>Feedback immediat</label>
-            <select id="instant">
-              <option value="on" selected>Activat</option>
-              <option value="off">Desactivat</option>
-            </select>
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h2 id="quizTitle">Qüestionari</h2>
+          <div class="hint" id="progressText">Pregunta 1/10</div>
         </div>
+        <div class="progress-wrap" style="margin:8px 0 12px"><div id="progressBar" class="progress"></div></div>
 
-        <div style="margin-top:16px">
-          <label>Subtemes</label>
-          <div id="topics" class="chips"></div>
-          <div class="hint" style="margin-top:6px">Pots seleccionar 1 o més subtemes.</div>
-        </div>
+        <div id="qText" class="question">—</div>
+        <div id="answerArea"></div>
 
-        <div style="margin-top:16px">
-          <button class="btn btn-primary" id="startBtn">Començar</button>
+        <div class="chips" style="margin-top:14px">
+          <button class="btn btn-ghost" id="prevBtn">← Anterior</button>
+          <button class="btn btn-primary" id="nextBtn">Següent →</button>
+          <button class="btn btn-ghost" id="finishBtn">Finalitzar</button>
         </div>
+        <div id="instantBox" class="hint" style="margin-top:10px"></div>
       </div>
-    </div>
+    </section>
 
-    <div class="card">
+    <!-- REPORT -->
+    <section id="viewReport" class="card" hidden>
       <div class="card-inner">
-        <h2>Indicadors</h2>
-        <div class="grid" style="grid-template-columns:repeat(3,1fr)">
-          <div><div class="hint">Data</div><div style="font-weight:800" id="today"></div></div>
-          <div><div class="hint">Mode</div><div style="font-weight:800" id="modeTag">Alumne</div></div>
-          <div><div class="hint">Versió</div><div style="font-weight:800">MVP</div></div>
+        <h2>Correcció i resultats</h2>
+        <div class="chips" style="margin-bottom:10px">
+          <div><span class="hint">Encerts</span> <strong id="repCorrect">0</strong></div>
+          <div><span class="hint">Percentatge</span> <strong id="repPct">0%</strong></div>
+          <div><span class="hint">Temps total</span> <strong id="repTime">—</strong></div>
         </div>
-        <p class="hint" style="margin-top:10px">A Àrees i Perímetres es mostra la figura amb mesures (SVG).</p>
+        <div style="overflow:auto">
+          <table id="repTable">
+            <thead><tr><th>#</th><th>Pregunta</th><th>Resposta</th><th>Correcta</th><th>Temps (s)</th><th>Resultat</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="chips" style="margin-top:14px">
+          <button class="btn btn-primary" id="retryWrong">Practicar només errònies</button>
+          <button class="btn btn-ghost" id="restart">Tornar a la configuració</button>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- QUIZ -->
-  <section id="viewQuiz" class="card" hidden>
-    <div class="card-inner">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <h2 id="quizTitle">Qüestionari</h2>
-        <div class="hint" id="progressText">Pregunta 1/10</div>
-      </div>
-      <div class="progress-wrap" style="margin:8px 0 12px"><div id="progressBar" class="progress"></div></div>
-
-      <div id="figureArea" class="figureBox" style="display:none"></div>
-      <div id="qText" class="question">—</div>
-      <div id="answerArea"></div>
-
-      <div class="chips" style="margin-top:14px">
-        <button class="btn btn-ghost" id="prevBtn">← Anterior</button>
-        <button class="btn btn-primary" id="nextBtn">Següent →</button>
-        <button class="btn btn-ghost" id="finishBtn">Finalitzar</button>
-      </div>
-      <div id="instantBox" class="hint" style="margin-top:10px"></div>
-    </div>
-  </section>
-
-  <!-- REPORT -->
-  <section id="viewReport" class="card" hidden>
-    <div class="card-inner">
-      <h2>Correcció i resultats</h2>
-      <div class="chips" style="margin-bottom:10px">
-        <div><span class="hint">Encerts</span> <strong id="repCorrect">0</strong></div>
-        <div><span class="hint">Percentatge</span> <strong id="repPct">0%</strong></div>
-        <div><span class="hint">Temps total</span> <strong id="repTime">—</strong></div>
-      </div>
-      <div style="overflow:auto">
-        <table id="repTable">
-          <thead><tr><th>#</th><th>Pregunta</th><th>Resposta</th><th>Correcta</th><th>Temps (s)</th><th>Resultat</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="chips" style="margin-top:14px">
-        <button class="btn btn-ghost" id="restart">Tornar a la configuració</button>
-      </div>
-    </div>
-  </section>
-
-  <footer class="footer">© <span id="year"></span> Focus Academy</footer>
-</main>
+    <footer class="footer">© <span id="year"></span> Focus Academy</footer>
+  </main>
 
 <script>
 /* ========= Utils ========= */
@@ -190,16 +215,14 @@ const $$ = s => Array.from(document.querySelectorAll(s));
 const today = new Date();
 $('#today').textContent = today.toLocaleDateString('ca-ES');
 $('#year').textContent = today.getFullYear();
-const PI = Math.PI;
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
-function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
 function fmtTime(s){ const m=Math.floor(s/60), r=s%60; return `${m}:${String(r).padStart(2,'0')}` }
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
 
 /* ========= Estat ========= */
 let state = {
-  block: 'arith',
-  topics: new Set(),
+  subject: 'mates',
+  topics: new Set(['mix']),
   level: 'med',
   n: 10,
   instant: true,
@@ -208,302 +231,127 @@ let state = {
   answers: [],
   times: [],
   startTime: null,
-  perQStart: null
+  perQStart: null,
+  lastResultRows: []
 };
 
-/* ========= Menú de subtemes per bloc ========= */
-const TOPICS = {
-  arith: [
-    {id:'sum', label:'Sumes ➕'},
-    {id:'sub', label:'Restes ➖'},
-    {id:'mul', label:'Multiplicació ✖'},
-    {id:'div', label:'Divisió ÷'},
-    {id:'mix', label:'Barrejat 🎲'}
-  ],
-  areas: [
-    {id:'circle', label:'Cercles'},
-    {id:'square', label:'Quadrats'},
-    {id:'tri', label:'Triangles'},
-    {id:'mix', label:'Barrejat 🎲'}
-  ],
-  perims: [
-    {id:'circle', label:'Cercles'},
-    {id:'square', label:'Quadrats'},
-    {id:'tri', label:'Triangles'},
-    {id:'irreg', label:'Figures irregulars'},
-    {id:'mix', label:'Barrejat 🎲'}
-  ],
-  fracs: [
-    {id:'fadd', label:'Suma'},
-    {id:'fsub', label:'Resta'},
-    {id:'fmul', label:'Multiplicació'},
-    {id:'fdiv', label:'Divisió'},
-    {id:'fcomp', label:'Comparació'},
-    {id:'mix', label:'Barrejat 🎲'}
-  ]
+/* ========= Assignatures i temes ========= */
+const SUBJECTS = {
+  mates: {
+    label: 'Matemàtiques',
+    topics: [
+      {id:'sum', label:'Sumes (+)'},
+      {id:'sub', label:'Restes (−)'},
+      {id:'mul', label:'Multiplicacions (×)'},
+      {id:'div', label:'Divisions (÷)'},
+      {id:'mix', label:'Barrejat'}
+    ]
+  },
+  cat: {
+    label: 'Llengua catalana',
+    topics: [
+      {id:'ort', label:'Ortografia'},
+      {id:'morf', label:'Morfologia'},
+      {id:'sint', label:'Sintaxi'},
+      {id:'comp', label:'Comprensió lectora'},
+      {id:'mix', label:'Barrejat'}
+    ]
+  },
+  nat: {
+    label: 'Ciències naturals',
+    topics: [
+      {id:'cells', label:'Cèl·lules'},
+      {id:'aparells', label:'Aparells i sistemes'},
+      {id:'gen', label:'Genètica bàsica'},
+      {id:'eco', label:'Ecosistemes'},
+      {id:'mix', label:'Barrejat'}
+    ]
+  },
+  soc: {
+    label: 'Ciències socials',
+    topics: [
+      {id:'hist', label:'Edats de la història'},
+      {id:'geoF', label:'Geografia física'},
+      {id:'geoH', label:'Geografia humana'},
+      {id:'catCont', label:'Catalunya contemporània'},
+      {id:'mix', label:'Barrejat'}
+    ]
+  }
 };
 
 function renderTopics(){
-  const block = $('#block').value;
-  const box = $('#topics'); box.innerHTML='';
-  (TOPICS[block]||[]).forEach(t=>{
-    const b = document.createElement('button');
-    b.className='chip'; b.textContent = t.label; b.dataset.id=t.id;
-    b.onclick = ()=>{ const id=t.id; if(state.topics.has(id)) state.topics.delete(id); else state.topics.add(id); b.classList.toggle('active'); };
-    box.appendChild(b);
+  const sub = $('#subject').value;
+  const box = $('#topics'); box.innerHTML = '';
+  SUBJECTS[sub].topics.forEach(t=>{
+    const chip = document.createElement('button');
+    chip.type='button'; chip.className='chip'; chip.textContent=t.label; chip.dataset.id=t.id;
+    if(state.topics.has(t.id)) chip.classList.add('active');
+    chip.addEventListener('click', ()=>{
+      if(state.topics.has(t.id)) state.topics.delete(t.id); else state.topics.add(t.id);
+      chip.classList.toggle('active');
+    });
+    box.appendChild(chip);
   });
-  // per defecte “mix”
-  state.topics = new Set(['mix']);
-  $$('#topics .chip').forEach(c=>{ if(c.dataset.id==='mix') c.classList.add('active'); });
 }
-$('#block').addEventListener('change', renderTopics);
+$('#subject').addEventListener('change', ()=>{ state.topics=new Set(['mix']); renderTopics(); });
 renderTopics();
 
-/* ========= Rang per nivell ========= */
-const R = {
-  arith: {easy:[0,20], med:[-20,50], hard:[-100,100]},
-  mul:   {easy:[0,12], med:[-12,20], hard:[-20,30]},
-  divd:  {easy:[2,12], med:[2,20],   hard:[2,30]},
-  fracN: {easy:[1,9],  med:[2,15],   hard:[3,20]},
-  fracD: {easy:[2,12], med:[3,18],   hard:[4,24]},
-  len:   {easy:[2,8],  med:[3,12],   hard:[5,20]},   // cm (per dibuixos)
-  triH:  {easy:[2,6],  med:[3,10],   hard:[4,14]}
-};
+/* ========= Generadors ========= */
+function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
 
-/* ========= Generadors (Aritmètica) ========= */
-function genArith(level, op){
-  let a,b;
-  if(op==='÷'){
-    const d = randInt(...R.divd[level]); const k = randInt(1,10);
-    a = d * k; b = d;
-  } else if(op==='×'){
-    a = randInt(...R.mul[level]); b = randInt(...R.mul[level]);
-  } else {
-    a = randInt(...R.arith[level]); b = randInt(...R.arith[level]);
-  }
+function genArithmeticOne(level, topic){
+  const ranges={easy:[0,20],med:[-20,50],hard:[-100,100]};
+  const [min,max]=ranges[level]||ranges.med;
+  let opList = [];
+  if(topic==='mix') opList=['+','-','×','÷'];
+  else if(topic==='sum') opList=['+'];
+  else if(topic==='sub') opList=['-'];
+  else if(topic==='mul') opList=['×'];
+  else if(topic==='div') opList=['÷'];
+  const op = pick(opList);
+  let a = randInt(min,max);
+  let b = randInt(min,max);
+  if(op==='÷'){ b = randInt(2,20); a = b * randInt(0,10); }
   const text = `${a} ${op} ${b}`;
   const correct = op==='+'? a+b : op==='-'? a-b : op==='×'? a*b : a/b;
-  return makeQuestion({text, correct, type:pick(['numeric','mc'])}, null);
-}
-
-/* ========= Generadors (Àrees) amb dibuix ========= */
-function genAreaCircle(level){
-  const r = randInt(...R.len[level]);
-  const correct = Number((PI*r*r).toFixed(2));
-  const text = `Àrea del cercle de radi r=${r} cm (π≈${PI.toFixed(2)}). Resposta amb 2 decimals.`;
-  const svg = drawCircle(r, true);
-  return makeQuestion({text, correct, type:'numeric'}, svg);
-}
-function genAreaSquare(level){
-  const s = randInt(...R.len[level]);
-  const correct = s*s;
-  const text = `Àrea del quadrat de costat s=${s} cm.`;
-  const svg = drawSquare(s, true);
-  return makeQuestion({text, correct, type:pick(['numeric','mc'])}, svg);
-}
-function genAreaTriangle(level){
-  const b = randInt(...R.len[level]);
-  const h = randInt(...R.triH[level]);
-  const correct = Number(((b*h)/2).toFixed(2));
-  const text = `Àrea del triangle de base b=${b} cm i alçada h=${h} cm. (A = b·h/2)`;
-  const svg = drawTriangle(b,h,true);
-  return makeQuestion({text, correct, type:'numeric'}, svg);
-}
-
-/* ========= Generadors (Perímetres) amb dibuix ========= */
-function genPeriCircle(level){
-  const r = randInt(...R.len[level]);
-  const correct = Number((2*PI*r).toFixed(2));
-  const text = `Perímetre (circumferència) del cercle de radi r=${r} cm (π≈${PI.toFixed(2)}). 2 decimals.`;
-  const svg = drawCircle(r, false);
-  return makeQuestion({text, correct, type:'numeric'}, svg);
-}
-function genPeriSquare(level){
-  const s = randInt(...R.len[level]);
-  const correct = 4*s;
-  const text = `Perímetre del quadrat de costat s=${s} cm.`;
-  const svg = drawSquare(s, false);
-  return makeQuestion({text, correct, type:pick(['numeric','mc'])}, svg);
-}
-function genPeriTriangle(level){
-  const a = randInt(...R.len[level]);
-  const b = randInt(...R.len[level]);
-  const c = Math.min(a+b-1, randInt(...R.len[level])); // assegura desigualtat triangular simple
-  const correct = a+b+c;
-  const text = `Perímetre del triangle amb costats a=${a} cm, b=${b} cm, c=${c} cm.`;
-  const svg = drawTrianglePerim(a,b,c);
-  return makeQuestion({text, correct, type:'numeric'}, svg);
-}
-function genPeriIrregular(level){
-  // Polígon ortogonal simple (rectangle + L)
-  const s1=randInt(...R.len[level]), s2=randInt(...R.len[level]), s3=randInt(...R.len[level]), s4=randInt(...R.len[level]);
-  // Perímetre com suma dels segments marcats
-  const sides = [s1,s2,s3,s4, s1, s2, s3, s4]; // 8 costats
-  const correct = sides.reduce((a,b)=>a+b,0);
-  const text = `Perímetre de la figura irregular (segments en cm). Suma tots els costats.`;
-  const svg = drawIrregular(s1,s2,s3,s4);
-  return makeQuestion({text, correct, type:'numeric'}, svg);
-}
-
-/* ========= Generadors (Fraccions) ========= */
-function simp(a,b){ const g=gcd(a,b); return [a/g,b/g]; }
-function gcd(a,b){ while(b){ [a,b]=[b,a%b] } return Math.abs(a) }
-function genFracAdd(level){
-  let a=randInt(...R.fracN[level]), b=randInt(...R.fracD[level]);
-  let c=randInt(...R.fracN[level]), d=randInt(...R.fracD[level]);
-  const num = a*d + c*b, den = b*d; const [n2,d2]=simp(num,den);
-  const text = `Simplifica: ${a}/${b} + ${c}/${d}`;
-  return makeQuestion({text, correct:`${n2}/${d2}`, type:'numeric'}, null, 'fraction');
-}
-function genFracSub(level){
-  let a=randInt(...R.fracN[level]), b=randInt(...R.fracD[level]);
-  let c=randInt(...R.fracN[level]), d=randInt(...R.fracD[level]);
-  const num = a*d - c*b, den = b*d; const sign = Math.sign(num)||1;
-  const [n2,d2]=simp(Math.abs(num),den); const ans = (sign<0?'-':'')+`${n2}/${d2}`;
-  const text = `Simplifica: ${a}/${b} − ${c}/${d}`;
-  return makeQuestion({text, correct:ans, type:'numeric'}, null, 'fraction');
-}
-function genFracMul(level){
-  let a=randInt(...R.fracN[level]), b=randInt(...R.fracD[level]);
-  let c=randInt(...R.fracN[level]), d=randInt(...R.fracD[level]);
-  const [n2,d2]=simp(a*c,b*d);
-  const text = `Simplifica: ${a}/${b} × ${c}/${d}`;
-  return makeQuestion({text, correct:`${n2}/${d2}`, type:'numeric'}, null, 'fraction');
-}
-function genFracDiv(level){
-  let a=randInt(...R.fracN[level]), b=randInt(...R.fracD[level]);
-  let c=randInt(...R.fracN[level]), d=randInt(...R.fracD[level]);
-  const [n2,d2]=simp(a*d,b*c);
-  const text = `Simplifica: ${a}/${b} ÷ ${c}/${d}`;
-  return makeQuestion({text, correct:`${n2}/${d2}`, type:'numeric'}, null, 'fraction');
-}
-function genFracComp(level){
-  let a=randInt(...R.fracN[level]), b=randInt(...R.fracD[level]);
-  let c=randInt(...R.fracN[level]), d=randInt(...R.fracD[level]);
-  const va=a/b, vb=c/d; const sign = Math.abs(va-vb)<1e-9? '=' : (va>vb? '>' : '<');
-  const text = `Tria el signe correcte: ${a}/${b} ? ${c}/${d}`;
-  return makeQuestion({text, correct:sign, type:'mc', options:['<','>','=']}, null);
-}
-
-/* ========= Dibuix SVG (figures) ========= */
-function drawCircle(r, showArea){
-  const px = 6; const Rpx = Math.max(20, Math.min(70, r*px));
-  const size = 220, cx=110, cy=110;
-  const svg = `
-  <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-    <circle cx="${cx}" cy="${cy}" r="${Rpx}" fill="#1b2b7a" stroke="#9fb6ff" stroke-width="2"/>
-    <line x1="${cx}" y1="${cy}" x2="${cx+Rpx}" y2="${cy}" stroke="#e6f0ff" stroke-dasharray="4 3"/>
-    <text x="${cx + Rpx/2}" y="${cy-6}" class="svgLabel" text-anchor="middle">r=${r}cm</text>
-    <text x="${cx}" y="${cy+Rpx+16}" class="svgLabel" text-anchor="middle">${showArea?'A=πr²':'P=2πr'}</text>
-  </svg>`;
-  return svg;
-}
-function drawSquare(s, showArea){
-  const px=10; const L=Math.max(40, Math.min(120, s*px));
-  const x=50,y=40; const svg=`
-  <svg width="240" height="200" viewBox="0 0 240 200">
-    <rect x="${x}" y="${y}" width="${L}" height="${L}" fill="#18306d" stroke="#9fb6ff" stroke-width="2"/>
-    <line x1="${x}" y1="${y+L+10}" x2="${x+L}" y2="${y+L+10}" stroke="#e6f0ff" />
-    <text x="${x+L/2}" y="${y+L+26}" class="svgLabel" text-anchor="middle">s=${s}cm</text>
-    <text x="${x+L/2}" y="${y-10}" class="svgLabel" text-anchor="middle">${showArea?'A=s²':'P=4s'}</text>
-  </svg>`;
-  return svg;
-}
-function drawTriangle(b,h, showArea){
-  const scale=10;
-  const B=Math.max(50, Math.min(160, b*scale/2)); // escala suau
-  const x=40,y=150;
-  // triangle base horitzontal, alçada vertical puntejada
-  const svg=`
-  <svg width="260" height="200" viewBox="0 0 260 200">
-    <polygon points="${x},${y} ${x+B},${y} ${x+B/2},${y - Math.max(40, h*6)}" fill="#13285f" stroke="#9fb6ff" stroke-width="2"/>
-    <line x1="${x}" y1="${y}" x2="${x+B}" y2="${y}" stroke="#e6f0ff"/>
-    <text x="${x+B/2}" y="${y+16}" class="svgLabel" text-anchor="middle">b=${b}cm</text>
-    <line x1="${x+B/2}" y1="${y}" x2="${x+B/2}" y2="${y - Math.max(40, h*6)}" stroke="#e6f0ff" stroke-dasharray="4 3"/>
-    <text x="${x+B/2+12}" y="${y - Math.max(40, h*6)/2}" class="svgLabel">h=${h}cm</text>
-    <text x="${x+B/2}" y="${y- Math.max(40, h*6)-10}" class="svgLabel" text-anchor="middle">${showArea?'A=b·h/2':'P= a+b+c'}</text>
-  </svg>`;
-  return svg;
-}
-function drawTrianglePerim(a,b,c){
-  // Dibuix estilitzat; etiquetem a,b,c
-  const x=30,y=150; const A=100,B=160; // punts fixes per simplicitat
-  const svg=`
-  <svg width="280" height="200" viewBox="0 0 280 200">
-    <polygon points="${x},${y} ${x+B},${y} ${x+90},${y-90}" fill="#13285f" stroke="#9fb6ff" stroke-width="2"/>
-    <text x="${x+45}" y="${y+16}" class="svgLabel">a=${a}cm</text>
-    <text x="${x+B-45}" y="${y+16}" class="svgLabel">b=${b}cm</text>
-    <text x="${x+92}" y="${y-50}" class="svgLabel">c=${c}cm</text>
-  </svg>`;
-  return svg;
-}
-function drawIrregular(s1,s2,s3,s4){
-  // Figura ortogonal (L) amb 8 costats etiquetats
-  const x=40,y=40; const w=80, h=60;
-  const svg=`
-  <svg width="300" height="200" viewBox="0 0 300 200">
-    <path d="M ${x} ${y} h ${w} v ${h} h ${w/2} v ${h} h ${-w*1.5} Z" fill="#10265a" stroke="#9fb6ff" stroke-width="2"/>
-    <text x="${x+w/2}" y="${y-6}" class="svgLabel">${s1}cm</text>
-    <text x="${x+w+20}" y="${y+h/2}" class="svgLabel" transform="rotate(90, ${x+w+20}, ${y+h/2})">${s2}cm</text>
-    <text x="${x+w+ w/4}" y="${y+h+h+16}" class="svgLabel">${s3}cm</text>
-    <text x="${x-10}" y="${y+h+ h/2}" class="svgLabel" transform="rotate(90, ${x-10}, ${y+h+h/2})">${s4}cm</text>
-  </svg>`;
-  return svg;
-}
-
-/* ========= Embolcall de pregunta ========= */
-function makeQuestion({text, correct, type, options}, svgHTML, kind){
-  // type: 'numeric' o 'mc'; kind pot ser 'fraction' per validar a/b
-  let opts = options;
-  if(type==='mc' && !options){
-    const noise = [
-      Number((Number(correct)*1.1).toFixed(2)),
-      Number((Number(correct)*0.9).toFixed(2)),
-      Number((Number(correct)+2).toFixed(2))
-    ];
-    opts = shuffle([correct, ...noise]).slice(0,4);
+  const type = Math.random()<0.5? 'numeric':'mc';
+  let options;
+  if(type==='mc'){
+    const noise = [correct+1, correct-1, correct + (Math.sign(correct)||1)*2, correct===0? 3 : Number((correct*1.1).toFixed(2))];
+    options = shuffle([correct, ...noise]).slice(0,4);
   }
-  return { text, correct, type, options:opts, svg:svgHTML||null, kind:kind||null };
+  return {subject:'mates', topic, text, type, correct, options};
 }
 
-/* ========= Generador global segons bloc/subtema ========= */
-function genOne(block, topic, level){
-  if(block==='arith'){
-    if(topic==='mix') topic = pick(['sum','sub','mul','div']);
-    const map = {sum:'+', sub:'-', mul:'×', div:'÷'};
-    return genArith(level, map[topic]||'+');
-  }
-  if(block==='areas'){
-    if(topic==='mix') topic = pick(['circle','square','tri']);
-    if(topic==='circle') return genAreaCircle(level);
-    if(topic==='square') return genAreaSquare(level);
-    if(topic==='tri')    return genAreaTriangle(level);
-  }
-  if(block==='perims'){
-    if(topic==='mix') topic = pick(['circle','square','tri','irreg']);
-    if(topic==='circle') return genPeriCircle(level);
-    if(topic==='square') return genPeriSquare(level);
-    if(topic==='tri')    return genPeriTriangle(level);
-    if(topic==='irreg')  return genPeriIrregular(level);
-  }
-  if(block==='fracs'){
-    if(topic==='mix') topic = pick(['fadd','fsub','fmul','fdiv','fcomp']);
-    if(topic==='fadd')  return genFracAdd(level);
-    if(topic==='fsub')  return genFracSub(level);
-    if(topic==='fmul')  return genFracMul(level);
-    if(topic==='fdiv')  return genFracDiv(level);
-    if(topic==='fcomp') return genFracComp(level);
-  }
-  // fallback
-  return genArith(level,'+');
+/* Placeholders ràpids per altres matèries (test senzill) */
+function genPlaceholderQ(subject, topic){
+  const bank = {
+    cat: [
+      {text:'"vaig anar" porta accent a "vaig"?', correct:'Fals', options:['Vertader','Fals']},
+      {text:'"ràpid" és un adverbi en "corren ràpid".', correct:'Vertader', options:['Vertader','Fals']},
+    ],
+    nat: [
+      {text:'La mitocòndria participa en la respiració cel·lular.', correct:'Vertader', options:['Vertader','Fals']},
+      {text:'Els pulmons formen part de l’aparell digestiu.', correct:'Fals', options:['Vertader','Fals']},
+    ],
+    soc: [
+      {text:'La Prehistòria acaba amb la invenció de l’escriptura.', correct:'Vertader', options:['Vertader','Fals']},
+      {text:'Els rius són geografia humana.', correct:'Fals', options:['Vertader','Fals']},
+    ]
+  };
+  const it = pick(bank[subject]);
+  return {subject, topic, text: it.text, type:'mc', correct: it.correct, options: shuffle(it.options) };
 }
 
-function generateSet(block, topicsChosen, level, n){
+function generateSet(subject, topicsChosen, level, n){
   const topicsArr = topicsChosen.size? [...topicsChosen] : ['mix'];
   const out = [];
   for(let i=0;i<n;i++){
     const t = topicsArr[i % topicsArr.length];
-    out.push(genOne(block, t, level));
+    if(subject==='mates') out.push(genArithmeticOne(level, t));
+    else if(subject==='cat') out.push(genPlaceholderQ('cat', t));
+    else if(subject==='nat') out.push(genPlaceholderQ('nat', t));
+    else if(subject==='soc') out.push(genPlaceholderQ('soc', t));
   }
   return shuffle(out);
 }
@@ -512,30 +360,24 @@ function generateSet(block, topicsChosen, level, n){
 function show(sel){ ['#viewSetup','#viewQuiz','#viewReport'].forEach(s=>$(s).hidden=true); $(sel).hidden=false; }
 function renderCurrent(){
   const q = state.questions[state.current]; if(!q) return;
-  const blockNames = {arith:'Aritmètica',areas:'Àrees',perims:'Perímetres',fracs:'Fraccions'};
-  $('#quizTitle').textContent = `${blockNames[state.block]} · ${state.level.toUpperCase()}`;
+  $('#quizTitle').textContent = `${SUBJECTS[state.subject].label} · ${state.level.toUpperCase()}`;
+  $('#qText').textContent = q.text;
   $('#progressText').textContent = `Pregunta ${state.current+1}/${state.questions.length}`;
   $('#progressBar').style.width = `${Math.round(100*state.current/Math.max(1,state.questions.length-1))}%`;
-  $('#qText').textContent = q.text;
-
-  // Dibuix (si n’hi ha)
-  const fig = $('#figureArea');
-  if(q.svg){ fig.style.display='block'; fig.innerHTML = q.svg; } else { fig.style.display='none'; fig.innerHTML=''; }
-
   const area = $('#answerArea'); area.innerHTML='';
   if(q.type==='mc'){
     const wrap = document.createElement('div'); wrap.className='answers';
     q.options.forEach(opt=>{
       const row=document.createElement('label'); row.className='ans';
       row.innerHTML=`<input type="radio" name="ans" value="${opt}"> <span>${opt}</span>`;
+      row.addEventListener('change', ()=> row.classList.add('selected'));
       wrap.appendChild(row);
     });
     area.appendChild(wrap);
-    // restaurar
     const saved = state.answers[state.current];
-    if(saved!=null){ $$('input[name="ans"]').forEach(el=>{ if(String(el.value)===String(saved)) el.checked=true; }); }
+    if(saved!=null){ $$('input[name="ans"]').forEach(el=>{ if(String(el.value)===String(saved)) { el.checked=true; el.closest('.ans')?.classList.add('selected'); } }); }
   } else {
-    const input=document.createElement('input'); input.placeholder= q.kind==='fraction' ? 'Ex: 3/5' : 'Escriu la resposta…';
+    const input=document.createElement('input'); input.placeholder='Escriu la resposta…';
     input.value = state.answers[state.current] ?? '';
     area.appendChild(input);
   }
@@ -545,31 +387,26 @@ function readAnswer(){
   if(q.type==='mc'){ const sel = $$('input[name="ans"]').find(x=>x.checked); return sel? sel.value : ''; }
   return ($('#answerArea input')?.value || '').trim();
 }
-function eqFrac(a,b){ // '3/5' equivalència
-  const pa=a.split('/').map(Number), pb=b.split('/').map(Number);
-  if(pa.length!==2 || pb.length!==2) return false;
-  return Math.abs(pa[0]*pb[1]-pb[0]*pa[1])===0;
-}
-function near(a,b,tol=0.01){ return Math.abs(Number(a)-Number(b))<=tol; }
-
 function checkAnswer(q, ans){
   if(ans==='' || ans==null) return false;
-  if(q.kind==='fraction') return eqFrac(String(ans), String(q.correct));
   if(q.type==='mc') return String(ans)===String(q.correct);
-  // numeric: tolerància per π i decimals
-  return near(Number(ans), Number(q.correct), 0.02);
+  if(q.type==='numeric') return Number(ans)===Number(q.correct);
+  return false;
 }
 function saveTime(){ const now=Date.now(); state.times[state.current]+= Math.round((now-(state.perQStart||now))/1000); state.perQStart=now; }
 
 function startQuiz(){
-  state.block = $('#block').value;
+  state.subject = $('#subject').value;
   state.level = $('#level').value;
-  state.n = Math.min(40, Math.max(5, Number($('#numQ').value||10)));
+  state.n = Math.min(50, Math.max(5, Number($('#numQ').value||10)));
   state.instant = $('#instant').value==='on';
   const chosen = state.topics.size ? new Set(state.topics) : new Set(['mix']);
-  state.questions = generateSet(state.block, chosen, state.level, state.n);
-  state.current = 0; state.answers = Array(state.n).fill(''); state.times = Array(state.n).fill(0);
-  state.startTime = Date.now(); state.perQStart = Date.now();
+  state.questions = generateSet(state.subject, chosen, state.level, state.n);
+  state.current = 0;
+  state.answers = Array(state.n).fill('');
+  state.times = Array(state.n).fill(0);
+  state.startTime = Date.now();
+  state.perQStart = Date.now();
   $('#modeTag').textContent = 'Alumne';
   $('#instantBox').textContent = '';
   show('#viewQuiz'); renderCurrent();
@@ -598,8 +435,9 @@ function finishQuiz(){
   const rows=[]; let correct=0;
   for(let i=0;i<state.questions.length;i++){
     const q=state.questions[i]; const ans=state.answers[i]; const ok=checkAnswer(q, ans); if(ok) correct++;
-    rows.push([i+1, q.text, ans||'—', q.correct, state.times[i], ok? '✔':'✘']);
+    rows.push([i+1, q.text, ans||'—', q.correct, state.times[i], ok? '✔':'✘', {q, ans, ok}]);
   }
+  state.lastResultRows = rows;
   const pct = Math.round(100*correct/state.questions.length);
   $('#repCorrect').textContent = `${correct}/${state.questions.length}`;
   $('#repPct').textContent = `${pct}%`;
@@ -612,14 +450,30 @@ function finishQuiz(){
   });
   show('#viewReport');
 }
+function retryWrongOnly(){
+  const wrong = state.lastResultRows.filter(r=> r[5]==='✘').map(r=> r[6].q);
+  if(wrong.length===0){ alert('Genial! No hi ha errònies per repetir.'); return; }
+  state.questions = wrong.map(q => ({...q}));
+  state.current = 0;
+  state.answers = Array(wrong.length).fill('');
+  state.times = Array(wrong.length).fill(0);
+  state.startTime = Date.now();
+  state.perQStart = Date.now();
+  $('#instantBox').textContent = '';
+  show('#viewQuiz'); renderCurrent();
+}
 
 /* ========= Events ========= */
 $('#startBtn').addEventListener('click', startQuiz);
 $('#nextBtn').addEventListener('click', nextQ);
 $('#prevBtn').addEventListener('click', prevQ);
 $('#finishBtn').addEventListener('click', finishQuiz);
+$('#retryWrong').addEventListener('click', retryWrongOnly);
 $('#restart').addEventListener('click', ()=> show('#viewSetup'));
 $('#goSetup').addEventListener('click', (e)=>{ e.preventDefault(); show('#viewSetup') });
+
+/* inici */
+show('#viewSetup');
 </script>
 </body>
 </html>
