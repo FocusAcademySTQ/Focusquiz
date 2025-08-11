@@ -1,505 +1,189 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Focus Academy Quiz — Assignatura → Tema → Subtema</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Focus Academy</title>
   <style>
-    :root{
-      --bg:#0b1020; --panel:#121834; --card:#0f1536; --ink:#eef2ff; --muted:#b9c0e0;
-      --accent:#78d8ff; --accent2:#b9a9ff; --ok:#86efac; --err:#fda4af;
-      --chip-bg:#eef6ff; --chip-ink:#0b1320; --chip-active:#d8ecff; --chip-border:#cfe0ff;
-      --radius:22px; --shadow:0 18px 44px rgba(0,0,0,.35), 0 6px 16px rgba(0,0,0,.25);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-      color:var(--ink);
-      background:
-        radial-gradient(1000px 700px at 10% -10%, #1b2450, transparent 60%),
-        radial-gradient(900px 600px at 110% 10%, #2c2360, transparent 60%),
-        radial-gradient(1200px 900px at 50% 120%, #20184b, #0b1020 60%);
-    }
-    header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(140%) blur(10px); background:#0b1020cc; border-bottom:1px solid #ffffff22}
-    .container{max-width:1120px;margin:0 auto;padding:22px}
-    .topbar{display:flex;justify-content:space-between;align-items:center}
-    .brand{display:flex;align-items:center;gap:12px;font-weight:800}
-    .logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow);font-size:22px}
-    .pill{padding:10px 16px;border:1px solid #ffffff1a;border-radius:999px;text-decoration:none}
-    .grid{display:grid;gap:20px}
-    .two{grid-template-columns:1.2fr .8fr}
-    @media (max-width:900px){.two{grid-template-columns:1fr}}
-    .card{background:linear-gradient(180deg,#131a40cc,#0f1538cc);border:1px solid #ffffff1a;border-radius:var(--radius);box-shadow:var(--shadow)}
-    .card-inner{padding:22px}
-    h1{font-size:clamp(30px,4vw,48px);margin:8px 0 10px;letter-spacing:.2px}
-    h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-    h2{font-size:clamp(22px,3vw,28px);margin:0 0 12px}
-    .hint{color:var(--muted)}
-    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
-    input,select{width:100%;padding:12px 14px;border-radius:14px;border:1px solid #ffffff22;background:#0f1536;color:var(--ink);outline:none}
-    input:focus, select:focus{box-shadow:0 0 0 6px #8bd9ff25; border-color:#8bd9ff80}
-    .btn{border:none;border-radius:14px;padding:12px 18px;font-weight:800;cursor:pointer;transition:transform .15s, filter .15s; color:#0b1020}
-    .btn:hover{filter:brightness(1.06); transform:translateY(-1px)}
-    .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2))}
-    .btn-ghost{background:#ffffff14;color:var(--ink)}
-    .chips{display:flex;gap:10px;flex-wrap:wrap}
-    .chip{
-      appearance:none; border:1px solid var(--chip-border); background:var(--chip-bg); color:var(--chip-ink);
-      padding:10px 14px; border-radius:999px; cursor:pointer; font-weight:700; letter-spacing:.1px;
-      box-shadow:0 2px 0 #0000001a;
-      transition:transform .12s, box-shadow .12s, background .12s;
-    }
-    .chip:hover{transform:translateY(-1px); box-shadow:0 6px 12px #00000022}
-    .chip.active{background:var(--chip-active); outline:3px solid #7dd3fc66}
-    .chip:disabled{opacity:.5; cursor:not-allowed}
-    .question{font-size:26px;font-weight:800;margin:12px 0}
-    .answers{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-    .ans{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid #ffffff22;border-radius:14px;background:#0f1536}
-    .ans:hover{background:#141b48}
-    .progress-wrap{height:12px;background:#ffffff25;border-radius:999px;overflow:hidden}
-    .progress{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width .25s}
-    table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid #ffffff22;padding:10px;text-align:left}
-    .ok{color:var(--ok);font-weight:800}
-    .bad{color:var(--err);font-weight:800}
-    .footer{opacity:.7;border-top:1px solid #ffffff22;padding:18px 0;margin-top:24px}
+    body { font-family: Arial, sans-serif; margin: 0; background: #f9f9f9; }
+    header { background: #2c3e50; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { margin: 0; font-size: 1.4em; }
+    nav a { color: white; margin: 0 8px; text-decoration: none; }
+    main { padding: 20px; max-width: 900px; margin: auto; }
+    h2 { margin-top: 30px; }
+    .subjects { display: grid; grid-template-columns: repeat(auto-fill,minmax(150px,1fr)); gap: 10px; }
+    .subject { background: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; }
+    .subject:hover { background: #eef; }
+    .hidden { display: none; }
+    .box { background: white; border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-top: 15px; }
+    button { cursor: pointer; padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; background: #eee; }
+    button:hover { background: #ddd; }
+    input { padding: 6px; border-radius: 4px; border: 1px solid #ccc; width: 100%; }
+    .quiz-question { margin: 10px 0; padding: 10px; background: #f7f7f7; border-radius: 6px; }
+    .choices button { margin: 4px; }
+    .correct { background: #c8f7c5; }
+    .wrong { background: #f7c5c5; }
   </style>
 </head>
 <body>
-  <header>
-    <div class="container topbar">
-      <div class="brand"><div class="logo">🎓</div><div>Focus Academy Quiz</div></div>
-      <nav><a class="pill" href="#" id="goSetup">Configuració</a></nav>
+
+<header>
+  <h1>Focus Academy</h1>
+  <nav>
+    <a href="#subjects">Assignatures</a>
+    <a href="#quick-test">Prova ràpida</a>
+    <a href="#teacher">Professorat</a>
+  </nav>
+</header>
+
+<main>
+  <section id="hero">
+    <h2>Proves i qüestionaris online, sense complicacions.</h2>
+    <p>Practica per assignatures, crea exàmens i segueix el progrés en temps real.</p>
+  </section>
+
+  <section id="subjects">
+    <h2>Assignatures</h2>
+    <div class="subjects">
+      <div class="subject" data-subject="math">➗ Matemàtiques</div>
+      <div class="subject" data-subject="cat">🗣️ Català</div>
+      <div class="subject" data-subject="spa">📝 Castellà</div>
+      <div class="subject" data-subject="eng">🇬🇧 Anglès</div>
+      <div class="subject" data-subject="sci">🔬 Ciències</div>
+      <div class="subject" data-subject="his">🏺 Història</div>
+      <div class="subject" data-subject="geo">🗺️ Geografia</div>
+      <div class="subject" data-subject="phy">⚙️ Física</div>
+      <div class="subject" data-subject="chem">⚗️ Química</div>
     </div>
-  </header>
+  </section>
 
-  <main class="container">
-    <!-- SETUP -->
-    <section id="viewSetup" class="grid two">
-      <div class="card">
-        <div class="card-inner">
-          <h1><span class="grad">Tria</span> Assignatura → Tema → Subtema</h1>
-          <p class="hint">Després fixa el nivell i el nombre de preguntes. Quan acabis, veuràs totes les respostes i podràs repetir només les errònies.</p>
+  <section id="quick-test">
+    <h2>Prova ràpida</h2>
+    <div class="box">
+      <label>Tria una assignatura</label>
+      <select id="subject-select">
+        <option value="math">Matemàtiques</option>
+        <option value="cat">Català</option>
+        <option value="spa">Castellà</option>
+      </select>
+      <label>Nivell</label>
+      <select id="level-select">
+        <option value="easy">Fàcil</option>
+        <option value="med">Mitjà</option>
+        <option value="hard">Difícil</option>
+      </select>
+      <button onclick="startQuiz()">Començar</button>
+    </div>
+    <div id="quiz-container" class="box hidden"></div>
+  </section>
 
-          <div class="grid" style="grid-template-columns:1fr;gap:14px;margin-top:8px">
-            <div>
-              <label>Assignatura</label>
-              <div id="subjectBox" class="chips"></div>
-            </div>
-            <div>
-              <label>Tema</label>
-              <div id="topicBox" class="chips"></div>
-            </div>
-            <div>
-              <label>Subtema</label>
-              <div id="subtopicBox" class="chips"></div>
-            </div>
-          </div>
+  <section id="teacher">
+    <h2>Accés Professor</h2>
+    <div class="box" id="teacher-login">
+      <input type="password" id="teacher-code" placeholder="Codi professor">
+      <button onclick="loginTeacher()">Entrar</button>
+    </div>
+    <div class="box hidden" id="teacher-panel">
+      <button onclick="createExam()">Crear Examen</button>
+      <p id="exam-code-output"></p>
+    </div>
+  </section>
 
-          <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:12px">
-            <div>
-              <label>Nivell</label>
-              <select id="level">
-                <option value="easy">Fàcil</option>
-                <option value="med" selected>Normal</option>
-                <option value="hard">Difícil</option>
-              </select>
-            </div>
-            <div>
-              <label>Nombre de preguntes</label>
-              <input id="numQ" type="number" min="5" max="50" value="10">
-            </div>
-          </div>
-
-          <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:12px">
-            <div>
-              <label>Feedback immediat</label>
-              <select id="instant">
-                <option value="on" selected>Activat</option>
-                <option value="off">Desactivat</option>
-              </select>
-            </div>
-            <div style="display:flex;align-items:flex-end;justify-content:flex-end">
-              <button class="btn btn-primary" id="startBtn" disabled>Començar</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-inner">
-          <h2>Indicadors</h2>
-          <div class="grid" style="grid-template-columns:repeat(3,1fr)">
-            <div><div class="hint">Data</div><div style="font-weight:800" id="today"></div></div>
-            <div><div class="hint">Mode</div><div style="font-weight:800" id="modeTag">Alumne</div></div>
-            <div><div class="hint">Versió</div><div style="font-weight:800">MVP 3 nivells</div></div>
-          </div>
-          <p class="hint" style="margin-top:10px">Matemàtiques té generadors dinàmics. La resta són placeholders que activarem més endavant.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- QUIZ -->
-    <section id="viewQuiz" class="card" hidden>
-      <div class="card-inner">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <h2 id="quizTitle">Qüestionari</h2>
-          <div class="hint" id="progressText">Pregunta 1/10</div>
-        </div>
-        <div class="progress-wrap" style="margin:8px 0 12px"><div id="progressBar" class="progress"></div></div>
-
-        <div id="qText" class="question">—</div>
-        <div id="answerArea"></div>
-
-        <div class="chips" style="margin-top:14px">
-          <button class="btn btn-ghost" id="prevBtn">← Anterior</button>
-          <button class="btn btn-primary" id="nextBtn">Següent →</button>
-          <button class="btn btn-ghost" id="finishBtn">Finalitzar</button>
-        </div>
-        <div id="instantBox" class="hint" style="margin-top:10px"></div>
-      </div>
-    </section>
-
-    <!-- REPORT -->
-    <section id="viewReport" class="card" hidden>
-      <div class="card-inner">
-        <h2>Correcció i resultats</h2>
-        <div class="chips" style="margin-bottom:10px">
-          <div><span class="hint">Encerts</span> <strong id="repCorrect">0</strong></div>
-          <div><span class="hint">Percentatge</span> <strong id="repPct">0%</strong></div>
-          <div><span class="hint">Temps total</span> <strong id="repTime">—</strong></div>
-        </div>
-        <div style="overflow:auto">
-          <table id="repTable">
-            <thead><tr><th>#</th><th>Pregunta</th><th>Resposta</th><th>Correcta</th><th>Temps (s)</th><th>Resultat</th></tr></thead>
-            <tbody></tbody>
-          </table>
-        </div>
-        <div class="chips" style="margin-top:14px">
-          <button class="btn btn-primary" id="retryWrong">Practicar només errònies</button>
-          <button class="btn btn-ghost" id="restart">Tornar a la configuració</button>
-        </div>
-      </div>
-    </section>
-
-    <footer class="footer">© <span id="year"></span> Focus Academy</footer>
-  </main>
+  <section id="student">
+    <h2>Accés Alumne</h2>
+    <div class="box">
+      <input type="text" id="student-code" placeholder="Codi examen">
+      <button onclick="joinExam()">Entrar</button>
+      <p id="student-message"></p>
+    </div>
+  </section>
+</main>
 
 <script>
-/* ========= Utils ========= */
-const $ = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-const today = new Date();
-$('#today').textContent = today.toLocaleDateString('ca-ES');
-$('#year').textContent = today.getFullYear();
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
-function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
-function fmtTime(s){ const m=Math.floor(s/60), r=s%60; return `${m}:${String(r).padStart(2,'0')}` }
+  const PROFESSOR_CODE = "secret123";
+  let currentExamCode = "";
+  
+  function loginTeacher() {
+    const code = document.getElementById("teacher-code").value;
+    if (code === PROFESSOR_CODE) {
+      document.getElementById("teacher-login").classList.add("hidden");
+      document.getElementById("teacher-panel").classList.remove("hidden");
+    } else {
+      alert("Codi incorrecte");
+    }
+  }
 
-/* ========= Estat ========= */
-let state = {
-  subject: null, topic: null, subtopic: null,
-  level: 'med', n: 10, instant: true,
-  questions: [], current: 0, answers: [], times: [],
-  startTime: null, perQStart: null, lastResultRows: []
-};
+  function createExam() {
+    currentExamCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+    document.getElementById("exam-code-output").innerText = "Codi d'examen: " + currentExamCode;
+  }
 
-/* ========= Dades: Assignatura → Tema → Subtema ========= */
-const SUBJECTS = {
-  mates: {
-    label: 'Matemàtiques',
-    topics: [
-      { id:'arith', label:'Aritmètica', subtopics:[
-        { id:'sum', label:'Sumes ➕' },
-        { id:'sub', label:'Restes ➖' },
-        { id:'mul', label:'Multiplicacions ✖' },
-        { id:'div', label:'Divisions ÷' },
-        { id:'mix-arith', label:'Barrejat aritmètica 🎲' }
-      ]},
-      { id:'fracperc', label:'Fraccions i percentatges', subtopics:[
-        { id:'frac', label:'Fraccions ⅗' },
-        { id:'percent', label:'Percentatges %' }
-      ]},
-      { id:'compare', label:'Comparacions', subtopics:[
-        { id:'compare', label:'<  =  >' }
-      ]}
-    ]
-  },
-  cat:   { label:'Llengua catalana', topics:[ {id:'coming', label:'(Ben aviat)', subtopics:[{id:'p',label:'—'}] } ] },
-  nat:   { label:'Ciències naturals', topics:[ {id:'coming', label:'(Ben aviat)', subtopics:[{id:'p',label:'—'}] } ] },
-  soc:   { label:'Ciències socials',  topics:[ {id:'coming', label:'(Ben aviat)', subtopics:[{id:'p',label:'—'}] } ] }
-};
+  function joinExam() {
+    const code = document.getElementById("student-code").value.toUpperCase();
+    if (code === currentExamCode && code !== "") {
+      document.getElementById("student-message").innerText = "Accés concedit! Pots començar l'examen.";
+    } else {
+      document.getElementById("student-message").innerText = "Codi incorrecte.";
+    }
+  }
 
-/* ========= Render de menú (3 nivells) ========= */
-function renderSubjects(){
-  const box = $('#subjectBox'); box.innerHTML='';
-  Object.entries(SUBJECTS).forEach(([id,def])=>{
-    const b = document.createElement('button'); b.className='chip'; b.textContent=def.label;
-    const enabled = id==='mates'; // només mates actiu ara
-    if(!enabled) b.disabled=true;
-    b.addEventListener('click', ()=>{
-      state.subject=id; state.topic=null; state.subtopic=null;
-      highlight(box, b); renderTopics();
-      $('#startBtn').disabled = true;
+  function getMathQuestions(level) {
+    const ops = ["+", "-", "×", "÷"];
+    const rng = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const qs = [];
+    for (let i = 0; i < 5; i++) {
+      const a = level === "hard" ? rng(20, 99) : level === "med" ? rng(10, 49) : rng(1, 20);
+      const b = rng(1, 20);
+      const op = ops[rng(0, ops.length - 1)];
+      let correct;
+      switch (op) {
+        case "+": correct = a + b; break;
+        case "-": correct = a - b; break;
+        case "×": correct = a * b; break;
+        case "÷": correct = +(a / b).toFixed(2); break;
+      }
+      const choices = [correct];
+      while (choices.length < 4) {
+        const val = correct + rng(-10, 10);
+        if (!choices.includes(val)) choices.push(val);
+      }
+      qs.push({ q: `${a} ${op} ${b} = ?`, correct, choices: choices.sort(() => Math.random() - 0.5) });
+    }
+    return qs;
+  }
+
+  function startQuiz() {
+    const subject = document.getElementById("subject-select").value;
+    const level = document.getElementById("level-select").value;
+    const quizDiv = document.getElementById("quiz-container");
+    quizDiv.innerHTML = "";
+    let questions = subject === "math" ? getMathQuestions(level) : [];
+    if (questions.length === 0) {
+      quizDiv.innerHTML = "<p>Encara no hi ha preguntes per aquesta assignatura.</p>";
+      quizDiv.classList.remove("hidden");
+      return;
+    }
+    let score = 0;
+    questions.forEach((q, idx) => {
+      const div = document.createElement("div");
+      div.className = "quiz-question";
+      div.innerHTML = `<strong>${idx + 1}.</strong> ${q.q}`;
+      const choicesDiv = document.createElement("div");
+      choicesDiv.className = "choices";
+      q.choices.forEach(c => {
+        const btn = document.createElement("button");
+        btn.innerText = c;
+        btn.onclick = () => {
+          if (c === q.correct) { btn.classList.add("correct"); score++; }
+          else btn.classList.add("wrong");
+        };
+        choicesDiv.appendChild(btn);
+      });
+      div.appendChild(choicesDiv);
+      quizDiv.appendChild(div);
     });
-    box.appendChild(b);
-  });
-}
-function renderTopics(){
-  const box = $('#topicBox'); box.innerHTML='';
-  const sub = SUBJECTS[state.subject]; if(!sub) return;
-  sub.topics.forEach(t=>{
-    const b=document.createElement('button'); b.className='chip'; b.textContent=t.label;
-    b.addEventListener('click', ()=>{
-      state.topic=t.id; state.subtopic=null;
-      highlight(box, b); renderSubtopics(t.subtopics);
-      $('#startBtn').disabled = true;
-    });
-    box.appendChild(b);
-  });
-}
-function renderSubtopics(list){
-  const box = $('#subtopicBox'); box.innerHTML='';
-  list.forEach(s=>{
-    const b=document.createElement('button'); b.className='chip'; b.textContent=s.label;
-    b.addEventListener('click', ()=>{
-      state.subtopic=s.id; highlight(box, b);
-      validateStart();
-    });
-    box.appendChild(b);
-  });
-}
-function highlight(container, activeBtn){
-  $$(container.querySelectorAll('.chip')).forEach(c=>c.classList.remove('active'));
-  activeBtn.classList.add('active');
-}
-function validateStart(){
-  const ok = !!(state.subject && state.topic && state.subtopic);
-  $('#startBtn').disabled = !ok;
-}
-
-/* ========= Generadors de Matemàtiques ========= */
-const RANGES = {
-  sum:     {easy:[0,20],   med:[-20,50],  hard:[-100,100]},
-  sub:     {easy:[0,20],   med:[-20,50],  hard:[-100,100]},
-  mul:     {easy:[0,12],   med:[-12,20],  hard:[-20,30]},
-  div:     {easy:[2,12],   med:[2,20],    hard:[2,30]},   // divisor
-  fracN:   {easy:[1,9],    med:[2,15],    hard:[3,20]},   // numerador base
-  fracD:   {easy:[2,12],   med:[3,18],    hard:[4,24]},   // denominador base
-  percentB:{easy:[10,100], med:[50,500],  hard:[100,1000]},
-  compare: {easy:[0,50],   med:[-50,100], hard:[-200,200]}
-};
-function genArith(level, op){
-  let a,b;
-  if(op==='÷'){
-    const d = randInt(...RANGES.div[level]);
-    const k = randInt(0,10);
-    a = d * k; b = d;
-  } else if(op==='×'){
-    a = randInt(...RANGES.mul[level]); b = randInt(...RANGES.mul[level]);
-  } else {
-    a = randInt(...RANGES[op==='+'?'sum':'sub'][level]);
-    b = randInt(...RANGES[op==='+'?'sum':'sub'][level]);
+    quizDiv.classList.remove("hidden");
   }
-  const text = `${a} ${op} ${b}`;
-  const correct = op==='+'? a+b : op==='-'? a-b : op==='×'? a*b : a/b;
-  const type = Math.random()<0.5? 'numeric':'mc';
-  let options;
-  if(type==='mc'){
-    const noise = [
-      correct + (Math.sign(correct)||1)*randInt(1,3),
-      correct - (Math.sign(correct)||1)*randInt(1,3),
-      Number((correct*1.1).toFixed(2)),
-      Number((correct*0.9).toFixed(2))
-    ];
-    options = shuffle([correct, ...noise]).slice(0,4);
-  }
-  return {subject:'mates', topic:op, text, type, correct, options};
-}
-function genFraction(level){
-  const n0 = randInt(...RANGES.fracN[level]);
-  const d0 = randInt(...RANGES.fracD[level]);
-  const g = randInt(2,6);
-  const num = n0*g, den = d0*g; // simplificable
-  if(Math.random()<0.6){
-    return {subject:'mates', topic:'frac', text:`Simplifica: ${num}/${den}`, type:'numeric', correct:`${n0}/${d0}`};
-  } else {
-    return {subject:'mates', topic:'frac', text:`Valor decimal de ${n0}/${d0} (2 decimals)`, type:'numeric', correct:Number((n0/d0).toFixed(2))};
-  }
-}
-function genPercent(level){
-  const base = randInt(...RANGES.percentB[level]);
-  const pool = [5,10,12.5,15,20,25,30,40,50,60,75];
-  const p = pick(pool);
-  const mode = pick(['basic','inc','dec']);
-  let text, correct;
-  if(mode==='basic'){ text=`Quant és ${p}% de ${base}?`; correct=Number(((p/100)*base).toFixed(2)); }
-  else if(mode==='inc'){ text=`Aplica un augment del ${p}% a ${base}`; correct=Number((base*(1+p/100)).toFixed(2)); }
-  else { text=`Aplica un descompte del ${p}% a ${base}`; correct=Number((base*(1-p/100)).toFixed(2)); }
-  const type = Math.random()<0.5? 'numeric':'mc';
-  let options;
-  if(type==='mc'){
-    options = shuffle([
-      correct,
-      Number((correct*0.9).toFixed(2)),
-      Number((correct*1.1).toFixed(2)),
-      Number(((p/100)*(base+10)).toFixed(2))
-    ]);
-  }
-  return {subject:'mates', topic:'percent', text, type, correct, options};
-}
-function genCompare(level){
-  const a = randInt(...RANGES.compare[level]);
-  const b = randInt(...RANGES.compare[level]);
-  const sign = a===b? '=' : a>b? '>' : '<';
-  return {subject:'mates', topic:'compare', text:`Tria el signe correcte: ${a} ? ${b}`, type:'mc', correct:sign, options:shuffle(['<','>','='])};
-}
-
-/* ========= Despatx generador segons subtema ========= */
-function genBySubtopic(level, sub){
-  if(sub==='sum') return genArith(level, '+');
-  if(sub==='sub') return genArith(level, '-');
-  if(sub==='mul') return genArith(level, '×');
-  if(sub==='div') return genArith(level, '÷');
-  if(sub==='frac') return genFraction(level);
-  if(sub==='percent') return genPercent(level);
-  if(sub==='compare') return genCompare(level);
-  if(sub==='mix-arith') return genBySubtopic(level, pick(['sum','sub','mul','div']));
-  // fallback
-  return genArith(level, '+');
-}
-function generateSet(level, subtopic, n){
-  return Array.from({length:n}, ()=> genBySubtopic(level, subtopic));
-}
-
-/* ========= Flux del quiz ========= */
-function show(sel){ ['#viewSetup','#viewQuiz','#viewReport'].forEach(s=>$(s).hidden=true); $(sel).hidden=false; }
-function renderCurrent(){
-  const q = state.questions[state.current]; if(!q) return;
-  const titleMap = { '+':'Sumes', '-':'Restes', '×':'Multiplicacions', '÷':'Divisions',
-                     'frac':'Fraccions', 'percent':'Percentatges', 'compare':'Comparacions', 'mix-arith':'Aritmètica (mix)' };
-  $('#quizTitle').textContent = `Matemàtiques · ${titleMap[state.subtopic] || titleMap[q.topic] || 'Qüestionari'} · ${state.level.toUpperCase()}`;
-  $('#qText').textContent = q.text;
-  $('#progressText').textContent = `Pregunta ${state.current+1}/${state.questions.length}`;
-  $('#progressBar').style.width = `${Math.round(100*state.current/Math.max(1,state.questions.length-1))}%`;
-  const area = $('#answerArea'); area.innerHTML='';
-  if(q.type==='mc'){
-    const wrap = document.createElement('div'); wrap.className='answers';
-    q.options.forEach(opt=>{
-      const row=document.createElement('label'); row.className='ans';
-      row.innerHTML=`<input type="radio" name="ans" value="${opt}"> <span>${opt}</span>`;
-      wrap.appendChild(row);
-    });
-    area.appendChild(wrap);
-    const saved = state.answers[state.current];
-    if(saved!=null){ $$('input[name="ans"]').forEach(el=>{ if(String(el.value)===String(saved)) el.checked=true; }); }
-  } else {
-    const input=document.createElement('input'); input.placeholder='Escriu la resposta…';
-    input.value = state.answers[state.current] ?? '';
-    area.appendChild(input);
-  }
-}
-function readAnswer(){
-  const q = state.questions[state.current];
-  if(q.type==='mc'){ const sel = $$('input[name="ans"]').find(x=>x.checked); return sel? sel.value : ''; }
-  return ($('#answerArea input')?.value || '').trim();
-}
-function checkAnswer(q, ans){
-  if(ans==='' || ans==null) return false;
-  if(q.type==='mc') return String(ans)===String(q.correct);
-  if(q.type==='numeric') return Number(ans)===Number(q.correct);
-  return false;
-}
-function saveTime(){ const now=Date.now(); state.times[state.current]+= Math.round((now-(state.perQStart||now))/1000); state.perQStart=now; }
-
-function startQuiz(){
-  state.level = $('#level').value;
-  state.n = Math.min(50, Math.max(5, Number($('#numQ').value||10)));
-  state.instant = $('#instant').value==='on';
-  state.questions = generateSet(state.level, state.subtopic, state.n);
-  state.current = 0;
-  state.answers = Array(state.n).fill('');
-  state.times = Array(state.n).fill(0);
-  state.startTime = Date.now();
-  state.perQStart = Date.now();
-  $('#modeTag').textContent = 'Alumne';
-  $('#instantBox').textContent = '';
-  show('#viewQuiz'); renderCurrent();
-}
-function nextQ(){
-  saveTime();
-  const ans = readAnswer();
-  state.answers[state.current] = ans;
-  if(state.instant){
-    const ok = checkAnswer(state.questions[state.current], ans);
-    $('#instantBox').textContent = ans===''? '' : (ok? '✔ Correcte' : `✘ Incorrecte. Resposta: ${state.questions[state.current].correct}`);
-    $('#instantBox').style.color = ok? 'var(--ok)' : 'var(--err)';
-  }
-  if(state.current < state.questions.length-1){
-    state.current++; state.perQStart=Date.now(); renderCurrent();
-  }
-}
-function prevQ(){
-  saveTime();
-  const ans = readAnswer();
-  state.answers[state.current] = ans;
-  if(state.current>0){ state.current--; state.perQStart=Date.now(); renderCurrent(); }
-}
-function finishQuiz(){
-  saveTime();
-  const rows=[]; let correct=0;
-  for(let i=0;i<state.questions.length;i++){
-    const q=state.questions[i]; const ans=state.answers[i]; const ok=checkAnswer(q, ans); if(ok) correct++;
-    rows.push([i+1, q.text, ans||'—', q.correct, state.times[i], ok? '✔':'✘', {q, ans, ok}]);
-  }
-  state.lastResultRows = rows;
-  const pct = Math.round(100*correct/state.questions.length);
-  $('#repCorrect').textContent = `${correct}/${state.questions.length}`;
-  $('#repPct').textContent = `${pct}%`;
-  $('#repTime').textContent = fmtTime(Math.round((Date.now()-state.startTime)/1000));
-  const tb = $('#repTable tbody'); tb.innerHTML='';
-  rows.forEach(r=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML = `<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td class="${r[5]==='✔'?'ok':'bad'}">${r[5]}</td>`;
-    tb.appendChild(tr);
-  });
-  show('#viewReport');
-}
-function retryWrongOnly(){
-  const wrong = state.lastResultRows.filter(r=> r[5]==='✘').map(r=> r[6].q);
-  if(wrong.length===0){ alert('Genial! No hi ha errònies per repetir.'); return; }
-  // Variacions noves del mateix subtema (no la pregunta exacta)
-  const variants = wrong.map(q => genBySubtopic(state.level, q.topic || state.subtopic));
-  state.questions = shuffle(variants);
-  state.current = 0;
-  state.answers = Array(variants.length).fill('');
-  state.times = Array(variants.length).fill(0);
-  state.startTime = Date.now();
-  state.perQStart = Date.now();
-  $('#instantBox').textContent = '';
-  show('#viewQuiz'); renderCurrent();
-}
-
-/* ========= Events ========= */
-$('#level').addEventListener('change', e=> state.level = e.target.value);
-$('#numQ').addEventListener('change', e=> state.n = Number(e.target.value));
-$('#instant').addEventListener('change', e=> state.instant = (e.target.value==='on'));
-
-$('#startBtn').addEventListener('click', startQuiz);
-$('#nextBtn').addEventListener('click', nextQ);
-$('#prevBtn').addEventListener('click', prevQ);
-$('#finishBtn').addEventListener('click', finishQuiz);
-$('#retryWrong').addEventListener('click', retryWrongOnly);
-$('#restart').addEventListener('click', ()=> show('#viewSetup'));
-$('#goSetup').addEventListener('click', (e)=>{ e.preventDefault(); show('#viewSetup') });
-
-/* ========= Inici: dibuixa menú de 3 nivells ========= */
-renderSubjects();
-show('#viewSetup');
 </script>
+
 </body>
 </html>
