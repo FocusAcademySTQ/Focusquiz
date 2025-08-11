@@ -112,6 +112,9 @@
 
     .pulse{animation:pulse 1.6s infinite}
     @keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
+      /* Modal */
+    .modal{position:fixed; inset:0; background:rgba(10,13,24,.6); backdrop-filter: blur(6px); display:grid; place-items:center; z-index:50}
+    .modal-inner{width:min(92vw, 820px)}
   </style>
 </head>
 <body>
@@ -260,6 +263,18 @@
 
   <script>
     /* ===================== UTILS ===================== */
+    // Simple modal helpers (non-destructive UI)
+    function showModal(contentHTML){
+      closeModal();
+      const overlay = document.createElement('div');
+      overlay.className = 'modal';
+      overlay.innerHTML = `<div class="modal-inner panel card">${contentHTML}</div>`;
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
+    }
+    function closeModal(){ const m = document.querySelector('.modal'); if(m) m.remove(); }
+
+    /* ===================== UTILS ===================== */
     const $ = (q) => document.querySelector(q);
     const $$ = (q) => Array.from(document.querySelectorAll(q));
     const rng = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
@@ -327,6 +342,8 @@
 
     /* ===================== QUIZ ENGINE ===================== */
     function startQuiz(moduleId){
+      // Close any open modal to avoid overlay issues
+      closeModal();
       const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
       const count = parseInt($('#cfg-count').value||DEFAULTS.count);
       const time = parseInt($('#cfg-time').value||0);
@@ -389,6 +406,8 @@
     function stopTimer(){ if(timerHandle) clearInterval(timerHandle); timerHandle=null; }
 
     function checkAnswer(){
+      if(!session || session.done){ flashFeedback('Prova finalitzada. Inicia una de nova des d\'Inici.'); return }
+
       const q = session.questions[session.idx];
       const raw = $('#answer').value.trim().replace(',', '.');
       if(raw==='') { flashFeedback('Escriu una resposta o prem Omet.', 'warn'); return; }
@@ -419,6 +438,7 @@
     }
 
     function skip(){
+      if(!session || session.done){ flashFeedback('Prova finalitzada. Inicia una de nova des d\'Inici.'); return }
       const q = session.questions[session.idx];
       session.wrongs.push({ ...q, user: '— (omet)' });
       session.idx++;
@@ -456,10 +476,9 @@
         wrongs: session.wrongs
       });
 
-      // Summary UI
-      const summary = document.createElement('div');
-      summary.className = 'panel card';
-      summary.innerHTML = `
+      session.done = true;
+
+      const html = `
         <h3 style="margin-top:0">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
         <p class="subtitle">${name} · ${MODULES.find(m=>m.id===session.module).name} · ${levelLabel(session.level)}</p>
         <div class="row" style="align-items:flex-end">
@@ -470,6 +489,7 @@
             <div class="controls" style="margin-top:10px">
               <button onclick="startQuiz('${session.module}')">Torna-ho a fer</button>
               <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
+              <button class="btn-ghost" onclick="closeModal()">Tanca</button>
             </div>
           </div>
           <div style="flex:1"></div>
@@ -477,10 +497,7 @@
         <div class="section-title">Errors i correccions</div>
         ${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
       `;
-      const host = document.createElement('div');
-      host.appendChild(summary);
-      $('#view-quiz').innerHTML='';
-      $('#view-quiz').appendChild(host);
+      showModal(html);
     }
 
     function renderWrongs(wr){
