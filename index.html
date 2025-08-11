@@ -1,177 +1,669 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-<meta charset="UTF-8">
-<title>Focus Academy - Matemàtiques</title>
-<style>
-  :root {
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --bg-light: #f8fafc;
-    --bg-white: #ffffff;
-    --text-dark: #1e293b;
-    --text-light: #64748b;
-    --radius: 12px;
-  }
-  body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg-light); color: var(--text-dark); }
-  header { background: linear-gradient(90deg, var(--primary-dark), var(--primary)); color: white; padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; }
-  header h1 { font-size: 1.4em; margin: 0; font-weight: 600; }
-  main { padding: 30px 20px; max-width: 1000px; margin: auto; }
-  h2 { font-size: 1.6em; font-weight: 700; margin-top: 40px; margin-bottom: 15px; }
-  p { color: var(--text-light); }
-  .topics { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 12px; margin-top: 20px; }
-  .topic { background: var(--bg-white); padding: 12px; border: 1px solid #e2e8f0; border-radius: var(--radius); cursor: pointer; text-align: center; transition: 0.2s; }
-  .topic:hover { background: #eef2ff; }
-  .box { background: var(--bg-white); border: 1px solid #e2e8f0; padding: 20px; border-radius: var(--radius); margin-top: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-  button { cursor: pointer; padding: 8px 14px; border-radius: var(--radius); border: none; font-weight: 500; transition: all 0.2s ease; background: var(--primary); color: white; }
-  button:hover { background: var(--primary-dark); }
-  input { padding: 8px; border-radius: var(--radius); border: 1px solid #cbd5e1; width: 100%; margin-bottom: 10px; }
-  .quiz-question { margin: 10px 0; padding: 14px; background: #f1f5f9; border-radius: var(--radius); }
-  .choices button { margin: 4px; background: #e2e8f0; color: var(--text-dark); border: 1px solid transparent; }
-  .choices button:hover { background: #cbd5e1; }
-  .correct { background: #bbf7d0 !important; }
-  .wrong { background: #fecaca !important; }
-  #teacher-btn { background: white; color: var(--primary-dark); padding: 6px 12px; border-radius: var(--radius); font-weight: 500; border: none; }
-  #teacher-btn:hover { background: #f1f5f9; }
-  .hidden { display: none; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Focus Academy · Matemàtiques</title>
+  <meta name="description" content="Pràctiques de matemàtiques tipus ThatQuiz per a estudiants. Single-file, sense dependències." />
+  <style>
+    :root{
+      --bg: #0f1222;
+      --card: #161a34;
+      --muted: #8b91b7;
+      --text: #eef2ff;
+      --accent: #8b5cf6; /* violeta */
+      --accent-2: #22d3ee; /* cian */
+      --ok: #22c55e;
+      --bad: #ef4444;
+      --warn: #f59e0b;
+      --shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text); background:
+        radial-gradient(1000px 600px at 10% -10%, rgba(139,92,246,.25), transparent 60%),
+        radial-gradient(1000px 600px at 100% 10%, rgba(34,211,238,.15), transparent 50%),
+        linear-gradient(180deg, #0c0f1d, #0b0e19 60%, #0a0d18);
+    }
+    header{
+      position:sticky; top:0; z-index:5; backdrop-filter:saturate(1.2) blur(10px);
+      background:rgba(12, 15, 29, .6); border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding: clamp(14px, 2vw, 24px);}
+    .brand{display:flex; align-items:center; gap:12px;}
+    .logo{width:38px;height:38px; display:grid; place-items:center; border-radius:12px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow)}
+    .brand h1{font-size:1.1rem; margin:0; letter-spacing:.2px}
+    nav{display:flex; gap:8px; flex-wrap:wrap}
+    .row{display:flex; justify-content:space-between; align-items:center; gap:12px}
+    .pill{
+      border:1px solid rgba(255,255,255,.08); color:var(--text); background:rgba(255,255,255,.03);
+      padding:10px 14px; border-radius:999px; cursor:pointer; transition:.2s ease; font-weight:600; font-size:.92rem
+    }
+    .pill:hover{transform:translateY(-1px); background:rgba(255,255,255,.06)}
+    .right{display:flex; align-items:center; gap:10px}
+    .input, select{
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+      color:var(--text); border-radius:12px; padding:10px 12px; outline:none; font-size:.95rem
+    }
+    .ghost{opacity:.8}
+
+    main{padding: 28px 0 60px}
+    .hero{display:grid; grid-template-columns: 1.3fr .7fr; gap:20px; align-items:stretch}
+    .panel{background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius: var(--radius); box-shadow: var(--shadow)}
+    .card{padding: clamp(16px, 2.2vw, 26px)}
+    .title{font-size: clamp(1.3rem, 2.6vw, 2rem); margin:0 0 10px}
+    .subtitle{color:var(--muted); margin:0 0 18px}
+    .grid{display:grid; grid-template-columns: repeat(4, 1fr); gap:14px}
+    @media (max-width: 1000px){ .hero{grid-template-columns: 1fr} .grid{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width: 560px){ .grid{grid-template-columns: 1fr} }
+
+    .option{position:relative; overflow:hidden; padding:16px; border-radius:16px; cursor:pointer; border:1px solid transparent; transition:.2s; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));}
+    .option:hover{transform: translateY(-2px); border-color: rgba(255,255,255,.14)}
+    .option h3{margin:8px 0 6px; font-size:1rem}
+    .option p{margin:0; color:var(--muted); font-size:.9rem}
+    .badge{font-size:.75rem; color:#0a1420; font-weight:800; letter-spacing:.3px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); padding:6px 10px; border-radius:999px; display:inline-block}
+
+    .section-title{margin: 18px 0 8px; font-size:1rem; color:var(--muted); letter-spacing:.3px}
+
+    .controls{display:flex; gap:10px; flex-wrap:wrap}
+    button{background:linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; border:0; padding:12px 14px; border-radius:14px; font-weight:700; cursor:pointer; box-shadow: var(--shadow); transition:.18s}
+    button:hover{transform: translateY(-1px)}
+    .btn-secondary{background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:var(--text); font-weight:700}
+    .btn-ghost{background: transparent; border:1px dashed rgba(255,255,255,.25)}
+
+    .hidden{display:none}
+
+    /* Quiz */
+    .quiz{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px}
+    @media (max-width: 1000px){ .quiz{grid-template-columns: 1fr} }
+    .q-header{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .progress{height: 10px; background: rgba(255,255,255,.08); border-radius:999px; overflow:hidden}
+    .progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent-2))}
+
+    .q{display:grid; gap:14px}
+    .q h2{font-size: clamp(1.4rem, 2.8vw, 2.2rem); margin:8px 0}
+    .q .meta{color:var(--muted); font-size:.95rem}
+    .answer-row{display:flex; gap:10px; align-items:center}
+    .answer{flex:1; font-size:1.2rem}
+
+    .kbd{display:inline-grid; place-items:center; min-width:46px; height:46px; border-radius:12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); font-weight:800}
+
+    .board{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
+    .board button{height:50px}
+
+    .feedback{padding:12px; border-radius:12px; background: rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25)}
+    .feedback.bad{background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.25)}
+
+    .timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.2rem}
+    .chip{border:1px solid rgba(255,255,255,.1); color:var(--muted); padding:6px 10px; border-radius:999px}
+
+    /* Results */
+    table{width:100%; border-collapse:collapse}
+    th, td{padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08); text-align:left}
+    th{color:var(--muted); font-weight:700}
+    tr:hover td{background: rgba(255,255,255,.03)}
+    .tbl-actions{display:flex; gap:8px}
+
+    footer{opacity:.8; font-size:.9rem; padding:40px 0 60px}
+    .link{color:#a5b4fc; text-decoration:none}
+
+    .pulse{animation:pulse 1.6s infinite}
+    @keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
+  </style>
 </head>
 <body>
-
-<header>
-  <h1>Focus Academy - Matemàtiques</h1>
-  <button id="teacher-btn" onclick="toggleTeacherPanel()">👩‍🏫 Professor</button>
-</header>
-
-<main>
-  <section id="topics-section">
-    <h2>Temes de Matemàtiques</h2>
-    <div class="topics" id="topics-list"></div>
-  </section>
-
-  <section id="quiz-section" class="hidden">
-    <h2 id="quiz-title"></h2>
-    <div id="quiz-container" class="box"></div>
-    <div id="quiz-result" class="box hidden"></div>
-    <button id="back-btn" class="hidden" onclick="backToMenu()">Tornar al menú</button>
-  </section>
-
-  <section id="teacher-panel" class="box hidden">
-    <h2>Creador d'exàmens</h2>
-    <input type="password" id="teacher-code" placeholder="Codi professor">
-    <button onclick="loginTeacher()">Entrar</button>
-    <div id="exam-creator" class="hidden">
-      <button onclick="createExam()">Crear nou examen</button>
-      <p id="exam-code-output"></p>
+  <header>
+    <div class="wrap row">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2l3.5 7.2L23 10l-5.5 5.1L18.5 22 12 18.5 5.5 22l1-6.9L1 10l7.5-.8L12 2z" fill="white" opacity=".9"/>
+          </svg>
+        </div>
+        <h1>Focus Academy · Matemàtiques</h1>
+      </div>
+      <nav class="right">
+        <button class="pill" onclick="showView('home')">Inici</button>
+        <button class="pill" onclick="showView('quiz')">Pràctica</button>
+        <button class="pill" onclick="showView('results')">Resultats</button>
+        <button class="pill" onclick="showView('about')">Sobre</button>
+        <input id="studentName" class="input" placeholder="Nom de l'alumne/a" />
+      </nav>
     </div>
-  </section>
-</main>
+  </header>
 
-<script>
-  const PROFESSOR_CODE = "secret123";
-  let currentExamCode = "";
+  <main class="wrap">
+    <!-- HOME -->
+    <section id="view-home" class="hero">
+      <div class="panel card">
+        <h2 class="title">Benvingut/da! 👋</h2>
+        <p class="subtitle">Tria un mòdul per començar. Pots configurar el nombre de preguntes, el nivell i el temps. Tot queda guardat en aquest dispositiu (sense comptes).</p>
 
-  const questionBank = {
-    "Aritmètica": [
-      { q: "5 + 7 = ?", choices: [12, 13, 10, 11], correct: 12 },
-      { q: "15 - 9 = ?", choices: [7, 6, 5, 4], correct: 6 },
-      { q: "8 × 3 = ?", choices: [24, 26, 22, 28], correct: 24 },
-      { q: "20 ÷ 4 = ?", choices: [5, 4, 6, 8], correct: 5 },
-      { q: "9 + 6 = ?", choices: [14, 16, 15, 13], correct: 15 }
-    ],
-    "Geometria": [
-      { q: "Quants costats té un hexàgon?", choices: [5, 6, 7, 8], correct: 6 },
-      { q: "La suma d'angles d'un triangle és...", choices: ["90°", "180°", "270°", "360°"], correct: "180°" },
-      { q: "Un rectangle té...", choices: ["4 costats iguals", "2 parelles de costats iguals", "3 costats iguals", "cap costat igual"], correct: "2 parelles de costats iguals" },
-      { q: "El radi és...", choices: ["Meitat del diàmetre", "El diàmetre", "Un costat del quadrat", "Un tipus d'angle"], correct: "Meitat del diàmetre" },
-      { q: "Quants graus té un angle recte?", choices: ["45°", "90°", "180°", "360°"], correct: "90°" }
-    ],
-    "Àlgebra": [
-      { q: "Si x = 3, quant és 2x + 5?", choices: [11, 10, 12, 9], correct: 11 },
-      { q: "Resol: 3x = 12", choices: [3, 4, 5, 6], correct: 4 },
-      { q: "Simplifica: 4x + 2x", choices: ["6x", "8x", "2x", "x"], correct: "6x" },
-      { q: "Si x = 2, quant és x²?", choices: [2, 4, 6, 8], correct: 4 },
-      { q: "Factoritza: x² + 3x", choices: ["x(x+3)", "x(x-3)", "(x+1)(x+3)", "No es pot"], correct: "x(x+3)" }
-    ]
-  };
+        <div class="section-title">Mòduls de matemàtiques</div>
+        <div class="grid" id="moduleGrid">
+          <!-- Cards injected by JS -->
+        </div>
 
-  const topicsList = document.getElementById("topics-list");
-  for (let topicName in questionBank) {
-    const div = document.createElement("div");
-    div.className = "topic";
-    div.innerText = topicName;
-    div.onclick = () => startQuiz(topicName);
-    topicsList.appendChild(div);
-  }
+        <div class="section-title">Configuració ràpida</div>
+        <div class="controls">
+          <label class="chip">Preguntes: <select id="cfg-count">
+            <option>10</option><option>20</option><option>30</option><option>50</option>
+          </select></label>
+          <label class="chip">Temps (min): <select id="cfg-time">
+            <option value="0">Sense límit</option><option>5</option><option>10</option><option>15</option><option>20</option>
+          </select></label>
+          <label class="chip">Nivell: <select id="cfg-level">
+            <option value="easy">Fàcil</option><option value="mid">Mitjà</option><option value="hard">Difícil</option>
+          </select></label>
+          <label class="chip">Negatius: <select id="cfg-neg">
+            <option value="no">No</option><option value="yes">Sí</option>
+          </select></label>
+          <button onclick="quickStart()">Comença ara</button>
+        </div>
+      </div>
 
-  function startQuiz(topicName) {
-    document.getElementById("topics-section").classList.add("hidden");
-    document.getElementById("quiz-title").innerText = topicName;
-    const quizDiv = document.getElementById("quiz-container");
-    quizDiv.innerHTML = "";
-    const questions = questionBank[topicName];
-    let score = 0;
-    let answered = 0;
+      <div class="panel card">
+        <h3 class="title" style="margin-bottom:6px">Rànquing local 🏅</h3>
+        <p class="subtitle">Els millors resultats en aquest ordinador.</p>
+        <div id="leaderboard">Carregant...</div>
+      </div>
+    </section>
 
-    questions.forEach((q, idx) => {
-      const div = document.createElement("div");
-      div.className = "quiz-question";
-      div.innerHTML = `<strong>${idx + 1}.</strong> ${q.q}`;
-      const choicesDiv = document.createElement("div");
-      choicesDiv.className = "choices";
-      q.choices.forEach(c => {
-        const btn = document.createElement("button");
-        btn.innerText = c;
-        btn.onclick = () => {
-          if (!btn.classList.contains("correct") && !btn.classList.contains("wrong")) {
-            if (c === q.correct) { btn.classList.add("correct"); score++; }
-            else btn.classList.add("wrong");
-            answered++;
-            if (answered === questions.length) {
-              showResult(score, questions.length);
-            }
-          }
-        };
-        choicesDiv.appendChild(btn);
+    <!-- QUIZ -->
+    <section id="view-quiz" class="hidden">
+      <div class="quiz">
+        <div class="panel card">
+          <div class="q-header">
+            <div style="display:flex; align-items:center; gap:10px">
+              <span id="qModule" class="badge">Aritmètica</span>
+              <span id="qLevel" class="chip">Fàcil</span>
+              <span id="timer" class="chip timer">--:--</span>
+            </div>
+            <div class="progress" style="flex:1"><i id="bar"></i></div>
+          </div>
+
+          <div class="q">
+            <div class="meta" id="qMeta">Pregunta 1 de 10</div>
+            <h2 id="qText">3 + 4 = ?</h2>
+            <div class="answer-row">
+              <input id="answer" class="input answer" placeholder="Resposta" inputmode="decimal" />
+              <button id="btnCheck">Comprova (↵)</button>
+              <button class="btn-secondary" id="btnSkip">Omet (→)</button>
+            </div>
+            <div id="feedback"></div>
+          </div>
+        </div>
+
+        <div class="panel card">
+          <h3 style="margin-top:0">Teclat numèric</h3>
+          <div class="board">
+            <button onclick="typeKey('7')">7</button>
+            <button onclick="typeKey('8')">8</button>
+            <button onclick="typeKey('9')">9</button>
+            <button onclick="typeKey('4')">4</button>
+            <button onclick="typeKey('5')">5</button>
+            <button onclick="typeKey('6')">6</button>
+            <button onclick="typeKey('1')">1</button>
+            <button onclick="typeKey('2')">2</button>
+            <button onclick="typeKey('3')">3</button>
+            <button onclick="typeKey('0')">0</button>
+            <button onclick="typeKey('-')">±</button>
+            <button onclick="typeKey('del')">⌫</button>
+          </div>
+          <div style="margin-top:10px; display:flex; gap:10px">
+            <span class="kbd">↵</span> <span class="ghost">comprova</span>
+            <span class="kbd">→</span> <span class="ghost">omet</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="view-results" class="hidden">
+      <div class="panel card">
+        <div class="row">
+          <h3 class="title" style="margin:0">Resultats guardats</h3>
+          <div class="tbl-actions">
+            <button class="btn-secondary" onclick="exportCSV()">Exporta CSV</button>
+            <button class="btn-ghost" onclick="clearResults()">Neteja</button>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px">
+          <label class="chip">Filtra mòdul: <select id="filter-module"></select></label>
+          <label class="chip">Alumne/a: <input id="filter-student" class="input" placeholder="Tots" style="width:160px"></label>
+        </div>
+        <div id="resultsTable">No hi ha dades encara.</div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="view-about" class="hidden">
+      <div class="panel card">
+        <h3 class="title" style="margin-top:0">Sobre aquesta eina</h3>
+        <p class="subtitle">Web single-file creada per Focus Academy. Inspirada en ThatQuiz, sense comptes ni dependències. Dades locals al navegador.</p>
+        <ul>
+          <li>Generador de preguntes per: Aritmètica, Fraccions, Percentatges i Equacions lineals.</li>
+          <li>Temps opcional, nivells, negatius i resum d'errors amb correcció.</li>
+          <li>Rànquing local, historial exportable a CSV, i mode offline (funciona sense internet).</li>
+        </ul>
+        <p class="subtitle">Suggeriments? Envia'ns millores i crearem més mòduls (potències, arrels, àrees...).</p>
+      </div>
+    </section>
+
+    <footer class="wrap">
+      Fet amb ❤️ per Focus Academy · © <span id="year"></span>
+    </footer>
+  </main>
+
+  <script>
+    /* ===================== UTILS ===================== */
+    const $ = (q) => document.querySelector(q);
+    const $$ = (q) => Array.from(document.querySelectorAll(q));
+    const rng = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
+    const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
+    const clamp = (x,a,b)=> Math.max(a, Math.min(b,x));
+
+    const gcd = (a,b)=>{ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b] } return a||1 };
+    const lcm = (a,b)=> Math.abs(a*b)/gcd(a,b);
+    const simplifyFrac = (n,d)=>{ const g=gcd(n,d); return [n/g, d/g] };
+
+    const store = {
+      get k(){ return 'focus-math-results-v1' },
+      all(){ try{ return JSON.parse(localStorage.getItem(this.k)||'[]') }catch{ return [] } },
+      save(entry){ const all=this.all(); all.push(entry); localStorage.setItem(this.k, JSON.stringify(all)) },
+      clear(){ localStorage.removeItem(this.k) }
+    };
+
+    const fmtTime = (sec)=>{
+      const m = Math.floor(sec/60), s = sec%60; return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`
+    }
+
+    /* ===================== APP STATE ===================== */
+    const MODULES = [
+      { id:'arith', name:'Aritmètica', desc:'Sumes, restes, multiplicacions i divisions.', badge:'Bàsic', gen: genArith },
+      { id:'frac', name:'Fraccions', desc:'Simplifica i compara fraccions.', badge:'Nou', gen: genFractions },
+      { id:'perc', name:'Percentatges', desc:'Calcula percentatges i descomptes.', badge:'Pràctic', gen: genPercent },
+      { id:'eq1', name:'Equacions lineals', desc:'Resol ax + b = c.', badge:'Àlgebra', gen: genEq1 },
+    ];
+
+    const DEFAULTS = { count: 10, time: 0, level: 'easy', allowNeg: false };
+    let session = null; // current quiz
+    let timerHandle = null;
+
+    /* ===================== UI BUILD ===================== */
+    function showView(name){
+      ['home','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
+      if(name==='results') renderResults();
+      if(name==='home') renderLeaderboard();
+    }
+
+    function buildHome(){
+      // Module cards
+      const grid = $('#moduleGrid'); grid.innerHTML='';
+      MODULES.forEach(m=>{
+        const el = document.createElement('div');
+        el.className='option';
+        el.innerHTML = `
+          <span class="badge">${m.badge}</span>
+          <h3>${m.name}</h3>
+          <p>${m.desc}</p>`;
+        el.onclick = ()=> startQuiz(m.id);
+        grid.appendChild(el);
       });
-      div.appendChild(choicesDiv);
-      quizDiv.appendChild(div);
+
+      // Filters for results page
+      const fm = $('#filter-module');
+      fm.innerHTML = `<option value="">Tots</option>` + MODULES.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+
+      // Defaults in quick config
+      $('#cfg-count').value = DEFAULTS.count;
+      $('#cfg-time').value = DEFAULTS.time;
+      $('#cfg-level').value = DEFAULTS.level;
+      $('#cfg-neg').value = DEFAULTS.allowNeg ? 'yes':'no';
+    }
+
+    /* ===================== QUIZ ENGINE ===================== */
+    function startQuiz(moduleId){
+      const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
+      const count = parseInt($('#cfg-count').value||DEFAULTS.count);
+      const time = parseInt($('#cfg-time').value||0);
+      const level = $('#cfg-level').value||'easy';
+      const allowNeg = $('#cfg-neg').value==='yes';
+
+      session = {
+        module: moduleId,
+        count, time, level, allowNeg,
+        idx: 0,
+        correct: 0,
+        wrongs: [],
+        startedAt: Date.now(),
+        secondsLeft: time>0 ? time*60 : 0,
+        questions: []
+      };
+
+      // pre-generate
+      for(let i=0;i<count;i++) session.questions.push(module.gen(level, allowNeg));
+
+      // UI
+      $('#qModule').textContent = MODULES.find(m=>m.id===moduleId).name;
+      $('#qLevel').textContent = levelLabel(level);
+      $('#feedback').innerHTML='';
+      $('#answer').value='';
+      updateProgress();
+      showView('quiz');
+      renderQuestion();
+      stopTimer();
+      if(time>0) startTimer(); else $('#timer').textContent='Sense límit';
+      $('#answer').focus();
+    }
+
+    function levelLabel(l){ return l==='easy'?'Fàcil':(l==='mid'?'Mitjà':'Difícil') }
+
+    function renderQuestion(){
+      const q = session.questions[session.idx];
+      $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
+      $('#qText').textContent = q.text;
+      $('#answer').value='';
+      $('#feedback').innerHTML='';
+    }
+
+    function updateProgress(){
+      const pct = (session.idx / session.count) * 100;
+      $('#bar').style.width = pct + '%';
+    }
+
+    function startTimer(){
+      $('#timer').textContent = fmtTime(session.secondsLeft);
+      timerHandle = setInterval(()=>{
+        session.secondsLeft--;
+        $('#timer').textContent = fmtTime(Math.max(0, session.secondsLeft));
+        if(session.secondsLeft<=0){
+          stopTimer();
+          finishQuiz(true);
+        }
+      }, 1000);
+    }
+    function stopTimer(){ if(timerHandle) clearInterval(timerHandle); timerHandle=null; }
+
+    function checkAnswer(){
+      const q = session.questions[session.idx];
+      const raw = $('#answer').value.trim().replace(',', '.');
+      if(raw==='') { flashFeedback('Escriu una resposta o prem Omet.', 'warn'); return; }
+
+      let ok = false; let user;
+      if(typeof q.answer === 'number'){
+        user = Number(raw);
+        // allow small float tolerance
+        ok = Math.abs(user - q.answer) < 1e-9;
+      } else if(typeof q.answer === 'string'){
+        user = raw;
+        ok = (user === q.answer);
+      }
+
+      if(ok){
+        session.correct++;
+        feedback(true, `Correcte!`);
+      }else{
+        session.wrongs.push({ ...q, user: raw });
+        feedback(false, `Incorrecte. Resposta correcta: <b>${fmtAns(q.answer)}</b>`);
+      }
+
+      // next
+      session.idx++;
+      updateProgress();
+      if(session.idx>=session.count){ finishQuiz(false) }
+      else renderQuestion();
+    }
+
+    function skip(){
+      const q = session.questions[session.idx];
+      session.wrongs.push({ ...q, user: '— (omet)' });
+      session.idx++;
+      updateProgress();
+      if(session.idx>=session.count){ finishQuiz(false) }
+      else renderQuestion();
+    }
+
+    function feedback(isOk, msg){
+      $('#feedback').innerHTML = `<div class="feedback ${isOk? '':'bad'}">${msg}</div>`;
+    }
+    function flashFeedback(msg, type='warn'){
+      const color = type==='warn'? 'var(--warn)':'var(--bad)';
+      $('#feedback').innerHTML = `<div class="feedback" style="background:transparent;border-color:${color};color:${color}">${msg}</div>`
+    }
+    function fmtAns(a){ return typeof a==='number' ? (Number.isInteger(a)? a : a.toFixed(3)) : a }
+
+    function finishQuiz(timeUp){
+      stopTimer();
+      const elapsed = Math.floor((Date.now() - session.startedAt)/1000);
+      const score = Math.round((session.correct / session.count) * 100);
+      const name = ($('#studentName').value||'Anònim').trim();
+
+      // Save
+      store.save({
+        at: new Date().toISOString(),
+        name,
+        module: session.module,
+        level: session.level,
+        count: session.count,
+        correct: session.correct,
+        time_limit: session.time,
+        time_spent: elapsed,
+        score,
+        wrongs: session.wrongs
+      });
+
+      // Summary UI
+      const summary = document.createElement('div');
+      summary.className = 'panel card';
+      summary.innerHTML = `
+        <h3 style="margin-top:0">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
+        <p class="subtitle">${name} · ${MODULES.find(m=>m.id===session.module).name} · ${levelLabel(session.level)}</p>
+        <div class="row" style="align-items:flex-end">
+          <div>
+            <div class="section-title">Resultat</div>
+            <div style="font-size:2.2rem; font-weight:900">${score}%</div>
+            <div class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</div>
+            <div class="controls" style="margin-top:10px">
+              <button onclick="startQuiz('${session.module}')">Torna-ho a fer</button>
+              <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
+            </div>
+          </div>
+          <div style="flex:1"></div>
+        </div>
+        <div class="section-title">Errors i correccions</div>
+        ${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
+      `;
+      const host = document.createElement('div');
+      host.appendChild(summary);
+      $('#view-quiz').innerHTML='';
+      $('#view-quiz').appendChild(host);
+    }
+
+    function renderWrongs(wr){
+      return `<table><thead><tr><th>#</th><th>Pregunta</th><th>La teva</th><th>Correcta</th></tr></thead><tbody>`+
+        wr.map((w,i)=>`<tr><td>${i+1}</td><td>${w.text}</td><td>${w.user}</td><td>${fmtAns(w.answer)}</td></tr>`).join('')+
+        `</tbody></table>`
+    }
+
+    /* ===================== QUESTION GENERATORS ===================== */
+    function genArith(level, allowNeg){
+      const ranges = { easy:[0,20], mid:[-10,50], hard:[-50,120] };
+      let [a,b] = ranges[level] || ranges.easy;
+      let x = rng(a,b), y = rng(a,b);
+      if(!allowNeg){ x = Math.max(0,x); y = Math.max(0,y); }
+      const op = choice(['+','-','×','÷']);
+      let text, ans;
+      switch(op){
+        case '+': ans = x + y; text = `${x} + ${y} = ?`; break;
+        case '-': ans = x - y; text = `${x} − ${y} = ?`; break;
+        case '×': ans = x * y; text = `${x} × ${y} = ?`; break;
+        case '÷':
+          // make divisible sometimes
+          y = rng(1,10);
+          const prod = x*y; ans = x; text = `${prod} ÷ ${y} = ?`; break;
+      }
+      return { type:'arith', text, answer: ans };
+    }
+
+    function genFractions(level){
+      // Two modes: simplify or compare
+      const mode = choice(['simplify','compare']);
+      if(mode==='simplify'){
+        let n=rng(2,40), d=rng(2,40); if(n===d) d++;
+        const [sn,sd]=simplifyFrac(n,d);
+        // avoid trivial already reduced in easy
+        if(level==='easy' && sn===n && sd===d) return genFractions(level);
+        return { type:'frac-simplify', text:`Simplifica: ${n}/${d}`, answer:`${sn}/${sd}` };
+      } else {
+        // compare a/b ? c/d  -> answer one of <, >, =
+        let a=rng(1,15), b=rng(2,16), c=rng(1,15), d=rng(2,16);
+        const lhs = a*d, rhs = c*b; let sign = '=';
+        if(lhs>rhs) sign='>' ; else if(lhs<rhs) sign='<';
+        return { type:'frac-compare', text:`Compara: ${a}/${b} ? ${c}/${d} (respon <, > o =)`, answer: sign };
+      }
+    }
+
+    function genPercent(level){
+      // Types: p% of N ; N is p% of ? ; increase/decrease
+      const mode = choice(['of','is-of','discount']);
+      if(mode==='of'){
+        const p = [10,15,20,25,30,40,50,60,75,80][rng(0,9)];
+        const n = rng(20, 800);
+        const ans = +(n * p / 100).toFixed(2);
+        return { type:'percent-of', text:`${p}% de ${n} = ?`, answer: ans };
+      } else if(mode==='is-of'){
+        const p = [10,12.5,20,25,33.33,40,50,66.67,75,80][rng(0,9)];
+        const part = rng(10,600);
+        const whole = +(part * 100 / p).toFixed(2);
+        return { type:'percent-is-of', text:`${part} és el ${p}% de ?`, answer: whole };
+      } else {
+        const n = rng(20, 900);
+        const off = [5,10,12,15,20,25,30,40][rng(0,7)];
+        const ans = +(n * (1 - off/100)).toFixed(2);
+        return { type:'percent-discount', text:`Descompte del ${off}% sobre ${n} → preu final = ?`, answer: ans };
+      }
+    }
+
+    function genEq1(level, allowNeg){
+      // ax + b = c  -> find x, integers preferred
+      let a = rng(1, 12) * (allowNeg && Math.random()<.3? -1: 1);
+      let x = rng(-15, 15);
+      let b = rng(-20, 20);
+      const c = a*x + b;
+      const text = `${a}·x ${b>=0?'+':'−'} ${Math.abs(b)} = ${c}. Troba x`;
+      return { type:'eq1', text, answer: x };
+    }
+
+    /* ===================== RESULTS ===================== */
+    function renderResults(){
+      const data = store.all();
+      const modFilter = $('#filter-module').value || '';
+      const nameFilter = ($('#filter-student').value||'').toLowerCase();
+      const filtered = data.filter(r=>
+        (!modFilter || r.module===modFilter) && (!nameFilter || (r.name||'').toLowerCase().includes(nameFilter))
+      );
+
+      if(!filtered.length){ $('#resultsTable').innerHTML = '<div class="chip">No hi ha dades.</div>'; return }
+
+      const rows = filtered.map((r,i)=>{
+        const m = MODULES.find(m=>m.id===r.module)?.name || r.module;
+        const d = new Date(r.at);
+        return `<tr>
+          <td>${i+1}</td>
+          <td>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
+          <td>${r.name}</td>
+          <td>${m}</td>
+          <td>${levelLabel(r.level)}</td>
+          <td>${r.correct}/${r.count}</td>
+          <td>${r.score}%</td>
+          <td>${fmtTime(r.time_spent)}</td>
+        </tr>`
+      }).join('');
+
+      $('#resultsTable').innerHTML = `
+        <table>
+          <thead>
+            <tr><th>#</th><th>Data</th><th>Alumne/a</th><th>Mòdul</th><th>Nivell</th><th>Encerts</th><th>Puntuació</th><th>Temps</th></tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function exportCSV(){
+      const data = store.all();
+      if(!data.length){ alert('No hi ha dades per exportar.'); return }
+      const header = ['data','alumne','modul','nivell','preguntes','correctes','puntuacio','temps_limit','temps_consumit'];
+      const lines = [header.join(',')];
+      data.forEach(r=>{
+        lines.push([
+          r.at, r.name, r.module, r.level, r.count, r.correct, r.score, r.time_limit, r.time_spent
+        ].join(','))
+      })
+      const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='focus-academy-math-results.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function clearResults(){
+      if(confirm('Segur que vols esborrar tots els resultats d\'aquest dispositiu?')){
+        store.clear(); renderResults(); renderLeaderboard();
+      }
+    }
+
+    function renderLeaderboard(){
+      const data = store.all();
+      if(!data.length){ $('#leaderboard').innerHTML='<div class="chip">Encara no hi ha puntuacions. Fes una prova! ✨</div>'; return }
+      // Top by score then time
+      const best = [...data].sort((a,b)=> b.score-a.score || a.time_spent-b.time_spent).slice(0,8);
+      const rows = best.map((r,i)=>{
+        const m = MODULES.find(m=>m.id===r.module)?.name || r.module;
+        return `<tr>
+          <td>${i+1}</td>
+          <td>${r.name}</td>
+          <td>${m}</td>
+          <td>${r.score}%</td>
+          <td>${fmtTime(r.time_spent)}</td>
+        </tr>`
+      }).join('');
+      $('#leaderboard').innerHTML = `
+        <table>
+          <thead><tr><th>#</th><th>Alumne/a</th><th>Mòdul</th><th>Puntuació</th><th>Temps</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    /* ===================== INPUT HANDLERS ===================== */
+    function typeKey(k){
+      const inp = $('#answer');
+      if(k==='del') inp.value = inp.value.slice(0,-1);
+      else if(k==='-'){
+        if(inp.value.startsWith('-')) inp.value = inp.value.slice(1); else inp.value = '-' + inp.value;
+      } else inp.value += k;
+      inp.focus();
+    }
+
+    document.addEventListener('keydown', (e)=>{
+      if($('#view-quiz').classList.contains('hidden')) return;
+      if(e.key==='Enter'){ e.preventDefault(); checkAnswer(); }
+      if(e.key==='ArrowRight'){ e.preventDefault(); skip(); }
     });
 
-    document.getElementById("quiz-section").classList.remove("hidden");
-  }
+    $('#btnCheck').onclick = checkAnswer;
+    $('#btnSkip').onclick = skip;
 
-  function showResult(score, total) {
-    const resultDiv = document.getElementById("quiz-result");
-    resultDiv.innerHTML = `<h3>Puntuació final: ${score}/${total}</h3>`;
-    resultDiv.classList.remove("hidden");
-    document.getElementById("back-btn").classList.remove("hidden");
-  }
+    function quickStart(){ startQuiz('arith') }
 
-  function backToMenu() {
-    document.getElementById("quiz-section").classList.add("hidden");
-    document.getElementById("quiz-result").classList.add("hidden");
-    document.getElementById("back-btn").classList.add("hidden");
-    document.getElementById("topics-section").classList.remove("hidden");
-  }
-
-  function toggleTeacherPanel() {
-    document.getElementById("teacher-panel").classList.toggle("hidden");
-  }
-
-  function loginTeacher() {
-    const code = document.getElementById("teacher-code").value;
-    if (code === PROFESSOR_CODE) {
-      document.getElementById("exam-creator").classList.remove("hidden");
-    } else {
-      alert("Codi incorrecte");
-    }
-  }
-
-  function createExam() {
-    currentExamCode = Math.random().toString(36).substr(2, 4).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
-    document.getElementById("exam-code-output").innerText = "Codi d'examen: " + currentExamCode;
-  }
-</script>
+    /* ===================== INIT ===================== */
+    buildHome();
+    showView('home');
+    $('#year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
