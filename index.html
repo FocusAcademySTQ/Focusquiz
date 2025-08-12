@@ -7,52 +7,59 @@
   <meta name="description" content="Pràctiques de matemàtiques tipus ThatQuiz per a estudiants. Single-file, sense dependències." />
   <style>
     :root{
-      --bg: #0f1222;
-      --card: #161a34;
-      --muted: #8b91b7;
-      --text: #eef2ff;
-      --accent: #8b5cf6; /* violeta */
-      --accent-2: #22d3ee; /* cian */
-      --ok: #22c55e;
-      --bad: #ef4444;
-      --warn: #f59e0b;
-      --shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+      /* Paleta pastel Material-lite */
+      --bg: #f7f7fb;
+      --card: #ffffff;
+      --ink: #1b1e28;
+      --muted: #6b7280;
+      --primary: #7aa2ff;   /* blau pastel */
+      --secondary: #a7f3d0; /* menta suau */
+      --ok: #86efac;
+      --bad: #fca5a5;
+      --warn: #fde68a;
       --radius: 18px;
+      --shadow: 0 8px 22px rgba(27,30,40,.08);
+      --hair: #e5e7eb;
+      --focus: 0 0 0 3px rgba(122,162,255,.35);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color:var(--text); background:
-        radial-gradient(1000px 600px at 10% -10%, rgba(139,92,246,.25), transparent 60%),
-        radial-gradient(1000px 600px at 100% 10%, rgba(34,211,238,.15), transparent 50%),
-        linear-gradient(180deg, #0c0f1d, #0b0e19 60%, #0a0d18);
+      color:var(--ink);
+      background: linear-gradient(180deg, var(--bg), #eef2ff 280px);
     }
     header{
-      position:sticky; top:0; z-index:5; backdrop-filter:saturate(1.2) blur(10px);
-      background:rgba(12, 15, 29, .6); border-bottom:1px solid rgba(255,255,255,.06);
+      position:sticky; top:0; z-index:5;
+      backdrop-filter:saturate(1.2) blur(10px);
+      background:rgba(255,255,255,.7);
+      border-bottom:1px solid var(--hair);
     }
     .wrap{max-width:1100px; margin:0 auto; padding: clamp(14px, 2vw, 24px);}
     .brand{display:flex; align-items:center; gap:12px;}
-    .logo{width:38px;height:38px; display:grid; place-items:center; border-radius:12px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: var(--shadow)}
+    .logo{
+      width:38px;height:38px; display:grid; place-items:center; border-radius:12px;
+      background:linear-gradient(135deg, var(--primary), #c7d2fe);
+      box-shadow: var(--shadow); color:#0f172a; font-weight:900
+    }
     .brand h1{font-size:1.1rem; margin:0; letter-spacing:.2px}
     nav{display:flex; gap:8px; flex-wrap:wrap}
     .row{display:flex; justify-content:space-between; align-items:center; gap:12px}
     .pill{
-      border:1px solid rgba(255,255,255,.08); color:var(--text); background:rgba(255,255,255,.03);
-      padding:10px 14px; border-radius:999px; cursor:pointer; transition:.2s ease; font-weight:600; font-size:.92rem
+      border:1px solid var(--hair); color:var(--ink); background:#ffffffcc;
+      padding:10px 14px; border-radius:999px; cursor:pointer; transition:.2s ease; font-weight:700; font-size:.92rem
     }
-    .pill:hover{transform:translateY(-1px); background:rgba(255,255,255,.06)}
+    .pill:hover{transform:translateY(-1px); background:#fff}
     .right{display:flex; align-items:center; gap:10px}
     .input, select{
-      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
-      color:var(--text); border-radius:12px; padding:10px 12px; outline:none; font-size:.95rem
+      background:#f3f4f6; border:1px solid var(--hair); color:var(--ink);
+      border-radius:12px; padding:10px 12px; outline:none; font-size:.95rem
     }
-    .ghost{opacity:.8}
+    .input:focus, select:focus{box-shadow:var(--focus); border-color:transparent}
 
     main{padding: 28px 0 60px}
     .hero{display:grid; grid-template-columns: 1.3fr .7fr; gap:20px; align-items:stretch}
-    .panel{background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius: var(--radius); box-shadow: var(--shadow)}
+    .panel{background: var(--card); border:1px solid var(--hair); border-radius: var(--radius); box-shadow: var(--shadow)}
     .card{padding: clamp(16px, 2.2vw, 26px)}
     .title{font-size: clamp(1.3rem, 2.6vw, 2rem); margin:0 0 10px}
     .subtitle{color:var(--muted); margin:0 0 18px}
@@ -60,19 +67,27 @@
     @media (max-width: 1000px){ .hero{grid-template-columns: 1fr} .grid{grid-template-columns: repeat(2, 1fr)} }
     @media (max-width: 560px){ .grid{grid-template-columns: 1fr} }
 
-    .option{position:relative; overflow:hidden; padding:16px; border-radius:16px; cursor:pointer; border:1px solid transparent; transition:.2s; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03));}
-    .option:hover{transform: translateY(-2px); border-color: rgba(255,255,255,.14)}
+    .option{
+      position:relative; overflow:hidden; padding:16px; border-radius:16px; cursor:pointer; border:1px solid var(--hair); transition:.2s;
+      background:linear-gradient(180deg, #f9fafb, #f3f4f6);
+    }
+    .option:hover{transform: translateY(-2px); border-color: #cbd5e1; background:#fff}
     .option h3{margin:8px 0 6px; font-size:1rem}
     .option p{margin:0; color:var(--muted); font-size:.9rem}
-    .badge{font-size:.75rem; color:#0a1420; font-weight:800; letter-spacing:.3px; background:linear-gradient(135deg, var(--accent), var(--accent-2)); padding:6px 10px; border-radius:999px; display:inline-block}
+    .badge{
+      font-size:.75rem; color:#0f172a; font-weight:800; letter-spacing:.3px;
+      background:linear-gradient(135deg, var(--primary), #c7d2fe); padding:6px 10px; border-radius:999px; display:inline-block
+    }
 
     .section-title{margin: 18px 0 8px; font-size:1rem; color:var(--muted); letter-spacing:.3px}
 
     .controls{display:flex; gap:10px; flex-wrap:wrap}
-    button{background:linear-gradient(135deg, #3b82f6, #8b5cf6); color:white; border:0; padding:12px 14px; border-radius:14px; font-weight:700; cursor:pointer; box-shadow: var(--shadow); transition:.18s}
+    button{
+      background:linear-gradient(135deg, var(--primary), #a5b4fc); color:#0f172a; border:0; padding:12px 14px; border-radius:14px; font-weight:800; cursor:pointer; box-shadow: var(--shadow); transition:.18s
+    }
     button:hover{transform: translateY(-1px)}
-    .btn-secondary{background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:var(--text); font-weight:700}
-    .btn-ghost{background: transparent; border:1px dashed rgba(255,255,255,.25)}
+    .btn-secondary{background:#eef2ff; border:1px solid var(--hair); color:var(--ink); font-weight:800}
+    .btn-ghost{background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700}
 
     .hidden{display:none}
 
@@ -80,8 +95,8 @@
     .quiz{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px}
     @media (max-width: 1000px){ .quiz{grid-template-columns: 1fr} }
     .q-header{display:flex; align-items:center; justify-content:space-between; gap:10px}
-    .progress{height: 10px; background: rgba(255,255,255,.08); border-radius:999px; overflow:hidden}
-    .progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--accent), var(--accent-2))}
+    .progress{height: 10px; background: #e5e7eb; border-radius:999px; overflow:hidden}
+    .progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--primary), #93c5fd)}
 
     .q{display:grid; gap:14px}
     .q h2{font-size: clamp(1.4rem, 2.8vw, 2.2rem); margin:8px 0}
@@ -89,31 +104,34 @@
     .answer-row{display:flex; gap:10px; align-items:center}
     .answer{flex:1; font-size:1.2rem}
 
-    .kbd{display:inline-grid; place-items:center; min-width:46px; height:46px; border-radius:12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); font-weight:800}
+    .kbd{
+      display:inline-grid; place-items:center; min-width:46px; height:46px; border-radius:12px;
+      background:#f3f4f6; border:1px solid var(--hair); font-weight:800; color:var(--ink)
+    }
 
     .board{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
     .board button{height:50px}
 
-    .feedback{padding:12px; border-radius:12px; background: rgba(34,197,94,.08); border:1px solid rgba(34,197,94,.25)}
-    .feedback.bad{background: rgba(239,68,68,.08); border-color: rgba(239,68,68,.25)}
+    .feedback{padding:12px; border-radius:12px; background: #ecfdf5; border:1px solid #bbf7d0; color:#065f46}
+    .feedback.bad{background: #fff1f2; border-color: #fecaca; color:#7f1d1d}
 
     .timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.2rem}
-    .chip{border:1px solid rgba(255,255,255,.1); color:var(--muted); padding:6px 10px; border-radius:999px}
+    .chip{border:1px solid var(--hair); color:var(--muted); padding:6px 10px; border-radius:999px; background:#fff}
 
     /* Results */
     table{width:100%; border-collapse:collapse}
-    th, td{padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.08); text-align:left}
-    th{color:var(--muted); font-weight:700}
-    tr:hover td{background: rgba(255,255,255,.03)}
+    th, td{padding:10px 12px; border-bottom:1px solid var(--hair); text-align:left}
+    th{color:var(--muted); font-weight:800}
+    tr:hover td{background: #f9fafb}
     .tbl-actions{display:flex; gap:8px}
 
-    footer{opacity:.8; font-size:.9rem; padding:40px 0 60px}
-    .link{color:#a5b4fc; text-decoration:none}
+    footer{opacity:.9; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
+    .link{color:#6366f1; text-decoration:none}
 
     .pulse{animation:pulse 1.6s infinite}
     @keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
-      /* Modal */
-    .modal{position:fixed; inset:0; background:rgba(10,13,24,.6); backdrop-filter: blur(6px); display:grid; place-items:center; z-index:50}
+    /* Modal */
+    .modal{position:fixed; inset:0; background:rgba(10,13,24,.25); backdrop-filter: blur(6px); display:grid; place-items:center; z-index:50}
     .modal-inner{width:min(92vw, 820px)}
   </style>
 </head>
@@ -121,11 +139,7 @@
   <header>
     <div class="wrap row">
       <div class="brand">
-        <div class="logo" aria-hidden="true">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2l3.5 7.2L23 10l-5.5 5.1L18.5 22 12 18.5 5.5 22l1-6.9L1 10l7.5-.8L12 2z" fill="white" opacity=".9"/>
-          </svg>
-        </div>
+        <div class="logo" aria-hidden="true">Q</div>
         <h1>Focus Academy · Matemàtiques</h1>
       </div>
       <nav class="right">
@@ -168,11 +182,8 @@
         </div>
       </div>
 
-      <div class="panel card">
-        <h3 class="title" style="margin-bottom:6px">Rànquing local 🏅</h3>
-        <p class="subtitle">Els millors resultats en aquest ordinador.</p>
-        <div id="leaderboard">Carregant...</div>
-      </div>
+      <!-- (Ranking eliminat) -->
+      <div class="panel card" style="display:none"></div>
     </section>
 
     <!-- QUIZ -->
@@ -201,7 +212,7 @@
         </div>
 
         <div class="panel card">
-          <h3 style="margin-top:0">Teclat numèric</h3>
+          <h3 class="title" style="margin-top:0">Teclat numèric</h3>
           <div class="board">
             <button onclick="typeKey('7')">7</button>
             <button onclick="typeKey('8')">8</button>
@@ -216,9 +227,9 @@
             <button onclick="typeKey('-')">±</button>
             <button onclick="typeKey('del')">⌫</button>
           </div>
-          <div style="margin-top:10px; display:flex; gap:10px">
-            <span class="kbd">↵</span> <span class="ghost">comprova</span>
-            <span class="kbd">→</span> <span class="ghost">omet</span>
+          <div style="margin-top:10px; display:flex; gap:10px; align-items:center">
+            <span class="kbd">↵</span> <span class="subtitle">comprova</span>
+            <span class="kbd">→</span> <span class="subtitle">omet</span>
           </div>
         </div>
       </div>
@@ -250,7 +261,7 @@
         <ul>
           <li>Generador de preguntes per: Aritmètica, Fraccions, Percentatges i Equacions lineals.</li>
           <li>Temps opcional, nivells, negatius i resum d'errors amb correcció.</li>
-          <li>Rànquing local, historial exportable a CSV, i mode offline (funciona sense internet).</li>
+          <li>Historial exportable a CSV i mode offline (funciona sense internet).</li>
         </ul>
         <p class="subtitle">Suggeriments? Envia'ns millores i crearem més mòduls (potències, arrels, àrees...).</p>
       </div>
@@ -312,7 +323,7 @@
     function showView(name){
       ['home','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
       if(name==='results') renderResults();
-      if(name==='home') renderLeaderboard();
+      // (ranking eliminat → sense renderLeaderboard)
     }
 
     function buildHome(){
@@ -451,8 +462,9 @@
       $('#feedback').innerHTML = `<div class="feedback ${isOk? '':'bad'}">${msg}</div>`;
     }
     function flashFeedback(msg, type='warn'){
-      const color = type==='warn'? 'var(--warn)':'var(--bad)';
-      $('#feedback').innerHTML = `<div class="feedback" style="background:transparent;border-color:${color};color:${color}">${msg}</div>`
+      const color = type==='warn'? 'var(--warn)':'#fecaca';
+      const bg = type==='warn'? '#fffbeb':'#fff1f2';
+      $('#feedback').innerHTML = `<div class="feedback" style="background:${bg};border-color:${color};color:#78350f">${msg}</div>`
     }
     function fmtAns(a){ return typeof a==='number' ? (Number.isInteger(a)? a : a.toFixed(3)) : a }
 
@@ -519,7 +531,6 @@
         case '-': ans = x - y; text = `${x} − ${y} = ?`; break;
         case '×': ans = x * y; text = `${x} × ${y} = ?`; break;
         case '÷':
-          // make divisible sometimes
           y = rng(1,10);
           const prod = x*y; ans = x; text = `${prod} ÷ ${y} = ?`; break;
       }
@@ -527,16 +538,13 @@
     }
 
     function genFractions(level){
-      // Two modes: simplify or compare
       const mode = choice(['simplify','compare']);
       if(mode==='simplify'){
         let n=rng(2,40), d=rng(2,40); if(n===d) d++;
         const [sn,sd]=simplifyFrac(n,d);
-        // avoid trivial already reduced in easy
         if(level==='easy' && sn===n && sd===d) return genFractions(level);
         return { type:'frac-simplify', text:`Simplifica: ${n}/${d}`, answer:`${sn}/${sd}` };
       } else {
-        // compare a/b ? c/d  -> answer one of <, >, =
         let a=rng(1,15), b=rng(2,16), c=rng(1,15), d=rng(2,16);
         const lhs = a*d, rhs = c*b; let sign = '=';
         if(lhs>rhs) sign='>' ; else if(lhs<rhs) sign='<';
@@ -545,7 +553,6 @@
     }
 
     function genPercent(level){
-      // Types: p% of N ; N is p% of ? ; increase/decrease
       const mode = choice(['of','is-of','discount']);
       if(mode==='of'){
         const p = [10,15,20,25,30,40,50,60,75,80][rng(0,9)];
@@ -566,7 +573,6 @@
     }
 
     function genEq1(level, allowNeg){
-      // ax + b = c  -> find x, integers preferred
       let a = rng(1, 12) * (allowNeg && Math.random()<.3? -1: 1);
       let x = rng(-15, 15);
       let b = rng(-20, 20);
@@ -629,31 +635,8 @@
 
     function clearResults(){
       if(confirm('Segur que vols esborrar tots els resultats d\'aquest dispositiu?')){
-        store.clear(); renderResults(); renderLeaderboard();
+        store.clear(); renderResults();
       }
-    }
-
-    function renderLeaderboard(){
-      const data = store.all();
-      if(!data.length){ $('#leaderboard').innerHTML='<div class="chip">Encara no hi ha puntuacions. Fes una prova! ✨</div>'; return }
-      // Top by score then time
-      const best = [...data].sort((a,b)=> b.score-a.score || a.time_spent-b.time_spent).slice(0,8);
-      const rows = best.map((r,i)=>{
-        const m = MODULES.find(m=>m.id===r.module)?.name || r.module;
-        return `<tr>
-          <td>${i+1}</td>
-          <td>${r.name}</td>
-          <td>${m}</td>
-          <td>${r.score}%</td>
-          <td>${fmtTime(r.time_spent)}</td>
-        </tr>`
-      }).join('');
-      $('#leaderboard').innerHTML = `
-        <table>
-          <thead><tr><th>#</th><th>Alumne/a</th><th>Mòdul</th><th>Puntuació</th><th>Temps</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
     }
 
     /* ===================== INPUT HANDLERS ===================== */
