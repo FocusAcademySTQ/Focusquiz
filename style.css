@@ -59,70 +59,17 @@
     @media (max-width: 1000px){ .grid{grid-template-columns: repeat(2, 1fr)} }
     @media (max-width: 560px){ .grid{grid-template-columns: 1fr} }
 
-    .option {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  min-height: 80px;
-  min-width: 160px;
-  padding: 18px 36px;
-  border: none;
-  border-radius: 38px;
-  background: linear-gradient(120deg, #7aa2ff 60%, #f5d0fe 100%);
-  box-shadow: 0 4px 18px rgba(122,162,255,0.15);
-  color: #fff;
-  font-size: 1.17rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  text-align: center;
-  cursor: pointer;
-  transition:
-    transform 0.12s cubic-bezier(.4,2,.6,1),
-    box-shadow 0.16s cubic-bezier(.4,2,.6,1),
-    background 0.18s;
-  position: relative;
-  overflow: hidden;
-  user-select: none;
-}
-
-.option:hover,
-.option:focus-visible {
-  transform: scale(1.045) translateY(-2px);
-  box-shadow: 0 10px 36px 0 rgba(122,162,255,0.26);
-  background: linear-gradient(120deg, #7aa2ff 80%, #a5b4fc 100%);
-  outline: none;
-}
-
-.option .icon,
-.option .emoji {
-  font-size: 1.6em;
-  filter: drop-shadow(0 2px 6px rgba(122,162,255,0.12));
-  margin-right: 4px;
-  display: inline-block;
-}
-
-.option h3 {
-  margin: 0;
-  padding: 0;
-  font-size: 1.17rem;
-  font-weight: 600;
-  color: #fff;
-  text-align: center;
-}
-
-@media (max-width: 600px) {
-  .option {
-    font-size: 1rem;
-    min-height: 62px;
-    min-width: 110px;
-    padding: 13px 18px;
-    border-radius: 22px;
-  }
-  .option h3 {
-    font-size: 1.03rem;
-  }
-}
+    .option{
+      position:relative; overflow:hidden; padding:16px; border-radius:16px; cursor:pointer; border:1px solid var(--hair); transition:.2s;
+      background:linear-gradient(180deg, #f9fafb, #f3f4f6);
+    }
+    .option:hover{transform: translateY(-2px); border-color: #cbd5e1; background:#fff}
+    .option h3{margin:8px 0 6px; font-size:1rem}
+    .option p{margin:0; color:var(--muted); font-size:.9rem}
+    .badge{
+      font-size:.75rem; color:#0f172a; font-weight:800; letter-spacing:.3px;
+      background:linear-gradient(135deg, var(--primary), #c7d2fe); padding:6px 10px; border-radius:999px; display:inline-block
+    }
 
     .section-title{margin: 18px 0 8px; font-size:1rem; color:var(--muted); letter-spacing:.3px}
 
