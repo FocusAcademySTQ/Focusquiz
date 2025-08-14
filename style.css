@@ -78,53 +78,61 @@ main{padding: 28px 0 60px}
 .controls .group{display:flex; gap:8px; flex-wrap:wrap}
 
 /* =============== NOVA ESTÈTICA NOMÉS PER BOTONS DELS MÒDULS DE CONFIG ================= */
+/* Botons de configuració de mòdul: estil suau i coherent */
 #cfg-specific .toggle {
   display: inline-flex;
   align-items: center;
-  gap: 0.7em;
-  padding: 0.6em 1.2em;
-  margin: 0.3em 0.5em 0.3em 0;
-  background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
-  color: #222;
-  border-radius: 2em;
+  gap: 10px;
+  padding: 8px 18px;
+  margin: 4px 9px 4px 0;
+  background: #f7f7fb;
+  color: var(--ink);
+  border-radius: 999px;
+  border: 1.5px solid var(--hair);
   font-weight: 600;
-  font-size: 1.07em;
+  font-size: 1.02em;
+  box-shadow: 0 2px 8px 0 rgba(27,30,40,0.04);
   cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 8px 0 rgba(67,233,123,0.09);
-  transition: background 0.3s, color 0.3s, box-shadow 0.18s;
+  transition: 
+    background 0.2s,
+    border-color 0.22s,
+    color 0.19s,
+    box-shadow 0.18s;
   user-select: none;
-  position: relative;
 }
 
 #cfg-specific .toggle:hover,
 #cfg-specific .toggle:focus-within {
-  background: linear-gradient(90deg, #38f9d7 20%, #43e97b 80%);
-  color: #0a5;
-  box-shadow: 0 4px 16px 0 rgba(67,233,123,0.18);
+  background: #e0f8eb;
+  border-color: var(--accent);
+  color: #15803d;
+  box-shadow: 0 4px 16px 0 rgba(34,197,94,0.09);
 }
 
+/* Inputs coherents amb la resta (pastel suau, verd per seleccionat) */
 #cfg-specific .toggle .check {
-  accent-color: #26b47d;
-  width: 1.2em;
-  height: 1.2em;
-  border-radius: 50%;
-  border: 2px solid #26b47d;
+  accent-color: var(--accent);
+  width: 1.15em;
+  height: 1.15em;
   background: #fff;
+  border-radius: 50%;
+  border: 1.5px solid var(--hair);
   margin: 0;
   flex-shrink: 0;
+  transition: accent-color 0.2s, border-color 0.2s;
 }
 
+/* Opcional: lleuger ressaltat per a seleccionats */
 #cfg-specific .toggle input:checked + span,
 #cfg-specific .toggle input:checked {
-  outline: 2px solid #26b47d;
-  filter: drop-shadow(0 0 4px #43e97b77);
+  filter: drop-shadow(0 0 3px #bbf7d0);
 }
 
+/* Agrupació i espaiats */
 #cfg-specific .group {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4em;
+  gap: 8px;
   margin-bottom: 0.7em;
 }
 
