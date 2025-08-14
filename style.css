@@ -83,7 +83,23 @@
       background:linear-gradient(135deg, var(--primary), #a5b4fc); color:#0f172a; border:0; padding:12px 14px; border-radius:14px; font-weight:800; cursor:pointer; box-shadow: var(--shadow); transition:.18s
     }
     button:hover{transform: translateY(-1px)}
-    .btn-secondary{background:#eef2ff; border:1px solid var(--hair); color:#0f172a; font-weight:800}
+    .btn-secondary {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe); /* degradat blau pastel */
+  border: 1px solid #93c5fd; /* blau una mica més intens */
+  color: #1e3a8a; /* blau fosc per contrast i llegibilitat */
+  font-weight: 800;
+  padding: 12px 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(147, 197, 253, 0.35);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #bfdbfe, #93c5fd); /* to més intens en hover */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(147, 197, 253, 0.45);
+}
     .btn-ghost{background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700}
 
     .hidden{display:none}
