@@ -1,10 +1,24 @@
+/* =========================
+   Focus Academy · Exercicis
+   Full CSS millorat per a estudiants
+   - Contrast i focus accessibles
+   - Tipografia clara i escala fluida
+   - Components coherents (cards, pills, quiz)
+   - Mode fosc automàtic (prefers-color-scheme)
+   - Reducció d'animacions (prefers-reduced-motion)
+   ========================= */
+
+/* ---------- Variables base ---------- */
 :root{
-  /* Paleta pastel corporativa */
+  /* Paleta pastel corporativa (llum) */
   --bg: #f7f7fb;
+  --bg-2: #eef2ff;
   --card: #ffffff;
   --ink: #0f172a;
-  --muted: #6b7280;
+  --muted: #475569;
+  --muted-2:#6b7280;
   --primary: #7aa2ff;
+  --primary-2:#93c5fd;
   --accent: #22c55e;
   --ok: #86efac;
   --bad: #fca5a5;
@@ -12,19 +26,104 @@
   --radius: 18px;
   --shadow: 0 8px 22px rgba(27,30,40,.08);
   --hair: #e5e7eb;
+  --hair-2:#cbd5e1;
   --focus: 0 0 0 3px rgba(122,162,255,.35);
+
+  /* Tipografia i ritme */
+  --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  --leading: 1.6;
+  --fs-0: clamp(.85rem, .78rem + .2vw, .95rem);
+  --fs-1: clamp(1rem, .96rem + .35vw, 1.15rem);
+  --fs-2: clamp(1.15rem, 1.05rem + .8vw, 1.35rem);
+  --fs-3: clamp(1.35rem, 1.2rem + 1.3vw, 1.75rem);
+  --fs-4: clamp(1.7rem, 1.4rem + 2vw, 2.2rem);
+
+  /* Espais */
+  --sp-1: 6px;
+  --sp-2: 10px;
+  --sp-3: 14px;
+  --sp-4: 18px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+
+  /* Components */
+  --kbd-bg: #f3f4f6;
+  --kbd-br: #e5e7eb;
+  --good-bg: #ecfdf5;
+  --good-br: #bbf7d0;
+  --good-ink:#065f46;
+  --bad-bg: #fff1f2;
+  --bad-br: #fecaca;
+  --bad-ink:#7f1d1d;
 }
+
+/* Mode fosc automàtic */
+@media (prefers-color-scheme: dark) {
+  :root{
+    --bg: #0b1020;
+    --bg-2: #0f1426;
+    --card: #11172a;
+    --ink: #e5e9f5;
+    --muted: #a3aed0;
+    --muted-2:#8b95b5;
+    --primary: #93c5fd;
+    --primary-2:#bfdbfe;
+    --accent: #34d399;
+    --ok: #22c55e;
+    --bad: #f87171;
+    --warn: #facc15;
+    --shadow: 0 8px 22px rgba(0,0,0,.35);
+    --hair: #1e293b;
+    --hair-2:#334155;
+    --focus: 0 0 0 3px rgba(147,197,253,.4);
+    --kbd-bg:#0f172a;
+    --kbd-br:#1f2937;
+    --good-bg:#032a21;
+    --good-br:#115e59;
+    --good-ink:#a7f3d0;
+    --bad-bg:#2a0f13;
+    --bad-br:#7f1d1d;
+    --bad-ink:#fecaca;
+  }
+}
+
+/* Reducció d’animacions per alumnat sensible al moviment */
+@media (prefers-reduced-motion: reduce) {
+  *{animation:none !important; transition:none !important; scroll-behavior:auto !important}
+}
+
+/* ---------- Reset bàsic i accesibilitat ---------- */
 *{box-sizing:border-box}
 html,body{height:100%}
+html{scroll-behavior:smooth}
 body{
-  margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  margin:0;
+  font-family: var(--font);
+  line-height: var(--leading);
+  font-size: var(--fs-0);
   color:var(--ink);
-  background: linear-gradient(180deg, var(--bg), #eef2ff 280px);
+  background: radial-gradient(1200px 320px at 50% -80px, var(--bg-2), transparent 70%) , var(--bg);
 }
+
+/* Classe utilitària per text només per a lectors de pantalla */
+.sr-only{
+  position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* Focus visibles i coherents */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible{
+  outline: none;
+  box-shadow: var(--focus);
+  border-color: transparent;
+}
+
+/* ---------- Header i navegació ---------- */
 header{
-  position:sticky; top:0; z-index:5;
+  position:sticky; top:0; z-index:50;
+  -webkit-backdrop-filter:saturate(1.2) blur(10px);
   backdrop-filter:saturate(1.2) blur(10px);
-  background:rgba(255,255,255,.7);
+  background:color-mix(in srgb, var(--card) 75%, transparent);
   border-bottom:1px solid var(--hair);
 }
 .wrap{max-width:1100px; margin:0 auto; padding: clamp(14px, 2vw, 24px);}
@@ -37,170 +136,268 @@ header{
 .brand h1{font-size:1.1rem; margin:0; letter-spacing:.2px}
 nav{display:flex; gap:8px; flex-wrap:wrap}
 .row{display:flex; justify-content:space-between; align-items:center; gap:12px}
+
+/* ---------- Pills / badges ---------- */
 .pill{
-  border:1px solid var(--hair); color:var(--ink); background:#ffffffcc;
-  padding:10px 14px; border-radius:999px; cursor:pointer; transition:.2s ease; font-weight:700; font-size:.92rem
+  border:1px solid var(--hair);
+  color:var(--ink);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--card) 92%, transparent), color-mix(in srgb, var(--card) 86%, transparent));
+  padding:10px 14px; border-radius:999px; cursor:pointer; transition:transform .16s ease, background .2s ease, border-color .2s ease;
+  font-weight:700; font-size:.92rem
 }
-.pill:hover{transform:translateY(-1px); background:#fff}
-.right{display:flex; align-items:center; gap:10px}
-.input, select{
-  background:#f3f4f6; border:1px solid var(--hair); color:var(--ink);
-  border-radius:12px; padding:10px 12px; outline:none; font-size:.95rem
-}
-.input:focus, select:focus{box-shadow:var(--focus); border-color:transparent}
-
-main{padding: 28px 0 60px}
-.hero{display:grid; grid-template-columns: 1fr; gap:20px}
-.panel{background: var(--card); border:1px solid var(--hair); border-radius: var(--radius); box-shadow: var(--shadow)}
-.card{padding: clamp(16px, 2.2vw, 26px)}
-.title{font-size: clamp(1.3rem, 2.6vw, 2rem); margin:0 0 10px}
-.subtitle{color:var(--muted); margin:0 0 18px}
-.grid{display:grid; grid-template-columns: repeat(4, 1fr); gap:14px}
-@media (max-width: 1000px){ .grid{grid-template-columns: repeat(2, 1fr)} }
-@media (max-width: 560px){ .grid{grid-template-columns: 1fr} }
-
-.option{
-  position:relative; overflow:hidden; padding:16px; border-radius:16px; cursor:pointer; border:1px solid var(--hair); transition:.2s;
-  background:linear-gradient(180deg, #f9fafb, #f3f4f6);
-}
-.option:hover{transform: translateY(-2px); border-color: #cbd5e1; background:#fff}
-.option h3{margin:8px 0 6px; font-size:1rem}
-.option p{margin:0; color:var(--muted); font-size:.9rem}
+.pill:hover{transform:translateY(-1px); background:var(--card); border-color:var(--hair-2)}
 .badge{
   font-size:.75rem; color:#0f172a; font-weight:800; letter-spacing:.3px;
   background:linear-gradient(135deg, var(--primary), #c7d2fe); padding:6px 10px; border-radius:999px; display:inline-block
 }
 
-.section-title{margin: 18px 0 8px; font-size:1rem; color:var(--muted); letter-spacing:.3px}
+/* ---------- Formularis ---------- */
+.right{display:flex; align-items:center; gap:10px}
+.input, select, textarea{
+  background:color-mix(in srgb, var(--card) 94%, transparent);
+  border:1px solid var(--hair);
+  color:var(--ink);
+  border-radius:12px; padding:10px 12px; outline:none; font-size:.95rem;
+  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.input:hover, select:hover, textarea:hover{border-color:var(--hair-2)}
+.input:focus-visible, select:focus-visible, textarea:focus-visible{box-shadow:var(--focus); border-color:transparent}
+label{font-weight:600; font-size:.92rem}
 
+/* ---------- Layouts ---------- */
+main{padding: 28px 0 60px}
+.hero{display:grid; grid-template-columns: 1fr; gap:20px}
+.panel{
+  background: var(--card);
+  border:1px solid var(--hair);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: clip;
+}
+.card{padding: clamp(16px, 2.2vw, 26px)}
+.title{font-size: var(--fs-3); margin:0 0 10px}
+.subtitle{color:var(--muted-2); margin:0 0 18px; font-size: var(--fs-1)}
+.section-title{margin: 18px 0 8px; font-size:1rem; color:var(--muted-2); letter-spacing:.3px}
+
+/* Graella responsive per targetes d’exercicis */
+.grid{
+  --cols: 4;
+  display:grid; grid-template-columns: repeat(var(--cols), 1fr); gap:14px
+}
+@media (max-width: 1200px){ .grid{ --cols: 3 } }
+@media (max-width: 1000px){ .grid{ --cols: 2 } }
+@media (max-width: 560px){ .grid{ --cols: 1 } }
+
+/* ---------- Targetes d’opció (mòduls/temes) ---------- */
+.option{
+  position:relative; overflow:hidden; padding:16px; border-radius:16px; cursor:pointer;
+  border:1px solid var(--hair); transition: transform .18s ease, border-color .22s ease, background .22s ease, box-shadow .2s ease;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--card) 95%, transparent), color-mix(in srgb, var(--card) 88%, transparent));
+}
+.option:hover{transform: translateY(-2px); border-color: var(--hair-2); background:var(--card); box-shadow: var(--shadow)}
+.option h3{margin:8px 0 6px; font-size:1rem}
+.option p{margin:0; color:var(--muted); font-size:.9rem}
+
+/* ---------- Controls agrupats ---------- */
 .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
 .controls .field{display:flex; align-items:center; gap:8px}
 .controls .group{display:flex; gap:8px; flex-wrap:wrap}
 
-/* =============== NOVA ESTÈTICA NOMÉS PER BOTONS DELS MÒDULS DE CONFIG ================= */
-/* Botons de configuració de mòdul: estil suau i coherent */
+/* ---------- Nova estètica CFG (mantenint selectores originals) ---------- */
 #cfg-specific .toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 18px;
-  margin: 4px 9px 4px 0;
-  background: #f7f7fb;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 18px; margin: 4px 9px 4px 0;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
   color: var(--ink);
-  border-radius: 999px;
-  border: 1.5px solid var(--hair);
-  font-weight: 600;
-  font-size: 1.02em;
+  border-radius: 999px; border: 1.5px solid var(--hair);
+  font-weight: 600; font-size: 1.02em;
   box-shadow: 0 2px 8px 0 rgba(27,30,40,0.04);
   cursor: pointer;
-  transition: 
-    background 0.2s,
-    border-color 0.22s,
-    color 0.19s,
-    box-shadow 0.18s;
+  transition: background .2s, border-color .22s, color .19s, box-shadow .18s, transform .16s;
   user-select: none;
 }
-
 #cfg-specific .toggle:hover,
 #cfg-specific .toggle:focus-within {
-  background: #e0f8eb;
+  background: color-mix(in srgb, var(--accent) 8%, var(--card));
   border-color: var(--accent);
-  color: #15803d;
+  color: color-mix(in srgb, var(--accent) 35%, var(--ink));
   box-shadow: 0 4px 16px 0 rgba(34,197,94,0.09);
+  transform: translateY(-1px);
 }
-
-/* Inputs coherents amb la resta (pastel suau, verd per seleccionat) */
 #cfg-specific .toggle .check {
   accent-color: var(--accent);
-  width: 1.15em;
-  height: 1.15em;
-  background: #fff;
-  border-radius: 50%;
-  border: 1.5px solid var(--hair);
-  margin: 0;
-  flex-shrink: 0;
-  transition: accent-color 0.2s, border-color 0.2s;
+  width: 1.15em; height: 1.15em;
+  background: #fff; border-radius: 50%;
+  border: 1.5px solid var(--hair); margin: 0; flex-shrink: 0;
+  transition: accent-color .2s, border-color .2s;
 }
-
-/* Opcional: lleuger ressaltat per a seleccionats */
 #cfg-specific .toggle input:checked + span,
-#cfg-specific .toggle input:checked {
-  filter: drop-shadow(0 0 3px #bbf7d0);
-}
+#cfg-specific .toggle input:checked { filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 45%, transparent)); }
+#cfg-specific .group { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:.7em; }
+#cfg-specific .controls { margin-bottom:1.1em; }
 
-/* Agrupació i espaiats */
-#cfg-specific .group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 0.7em;
+/* ---------- Toggles genèrics ---------- */
+.toggle{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 10px; border:1px solid var(--hair);
+  border-radius:12px; background:var(--card)
 }
-
-#cfg-specific .controls {
-  margin-bottom: 1.1em;
-}
-/* ============= FI NOVA ESTÈTICA ============= */
-
-.toggle{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--hair); border-radius:12px; background:#fff}
 .check{width:18px; height:18px}
 
-button{
-  background:linear-gradient(135deg, var(--primary), #a5b4fc); color:#0f172a; border:0; padding:12px 14px; border-radius:14px; font-weight:800; cursor:pointer; box-shadow: var(--shadow); transition:.2s
+/* ---------- Botons ---------- */
+button, .btn{
+  -webkit-tap-highlight-color: transparent;
+  background:linear-gradient(135deg, var(--primary), #a5b4fc);
+  color:#0f172a; border:0; padding:12px 14px; border-radius:14px;
+  font-weight:800; cursor:pointer; box-shadow: var(--shadow);
+  transition: transform .14s ease, filter .18s ease, box-shadow .18s ease;
 }
-button:hover{transform: translateY(-1px)}
-.btn-secondary{background:#eef2ff; border:1px solid var(--hair); color:#0f172a; font-weight:800}
-.btn-ghost{background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700}
+button:hover, .btn:hover{transform: translateY(-1px)}
+button:active, .btn:active{transform: translateY(0); filter: brightness(.97)}
+.btn-secondary{
+  background: color-mix(in srgb, var(--bg-2) 60%, var(--card));
+  border:1px solid var(--hair); color:var(--ink); font-weight:800
+}
+.btn-ghost{
+  background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700
+}
+.btn-sm{padding:8px 10px; border-radius:10px; font-size:.92rem}
+.btn-lg{padding:14px 18px; border-radius:16px; font-size:var(--fs-1)}
+.btn-full{display:inline-flex; width:100%; justify-content:center}
 
+/* ---------- Elements ocults ---------- */
 .hidden{display:none}
 
-/* Quiz */
-.quiz{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px}
+/* ---------- QUIZ ---------- */
+.quiz{
+  display:grid; grid-template-columns: 1.1fr .9fr; gap:18px
+}
 @media (max-width: 1000px){ .quiz{grid-template-columns: 1fr} }
+
 .q-header{display:flex; align-items:center; justify-content:space-between; gap:10px}
-.progress{height: 10px; background: #e5e7eb; border-radius:999px; overflow:hidden}
-.progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--primary), #93c5fd)}
-
-.q{display:grid; gap:12px}
-.q h2{font-size: clamp(1.4rem, 2.8vw, 2.2rem); margin:6px 0}
-.q .meta{color:var(--muted); font-size:.95rem}
-.answer-row{display:flex; gap:10px; align-items:center}
-.answer{flex:1; font-size:1.2rem}
-
-.kbd{
-  display:inline-grid; place-items:center; min-width:46px; height:46px; border-radius:12px;
-  background:#f3f4f6; border:1px solid var(--hair); font-weight:800; color:#0f172a
+.progress{
+  height: 10px; background: #e5e7eb; border-radius:999px; overflow:hidden;
+  border:1px solid var(--hair);
+}
+.progress > i{
+  display:block; height:100%; width:0%;
+  background:linear-gradient(90deg, var(--primary), var(--primary-2));
+  transition: width .4s ease;
 }
 
+.q{display:grid; gap:12px}
+.q h2{font-size: var(--fs-3); margin:6px 0}
+.q .meta{color:var(--muted-2); font-size:.95rem}
+
+.answer-row{display:flex; gap:10px; align-items:center}
+.answer{
+  flex:1; font-size:1.2rem; padding:12px 14px;
+  border:1px solid var(--hair); border-radius:14px;
+  background: color-mix(in srgb, var(--card) 94%, transparent);
+  transition: border-color .2s ease, background .2s ease, transform .12s ease;
+}
+.answer:hover{border-color: var(--hair-2); background: var(--card); transform: translateY(-1px)}
+.answer[aria-selected="true"]{
+  border-color: color-mix(in srgb, var(--primary) 55%, var(--hair));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+/* Tecles per respostes ràpides */
+.kbd{
+  display:inline-grid; place-items:center; min-width:46px; height:46px; border-radius:12px;
+  background:var(--kbd-bg); border:1px solid var(--kbd-br); font-weight:800; color:#0f172a
+}
+
+/* Tauler / teclat numèric */
 .board{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
 .board button{height:50px}
 
-.feedback{padding:12px; border-radius:12px; background: #ecfdf5; border:1px solid #bbf7d0; color:#065f46}
-.feedback.bad{background: #fff1f2; border-color: #fecaca; color:#7f1d1d}
+/* Feedback immediat i clar */
+.feedback{
+  padding:12px; border-radius:12px;
+  background: var(--good-bg); border:1px solid var(--good-br); color: var(--good-ink);
+}
+.feedback.bad{
+  background: var(--bad-bg); border-color: var(--bad-br); color: var(--bad-ink)
+}
 
-.timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.2rem}
-.chip{border:1px solid var(--hair); color:var(--muted); padding:6px 10px; border-radius:999px; background:#fff}
+/* Temps i xips */
+.timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.15rem}
+.chip{border:1px solid var(--hair); color:var(--muted); padding:6px 10px; border-radius:999px; background:var(--card)}
 
-/* Results */
-table{width:100%; border-collapse:collapse}
+/* ---------- Resultats / taules ---------- */
+table{width:100%; border-collapse:collapse; overflow: clip; border-radius: 12px}
 th, td{padding:10px 12px; border-bottom:1px solid var(--hair); text-align:left}
-th{color:var(--muted); font-weight:800}
-tr:hover td{background: #f9fafb}
+th{color:var(--muted-2); font-weight:800; font-size:.93rem; background: color-mix(in srgb, var(--card) 96%, transparent)}
+tr:hover td{background: color-mix(in srgb, var(--card) 96%, transparent)}
 .tbl-actions{display:flex; gap:8px}
 
-footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
+/* ---------- Peu de pàgina ---------- */
+footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted-2)}
 .link{color:#6366f1; text-decoration:none}
+.link:hover{text-decoration:underline}
 
-.pulse{animation:pulse 1.6s infinite}
-@keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
-.modal{position:fixed; inset:0; background:rgba(10,13,24,.25); backdrop-filter: blur(6px); display:grid; place-items:center; z-index:50}
-.modal-inner{width:min(92vw, 820px)}
+/* ---------- Modal ---------- */
+.modal{
+  position:fixed; inset:0; background:rgba(10,13,24,.25);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  display:grid; place-items:center; z-index:100
+}
+.modal-inner{
+  width:min(92vw, 820px); background: var(--card);
+  border:1px solid var(--hair); border-radius: calc(var(--radius) + 6px);
+  box-shadow: var(--shadow); padding: var(--sp-5)
+}
 
-/* Etiquetes SVG llegibles */
+/* ---------- SVG etiquetes ---------- */
 .svg-label{
   font-size:13px; fill:#334155;
   paint-order: stroke; stroke:#fff; stroke-width:6px; stroke-linejoin:round;
 }
 
-/* Suau entrada de gràfics */
+/* ---------- Animacions suaus ---------- */
+.pulse{animation:pulse 1.6s infinite}
+@keyframes pulse{0%{opacity:.45}50%{opacity:1}100%{opacity:.45}}
 .fade-in{ animation: fade .45s ease both }
 @keyframes fade { from{opacity:0; transform: translateY(6px)} to{opacity:1; transform:none} }
+
+/* ---------- Millores diverses ---------- */
+/* Cards clicables amb hit-area ampliada per a mòbil */
+.card a, .option a{ position: relative; z-index: 1 }
+.option::after{
+  content:""; position:absolute; inset:0; border-radius:16px;
+}
+
+/* Estat deshabilitat clar per a preguntes o botons bloquejats */
+[disabled], .is-disabled{
+  opacity:.55; pointer-events:none; filter: grayscale(.15)
+}
+
+/* Contenidors compactes per a blocs d’exercicis llargs */
+.stack-sm > * + * { margin-top: var(--sp-2) }
+.stack-md > * + * { margin-top: var(--sp-3) }
+.stack-lg > * + * { margin-top: var(--sp-4) }
+
+/* Caps de secció compactes amb sublinia suau */
+.h-rule{
+  height:1px; width:100%;
+  background:linear-gradient(90deg, transparent, var(--hair), transparent);
+  border:0; margin: var(--sp-4) 0;
+}
+
+/* Indicadors d’estat (correcte/incorrecte/en curs) */
+.state-ok   { background: color-mix(in srgb, var(--ok) 12%, transparent) }
+.state-bad  { background: color-mix(in srgb, var(--bad) 12%, transparent) }
+.state-warn { background: color-mix(in srgb, var(--warn) 18%, transparent) }
+
+/* ---------- Millora del header en mòbil ---------- */
+@media (max-width:600px){
+  .brand h1{font-size:1rem}
+  nav{gap:6px}
+  .pill{padding:8px 12px}
+}
+
+/* ---------- Ajustos de contrast perquè l’alumnat no es cansi ---------- */
+p, li { color: color-mix(in srgb, var(--ink) 88%, var(--muted-2)) }
+.small { font-size: .9em; color: var(--muted-2) }
+strong { font-weight: 800 }
