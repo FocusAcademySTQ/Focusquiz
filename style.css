@@ -1,642 +1,327 @@
-<!DOCTYPE html>
-<html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSS Futurista</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;800&display=swap">
-    <style>
-        :root {
-            /* Nova paleta de colors futurista */
-            --bg: #0f172a;
-            --card: #1e293b;
-            --ink: #f1f5f9;
-            --muted: #94a3b8;
-            --primary: #7aa2ff;
-            --accent: #22c55e;
-            --neon: #00d9ff;
-            --neon-glow: 0 0 10px var(--neon), 0 0 20px var(--neon);
-            --ok: #86efac;
-            --bad: #ff6b6b;
-            --warn: #ffd93d;
-            --radius: 12px;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            --hair: #334155;
-            --focus: 0 0 0 3px rgba(122, 162, 255, 0.6);
-            --border-width: 3px;
-        }
+:root{
+  /* Paleta pastel corporativa (base clara) */
+  --bg: #f7f7fb;
+  --card: #ffffff;
+  --ink: #0f172a;
+  --muted: #6b7280;
+  --primary: #7aa2ff;
+  --accent: #22c55e;
+  --ok: #86efac;
+  --bad: #fca5a5;
+  --warn: #fde68a;
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+  /* Estètica futurista */
+  --radius: 18px;
+  --radius-lg: 22px;
+  --shadow: 0 12px 28px rgba(15, 23, 42, .10), 0 2px 6px rgba(15, 23, 42, .06);
+  --shadow-soft: 0 8px 22px rgba(27,30,40,.08);
+  --hair: #e5e7eb;
+  --focus: 0 0 0 3px rgba(122,162,255,.35);
+  --ring: 0 0 0 6px rgba(122,162,255,.12);
 
-        html, body {
-            height: 100%;
-            font-family: 'Exo 2', ui-sans-serif, system-ui, sans-serif;
-            background: var(--bg);
-            color: var(--ink);
-            line-height: 1.6;
-        }
+  /* Gradients i vidre */
+  --aurora-1: linear-gradient(120deg, #e9edff 0%, #eef7ff 40%, #f6fff4 100%);
+  --aurora-2: linear-gradient(135deg, rgba(122,162,255,.28), rgba(34,197,94,.18));
+  --glass: rgba(255,255,255,.72);
+  --glass-strong: rgba(255,255,255,.84);
 
-        body {
-            background: radial-gradient(circle at top right, #1e293b, #0f172a 60%);
-            position: relative;
-            overflow-x: hidden;
-        }
+  /* Progrés i il·luminacions */
+  --glow-primary: 0 8px 30px rgba(122,162,255,.35);
+  --glow-accent: 0 8px 30px rgba(34,197,94,.28);
+  --grid-gap: 14px;
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 30%, rgba(122, 162, 255, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(34, 197, 94, 0.15) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: -1;
-        }
+  /* Tipografia */
+  --font-ui: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
 
-        /* Capçalera amb glassmorphism */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            backdrop-filter: blur(12px) saturate(180%);
-            background: rgba(30, 41, 59, 0.7);
-            border-bottom: var(--border-width) solid var(--hair);
-            box-shadow: var(--shadow);
-        }
+*{box-sizing:border-box}
+html,body{height:100%}
+@media (prefers-reduced-motion: reduce){
+  *{animation: none !important; transition: none !important; scroll-behavior: auto !important;}
+}
 
-        .wrap {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: clamp(16px, 2.5vw, 28px);
-        }
+body{
+  margin:0; font-family: var(--font-ui);
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(122,162,255,.12), transparent 60%),
+    radial-gradient(900px 480px at 100% 0%, rgba(34,197,94,.10), transparent 60%),
+    linear-gradient(180deg, var(--bg) 0%, #eef2ff 300px);
+}
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+/* ===== Header “glass” amb línia subtil ===== */
+header{
+  position:sticky; top:0; z-index:50;
+  backdrop-filter:saturate(1.15) blur(10px);
+  -webkit-backdrop-filter:saturate(1.15) blur(10px);
+  background:var(--glass);
+  border-bottom:1px solid rgba(99,102,241,.12);
+}
+.wrap{max-width:1100px; margin:0 auto; padding: clamp(14px, 2vw, 24px);}
+.brand{display:flex; align-items:center; gap:12px;}
+.logo{
+  width:40px;height:40px; display:grid; place-items:center; border-radius:14px;
+  background:
+    conic-gradient(from 180deg at 50% 50%, #c7d2fe, #93c5fd, #a7f3d0, #c7d2fe);
+  box-shadow: var(--glow-primary); color:#0f172a; font-weight:900;
+  position:relative; overflow:hidden;
+}
+.logo::after{
+  content:""; position:absolute; inset:0; border-radius:inherit;
+  background: radial-gradient(120px 60px at -20% -20%, rgba(255,255,255,.55), transparent 40%),
+              radial-gradient(120px 60px at 120% 120%, rgba(255,255,255,.35), transparent 40%);
+  pointer-events:none;
+}
+.brand h1{font-size:1.1rem; margin:0; letter-spacing:.2px}
+nav{display:flex; gap:8px; flex-wrap:wrap}
+.row{display:flex; justify-content:space-between; align-items:center; gap:12px}
 
-        .logo {
-            width: 48px;
-            height: 48px;
-            display: grid;
-            place-items: center;
-            border-radius: 14px;
-            background: linear-gradient(135deg, var(--primary), #6366f1);
-            box-shadow: var(--shadow), 0 0 15px rgba(122, 162, 255, 0.5);
-            color: var(--ink);
-            font-weight: 900;
-            font-size: 1.4rem;
-            border: 2px solid var(--primary);
-        }
+/* Pills amb subtil 3D i focus visibles */
+.pill{
+  border:1px solid var(--hair); color:var(--ink); background:var(--glass-strong);
+  padding:10px 14px; border-radius:999px; cursor:pointer; transition:.24s ease; font-weight:700; font-size:.92rem;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.6), 0 1px 2px rgba(15, 23, 42, .04);
+}
+.pill:hover{transform:translateY(-1px); background:#fff; box-shadow: var(--shadow-soft);}
+.pill:focus-visible{outline:none; box-shadow: var(--ring), var(--shadow-soft);}
 
-        .brand h1 {
-            font-size: 1.4rem;
-            margin: 0;
-            letter-spacing: 0.5px;
-            font-weight: 800;
-            background: linear-gradient(to right, var(--primary), var(--neon));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
+.right{display:flex; align-items:center; gap:10px}
+.input, select{
+  background:#f3f4f6; border:1px solid var(--hair); color:var(--ink);
+  border-radius:12px; padding:10px 12px; outline:none; font-size:.95rem; transition:.2s;
+}
+.input:focus, select:focus{box-shadow:var(--focus); border-color:transparent}
 
-        .row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 16px;
-        }
+/* ===== Layout principal i targetes ===== */
+main{padding: 28px 0 60px}
+.hero{display:grid; grid-template-columns: 1fr; gap:20px}
+.panel{
+  background: var(--card);
+  border:1px solid rgba(99,102,241,.12);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  position:relative; overflow:hidden;
+}
+.panel::before{
+  /* toc aurora fi a la cantonada */
+  content:""; position:absolute; inset:auto -20% -20% auto; width:60%; height:60%;
+  background: radial-gradient(60% 60% at 80% 80%, rgba(122,162,255,.18), transparent 60%),
+              radial-gradient(40% 40% at 20% 20%, rgba(34,197,94,.12), transparent 60%);
+  pointer-events:none; filter: blur(10px);
+}
+.card{padding: clamp(16px, 2.2vw, 26px)}
+.title{font-size: clamp(1.3rem, 2.6vw, 2rem); margin:0 0 10px}
+.subtitle{color:var(--muted); margin:0 0 18px}
 
-        .pill {
-            border: var(--border-width) solid var(--hair);
-            color: var(--ink);
-            background: rgba(30, 41, 59, 0.7);
-            padding: 12px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 700;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-        }
+.grid{display:grid; grid-template-columns: repeat(4, 1fr); gap:var(--grid-gap)}
+@media (max-width: 1000px){ .grid{grid-template-columns: repeat(2, 1fr)} }
+@media (max-width: 560px){ .grid{grid-template-columns: 1fr} }
 
-        .pill::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
+/* ===== Opcions estil “neo-glass” amb accent hologràfic ===== */
+.option{
+  position:relative; overflow:hidden; padding:16px; border-radius:16px; cursor:pointer;
+  border:1px solid rgba(99,102,241,.14); transition:transform .2s, box-shadow .2s, border-color .2s, background .2s;
+  background:linear-gradient(180deg, #fbfcff, #f6f7fb);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, .04);
+}
+.option::after{
+  content:""; position:absolute; inset:0;
+  background: radial-gradient(60% 40% at 0% 0%, rgba(122,162,255,.12), transparent 45%),
+              radial-gradient(50% 30% at 100% 100%, rgba(34,197,94,.10), transparent 40%);
+  opacity:.7; pointer-events:none;
+}
+.option:hover{
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  background:#fff;
+  box-shadow: var(--shadow);
+}
+.option h3{margin:8px 0 6px; font-size:1rem}
+.option p{margin:0; color:var(--muted); font-size:.9rem}
+.badge{
+  font-size:.75rem; color:#0f172a; font-weight:800; letter-spacing:.3px;
+  background:linear-gradient(135deg, var(--primary), #c7d2fe); padding:6px 10px; border-radius:999px; display:inline-block;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,.6);
+}
 
-        .pill:hover {
-            transform: translateY(-3px);
-            background: rgba(30, 41, 59, 0.9);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
+/* Seccions i controls */
+.section-title{margin: 18px 0 8px; font-size:1rem; color:var(--muted); letter-spacing:.3px}
+.controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.controls .field{display:flex; align-items:center; gap:8px}
+.controls .group{display:flex; gap:8px; flex-wrap:wrap}
 
-        .pill:hover::before {
-            left: 100%;
-        }
+/* ===== Estètica NOVA per botons de mòduls CFG (mantinguda) ===== */
+#cfg-specific .toggle {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 8px 18px; margin: 4px 9px 4px 0;
+  background: #f7f7fb; color: var(--ink);
+  border-radius: 999px; border: 1.5px solid var(--hair);
+  font-weight: 600; font-size: 1.02em;
+  box-shadow: 0 2px 8px 0 rgba(27,30,40,0.04);
+  cursor: pointer;
+  transition: background .2s, border-color .22s, color .19s, box-shadow .18s, transform .18s;
+  user-select: none;
+}
+#cfg-specific .toggle:hover,
+#cfg-specific .toggle:focus-within{
+  background: #e0f8eb; border-color: var(--accent); color: #15803d;
+  box-shadow: 0 6px 18px rgba(34,197,94,0.14), var(--glow-accent);
+  transform: translateY(-1px);
+}
+#cfg-specific .toggle .check{
+  accent-color: var(--accent);
+  width: 1.15em; height: 1.15em;
+  background: #fff; border-radius: 50%; border: 1.5px solid var(--hair); margin: 0; flex-shrink: 0;
+  transition: accent-color .2s, border-color .2s;
+}
+#cfg-specific .toggle input:checked + span,
+#cfg-specific .toggle input:checked{ filter: drop-shadow(0 0 3px #bbf7d0); }
+#cfg-specific .group{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:.7em }
+#cfg-specific .controls{ margin-bottom:1.1em }
 
-        .right {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+/* Toggles genèrics */
+.toggle{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--hair); border-radius:12px; background:#fff; transition:.2s}
+.toggle:focus-visible{outline:none; box-shadow: var(--ring);}
+.check{width:18px; height:18px}
 
-        .input, select {
-            background: rgba(30, 41, 59, 0.7);
-            border: var(--border-width) solid var(--hair);
-            color: var(--ink);
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            outline: none;
-            font-size: 1rem;
-            font-family: 'Exo 2', sans-serif;
-            transition: all 0.3s ease;
-        }
+/* ===== Botons: relleu suau i micro-hover 3D ===== */
+button{
+  background:linear-gradient(135deg, var(--primary), #a5b4fc);
+  color:#0f172a; border:0; padding:12px 14px; border-radius:14px; font-weight:800; cursor:pointer;
+  box-shadow: 0 1px 0 rgba(255,255,255,.6) inset, var(--shadow);
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+  will-change: transform;
+}
+button:hover{ transform: translateY(-1px) scale(1.01); box-shadow: var(--glow-primary), var(--shadow); }
+button:active{ transform: translateY(0); filter: brightness(.98); }
+button:focus-visible{ outline: none; box-shadow: var(--ring), var(--glow-primary); }
+.btn-secondary{
+  background:#eef2ff; border:1px solid var(--hair); color:#0f172a; font-weight:800;
+}
+.btn-ghost{
+  background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700;
+}
+.hidden{display:none}
 
-        .input:focus, select:focus {
-            box-shadow: var(--focus);
-            border-color: var(--primary);
-            background: rgba(30, 41, 59, 0.9);
-        }
+/* ===== Quiz ===== */
+.quiz{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px}
+@media (max-width: 1000px){ .quiz{grid-template-columns: 1fr} }
+.q-header{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.progress{
+  height: 10px; background: #e5e7eb; border-radius:999px; overflow:hidden; position:relative;
+}
+.progress > i{
+  display:block; height:100%; width:0%;
+  background: linear-gradient(90deg, var(--primary), #93c5fd);
+  box-shadow: var(--glow-primary);
+  transition: width .35s ease;
+}
+.q{display:grid; gap:12px}
+.q h2{font-size: clamp(1.4rem, 2.8vw, 2.2rem); margin:6px 0}
+.q .meta{color:var(--muted); font-size:.95rem}
+.answer-row{display:flex; gap:10px; align-items:center}
+.answer{flex:1; font-size:1.2rem}
 
-        /* Contingut principal */
-        main {
-            padding: 40px 0 80px;
-        }
+.kbd{
+  display:inline-grid; place-items:center; min-width:46px; height:46px; border-radius:12px;
+  background:#f3f4f6; border:1px solid var(--hair); font-weight:800; color:#0f172a;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 6px 16px rgba(15,23,42,.06);
+}
 
-        .hero {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 28px;
-        }
+/* Tauler i feedback */
+.board{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
+.board button{height:50px}
 
-        .panel {
-            background: var(--card);
-            border: var(--border-width) solid var(--hair);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
-        }
+.feedback{
+  padding:12px; border-radius:12px; background: #ecfdf5; border:1px solid #bbf7d0; color:#065f46;
+  box-shadow: 0 1px 0 rgba(255,255,255,.6) inset;
+}
+.feedback.bad{background: #fff1f2; border-color: #fecaca; color:#7f1d1d}
 
-        .panel::after {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            border-radius: var(--radius);
-            padding: 2px;
-            background: linear-gradient(45deg, var(--primary), transparent, var(--accent));
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: exclude;
-            -webkit-mask-composite: xor;
-            pointer-events: none;
-        }
+/* Chips & timer */
+.timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.2rem}
+.chip{
+  border:1px solid var(--hair); color:var(--muted); padding:6px 10px; border-radius:999px; background:#fff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+}
 
-        .card {
-            padding: clamp(20px, 3vw, 32px);
-        }
+/* ===== Resultats ===== */
+table{width:100%; border-collapse:collapse; overflow:hidden; border-radius:12px}
+th, td{padding:10px 12px; border-bottom:1px solid var(--hair); text-align:left}
+th{color:var(--muted); font-weight:800; background: #f8fafc}
+tr:hover td{background: #f9fbff}
+.tbl-actions{display:flex; gap:8px}
 
-        .title {
-            font-size: clamp(1.8rem, 4vw, 3rem);
-            margin: 0 0 16px;
-            font-weight: 800;
-            background: linear-gradient(to right, var(--primary), var(--neon));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            line-height: 1.2;
-        }
+/* ===== Footer ===== */
+footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
+.link{color:#6366f1; text-decoration:none}
+.link:hover{text-decoration:underline}
 
-        .subtitle {
-            color: var(--muted);
-            margin: 0 0 24px;
-            font-size: 1.2rem;
-        }
+/* ===== Microanimacions ===== */
+.pulse{animation:pulse 1.6s infinite}
+@keyframes pulse{0%{opacity:.45}50%{opacity:1}100%{opacity:.45}}
+.fade-in{ animation: fade .45s ease both }
+@keyframes fade { from{opacity:0; transform: translateY(6px)} to{opacity:1; transform:none} }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
+/* ===== Modal “glass” ===== */
+.modal{
+  position:fixed; inset:0; background:rgba(10,13,24,.25);
+  -webkit-backdrop-filter: blur(6px) saturate(1.05);
+  backdrop-filter: blur(6px) saturate(1.05);
+  display:grid; place-items:center; z-index:100;
+}
+.modal-inner{
+  width:min(92vw, 820px);
+  background: var(--glass-strong);
+  border:1px solid rgba(99,102,241,.18);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
 
-        .option {
-            position: relative;
-            overflow: hidden;
-            padding: 24px;
-            border-radius: var(--radius);
-            cursor: pointer;
-            border: var(--border-width) solid var(--hair);
-            transition: all 0.3s ease;
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.7));
-            backdrop-filter: blur(10px);
-        }
+/* ===== Etiquetes SVG llegibles ===== */
+.svg-label{
+  font-size:13px; fill:#334155;
+  paint-order: stroke; stroke:#fff; stroke-width:6px; stroke-linejoin:round;
+}
 
-        .option:hover {
-            transform: translateY(-5px) scale(1.02);
-            border-color: var(--primary);
-            box-shadow: var(--shadow), 0 0 20px rgba(122, 162, 255, 0.3);
-        }
+/* ===== Focus visibles globals ===== */
+:where(a, button, input, select, .pill, .toggle, .option):focus-visible{
+  outline:none; box-shadow: var(--ring);
+}
 
-        .option h3 {
-            margin: 16px 0 8px;
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
+/* ===== Dark mode opcional (respecta preferències del sistema) ===== */
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b1220;
+    --card:#0f172a;
+    --ink:#e5e7eb;
+    --muted:#94a3b8;
+    --hair:#1f2937;
+    --glass: rgba(17,24,39,.55);
+    --glass-strong: rgba(17,24,39,.72);
+  }
+  body{
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(99,102,241,.18), transparent 60%),
+      radial-gradient(900px 480px at 100% 0%, rgba(34,197,94,.14), transparent 60%),
+      linear-gradient(180deg, #0b1220 0%, #0e1526 300px);
+  }
+  header{ border-bottom:1px solid rgba(99,102,241,.22); }
+  .panel{ border-color: rgba(99,102,241,.22); }
+  .option{ background: linear-gradient(180deg, #0f172a, #111827); border-color: rgba(99,102,241,.22); }
+  .option:hover{ background:#0f172a; box-shadow: 0 10px 24px rgba(2,6,23,.35); }
+  .input, select{ background:#0f172a; border-color:#1f2937; color:var(--ink); }
+  .pill{ background:rgba(17,24,39,.72); border-color:#1f2937; color:var(--ink); }
+  .btn-secondary{ background:#0f172a; border-color:#1f2937; color:var(--ink); }
+  table th{ background:#0f172a }
+  tr:hover td{ background:#0d1424 }
+  .kbd{ background:#0f172a; border-color:#1f2937; color:var(--ink); }
+  .modal-inner{ background: rgba(17,24,39,.78); }
+}
 
-        .option p {
-            margin: 0;
-            color: var(--muted);
-            font-size: 0.95rem;
-        }
-
-        .badge {
-            font-size: 0.8rem;
-            color: var(--ink);
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            background: linear-gradient(135deg, var(--primary), #6366f1);
-            padding: 8px 16px;
-            border-radius: 50px;
-            display: inline-block;
-            text-transform: uppercase;
-        }
-
-        .section-title {
-            margin: 28px 0 16px;
-            font-size: 1.3rem;
-            color: var(--muted);
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            text-transform: uppercase;
-            position: relative;
-            display: inline-block;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 50px;
-            height: 3px;
-            background: linear-gradient(to right, var(--primary), var(--neon));
-            border-radius: 3px;
-        }
-
-        .controls {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .controls .field {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .controls .group {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        /* Botons futuristes */
-        button {
-            background: linear-gradient(135deg, var(--primary), #6366f1);
-            color: var(--ink);
-            border: none;
-            padding: 14px 24px;
-            border-radius: var(--radius);
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-            font-family: 'Exo 2', sans-serif;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(122, 162, 255, 0.4);
-        }
-
-        button:hover::before {
-            left: 100%;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: var(--border-width) solid var(--hair);
-            color: var(--muted);
-            font-weight: 700;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            box-shadow: 0 10px 25px rgba(122, 162, 255, 0.2);
-        }
-
-        .btn-ghost {
-            background: transparent;
-            border: var(--border-width) dashed var(--hair);
-            color: var(--muted);
-            font-weight: 700;
-        }
-
-        .btn-ghost:hover {
-            border-color: var(--neon);
-            color: var(--neon);
-            box-shadow: 0 10px 25px rgba(0, 217, 255, 0.2);
-        }
-
-        /* Toggles futuristes */
-        #cfg-specific .toggle {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 24px;
-            margin: 8px 16px 8px 0;
-            background: rgba(30, 41, 59, 0.7);
-            color: var(--ink);
-            border-radius: 50px;
-            border: var(--border-width) solid var(--hair);
-            font-weight: 600;
-            font-size: 1.05rem;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            user-select: none;
-        }
-
-        #cfg-specific .toggle:hover,
-        #cfg-specific .toggle:focus-within {
-            background: rgba(34, 197, 94, 0.1);
-            border-color: var(--accent);
-            color: var(--accent);
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
-        }
-
-        #cfg-specific .toggle .check {
-            accent-color: var(--accent);
-            width: 20px;
-            height: 20px;
-            background: var(--card);
-            border-radius: 50%;
-            border: 2px solid var(--hair);
-            margin: 0;
-            flex-shrink: 0;
-            transition: all 0.3s ease;
-        }
-
-        #cfg-specific .toggle input:checked + span,
-        #cfg-specific .toggle input:checked {
-            filter: drop-shadow(0 0 5px var(--accent));
-        }
-
-        /* Efectes d'il·luminació */
-        .glow {
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: var(--primary);
-            filter: blur(80px);
-            opacity: 0.1;
-            z-index: -1;
-            animation: float 8s ease-in-out infinite;
-        }
-
-        .glow:nth-child(1) {
-            top: 20%;
-            left: 10%;
-            background: var(--primary);
-            animation-delay: 0s;
-        }
-
-        .glow:nth-child(2) {
-            top: 60%;
-            right: 10%;
-            background: var(--accent);
-            animation-delay: -2s;
-        }
-
-        .glow:nth-child(3) {
-            bottom: 20%;
-            left: 20%;
-            background: var(--neon);
-            animation-delay: -4s;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0) scale(1);
-            }
-            50% {
-                transform: translateY(-20px) scale(1.1);
-            }
-        }
-
-        /* Animacions addicionals */
-        @keyframes pulse {
-            0% {
-                opacity: 0.4;
-                transform: scale(0.98);
-            }
-            50% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            100% {
-                opacity: 0.4;
-                transform: scale(0.98);
-            }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite ease-in-out;
-        }
-
-        /* Responsivitat */
-        @media (max-width: 768px) {
-            .row {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .right {
-                width: 100%;
-                justify-content: space-between;
-                margin-top: 16px;
-            }
-            
-            .controls .group {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Peu de pàgina */
-        footer {
-            padding: 60px 0 80px;
-            color: var(--muted);
-            text-align: center;
-            position: relative;
-        }
-
-        .link {
-            color: var(--neon);
-            text-decoration: none;
-            position: relative;
-        }
-
-        .link::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--neon);
-            transition: width 0.3s ease;
-        }
-
-        .link:hover::after {
-            width: 100%;
-        }
-    </style>
-</head>
-<body>
-    <!-- Efectes d'il·luminació de fons -->
-    <div class="glow"></div>
-    <div class="glow"></div>
-    <div class="glow"></div>
-
-    <header>
-        <div class="wrap">
-            <div class="row">
-                <div class="brand">
-                    <div class="logo">LP</div>
-                    <h1>Lliurament Projectes</h1>
-                </div>
-                <div class="right">
-                    <nav>
-                        <a class="pill" href="#">Inici</a>
-                        <a class="pill" href="#">Projectes</a>
-                        <a class="pill" href="#">Configuració</a>
-                    </nav>
-                    <input type="search" class="input" placeholder="Cercar...">
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <main>
-        <div class="wrap">
-            <div class="hero">
-                <section class="panel card">
-                    <h1 class="title">Configuració del sistema</h1>
-                    <p class="subtitle">Personalitza els mòduls i les seves opcions amb estil futurista</p>
-                    
-                    <h2 class="section-title">Mòduls principals</h2>
-                    <div class="grid">
-                        <div class="option">
-                            <span class="badge">Actiu</span>
-                            <h3>Gestor de tasques</h3>
-                            <p>Organitza i assigna tasques al teu equip</p>
-                        </div>
-                        <div class="option">
-                            <span class="badge">Actiu</span>
-                            <h3>Calendaris</h3>
-                            <p>Planifica i visualitza esdeveniments</p>
-                        </div>
-                        <div class="option">
-                            <span class="badge">Inactiu</span>
-                            <h3>Informes</h3>
-                            <p>Genera informes detallats</p>
-                        </div>
-                        <div class="option">
-                            <span class="badge">Actiu</span>
-                            <h3>Documents</h3>
-                            <p>Emmagatzema i gestiona fitxers</p>
-                        </div>
-                    </div>
-                    
-                    <div id="cfg-specific">
-                        <h2 class="section-title">Opcions del mòdul de tasques</h2>
-                        <div class="controls">
-                            <div class="group">
-                                <label class="toggle">
-                                    <input type="checkbox" class="check" checked>
-                                    <span>Recordatoris automàtics</span>
-                                </label>
-                                <label class="toggle">
-                                    <input type="checkbox" class="check">
-                                    <span>Assignació intel·ligent</span>
-                                </label>
-                                <label class="toggle">
-                                    <input type="checkbox" class="check" checked>
-                                    <span>Notificacions per correu</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="controls">
-                        <button>Desar canvis</button>
-                        <button class="btn-secondary">Desfer</button>
-                        <button class="btn-ghost">Cancel·lar</button>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </main>
-
-    <footer>
-        <div class="wrap">
-            <p>© 2023 Lliurament Projectes. Tots els drets reservats. <a href="#" class="link">Política de privadesa</a></p>
-        </div>
-    </footer>
-</body>
-</html>
+/* ===== Petits refinaments finals ===== */
+header .wrap, main .wrap, footer .wrap{ animation: fade .45s ease both; }
+button .icon, .pill .icon{ display:inline-grid; place-items:center; width:1.2em; height:1.2em; }
+.progress[data-anim="true"] > i{ animation: progstripe 1.2s linear infinite; background-image: linear-gradient(90deg, rgba(255,255,255,.35) 0 10px, transparent 10px 20px), linear-gradient(90deg, var(--primary), #93c5fd); background-size: 20px 100%, 100% 100%; }
+@keyframes progstripe{ from{ background-position: 0 0, 0 0 } to{ background-position: 20px 0, 0 0 } }
