@@ -1,309 +1,501 @@
-        :root{
-            /* Paleta pastel corporativa */
-            --bg: #f7f7fb;
-            --card: #ffffff;
-            --ink: #0f172a;
-            --muted: #6b7280;
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Futurista</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;600;800&display=swap">
+    <style>
+        :root {
+            /* Nova paleta de colors futurista */
+            --bg: #0f172a;
+            --card: #1e293b;
+            --ink: #f1f5f9;
+            --muted: #94a3b8;
             --primary: #7aa2ff;
             --accent: #22c55e;
+            --neon: #00d9ff;
+            --neon-glow: 0 0 10px var(--neon), 0 0 20px var(--neon);
             --ok: #86efac;
-            --bad: #fca5a5;
-            --warn: #fde68a;
-            --radius: 18px;
-            --shadow: 0 8px 22px rgba(27,30,40,.08);
-            --hair: #e5e7eb;
-            --focus: 0 0 0 3px rgba(122,162,255,.35);
-        }
-        *{box-sizing:border-box}
-        html,body{height:100%}
-        body{
-            margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-            color:var(--ink);
-            background: linear-gradient(180deg, var(--bg), #eef2ff 280px);
-        }
-        header{
-            position:sticky; top:0; z-index:5;
-            backdrop-filter:saturate(1.2) blur(10px);
-            background:rgba(255,255,255,.7);
-            border-bottom:1px solid var(--hair);
-        }
-        .wrap{max-width:1100px; margin:0 auto; padding: clamp(14px, 2vw, 24px);}
-        .brand{display:flex; align-items:center; gap:12px;}
-        .logo{
-            width:38px;height:38px; display:grid; place-items:center; border-radius:12px;
-            background:linear-gradient(135deg, var(--primary), #c7d2fe);
-            box-shadow: var(--shadow); color:#0f172a; font-weight:900
-        }
-        .brand h1{font-size:1.1rem; margin:0; letter-spacing:.2px}
-        nav{display:flex; gap:8px; flex-wrap:wrap}
-        .row{display:flex; justify-content:space-between; align-items:center; gap:12px}
-        .pill{
-            border:1px solid var(--hair); color:var(--ink); background:#ffffffcc;
-            padding:10px 14px; border-radius:999px; cursor:pointer; transition:.2s ease; font-weight:700; font-size:.92rem
-        }
-        .pill:hover{transform:translateY(-1px); background:#fff}
-        .right{display:flex; align-items:center; gap:10px}
-        .input, select{
-            background:#f3f4f6; border:1px solid var(--hair); color:var(--ink);
-            border-radius:12px; padding:10px 12px; outline:none; font-size:.95rem
-        }
-        .input:focus, select:focus{box-shadow:var(--focus); border-color:transparent}
-
-        main{padding: 28px 0 60px}
-        .hero{display:grid; grid-template-columns: 1fr; gap:20px}
-        .panel{background: var(--card); border:1px solid var(--hair); border-radius: var(--radius); box-shadow: var(--shadow)}
-        .card{padding: clamp(16px, 2.2vw, 26px)}
-        .title{font-size: clamp(1.3rem, 2.6vw, 2rem); margin:0 0 10px}
-        .subtitle{color:var(--muted); margin:0 0 18px}
-        .grid{display:grid; grid-template-columns: repeat(4, 1fr); gap:14px}
-        @media (max-width: 1000px){ .grid{grid-template-columns: repeat(2, 1fr)} }
-        @media (max-width: 560px){ .grid{grid-template-columns: 1fr} }
-
-        .option{
-            position:relative; overflow:hidden; padding:16px; border-radius:16px; cursor:pointer; border:1px solid var(--hair); transition:.2s;
-            background:linear-gradient(180deg, #f9fafb, #f3f4f6);
-        }
-        .option:hover{transform: translateY(-2px); border-color: #cbd5e1; background:#fff}
-        .option h3{margin:8px 0 6px; font-size:1rem}
-        .option p{margin:0; color:var(--muted); font-size:.9rem}
-        .badge{
-            font-size:.75rem; color:#0f172a; font-weight:800; letter-spacing:.3px;
-            background:linear-gradient(135deg, var(--primary), #c7d2fe); padding:6px 10px; border-radius:999px; display:inline-block
+            --bad: #ff6b6b;
+            --warn: #ffd93d;
+            --radius: 12px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --hair: #334155;
+            --focus: 0 0 0 3px rgba(122, 162, 255, 0.6);
+            --border-width: 3px;
         }
 
-        .section-title{margin: 18px 0 8px; font-size:1rem; color:var(--muted); letter-spacing:.3px}
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-        .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-        .controls .field{display:flex; align-items:center; gap:8px}
-        .controls .group{display:flex; gap:8px; flex-wrap:wrap}
+        html, body {
+            height: 100%;
+            font-family: 'Exo 2', ui-sans-serif, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
 
-        /* =============== NOVA ESTÈTICA NOMÉS PER BOTONS DELS MÒDULS DE CONFIG ================= */
-        /* Botons de configuració de mòdul: estil suau i coherent */
+        body {
+            background: radial-gradient(circle at top right, #1e293b, #0f172a 60%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(122, 162, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(34, 197, 94, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Capçalera amb glassmorphism */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            backdrop-filter: blur(12px) saturate(180%);
+            background: rgba(30, 41, 59, 0.7);
+            border-bottom: var(--border-width) solid var(--hair);
+            box-shadow: var(--shadow);
+        }
+
+        .wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: clamp(16px, 2.5vw, 28px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--primary), #6366f1);
+            box-shadow: var(--shadow), 0 0 15px rgba(122, 162, 255, 0.5);
+            color: var(--ink);
+            font-weight: 900;
+            font-size: 1.4rem;
+            border: 2px solid var(--primary);
+        }
+
+        .brand h1 {
+            font-size: 1.4rem;
+            margin: 0;
+            letter-spacing: 0.5px;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--neon));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pill {
+            border: var(--border-width) solid var(--hair);
+            color: var(--ink);
+            background: rgba(30, 41, 59, 0.7);
+            padding: 12px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .pill:hover {
+            transform: translateY(-3px);
+            background: rgba(30, 41, 59, 0.9);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .pill:hover::before {
+            left: 100%;
+        }
+
+        .right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .input, select {
+            background: rgba(30, 41, 59, 0.7);
+            border: var(--border-width) solid var(--hair);
+            color: var(--ink);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            outline: none;
+            font-size: 1rem;
+            font-family: 'Exo 2', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .input:focus, select:focus {
+            box-shadow: var(--focus);
+            border-color: var(--primary);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        /* Contingut principal */
+        main {
+            padding: 40px 0 80px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 28px;
+        }
+
+        .panel {
+            background: var(--card);
+            border: var(--border-width) solid var(--hair);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: var(--radius);
+            padding: 2px;
+            background: linear-gradient(45deg, var(--primary), transparent, var(--accent));
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            pointer-events: none;
+        }
+
+        .card {
+            padding: clamp(20px, 3vw, 32px);
+        }
+
+        .title {
+            font-size: clamp(1.8rem, 4vw, 3rem);
+            margin: 0 0 16px;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--primary), var(--neon));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin: 0 0 24px;
+            font-size: 1.2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .option {
+            position: relative;
+            overflow: hidden;
+            padding: 24px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            border: var(--border-width) solid var(--hair);
+            transition: all 0.3s ease;
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.7));
+            backdrop-filter: blur(10px);
+        }
+
+        .option:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: var(--shadow), 0 0 20px rgba(122, 162, 255, 0.3);
+        }
+
+        .option h3 {
+            margin: 16px 0 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .option p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            color: var(--ink);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, var(--primary), #6366f1);
+            padding: 8px 16px;
+            border-radius: 50px;
+            display: inline-block;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            margin: 28px 0 16px;
+            font-size: 1.3rem;
+            color: var(--muted);
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(to right, var(--primary), var(--neon));
+            border-radius: 3px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .controls .field {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .controls .group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Botons futuristes */
+        button {
+            background: linear-gradient(135deg, var(--primary), #6366f1);
+            color: var(--ink);
+            border: none;
+            padding: 14px 24px;
+            border-radius: var(--radius);
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            font-family: 'Exo 2', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(122, 162, 255, 0.4);
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: var(--border-width) solid var(--hair);
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 10px 25px rgba(122, 162, 255, 0.2);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border: var(--border-width) dashed var(--hair);
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--neon);
+            color: var(--neon);
+            box-shadow: 0 10px 25px rgba(0, 217, 255, 0.2);
+        }
+
+        /* Toggles futuristes */
         #cfg-specific .toggle {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            padding: 8px 18px;
-            margin: 4px 9px 4px 0;
-            background: #f7f7fb;
+            gap: 12px;
+            padding: 12px 24px;
+            margin: 8px 16px 8px 0;
+            background: rgba(30, 41, 59, 0.7);
             color: var(--ink);
-            border-radius: 999px;
-            border: 1.5px solid var(--hair);
+            border-radius: 50px;
+            border: var(--border-width) solid var(--hair);
             font-weight: 600;
-            font-size: 1.02em;
-            box-shadow: 0 2px 8px 0 rgba(27,30,40,0.04);
+            font-size: 1.05rem;
+            box-shadow: var(--shadow);
             cursor: pointer;
-            transition: 
-                background 0.2s,
-                border-color 0.22s,
-                color 0.19s,
-                box-shadow 0.18s;
+            transition: all 0.3s ease;
             user-select: none;
         }
 
         #cfg-specific .toggle:hover,
         #cfg-specific .toggle:focus-within {
-            background: #e0f8eb;
+            background: rgba(34, 197, 94, 0.1);
             border-color: var(--accent);
-            color: #15803d;
-            box-shadow: 0 4px 16px 0 rgba(34,197,94,0.09);
+            color: var(--accent);
+            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
         }
 
-        /* Inputs coherents amb la resta (pastel suau, verd per seleccionat) */
         #cfg-specific .toggle .check {
             accent-color: var(--accent);
-            width: 1.15em;
-            height: 1.15em;
-            background: #fff;
+            width: 20px;
+            height: 20px;
+            background: var(--card);
             border-radius: 50%;
-            border: 1.5px solid var(--hair);
+            border: 2px solid var(--hair);
             margin: 0;
             flex-shrink: 0;
-            transition: accent-color 0.2s, border-color 0.2s;
+            transition: all 0.3s ease;
         }
 
-        /* Opcional: lleuger ressaltat per a seleccionats */
         #cfg-specific .toggle input:checked + span,
         #cfg-specific .toggle input:checked {
-            filter: drop-shadow(0 0 3px #bbf7d0);
+            filter: drop-shadow(0 0 5px var(--accent));
         }
 
-        /* Agrupació i espaiats */
-        #cfg-specific .group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 0.7em;
-        }
-
-        #cfg-specific .controls {
-            margin-bottom: 1.1em;
-        }
-        /* ============= FI NOVA ESTÈTICA ============= */
-
-        .toggle{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--hair); border-radius:12px; background:#fff}
-        .check{width:18px; height:18px}
-
-        button{
-            background:linear-gradient(135deg, var(--primary), #a5b4fc); color:#0f172a; border:0; padding:12px 14px; border-radius:14px; font-weight:800; cursor:pointer; box-shadow: var(--shadow); transition:.2s
-        }
-        button:hover{transform: translateY(-1px)}
-        .btn-secondary{background:#eef2ff; border:1px solid var(--hair); color:#0f172a; font-weight:800}
-        .btn-ghost{background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700}
-
-        .hidden{display:none}
-
-        /* Quiz */
-        .quiz{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px}
-        @media (max-width: 1000px){ .quiz{grid-template-columns: 1fr} }
-        .q-header{display:flex; align-items:center; justify-content:space-between; gap:10px}
-        .progress{height: 10px; background: #e5e7eb; border-radius:999px; overflow:hidden}
-        .progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--primary), #93c5fd)}
-
-        .q{display:grid; gap:12px}
-        .q h2{font-size: clamp(1.4rem, 2.8vw, 2.2rem); margin:6px 0}
-        .q .meta{color:var(--muted); font-size:.95rem}
-        .answer-row{display:flex; gap:10px; align-items:center}
-        .answer{flex:1; font-size:1.2rem}
-
-        .kbd{
-            display:inline-grid; place-items:center; min-width:46px; height:46px; border-radius:12px;
-            background:#f3f4f6; border:1px solid var(--hair); font-weight:800; color:#0f172a
-        }
-
-        .board{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
-        .board button{height:50px}
-
-        .feedback{padding:12px; border-radius:12px; background: #ecfdf5; border:1px solid #bbf7d0; color:#065f46}
-        .feedback.bad{background: #fff1f2; border-color: #fecaca; color:#7f1d1d}
-
-        .timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.2rem}
-        .chip{border:1px solid var(--hair); color:var(--muted); padding:6px 10px; border-radius:999px; background:#fff}
-
-        /* Results */
-        table{width:100%; border-collapse:collapse}
-        th, td{padding:10px 12px; border-bottom:1px solid var(--hair); text-align:left}
-        th{color:var(--muted); font-weight:800}
-        tr:hover td{background: #f9fafb}
-        .tbl-actions{display:flex; gap:8px}
-
-        footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
-        .link{color:#6366f1; text-decoration:none}
-
-        .pulse{animation:pulse 1.6s infinite}
-        @keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
-        .modal{position:fixed; inset:0; background:rgba(10,13,24,.25); backdrop-filter: blur(6px); display:grid; place-items:center; z-index:50}
-        .modal-inner{width:min(92vw, 820px)}
-
-        /* Etiquetes SVG llegibles */
-        .svg-label{
-            font-size:13px; fill:#334155;
-            paint-order: stroke; stroke:#fff; stroke-width:6px; stroke-linejoin:round;
-        }
-
-        /* Suau entrada de gràfics */
-        .fade-in{ animation: fade .45s ease both }
-        @keyframes fade { from{opacity:0; transform: translateY(6px)} to{opacity:1; transform:none} }
-
-        /* =============== MILLORES IMPLEMENTADES ================= */
-
-        /* Millora d'accessibilitat i enfocament */
-        *:focus-visible {
-            outline: 2px solid var(--primary);
-            outline-offset: 2px;
-        }
-
-        /* Millores de rendiment per a animacions i transicions */
-        @media (prefers-reduced-motion: no-preference) {
-            .pill:hover,
-            button:hover,
-            .option:hover,
-            #cfg-specific .toggle:hover {
-                transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
-            }
-        }
-
-        /* Mode de contrast alt per a accessibilitat */
-        @media (prefers-contrast: high) {
-            :root {
-                --hair: #0f172a;
-                --muted: #374151;
-            }
-            
-            .option {
-                background: var(--card);
-                border: 2px solid var(--hair);
-            }
-        }
-
-        /* Mode clar/fosc del sistema */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0f172a;
-                --card: #1e293b;
-                --ink: #f1f5f9;
-                --muted: #94a3b8;
-                --hair: #334155;
-                --shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
-            }
-            
-            header {
-                background: rgba(30, 41, 59, 0.7);
-            }
-            
-            .input, select {
-                background: #334155;
-                color: var(--ink);
-            }
-            
-            .option {
-                background: linear-gradient(180deg, #334155, #1e293b);
-            }
-        }
-
-        /* Millores d'estructura i organització */
-        .hero {
-            grid-template-columns: 1fr;
-            gap: clamp(16px, 2.5vw, 24px);
-        }
-
-        /* Millores en els botons per a millor feedback */
-        button {
-            position: relative;
-            overflow: hidden;
-        }
-
-        button::after {
-            content: '';
+        /* Efectes d'il·luminació */
+        .glow {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%);
-            transform-origin: 50% 50%;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: var(--primary);
+            filter: blur(80px);
+            opacity: 0.1;
+            z-index: -1;
+            animation: float 8s ease-in-out infinite;
         }
 
-        button:focus:not(:active)::after {
-            animation: ripple 1s ease-out;
+        .glow:nth-child(1) {
+            top: 20%;
+            left: 10%;
+            background: var(--primary);
+            animation-delay: 0s;
         }
 
-        @keyframes ripple {
+        .glow:nth-child(2) {
+            top: 60%;
+            right: 10%;
+            background: var(--accent);
+            animation-delay: -2s;
+        }
+
+        .glow:nth-child(3) {
+            bottom: 20%;
+            left: 20%;
+            background: var(--neon);
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-20px) scale(1.1);
+            }
+        }
+
+        /* Animacions addicionals */
+        @keyframes pulse {
             0% {
-                transform: scale(0, 0);
-                opacity: 0.5;
+                opacity: 0.4;
+                transform: scale(0.98);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1);
             }
             100% {
-                transform: scale(30, 30);
-                opacity: 0;
+                opacity: 0.4;
+                transform: scale(0.98);
             }
         }
 
-        /* Millores en el disseny responsive */
-        @media (max-width: 680px) {
+        .pulse {
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        /* Responsivitat */
+        @media (max-width: 768px) {
             .row {
                 flex-direction: column;
                 align-items: flex-start;
@@ -312,88 +504,55 @@
             .right {
                 width: 100%;
                 justify-content: space-between;
+                margin-top: 16px;
             }
             
             .controls .group {
                 flex-direction: column;
                 align-items: flex-start;
             }
-        }
-
-        /* Optimització per a dispositius tàctils */
-        @media (hover: none) and (pointer: coarse) {
-            .pill, 
-            button, 
-            .option, 
-            #cfg-specific .toggle {
-                min-height: 44px;
-                min-width: 44px;
-            }
             
-            .input, select {
-                font-size: 16px; /* Evita el zoom en iOS */
+            .grid {
+                grid-template-columns: 1fr;
             }
         }
 
-        /* Millores d'eficiència per a les animacions */
-        .pulse {
-            animation: pulse 1.6s infinite ease-in-out;
+        /* Peu de pàgina */
+        footer {
+            padding: 60px 0 80px;
+            color: var(--muted);
+            text-align: center;
+            position: relative;
         }
 
-        /* Estils per a estats de càrrega */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: var(--radius);
+        .link {
+            color: var(--neon);
+            text-decoration: none;
+            position: relative;
         }
 
-        @keyframes loading {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
+        .link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--neon);
+            transition: width 0.3s ease;
         }
 
-        /* Suport per a tipografia variable si està disponible */
-        @supports (font-variation-settings: normal) {
-            body {
-                font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-                font-variation-settings: "wght" 400;
-            }
-            
-            .brand h1,
-            button {
-                font-variation-settings: "wght" 700;
-            }
-        }
-
-        /* Optimització per a impressió */
-        @media print {
-            :root {
-                --bg: #fff;
-                --card: #fff;
-                --shadow: none;
-            }
-            
-            header,
-            footer,
-            .btn-secondary,
-            .btn-ghost,
-            button {
-                display: none !important;
-            }
-            
-            .panel {
-                border: 1px solid #000;
-                break-inside: avoid;
-            }
+        .link:hover::after {
+            width: 100%;
         }
     </style>
 </head>
 <body>
+    <!-- Efectes d'il·luminació de fons -->
+    <div class="glow"></div>
+    <div class="glow"></div>
+    <div class="glow"></div>
+
     <header>
         <div class="wrap">
             <div class="row">
@@ -418,7 +577,7 @@
             <div class="hero">
                 <section class="panel card">
                     <h1 class="title">Configuració del sistema</h1>
-                    <p class="subtitle">Personalitza els mòduls i les seves opcions</p>
+                    <p class="subtitle">Personalitza els mòduls i les seves opcions amb estil futurista</p>
                     
                     <h2 class="section-title">Mòduls principals</h2>
                     <div class="grid">
@@ -476,7 +635,7 @@
 
     <footer>
         <div class="wrap">
-            <p>© 2023 Lliurament Projectes. Tots els drets reservats.</p>
+            <p>© 2023 Lliurament Projectes. Tots els drets reservats. <a href="#" class="link">Política de privadesa</a></p>
         </div>
     </footer>
 </body>
