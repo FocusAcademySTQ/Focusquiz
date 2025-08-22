@@ -233,29 +233,20 @@ function openConfig(moduleId){
           <label class="toggle"><input class="check" type="radio" name="func-sub" value="roots" checked> Punts de tall amb eixos</label>
           <label class="toggle"><input class="check" type="radio" name="func-sub" value="identify"> Identificar tipus de funció</label>
           <label class="toggle"><input class="check" type="radio" name="func-sub" value="slope"> Trobar el pendent</label>
-          <label class="toggle"><input class="check" type="radio" name="func-sub" value="from-graph"> Trobar funció a partir de gràfica</label>
         </div>
       </div>
 
       <div class="section-title">Opcions</div>
       <div class="controls">
-        <label class="field chip">Tipus de funcions
-          <select id="func-types" multiple>
-            <option value="linear" selected>Lineals</option>
-            <option value="quadratic" selected>Quadràtiques</option>
-            <option value="rational" selected>Racionals</option>
-            <option value="exponential" selected>Exponencials/Logarítmiques</option>
-          </select>
-        </label>
         <label class="field chip">Arrodoniment decimals
           <select id="func-round"><option value="0">0</option><option value="1">1</option><option value="2" selected>2</option></select>
         </label>
-        <label class="toggle"><input class="check" type="checkbox" id="func-show-graph" checked> Mostrar gràfiques</label>
         <label class="toggle"><input class="check" type="checkbox" id="func-hints"> Mostrar pistes</label>
       </div>
 
       <div class="subtitle">Format de resposta: <b>x=3</b>, <b>f(2)=4</b>, <b>lineal</b>, <b>2.5</b> o intervals com <b>(-∞,2)∪(2,∞)</b>.</div>
     `;
+}
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -321,9 +312,7 @@ function startFromConfig(){
     options.hints = !!$('#eq-hints')?.checked;
   } else if(pendingModule.id==='func'){
     options.sub = document.querySelector('input[name="func-sub"]:checked')?.value || 'roots';
-    options.types = Array.from($('#func-types').selectedOptions).map(o => o.value);
     options.round = parseInt($('#func-round').value || '2');
-    options.showGraph = !!$('#func-show-graph')?.checked;
     options.hints = !!$('#func-hints')?.checked;
   }
 
@@ -1799,10 +1788,10 @@ function genFuncFromGraph(level, opts) {
 }
 
 function genFuncIdentify(level, opts) {
-  const types = opts.types || ['linear', 'quadratic', 'rational', 'exponential', 'logarithmic'];
+  const types = ['linear', 'quadratic', 'rational', 'exponential', 'logarithmic'];
   const type = choice(types);
   
-  let funcText, answer, html = '';
+  let funcText, answer;
   
   switch(type) {
     case 'linear':
@@ -1810,7 +1799,6 @@ function genFuncIdentify(level, opts) {
       const b = rng(-10, 10);
       funcText = `f(x) = ${m}x ${b >= 0 ? '+' : ''} ${b}`;
       answer = 'lineal';
-      if (opts.showGraph) html = svgFunctionGraph('linear', { m, b });
       break;
       
     case 'quadratic':
@@ -1819,7 +1807,6 @@ function genFuncIdentify(level, opts) {
       const c = rng(-5, 5);
       funcText = `f(x) = ${a}x² ${b_q >= 0 ? '+' : ''} ${b_q}x ${c >= 0 ? '+' : ''} ${c}`;
       answer = 'quadràtica';
-      if (opts.showGraph) html = svgFunctionGraph('quadratic', { a, b: b_q, c });
       break;
       
     case 'rational':
@@ -1828,7 +1815,6 @@ function genFuncIdentify(level, opts) {
       const a_r = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
       funcText = `f(x) = ${a_r}/(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)}) ${k >= 0 ? '+' : ''} ${k}`;
       answer = 'racional';
-      if (opts.showGraph) html = svgFunctionGraph('rational', { a: a_r, h, k });
       break;
       
     case 'exponential':
@@ -1837,7 +1823,6 @@ function genFuncIdentify(level, opts) {
       const c_e = rng(-2, 2);
       funcText = `f(x) = ${a_e}·${k_e.toFixed(1)}^x ${c_e >= 0 ? '+' : ''} ${c_e}`;
       answer = 'exponencial';
-      if (opts.showGraph) html = svgFunctionGraph('exponential', { a: a_e, k: k_e, c: c_e });
       break;
       
     case 'logarithmic':
@@ -1847,16 +1832,15 @@ function genFuncIdentify(level, opts) {
       const c_l = rng(-2, 2);
       funcText = `f(x) = ${a_l}·log(${k_l}(x ${h_l >= 0 ? '-' : '+'} ${Math.abs(h_l)})) ${c_l >= 0 ? '+' : ''} ${c_l}`;
       answer = 'logarítmica';
-      if (opts.showGraph) html = svgFunctionGraph('logarithmic', { a: a_l, k: k_l, h: h_l, c: c_l });
       break;
   }
   
-  const hint = opts.hints ? `<div class="chip">Pista: observa la forma de la funció i el seu gràfic</div>` : '';
+  const hint = opts.hints ? `<div class="chip">Pista: observa la forma de la funció</div>` : '';
   
   return {
     type: 'func-identify',
     text: `Quin tipus de funció és?: ${funcText}`,
-    html: html + hint,
+    html: hint, // Sense gràfic
     answer: answer,
     answerType: 'function-type'
   };
@@ -1884,55 +1868,16 @@ function genFuncSlope(level, opts) {
     answerType: 'number'
   };
 }
-
-function genFuncFromGraph(level, opts) {
-  const types = opts.types || ['linear', 'quadratic'];
-  const type = choice(types);
-  const round = opts.round || 2;
-  
-  let funcParams, answer, html = '';
-  
-  switch(type) {
-    case 'linear':
-      const m = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
-      const b = rng(-5, 5);
-      funcParams = { m, b };
-      answer = `f(x) = ${m}x ${b >= 0 ? '+' : ''} ${b}`;
-      break;
-      
-    case 'quadratic':
-      const a = rng(1, 3) * (Math.random() < 0.5 ? -1 : 1);
-      // Vértice en (h, k)
-      const h = rng(-3, 3);
-      const k = rng(-3, 3);
-      // Forma vértice: f(x) = a(x-h)² + k
-      funcParams = { a, h, k };
-      answer = `f(x) = ${a}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
-      break;
-  }
-  
-  html = svgFunctionGraph(type, funcParams);
-  const hint = opts.hints ? `<div class="chip">Pista: observa la forma del gràfic i els punts de tall</div>` : '';
-  
-  return {
-    type: 'func-from-graph',
-    text: `Escriu la funció representada al gràfic:`,
-    html: html + hint,
-    answer: answer,
-    answerType: 'text'
-  };
-}
-
 function genFunctions(level, opts = {}) {
   const sub = opts.sub || 'roots';
   
   if (sub === 'roots') return genFuncRoots(level, opts);
   if (sub === 'identify') return genFuncIdentify(level, opts);
   if (sub === 'slope') return genFuncSlope(level, opts);
-  if (sub === 'from-graph') return genFuncFromGraph(level, opts);
   
-  // Por defecto, raíces
+  // Per defecte, punts de tall
   return genFuncRoots(level, opts);
+}
 }
 
 /* ===================== RESULTS ===================== */
