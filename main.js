@@ -1577,19 +1577,19 @@ function genUnits(level, opts={}){
 
 /* ===== Funcions (NOU MÒDUL) ===== */
 function svgFunctionGraph(type, params = {}) {
-  const w = 300, h = 200, pad = 20;
-  const points = 100;
-  let path = '';
+  const w = 350, h = 250, pad = 30; // Mides una mica més grans
+  const points = 200; // Més punts per corbes suaus
   
-  // Escala y desplazamiento
-  const xScale = (w - 2*pad) / 10;
-  const yScale = (h - 2*pad) / 10;
-  const xOffset = pad + (w - 2*pad)/2;
-  const yOffset = pad + (h - 2*pad)/2;
+  // Determinar rang de x i y automàticament
+  let xMin = -8, xMax = 8;
+  let yMin = -8, yMax = 8;
   
-  // Generar puntos según el tipo de función
-  for (let i = 0; i <= points; i++) {
-    const x = -5 + (i * 10 / points);
+  // Calcular valors extrems basats en el tipus de funció
+  const samplePoints = 50;
+  const yValues = [];
+  
+  for (let i = 0; i <= samplePoints; i++) {
+    const x = xMin + (i * (xMax - xMin) / samplePoints);
     let y;
     
     switch(type) {
@@ -1601,36 +1601,100 @@ function svgFunctionGraph(type, params = {}) {
         break;
       case 'rational':
         y = params.a / (x - params.h) + params.k;
-        // Evitar asíntotas
-        if (Math.abs(x - params.h) < 0.1) continue;
+        if (Math.abs(x - params.h) < 0.5) continue; // Evitar asíntotes
         break;
       case 'exponential':
         y = params.a * Math.exp(params.k * x) + params.c;
         break;
       case 'logarithmic':
-        y = params.a * Math.log(params.k * (x - params.h)) + params.c;
-        // Evitar log(0) y valores negativos
-        if (x <= params.h || params.k * (x - params.h) <= 0) continue;
+        if (x > params.h) {
+          y = params.a * Math.log(params.k * (x - params.h)) + params.c;
+        }
         break;
       default:
         y = x;
     }
     
-    // Limitar el rango de y para que no se salga demasiado
-    if (y < -10 || y > 10) continue;
+    if (y !== undefined && !isNaN(y) && isFinite(y)) {
+      yValues.push(y);
+    }
+  }
+  
+  // Ajustar rang de y si hi ha valors
+  if (yValues.length > 0) {
+    const actualYMin = Math.min(...yValues);
+    const actualYMax = Math.max(...yValues);
+    
+    // Ampliar una mica els límits
+    yMin = Math.min(-2, actualYMin - 1);
+    yMax = Math.max(2, actualYMax + 1);
+  }
+  
+  const xRange = xMax - xMin;
+  const yRange = yMax - yMin;
+  
+  const xScale = (w - 2*pad) / xRange;
+  const yScale = (h - 2*pad) / yRange;
+  
+  const xOffset = pad - xMin * xScale;
+  const yOffset = pad + yMax * yScale;
+  
+  let path = '';
+  let firstPoint = true;
+  
+  // Generar punts del gràfic
+  for (let i = 0; i <= points; i++) {
+    const x = xMin + (i * xRange / points);
+    let y;
+    
+    switch(type) {
+      case 'linear':
+        y = params.m * x + params.b;
+        break;
+      case 'quadratic':
+        y = params.a * x*x + params.b * x + params.c;
+        break;
+      case 'rational':
+        y = params.a / (x - params.h) + params.k;
+        // Saltar punts prop de l'asíntota
+        if (Math.abs(x - params.h) < 0.1) {
+          firstPoint = true;
+          continue;
+        }
+        break;
+      case 'exponential':
+        y = params.a * Math.exp(params.k * x) + params.c;
+        break;
+      case 'logarithmic':
+        if (x > params.h + 0.1) { // Evitar valors no vàlids
+          y = params.a * Math.log(params.k * (x - params.h)) + params.c;
+        } else {
+          firstPoint = true;
+          continue;
+        }
+        break;
+      default:
+        y = x;
+    }
+    
+    if (y === undefined || isNaN(y) || !isFinite(y) || y < yMin || y > yMax) {
+      firstPoint = true;
+      continue;
+    }
     
     const xCoord = xOffset + x * xScale;
     const yCoord = yOffset - y * yScale;
     
-    if (i === 0) {
+    if (firstPoint) {
       path += `M ${xCoord} ${yCoord} `;
+      firstPoint = false;
     } else {
       path += `L ${xCoord} ${yCoord} `;
     }
   }
   
   return `
-  <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gràfic de funció" style="display:block;margin:auto">
+  <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gràfic de funció" style="display:block;margin:auto;max-width:100%">
     <defs>
       <linearGradient id="funcGrad" x1="0" x2="1">
         <stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#a7f3d0"/>
@@ -1638,75 +1702,99 @@ function svgFunctionGraph(type, params = {}) {
     </defs>
     <rect x="0" y="0" width="${w}" height="${h}" fill="#f8fafc" rx="12" ry="12"/>
     
-    <!-- Ejes -->
-    <line x1="${pad}" y1="${yOffset}" x2="${w-pad}" y2="${yOffset}" stroke="#64748b" stroke-width="1"/>
-    <line x1="${xOffset}" y1="${pad}" x2="${xOffset}" y2="${h-pad}" stroke="#64748b" stroke-width="1"/>
+    <!-- Eixos -->
+    <line x1="${pad}" y1="${yOffset}" x2="${w-pad}" y2="${yOffset}" stroke="#64748b" stroke-width="1.5"/>
+    <line x1="${xOffset}" y1="${pad}" x2="${xOffset}" y2="${h-pad}" stroke="#64748b" stroke-width="1.5"/>
     
-    <!-- Función -->
-    <path d="${path}" stroke="url(#funcGrad)" stroke-width="2" fill="none">
+    <!-- Funció -->
+    <path d="${path}" stroke="url(#funcGrad)" stroke-width="3" fill="none">
       <animate attributeName="stroke-dasharray" from="0,1000" to="1000,0" dur="1.5s" fill="freeze"/>
     </path>
     
-    <!-- Marcas -->
-    <text x="${xOffset + 5}" y="${yOffset - 5}" class="svg-label">0</text>
-    <text x="${w - pad + 5}" y="${yOffset - 5}" class="svg-label">x</text>
-    <text x="${xOffset - 5}" y="${pad - 5}" class="svg-label">y</text>
+    <!-- Marcas dels eixos -->
+    ${[-5, 0, 5].map(val => {
+      if (val >= xMin && val <= xMax) {
+        const x = xOffset + val * xScale;
+        return `
+          <line x1="${x}" y1="${yOffset-5}" x2="${x}" y2="${yOffset+5}" stroke="#64748b"/>
+          <text x="${x}" y="${yOffset+20}" text-anchor="middle" class="svg-label">${val}</text>
+        `;
+      }
+      return '';
+    }).join('')}
+    
+    ${[-5, 0, 5].map(val => {
+      if (val >= yMin && val <= yMax) {
+        const y = yOffset - val * yScale;
+        return `
+          <line x1="${xOffset-5}" y1="${y}" x2="${xOffset+5}" y2="${y}" stroke="#64748b"/>
+          <text x="${xOffset-15}" y="${y+4}" text-anchor="middle" class="svg-label">${val}</text>
+        `;
+      }
+      return '';
+    }).join('')}
+    
+    <!-- Etiquetes -->
+    <text x="${w - 10}" y="${yOffset - 10}" class="svg-label">x</text>
+    <text x="${xOffset + 10}" y="${pad + 15}" class="svg-label">y</text>
   </svg>`;
 }
 
-function genFuncRoots(level, opts) {
-  const types = opts.types || ['linear', 'quadratic', 'rational'];
+function genFuncFromGraph(level, opts) {
+  const types = opts.types || ['linear', 'quadratic'];
   const type = choice(types);
   const round = opts.round || 2;
   
-  let funcText, answer, html = '';
+  let funcParams, answer, html = '';
   
-  switch(type) {
-    case 'linear':
-      const m = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
-      const b = rng(-10, 10);
-      const root = roundTo(-b/m, round);
-      funcText = `f(x) = ${m}x ${b >= 0 ? '+' : ''} ${b}`;
-      answer = { type: 'x-value', value: root };
-      if (opts.showGraph) html = svgFunctionGraph('linear', { m, b });
-      break;
-      
-    case 'quadratic':
-      const a = rng(1, 3) * (Math.random() < 0.5 ? -1 : 1);
-      // Raíces enteras
-      const r1 = rng(-5, 5);
-      const r2 = rng(-5, 5);
-      const b_q = -a * (r1 + r2);
-      const c = a * r1 * r2;
-      funcText = `f(x) = ${a}x² ${b_q >= 0 ? '+' : ''} ${b_q}x ${c >= 0 ? '+' : ''} ${c}`;
-      answer = { type: 'x-value', value: r1 };
-      if (opts.showGraph) html = svgFunctionGraph('quadratic', { a, b: b_q, c });
-      break;
-      
-    case 'rational':
-      const h = rng(-3, 3);
-      const k = rng(-3, 3);
-      const a_r = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
-      funcText = `f(x) = ${a_r}/(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)}) ${k >= 0 ? '+' : ''} ${k}`;
-      // No tiene raíces reales o tiene una
-      if (k === 0) {
-        answer = { type: 'text', value: 'cap' };
-      } else {
-        const root_r = h - a_r/k;
-        answer = { type: 'x-value', value: roundTo(root_r, round) };
-      }
-      if (opts.showGraph) html = svgFunctionGraph('rational', { a: a_r, h, k });
-      break;
+  // Generar paràmetres vàlids
+  let validParams = false;
+  let attempts = 0;
+  
+  while (!validParams && attempts < 10) {
+    attempts++;
+    
+    switch(type) {
+      case 'linear':
+        const m = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
+        const b = rng(-5, 5);
+        funcParams = { m, b };
+        answer = `f(x) = ${m}x ${b >= 0 ? '+' : ''} ${b}`;
+        validParams = true; // Sempre vàlid per lineals
+        break;
+        
+      case 'quadratic':
+        const a = rng(1, 3) * (Math.random() < 0.5 ? -1 : 1);
+        const h = rng(-3, 3);
+        const k = rng(-3, 3);
+        funcParams = { a, h, k };
+        answer = `f(x) = ${a}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+        
+        // Validar que el gràfic sigui visible
+        const sampleY = a * Math.pow(2, 2) + k; // Valor a x=2
+        validParams = Math.abs(sampleY) <= 15; // Assegurar que no és massa gran
+        break;
+    }
   }
   
-  const hint = opts.hints ? `<div class="chip">Pista: iguala la funció a zero i resol l'equació</div>` : '';
+  if (!validParams) {
+    // Fallback a funció lineal si les quadràtiques fallen
+    const m = 2 * (Math.random() < 0.5 ? -1 : 1);
+    const b = rng(-3, 3);
+    funcParams = { m, b };
+    answer = `f(x) = ${m}x ${b >= 0 ? '+' : ''} ${b}`;
+    type = 'linear';
+  }
+  
+  html = svgFunctionGraph(type, funcParams);
+  const hint = opts.hints ? `<div class="chip">Pista: observa la forma del gràfic i els punts de tall</div>` : '';
   
   return {
-    type: 'func-roots',
-    text: `Troba el punt de tall amb l'eix X de: ${funcText}`,
+    type: 'func-from-graph',
+    text: `Escriu la funció representada al gràfic:`,
     html: html + hint,
     answer: answer,
-    answerType: answer.type === 'text' ? 'text' : 'x-value'
+    answerType: 'text'
   };
 }
 
