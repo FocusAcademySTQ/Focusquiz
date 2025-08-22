@@ -110,8 +110,8 @@
 
         <!-- Columna teclat -->
         <div class="panel card fade-in">
-          <h3 class="title" id="quiz-title" style="margin-top:0">Teclat numèric</h3>
-          <div class="board" role="group" aria-label="Tecles numèriques">
+          <h3 class="title" id="quiz-title" style="margin-top:0">Teclat</h3>
+          <div class="board" role="group" aria-label="Tecles" id="keyboard">
             <button onclick="typeKey('7')" aria-label="7">7</button>
             <button onclick="typeKey('8')" aria-label="8">8</button>
             <button onclick="typeKey('9')" aria-label="9">9</button>
@@ -127,6 +127,9 @@
             <button onclick="typeKey('0')" aria-label="0">0</button>
             <button onclick="typeKey('-')" aria-label="Canvia signe">±</button>
             <button onclick="typeKey('del')" aria-label="Esborrar">⌫</button>
+            
+            <!-- Botó d'infinit (només visible per al mòdul de funcions) -->
+            <button id="infinityBtn" onclick="typeKey('∞')" aria-label="Infinit" style="display:none">∞</button>
           </div>
           <div style="margin-top:10px; display:flex; gap:10px; align-items:center">
             <span class="kbd" aria-hidden="true">↵</span> <span class="subtitle">comprova</span>
@@ -166,7 +169,7 @@
         <h3 class="title" id="about-title" style="margin-top:0">Sobre aquesta eina</h3>
         <p class="subtitle">Web single-file creada per Focus Academy. Inspirada en ThatQuiz, sense comptes ni dependències. Dades locals al navegador.</p>
         <ul>
-          <li>Generador de preguntes per: Aritmètica, Fraccions, Percentatges, Equacions lineals, Geometria (àrees/perímetres/volums), Estadística i Unitats.</li>
+          <li>Generador de preguntes per: Aritmètica, Fraccions, Percentatges, Equacions lineals, Geometria (àrees/perímetres), Estadística, Unitats i Funcions.</li>
           <li>Temps opcional, nivell 1–20, i repàs de només les preguntes errònies.</li>
           <li>Historial exportable a CSV i mode offline (funciona sense internet).</li>
         </ul>
@@ -197,6 +200,31 @@
         }
       });
       mo.observe(fb, { childList: true, subtree: true, characterData: true });
+    })();
+    
+    // 3) Mostra/amaga el botó d'infinit segons el mòdul
+    (function(){
+      // Observa els canvis en la vista del qüestionari
+      const quizView = document.getElementById('view-quiz');
+      if (!quizView) return;
+      
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const isQuizVisible = !quizView.classList.contains('hidden');
+            if (isQuizVisible) {
+              // Comprova si estem al mòdul de funcions
+              const moduleName = document.getElementById('qModule').textContent;
+              const infinityBtn = document.getElementById('infinityBtn');
+              if (infinityBtn) {
+                infinityBtn.style.display = moduleName.includes('Funcions') ? 'block' : 'none';
+              }
+            }
+          }
+        });
+      });
+      
+      observer.observe(quizView, { attributes: true });
     })();
   </script>
 </body>
