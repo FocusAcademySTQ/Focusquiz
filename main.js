@@ -38,6 +38,7 @@ const MODULES = [
   { id:'stats', name:'Estadística bàsica', desc:'Mitjana/mediana/moda, rang/desviació i gràfics.', badge:'Dades', gen: genStats },
   { id:'units', name:'Unitats i conversions', desc:'Longitud, massa, volum, superfície i temps.', badge:'Mesures', gen: genUnits },
   { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', badge:'Àlgebra', gen: genEq },
+  { id:'func',  name:'Funcions', desc:'Punts de tall, tipus de funcions, pendents i gràfiques.', badge:'Nou', gen: genFunctions }
 ];
 
 let pendingModule = null; // mòdul seleccionat per configurar
@@ -223,6 +224,38 @@ function openConfig(moduleId){
 
       <div class="subtitle">Format de resposta: <b>x=3</b> o <b>3</b>; per sistemes <b>(2, -1)</b> o <b>2,-1</b>; fraccions <b>3/4</b> o decimals.</div>
     `;
+  } else if(pendingModule.id === 'func'){
+    /* ===== Configuració del mòdul Funcions ===== */
+    wrap.innerHTML = `
+      <div class="section-title">Funcions · Subtemes</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Subtemes de funcions">
+          <label class="toggle"><input class="check" type="radio" name="func-sub" value="roots" checked> Punts de tall amb eixos</label>
+          <label class="toggle"><input class="check" type="radio" name="func-sub" value="identify"> Identificar tipus de funció</label>
+          <label class="toggle"><input class="check" type="radio" name="func-sub" value="slope"> Trobar el pendent</label>
+          <label class="toggle"><input class="check" type="radio" name="func-sub" value="from-graph"> Trobar funció a partir de gràfica</label>
+        </div>
+      </div>
+
+      <div class="section-title">Opcions</div>
+      <div class="controls">
+        <label class="field chip">Tipus de funcions
+          <select id="func-types" multiple>
+            <option value="linear" selected>Lineals</option>
+            <option value="quadratic" selected>Quadràtiques</option>
+            <option value="rational" selected>Racionals</option>
+            <option value="exponential" selected>Exponencials/Logarítmiques</option>
+          </select>
+        </label>
+        <label class="field chip">Arrodoniment decimals
+          <select id="func-round"><option value="0">0</option><option value="1">1</option><option value="2" selected>2</option></select>
+        </label>
+        <label class="toggle"><input class="check" type="checkbox" id="func-show-graph" checked> Mostrar gràfiques</label>
+        <label class="toggle"><input class="check" type="checkbox" id="func-hints"> Mostrar pistes</label>
+      </div>
+
+      <div class="subtitle">Format de resposta: <b>x=3</b>, <b>f(2)=4</b>, <b>lineal</b>, <b>2.5</b> o intervals com <b>(-∞,2)∪(2,∞)</b>.</div>
+    `;
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -286,6 +319,12 @@ function startFromConfig(){
     options.forceInt = !!$('#eq-int-sol')?.checked;
     options.allowIncomplete = !!$('#eq-incomplete')?.checked;
     options.hints = !!$('#eq-hints')?.checked;
+  } else if(pendingModule.id==='func'){
+    options.sub = document.querySelector('input[name="func-sub"]:checked')?.value || 'roots';
+    options.types = Array.from($('#func-types').selectedOptions).map(o => o.value);
+    options.round = parseInt($('#func-round').value || '2');
+    options.showGraph = !!$('#func-show-graph')?.checked;
+    options.hints = !!$('#func-hints')?.checked;
   }
 
   startQuiz(pendingModule.id, {count, time, level, options});
@@ -457,6 +496,63 @@ function rootsFromRaw(raw){
   return parts.map(parseNumberOrFrac);
 }
 
+/* ===== Helpers per a les funcions ===== */
+function parseInterval(raw) {
+  raw = String(raw).trim().toLowerCase().replace(/\s+/g, '');
+  raw = raw.replace(/infinito|infinity/gi, '∞').replace(/inf/gi, '∞');
+  raw = raw.replace(/u/gi, '∪');
+  
+  // Validar formato básico
+  if (!/^([(\[](?:-∞|∞|[-\d.]+),\s*(?:-∞|∞|[-\d.]+)[)\]])?(∪([(\[](?:-∞|∞|[-\d.]+),\s*(?:-∞|∞|[-\d.]+)[)\]]))*$/.test(raw)) {
+    return null;
+  }
+  
+  return raw;
+}
+
+function parseFunctionAnswer(raw) {
+  raw = String(raw).trim().toLowerCase();
+  
+  // Intentar parsear como f(x)=valor
+  const fMatch = raw.match(/f\(([^)]+)\)\s*=\s*([^,]+)/);
+  if (fMatch) {
+    const xVal = parseFloat(fMatch[1]);
+    const yVal = parseFloat(fMatch[2]);
+    if (!isNaN(xVal) && !isNaN(yVal)) {
+      return { type: 'f-value', x: xVal, y: yVal };
+    }
+  }
+  
+  // Intentar parsear como x=valor
+  const xMatch = raw.match(/x\s*=\s*([^,]+)/);
+  if (xMatch) {
+    const xVal = parseFloat(xMatch[1]);
+    if (!isNaN(xVal)) {
+      return { type: 'x-value', value: xVal };
+    }
+  }
+  
+  // Intentar parsear como solo número
+  const numVal = parseFloat(raw);
+  if (!isNaN(numVal)) {
+    return { type: 'number', value: numVal };
+  }
+  
+  // Intentar parsear como tipo de función
+  const funcTypes = ['lineal', 'quadratica', 'quadràtica', 'racional', 'exponencial', 'logaritmica', 'logarítmica'];
+  if (funcTypes.includes(raw)) {
+    return { type: 'function-type', value: raw };
+  }
+  
+  // Intentar parsear como intervalo
+  const interval = parseInterval(raw);
+  if (interval) {
+    return { type: 'interval', value: interval };
+  }
+  
+  return null;
+}
+
 function checkAnswer(){
   if(!session || session.done){ flashFeedback('Prova finalitzada. Torna a Inici.'); return }
   const q = session.questions[session.idx];
@@ -552,6 +648,25 @@ function checkAnswer(){
     const u = parseNumberOrFrac(raw);
     ok = Number.isFinite(u) && equalsTol(u, q.sol, 1e-6);
   }
+  // Funcions
+  else if(q.type && q.type.startsWith('func-')){
+    const parsed = parseFunctionAnswer(raw);
+    if (!parsed) {
+      ok = false;
+    } else if (q.answerType === 'x-value') {
+      ok = parsed.type === 'x-value' && equalsTol(parsed.value, q.answer, 1e-6);
+    } else if (q.answerType === 'f-value') {
+      ok = parsed.type === 'f-value' && equalsTol(parsed.x, q.answer.x, 1e-6) && equalsTol(parsed.y, q.answer.y, 1e-6);
+    } else if (q.answerType === 'number') {
+      ok = parsed.type === 'number' && equalsTol(parsed.value, q.answer, 1e-6);
+    } else if (q.answerType === 'function-type') {
+      ok = parsed.type === 'function-type' && parsed.value.toLowerCase() === q.answer.toLowerCase();
+    } else if (q.answerType === 'interval') {
+      ok = parsed.type === 'interval' && parsed.value === q.answer;
+    } else {
+      ok = raw.toLowerCase().replace(/\s+/g, '') === String(q.answer).toLowerCase().replace(/\s+/g, '');
+    }
+  }
   // General
   else {
     if(typeof q.answer === 'number'){
@@ -599,6 +714,7 @@ function fmtAns(a){
   if(/^-?\d+\/\d+$/.test(String(a))) return String(a);
   if(Array.isArray(a)) return a.join(', ');
   if(typeof a==='object' && a && 'x' in a && 'y' in a) return `(${a.x}, ${a.y})`;
+  if(typeof a==='object' && a && 'type' in a && a.type === 'f-value') return `f(${a.x})=${a.y}`;
   return a;
 }
 
@@ -1185,7 +1301,7 @@ function genEqQuadratic(level, opts){
       return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
     }
   } else {
-    // Completes amb arrels “netes” (a=1 per simplicitat)
+    // Completes amb arrels "netes" (a=1 per simplicitat)
     const r1 = rng(-9,9), r2 = rng(-9,9);
     const sols = [r1, r2].map(v => niceIntIf(v, forceInt));
     const b = -(sols[0] + sols[1]);
@@ -1457,6 +1573,278 @@ function genUnits(level, opts={}){
   const pool = sets[group] || sets.length;
   const set = choice(pool);
   return convQuestion(set, round);
+}
+
+/* ===== Funcions (NOU MÒDUL) ===== */
+function svgFunctionGraph(type, params = {}) {
+  const w = 300, h = 200, pad = 20;
+  const points = 100;
+  let path = '';
+  
+  // Escala y desplazamiento
+  const xScale = (w - 2*pad) / 10;
+  const yScale = (h - 2*pad) / 10;
+  const xOffset = pad + (w - 2*pad)/2;
+  const yOffset = pad + (h - 2*pad)/2;
+  
+  // Generar puntos según el tipo de función
+  for (let i = 0; i <= points; i++) {
+    const x = -5 + (i * 10 / points);
+    let y;
+    
+    switch(type) {
+      case 'linear':
+        y = params.m * x + params.b;
+        break;
+      case 'quadratic':
+        y = params.a * x*x + params.b * x + params.c;
+        break;
+      case 'rational':
+        y = params.a / (x - params.h) + params.k;
+        // Evitar asíntotas
+        if (Math.abs(x - params.h) < 0.1) continue;
+        break;
+      case 'exponential':
+        y = params.a * Math.exp(params.k * x) + params.c;
+        break;
+      case 'logarithmic':
+        y = params.a * Math.log(params.k * (x - params.h)) + params.c;
+        // Evitar log(0) y valores negativos
+        if (x <= params.h || params.k * (x - params.h) <= 0) continue;
+        break;
+      default:
+        y = x;
+    }
+    
+    // Limitar el rango de y para que no se salga demasiado
+    if (y < -10 || y > 10) continue;
+    
+    const xCoord = xOffset + x * xScale;
+    const yCoord = yOffset - y * yScale;
+    
+    if (i === 0) {
+      path += `M ${xCoord} ${yCoord} `;
+    } else {
+      path += `L ${xCoord} ${yCoord} `;
+    }
+  }
+  
+  return `
+  <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gràfic de funció" style="display:block;margin:auto">
+    <defs>
+      <linearGradient id="funcGrad" x1="0" x2="1">
+        <stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#a7f3d0"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="${w}" height="${h}" fill="#f8fafc" rx="12" ry="12"/>
+    
+    <!-- Ejes -->
+    <line x1="${pad}" y1="${yOffset}" x2="${w-pad}" y2="${yOffset}" stroke="#64748b" stroke-width="1"/>
+    <line x1="${xOffset}" y1="${pad}" x2="${xOffset}" y2="${h-pad}" stroke="#64748b" stroke-width="1"/>
+    
+    <!-- Función -->
+    <path d="${path}" stroke="url(#funcGrad)" stroke-width="2" fill="none">
+      <animate attributeName="stroke-dasharray" from="0,1000" to="1000,0" dur="1.5s" fill="freeze"/>
+    </path>
+    
+    <!-- Marcas -->
+    <text x="${xOffset + 5}" y="${yOffset - 5}" class="svg-label">0</text>
+    <text x="${w - pad + 5}" y="${yOffset - 5}" class="svg-label">x</text>
+    <text x="${xOffset - 5}" y="${pad - 5}" class="svg-label">y</text>
+  </svg>`;
+}
+
+function genFuncRoots(level, opts) {
+  const types = opts.types || ['linear', 'quadratic', 'rational'];
+  const type = choice(types);
+  const round = opts.round || 2;
+  
+  let funcText, answer, html = '';
+  
+  switch(type) {
+    case 'linear':
+      const m = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
+      const b = rng(-10, 10);
+      const root = roundTo(-b/m, round);
+      funcText = `f(x) = ${m}x ${b >= 0 ? '+' : ''} ${b}`;
+      answer = { type: 'x-value', value: root };
+      if (opts.showGraph) html = svgFunctionGraph('linear', { m, b });
+      break;
+      
+    case 'quadratic':
+      const a = rng(1, 3) * (Math.random() < 0.5 ? -1 : 1);
+      // Raíces enteras
+      const r1 = rng(-5, 5);
+      const r2 = rng(-5, 5);
+      const b_q = -a * (r1 + r2);
+      const c = a * r1 * r2;
+      funcText = `f(x) = ${a}x² ${b_q >= 0 ? '+' : ''} ${b_q}x ${c >= 0 ? '+' : ''} ${c}`;
+      answer = { type: 'x-value', value: r1 };
+      if (opts.showGraph) html = svgFunctionGraph('quadratic', { a, b: b_q, c });
+      break;
+      
+    case 'rational':
+      const h = rng(-3, 3);
+      const k = rng(-3, 3);
+      const a_r = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
+      funcText = `f(x) = ${a_r}/(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)}) ${k >= 0 ? '+' : ''} ${k}`;
+      // No tiene raíces reales o tiene una
+      if (k === 0) {
+        answer = { type: 'text', value: 'cap' };
+      } else {
+        const root_r = h - a_r/k;
+        answer = { type: 'x-value', value: roundTo(root_r, round) };
+      }
+      if (opts.showGraph) html = svgFunctionGraph('rational', { a: a_r, h, k });
+      break;
+  }
+  
+  const hint = opts.hints ? `<div class="chip">Pista: iguala la funció a zero i resol l'equació</div>` : '';
+  
+  return {
+    type: 'func-roots',
+    text: `Troba el punt de tall amb l'eix X de: ${funcText}`,
+    html: html + hint,
+    answer: answer,
+    answerType: answer.type === 'text' ? 'text' : 'x-value'
+  };
+}
+
+function genFuncIdentify(level, opts) {
+  const types = opts.types || ['linear', 'quadratic', 'rational', 'exponential', 'logarithmic'];
+  const type = choice(types);
+  
+  let funcText, answer, html = '';
+  
+  switch(type) {
+    case 'linear':
+      const m = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
+      const b = rng(-10, 10);
+      funcText = `f(x) = ${m}x ${b >= 0 ? '+' : ''} ${b}`;
+      answer = 'lineal';
+      if (opts.showGraph) html = svgFunctionGraph('linear', { m, b });
+      break;
+      
+    case 'quadratic':
+      const a = rng(1, 3) * (Math.random() < 0.5 ? -1 : 1);
+      const b_q = rng(-5, 5);
+      const c = rng(-5, 5);
+      funcText = `f(x) = ${a}x² ${b_q >= 0 ? '+' : ''} ${b_q}x ${c >= 0 ? '+' : ''} ${c}`;
+      answer = 'quadràtica';
+      if (opts.showGraph) html = svgFunctionGraph('quadratic', { a, b: b_q, c });
+      break;
+      
+    case 'rational':
+      const h = rng(-3, 3);
+      const k = rng(-3, 3);
+      const a_r = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
+      funcText = `f(x) = ${a_r}/(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)}) ${k >= 0 ? '+' : ''} ${k}`;
+      answer = 'racional';
+      if (opts.showGraph) html = svgFunctionGraph('rational', { a: a_r, h, k });
+      break;
+      
+    case 'exponential':
+      const a_e = rng(1, 3);
+      const k_e = rng(1, 3) * 0.5;
+      const c_e = rng(-2, 2);
+      funcText = `f(x) = ${a_e}·${k_e.toFixed(1)}^x ${c_e >= 0 ? '+' : ''} ${c_e}`;
+      answer = 'exponencial';
+      if (opts.showGraph) html = svgFunctionGraph('exponential', { a: a_e, k: k_e, c: c_e });
+      break;
+      
+    case 'logarithmic':
+      const a_l = rng(1, 3) * (Math.random() < 0.5 ? -1 : 1);
+      const k_l = rng(1, 3);
+      const h_l = rng(1, 3);
+      const c_l = rng(-2, 2);
+      funcText = `f(x) = ${a_l}·log(${k_l}(x ${h_l >= 0 ? '-' : '+'} ${Math.abs(h_l)})) ${c_l >= 0 ? '+' : ''} ${c_l}`;
+      answer = 'logarítmica';
+      if (opts.showGraph) html = svgFunctionGraph('logarithmic', { a: a_l, k: k_l, h: h_l, c: c_l });
+      break;
+  }
+  
+  const hint = opts.hints ? `<div class="chip">Pista: observa la forma de la funció i el seu gràfic</div>` : '';
+  
+  return {
+    type: 'func-identify',
+    text: `Quin tipus de funció és?: ${funcText}`,
+    html: html + hint,
+    answer: answer,
+    answerType: 'function-type'
+  };
+}
+
+function genFuncSlope(level, opts) {
+  const round = opts.round || 2;
+  
+  // Función lineal: f(x) = mx + b
+  const m = roundTo(rng(1, 10) * (Math.random() < 0.5 ? -1 : 1) * 0.5, 1);
+  const b = rng(-5, 5);
+  
+  const funcText = `f(x) = ${m}x ${b >= 0 ? '+' : ''} ${b}`;
+  const answer = m;
+  
+  let html = '';
+  if (opts.showGraph) html = svgFunctionGraph('linear', { m, b });
+  const hint = opts.hints ? `<div class="chip">Pista: el pendent és el coeficient de x</div>` : '';
+  
+  return {
+    type: 'func-slope',
+    text: `Troba el pendent de la funció: ${funcText}`,
+    html: html + hint,
+    answer: answer,
+    answerType: 'number'
+  };
+}
+
+function genFuncFromGraph(level, opts) {
+  const types = opts.types || ['linear', 'quadratic'];
+  const type = choice(types);
+  const round = opts.round || 2;
+  
+  let funcParams, answer, html = '';
+  
+  switch(type) {
+    case 'linear':
+      const m = rng(1, 5) * (Math.random() < 0.5 ? -1 : 1);
+      const b = rng(-5, 5);
+      funcParams = { m, b };
+      answer = `f(x) = ${m}x ${b >= 0 ? '+' : ''} ${b}`;
+      break;
+      
+    case 'quadratic':
+      const a = rng(1, 3) * (Math.random() < 0.5 ? -1 : 1);
+      // Vértice en (h, k)
+      const h = rng(-3, 3);
+      const k = rng(-3, 3);
+      // Forma vértice: f(x) = a(x-h)² + k
+      funcParams = { a, h, k };
+      answer = `f(x) = ${a}(x ${h >= 0 ? '-' : '+'} ${Math.abs(h)})² ${k >= 0 ? '+' : ''} ${k}`;
+      break;
+  }
+  
+  html = svgFunctionGraph(type, funcParams);
+  const hint = opts.hints ? `<div class="chip">Pista: observa la forma del gràfic i els punts de tall</div>` : '';
+  
+  return {
+    type: 'func-from-graph',
+    text: `Escriu la funció representada al gràfic:`,
+    html: html + hint,
+    answer: answer,
+    answerType: 'text'
+  };
+}
+
+function genFunctions(level, opts = {}) {
+  const sub = opts.sub || 'roots';
+  
+  if (sub === 'roots') return genFuncRoots(level, opts);
+  if (sub === 'identify') return genFuncIdentify(level, opts);
+  if (sub === 'slope') return genFuncSlope(level, opts);
+  if (sub === 'from-graph') return genFuncFromGraph(level, opts);
+  
+  // Por defecto, raíces
+  return genFuncRoots(level, opts);
 }
 
 /* ===================== RESULTS ===================== */
