@@ -1150,7 +1150,6 @@ function genGeometry(level, opts={}){
     };
   }
 }
-}
 
 /* ===== Percentatges ===== */
 function genPercent(level){
