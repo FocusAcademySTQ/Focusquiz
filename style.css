@@ -196,9 +196,29 @@ footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
 .modal-inner{width:min(92vw, 820px)}
 
 /* Etiquetes SVG llegibles */
-.svg-label{
-  font-size:13px; fill:#334155;
-  paint-order: stroke; stroke:#fff; stroke-width:6px; stroke-linejoin:round;
+.svg-label {
+  font-size: 12px;
+  fill: #374151;
+  font-weight: 500;
+}
+
+/* Assegurar que els SVGs es vegin bé */
+#qMedia svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+}
+
+/* Millorar la visualització en dispositius mòbils */
+@media (max-width: 768px) {
+  #qMedia svg {
+    max-width: 90%;
+    height: 180px;
+  }
 }
 
 /* Suau entrada de gràfics */
