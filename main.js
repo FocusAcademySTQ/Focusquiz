@@ -1541,5 +1541,3 @@ function init(){
   $('#year').textContent = new Date().getFullYear();
 }
 init();
-
-Tornam el codi amb els canvis que he comentat, recorda que es l'arxiu js, que comenci i acabi igual que el que the donat
