@@ -996,6 +996,7 @@ function genGeometry(level, opts={}){
   const roundDigits = Number.isInteger(opts.round)? opts.round : 2;
   const circleMode = opts.circleMode || 'numeric';
   const sideMax = level<7? 20 : (level<14? 50 : 120);
+  const sideMax3D = level<7? 15 : (level<14? 30 : 50); // Dimensions majors per a figures 3D
 
   function packNum({text, html, value, pow}){
     const v = roundTo(value, roundDigits);
@@ -1026,13 +1027,15 @@ function genGeometry(level, opts={}){
   if(scope==='vol'){
     const f = figs3D.length? choice(figs3D) : choice(['cuboid','cylinder']);
     if(f==='cuboid'){
-      const w=rng(2, Math.max(6, Math.floor(sideMax/10)));
-      const h=rng(2, Math.max(6, Math.floor(sideMax/10)));
-      const l=rng(2, Math.max(6, Math.floor(sideMax/10)));
+      // Augmentar les dimensions dels cuboides perquè siguin més significatives
+      const w=rng(5, Math.max(8, Math.floor(sideMax3D/4)));
+      const h=rng(5, Math.max(8, Math.floor(sideMax3D/4)));
+      const l=rng(5, Math.max(8, Math.floor(sideMax3D/4)));
       return packNum({ text:`Volum del prisma rectangular`, html: svgCuboidFig(w,h,l,U), value: w*h*l, pow: 3 });
     } else {
-      const r=rng(2, Math.max(6, Math.floor(sideMax/10)));
-      const h=rng(3, Math.max(8, Math.floor(sideMax/8)));
+      // Augmentar les dimensions dels cilindres
+      const r=rng(4, Math.max(8, Math.floor(sideMax3D/8)));
+      const h=rng(6, Math.max(12, Math.floor(sideMax3D/6)));
       if(circleMode==='pi-exacte'){
         return packPi({ text:`Volum del cilindre (exacte, en π)`, html: svgCylinderFig(r,h,U), coef: r*r*h });
       } else {
@@ -1044,6 +1047,7 @@ function genGeometry(level, opts={}){
   const pick = figs2D.length? choice(figs2D) : choice(['rect','tri','circ']);
   const wantA = (scope==='area' || scope==='both');
   const wantP = (scope==='perim' || scope==='both');
+  
   if(pick==='rect'){
     const b=rng(3, Math.max(4, Math.floor(sideMax/2)));
     const h=rng(3, Math.max(4, Math.floor(sideMax/2)));
@@ -1052,6 +1056,7 @@ function genGeometry(level, opts={}){
     if(mode==='A') return packNum({ text:`Àrea del rectangle`, html, value: b*h, pow: 2 });
     return packNum({ text:`Perímetre del rectangle`, html, value: 2*(b+h), pow: 0 });
   }
+  
   if(pick==='tri'){
     const mode = scope==='both'? choice(['A','P']) : (wantA? 'A':'P');
     if(mode==='A'){
@@ -1073,6 +1078,7 @@ function genGeometry(level, opts={}){
       return packNum({ text:`Perímetre del triangle`, html, value: a+b+c, pow: 0 });
     }
   }
+  
   if(pick==='circ'){
     const mode = scope==='both'? choice(['A','P']) : (wantA? 'A':'P');
     if(mode==='A'){
@@ -1087,6 +1093,7 @@ function genGeometry(level, opts={}){
       return packNum({ text:`Perímetre del cercle`, html, value: Math.PI*d, pow: 0 });
     }
   }
+  
   if(pick==='poly'){
     const n = rng(5,8);
     const c = rng(2, Math.max(6, Math.floor(sideMax/10)));
@@ -1097,6 +1104,7 @@ function genGeometry(level, opts={}){
     if(mode==='A') return packNum({ text:`Àrea del polígon regular`, html, value: (P*a/2), pow: 2 });
     return packNum({ text:`Perímetre del polígon regular`, html, value: P, pow: 0 });
   }
+  
   if(pick==='grid'){
     const cols = rng(4, 10), rows = rng(4, 10);
     const total = cols*rows;
@@ -1105,17 +1113,43 @@ function genGeometry(level, opts={}){
     const html = svgGridMask(cols, rows, set);
     return packNum({ text:`Àrea de la figura ombrejada (unitats²)`, html, value: k, pow: 2 });
   }
-  // comp – figura composta a graella
-  const cols = rng(6, 10), rows = rng(6, 10);
-  const mask = new Set();
-  function fillRect(x,y,w,h){ for(let r=y;r<y+h;r++){ for(let c=x;c<x+w;c++){ mask.add(r*cols + c); } } }
-  const ax = rng(0, Math.floor(cols/2)-1), ay = rng(0, Math.floor(rows/2)-1);
-  const aw = rng(2, Math.floor(cols/2)), ah = rng(2, Math.floor(rows/2));
-  const bx = rng(Math.floor(cols/2), cols-2), by = rng(Math.floor(rows/2), rows-2);
-  const bw = rng(2, Math.min(aw, cols-bx)), bh = rng(2, Math.min(ah, rows-by));
-  fillRect(ax, ay, aw, ah); fillRect(bx, by, bw, bh);
-  const html = svgGridMask(cols, rows, mask);
-  return { type:'geom-num', text:`Àrea de la figura composta (unitats²)`, html, numeric: mask.size, meta:{requireUnits:false, units:'u', pow:2, round:0}, answer: String(mask.size) };
+  
+  // comp – figura composta a graella (millorada)
+  if(pick==='comp'){
+    const cols = rng(8, 12), rows = rng(8, 12);
+    const mask = new Set();
+    
+    function fillRect(x,y,w,h){ 
+      for(let r=y;r<y+h;r++){ 
+        for(let c=x;c<x+w;c++){ 
+          if(r < rows && c < cols) {
+            mask.add(r*cols + c); 
+          }
+        } 
+      } 
+    }
+    
+    // Crear 2-3 rectangles que es sobreposin parcialment
+    const numRectangles = rng(2, 3);
+    for(let i=0; i<numRectangles; i++){
+      const x = rng(0, cols-3);
+      const y = rng(0, rows-3);
+      const w = rng(2, Math.min(5, cols-x));
+      const h = rng(2, Math.min(5, rows-y));
+      fillRect(x, y, w, h);
+    }
+    
+    const html = svgGridMask(cols, rows, mask);
+    return { 
+      type:'geom-num', 
+      text:`Àrea de la figura composta (unitats²)`, 
+      html, 
+      numeric: mask.size, 
+      meta:{requireUnits:false, units:'u', pow:2, round:0}, 
+      answer: String(mask.size) 
+    };
+  }
+}
 }
 
 /* ===== Percentatges ===== */
