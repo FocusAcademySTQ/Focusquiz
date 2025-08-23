@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ca">
+<html lang="ca" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,45 +8,90 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <div class="wrap row">
+  <!-- HEADER: sticky + blur + brand + nav + toggle tema -->
+  <header class="site-header">
+    <div class="wrap row header-inner">
       <div class="brand">
-        <div class="logo" aria-hidden="true">Q</div>
-        <h1>Focus Academy · Matemàtiques</h1>
+        <div class="logo" aria-hidden="true">🎓</div>
+        <h1 class="brand-title">Focus Academy · Aula Digital</h1>
       </div>
-      <nav class="right">
-        <button class="pill" onclick="showView('home')">Inici</button>
+      <nav class="nav-actions">
+        <button class="pill" onclick="showView('home')">Recursos</button>
+        <button class="pill" onclick="showView('quiz')">Activitats</button>
         <button class="pill" onclick="showView('results')">Resultats</button>
-        <button class="pill" onclick="showView('about')">Sobre</button>
+        <button class="pill" onclick="showView('about')">Novetats</button>
         <button class="pill" onclick="window.location.href='teoria.html'">Teoria</button>
         <input id="studentName" class="input" placeholder="Nom de l'alumne/a" />
+        <button id="themeToggle" class="theme-toggle" aria-label="Canvia tema">
+          <span class="icon-sun" aria-hidden="true">☀️</span>
+          <span class="icon-moon" aria-hidden="true">🌙</span>
+          <span class="label">Fosc/Clar</span>
+        </button>
       </nav>
     </div>
   </header>
 
   <main class="wrap">
-    <!-- HOME -->
+    <!-- HERO (equivalent al del prototip) -->
     <section id="view-home" class="hero">
-      <div class="panel card">
-        <h2 class="title">Benvingut/da! 👋</h2>
-        <p class="subtitle">Tria un mòdul per configurar-lo i començar. Tot queda guardat en aquest dispositiu (sense comptes).</p>
+      <div class="hero-grid">
+        <div class="hero-left card panel">
+          <h2 class="title hero-title">Aprèn millor amb materials clars i activitats autocorrectives</h2>
+          <p class="subtitle hero-subtitle">
+            Plataforma unificada per a ESO i Batxillerat: teoria, dossiers, exercicis i proves tipus test.
+            Tot pensat per estudiar en digital.
+          </p>
+          <div class="cta-row">
+            <button class="btn" onclick="showView('home')">📚 Explora recursos</button>
+            <button class="btn-outline" onclick="showView('quiz')">🚀 Prova activitats</button>
+          </div>
 
-        <div class="section-title">Mòduls de matemàtiques</div>
-        <div class="grid" id="moduleGrid"></div>
+          <div class="section-title">Mòduls de matemàtiques</div>
+          <div class="filters-row">
+            <!-- exemples de filtres visuals (opcionales, per si els vols activar més endavant) -->
+            <label class="chip">Assignatura
+              <select disabled>
+                <option>Matemàtiques</option>
+              </select>
+            </label>
+            <label class="chip">Nivell
+              <select disabled>
+                <option>Tots</option>
+              </select>
+            </label>
+            <label class="chip search-chip">
+              <svg class="search-ico" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M21 21l-4.3-4.3m1.6-4.1a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <input class="input" placeholder="Cerca títol, contingut o etiqueta…" disabled />
+            </label>
+          </div>
+
+          <div class="grid cards-grid" id="moduleGrid"></div>
+        </div>
+
+        <aside class="hero-right card panel">
+          <div class="levels-grid">
+            <div class="level-card"><p class="muted">Nivell</p><p class="strong">1r ESO</p></div>
+            <div class="level-card"><p class="muted">Nivell</p><p class="strong">2n ESO</p></div>
+            <div class="level-card"><p class="muted">Nivell</p><p class="strong">3r ESO</p></div>
+            <div class="level-card"><p class="muted">Nivell</p><p class="strong">4t ESO</p></div>
+            <div class="level-card"><p class="muted">Nivell</p><p class="strong">1r Batx</p></div>
+            <div class="level-card"><p class="muted">Nivell</p><p class="strong">2n Batx</p></div>
+          </div>
+        </aside>
       </div>
     </section>
 
-    <!-- CONFIG -->
+    <!-- CONFIG (mantinguda, només estil) -->
     <section id="view-config" class="hidden">
       <div class="panel card">
-        <div class="row" style="align-items:center">
+        <div class="row row-center">
           <div>
-            <h2 class="title" id="cfg-title" style="margin:0">Configura el mòdul</h2>
+            <h2 class="title" id="cfg-title">Configura el mòdul</h2>
             <p class="subtitle" id="cfg-desc"></p>
           </div>
-        <div class="controls">
-            <button class="btn-secondary" onclick="showView('home')">← Torna</button>
-            <button onclick="startFromConfig()">Comença</button>
+          <div class="controls">
+            <button class="btn-outline" onclick="showView('home')">← Torna</button>
+            <button class="btn" onclick="startFromConfig()">Comença</button>
           </div>
         </div>
 
@@ -71,29 +116,29 @@
       </div>
     </section>
 
-    <!-- QUIZ -->
+    <!-- QUIZ (estètica targetes + progress bar) -->
     <section id="view-quiz" class="hidden">
       <div class="quiz">
         <div class="panel card">
           <div class="q-header">
-            <div style="display:flex; align-items:center; gap:10px">
+            <div class="q-badges">
               <span id="qModule" class="badge">Mòdul</span>
               <span id="qLevel" class="chip">Nivell 1</span>
               <span id="timer" class="chip timer">--:--</span>
             </div>
-            <div class="progress" style="flex:1"><i id="bar"></i></div>
+            <div class="progress"><i id="bar"></i></div>
           </div>
 
           <div class="q">
             <div class="meta" id="qMeta">Pregunta 1 de 10</div>
             <h2 id="qText">—</h2>
-            <div id="qMedia" style="margin:4px 0 2px"></div>
+            <div id="qMedia" class="q-media"></div>
             <div class="answer-row">
               <input id="answer" class="input answer" placeholder="Resposta" inputmode="decimal" />
-              <button id="btnCheck">Comprova (↵)</button>
-              <button class="btn-secondary" id="btnSkip">Omet (→)</button>
+              <button id="btnCheck" class="btn">Comprova (↵)</button>
+              <button class="btn-outline" id="btnSkip">Omet (→)</button>
             </div>
-            <div id="feedback"></div>
+            <div id="feedback" class="feedback"></div>
           </div>
         </div>
 
@@ -113,7 +158,7 @@
             <button onclick="typeKey('-')">±</button>
             <button onclick="typeKey('del')">⌫</button>
           </div>
-          <div style="margin-top:10px; display:flex; gap:10px; align-items:center">
+          <div class="kbd-hint">
             <span class="kbd">↵</span> <span class="subtitle">comprova</span>
             <span class="kbd">→</span> <span class="subtitle">omet</span>
           </div>
@@ -127,38 +172,59 @@
         <div class="row">
           <h3 class="title" style="margin:0">Resultats guardats</h3>
           <div class="tbl-actions">
-            <button class="btn-secondary" onclick="exportCSV()">Exporta CSV</button>
+            <button class="btn-outline" onclick="exportCSV()">Exporta CSV</button>
             <button class="btn-ghost" onclick="clearResults()">Neteja</button>
           </div>
         </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px">
+        <div class="filters-row">
           <label class="chip">Filtra mòdul: <select id="filter-module"></select></label>
           <label class="chip">Alumne/a: <input id="filter-student" class="input" placeholder="Tots" style="width:160px"></label>
         </div>
-        <div id="resultsTable">No hi ha dades encara.</div>
+        <div id="resultsTable" class="results-table">No hi ha dades encara.</div>
       </div>
     </section>
 
-    <!-- ABOUT -->
+    <!-- ABOUT -> NOVETATS (com al prototip) -->
     <section id="view-about" class="hidden">
       <div class="panel card">
-        <h3 class="title" style="margin-top:0">Sobre aquesta eina</h3>
-        <p class="subtitle">Web single-file creada per Focus Academy. Inspirada en ThatQuiz, sense comptes ni dependències. Dades locals al navegador.</p>
-        <ul>
-          <li>Generador de preguntes per: Aritmètica, Fraccions, Percentatges, Equacions lineals, Geometria (àrees/perímetres/volums), Estadística i Unitats.</li>
-          <li>Temps opcional, nivell 1–4, i repàs de només les preguntes errònies.</li>
-          <li>Historial exportable a CSV i mode offline (funciona sense internet).</li>
+        <h3 class="title" style="margin-top:0">Novetats</h3>
+        <ul class="news">
+          <li>• Afegit mòdul d’activitats ràpides amb correcció immediata.</li>
+          <li>• Filtre per nivell i assignatura als recursos.</li>
+          <li>• Mode clar/fosc i estil actualitzat.</li>
         </ul>
+        <p class="subtitle muted">Web single-file creada per Focus Academy. Inspirada en ThatQuiz, sense comptes ni dependències. Dades locals al navegador.</p>
       </div>
     </section>
 
-    <footer class="wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
+    <!-- FOOTER -->
+    <footer class="site-footer wrap">
       <div>Fet amb ❤️ per Focus Academy · © <span id="year"></span></div>
       <img src="https://static.wixstatic.com/media/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png/v1/crop/x_836,y_591,w_1877,h_1328/fill/w_642,h_454,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png"
-           alt="Logo Focus Academy" style="height:40px; width:auto; object-fit:contain"
+           alt="Logo Focus Academy" class="footer-logo"
            referrerpolicy="no-referrer" />
     </footer>
   </main>
+
+  <!-- El teu JS original -->
   <script src="main.js" defer></script>
+
+  <!-- Mini-script per a tema i any (no substitueix main.js) -->
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const saved = localStorage.getItem('fa-theme');
+      if (saved) root.setAttribute('data-theme', saved);
+      document.getElementById('year').textContent = new Date().getFullYear();
+      const btn = document.getElementById('themeToggle');
+      if (btn) {
+        btn.addEventListener('click', () => {
+          const current = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          root.setAttribute('data-theme', current);
+          localStorage.setItem('fa-theme', current);
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
