@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ca">
 <head>
   <meta charset="utf-8" />
@@ -6,54 +6,439 @@
   <title>Chuleta ESO · Teoria i Estudi</title>
   <meta name="description" content="Guia exprés i buscable per a l'ESO: aritmètica, fraccions, percentatges, geometria, estadística, unitats, equacions, funcions, formats i errors típics" />
   <style>
-    :root{
-      --bg: #f8fafc; /* slate-50 */
-      --text: #0f172a; /* slate-900 */
-      --muted: #475569; /* slate-600 */
+    :root {
+      --primary: #4361ee;
+      --primary-light: #4895ef;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --text: #0f172a;
+      --text-light: #64748b;
+      --bg: #f8fafc;
       --card: #ffffff;
-      --border: #e2e8f0; /* slate-200 */
-      --accent: #0f172a; /* slate-900 */
-      --shadow: rgba(15, 23, 42, 0.06);
-      --good: #22c55e; /* green-500 */
-      --bad: #ef4444; /* red-500 */
-      --chip: #e2e8f0; /* slate-200 */
-      --yellow: #fef08a; /* yellow-200 */
+      --border: #e2e8f0;
+      --accent: #f72585;
+      --shadow: rgba(15, 23, 42, 0.1);
+      --chip: #e2e8f0;
+      --highlight: #fffacd;
     }
-    .dark{ --bg:#0b1220; --text:#e2e8f0; --muted:#94a3b8; --card:#0f172a; --border:#1f2937; --accent:#ffffff; --shadow: rgba(0,0,0,.35); --chip:#1f2937 }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, 'Noto Sans', Arial, sans-serif; background:var(--bg); color:var(--text)}
-    a{color:inherit}
-    .container{max-width:1100px;margin:0 auto;padding:0 16px}
-    header{position:sticky;top:0;z-index:30;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);background:color-mix(in oklab, var(--bg), transparent 20%)}
-    .navbar{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
-    .brand{display:flex;align-items:center;gap:8px;font-weight:700}
-    .brand svg{width:24px;height:24px}
-    nav a{margin-left:12px;font-size:14px;text-decoration:none}
-    nav a:hover{text-decoration:underline}
-    .btn{border-radius:16px;padding:8px 12px;border:1px solid var(--border);background:transparent;color:inherit;cursor:pointer;box-shadow:0 1px 0 var(--shadow)}
-    .btn:hover{box-shadow:0 2px 8px var(--shadow)}
-    .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 1px 0 var(--shadow)}
-    .muted{color:var(--muted)}
-    .small{color:var(--muted);font-size:0.92rem}
-    .hero h1{font-size:clamp(1.8rem,2.5vw + 1rem,2.6rem);margin:0}
-    .hero p{margin:8px 0 0}
-    .grid{display:grid;gap:16px}
-    .grid-2{grid-template-columns:1fr}
-    @media(min-width:960px){.grid-2{grid-template-columns:280px 1fr}}
-    .toc a{display:block;padding:8px 10px;border-radius:10px;text-decoration:none}
-    .toc a:hover{background:color-mix(in oklab, var(--border), transparent 70%)}
-    section.topic{scroll-margin-top:80px}
-    code{background:color-mix(in oklab, var(--border), transparent 60%);padding:2px 6px;border-radius:6px}
-    .kbd{background:color-mix(in oklab, var(--border), transparent 40%);border:1px solid var(--border);border-radius:6px;padding:2px 6px}
-    .footer{border-top:1px solid var(--border);padding:24px 0;margin-top:24px}
-    .print-only{display:none}
-    .chip{display:inline-block;border:1px solid var(--border);background:var(--chip);border-radius:999px;padding:4px 8px;font-size:12px;margin-right:6px}
-    .note{border-left:4px solid var(--accent);padding:8px 10px;border-radius:10px;background:color-mix(in oklab, var(--border), transparent 70%)}
-    mark{background:var(--yellow)}
-    .float-top{position:fixed;right:16px;bottom:16px;z-index:50}
-    @media print{header, .actions, .footer, .float-top{display:none!important} .print-only{display:block} body{background:#fff;color:#000} a{text-decoration:none}}
+    
+    .dark {
+      --primary: #4895ef;
+      --primary-light: #4361ee;
+      --secondary: #4cc9f0;
+      --text: #e2e8f0;
+      --text-light: #94a3b8;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --shadow: rgba(0, 0, 0, 0.35);
+      --chip: #334155;
+      --highlight: #2d3748;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 40px;
+    }
+    
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in oklab, var(--bg), transparent 20%);
+    }
+    
+    .navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+    
+    .brand svg {
+      width: 24px;
+      height: 24px;
+      color: var(--primary);
+    }
+    
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .nav-links a {
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 0.9rem;
+      background: color-mix(in oklab, var(--border), transparent 70%);
+      transition: all 0.2s ease;
+    }
+    
+    .nav-links a:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .btn {
+      border-radius: 16px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+      box-shadow: 0 1px 2px var(--shadow);
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+    
+    .btn:hover {
+      box-shadow: 0 4px 8px var(--shadow);
+      transform: translateY(-1px);
+    }
+    
+    .btn.primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    #search {
+      min-width: 240px;
+      padding: 8px 16px;
+    }
+    
+    /* Layout principal */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+    
+    @media (min-width: 992px) {
+      .main-content {
+        grid-template-columns: 280px 1fr;
+      }
+    }
+    
+    /* Sidebar/TOC */
+    .sidebar {
+      position: sticky;
+      top: 80px;
+      align-self: start;
+      height: calc(100vh - 100px);
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    
+    .toc-header {
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .toc-list {
+      list-style: none;
+    }
+    
+    .toc-item {
+      margin-bottom: 6px;
+    }
+    
+    .toc-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    
+    .toc-link:hover, .toc-link.active {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .toc-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    
+    .chip {
+      display: inline-block;
+      border: 1px solid var(--border);
+      background: var(--chip);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+    }
+    
+    /* Contingut */
+    .content-section {
+      display: grid;
+      gap: 20px;
+    }
+    
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 12px var(--shadow);
+      margin-bottom: 8px;
+    }
+    
+    .hero h1 {
+      font-size: clamp(1.8rem, 2.5vw + 1rem, 2.6rem);
+      margin: 0;
+      color: var(--primary);
+    }
+    
+    .hero p {
+      margin: 12px 0 0;
+      color: var(--text-light);
+      font-size: 1.05rem;
+    }
+    
+    .note {
+      background: color-mix(in oklab, var(--primary), transparent 90%);
+      border-left: 4px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 0.95rem;
+    }
+    
+    .kbd {
+      background: color-mix(in oklab, var(--border), transparent 40%);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      font-family: monospace;
+    }
+    
+    /* Targetes de temes */
+    .topic-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 12px var(--shadow);
+      scroll-margin-top: 100px;
+    }
+    
+    .topic-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .topic-icon {
+      font-size: 1.8rem;
+    }
+    
+    .topic-title {
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+    
+    .topic-card ul, .topic-card ol {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .topic-card li {
+      margin-bottom: 8px;
+    }
+    
+    .topic-card h3 {
+      margin: 16px 0 8px;
+      color: var(--primary-light);
+      font-size: 1.2rem;
+    }
+    
+    .topic-card p {
+      margin-bottom: 12px;
+    }
+    
+    code {
+      background: color-mix(in oklab, var(--border), transparent 60%);
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+    
+    .formula {
+      background: color-mix(in oklab, var(--primary), transparent 92%);
+      border-left: 3px solid var(--primary);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin: 12px 0;
+      font-family: monospace;
+      overflow-x: auto;
+    }
+    
+    /* Botó per pujar */
+    .float-top {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 50;
+      background: var(--primary);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+    
+    .float-top:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Peu de pàgina */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      margin-top: 40px;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    
+    @media (min-width: 768px) {
+      .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    .footer h3 {
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+    
+    /* Estils per a la cerca */
+    .search-highlight {
+      background: var(--highlight);
+      padding: 0 2px;
+      border-radius: 4px;
+    }
+    
+    /* Estils d'impressió */
+    @media print {
+      header, .actions, .footer, .float-top, .sidebar {
+        display: none !important;
+      }
+      
+      .print-only {
+        display: block;
+      }
+      
+      body {
+        background: #fff;
+        color: #000;
+        font-size: 12pt;
+      }
+      
+      .topic-card {
+        break-inside: avoid;
+        border: 1px solid #ddd;
+        box-shadow: none;
+      }
+    }
+    
+    /* Estils per a dispositius mòbils */
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .nav-links {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+      
+      .actions {
+        width: 100%;
+      }
+      
+      #search {
+        min-width: 100%;
+      }
+      
+      .sidebar {
+        position: static;
+        height: auto;
+      }
+    }
   </style>
 </head>
 <body>
@@ -61,621 +446,434 @@
     <div class="container navbar">
       <div class="brand">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10L12 4 2 10l10 6 10-6Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
-        <span>Chuleta ESO · Teoria i Estudi 📚✨</span>
+        <span>Chuleta ESO · Teoria i Estudi</span>
       </div>
-      <nav class="hide-sm">
+      
+      <nav class="nav-links">
         <a href="#aritmetica">🔢 Aritmètica</a>
         <a href="#fraccions">🍰 Fraccions</a>
-        <a href="#percentatges">％ Percentatges</a>
+        <a href="#percentatges">% Percentatges</a>
         <a href="#geometria">🟦 Geometria</a>
         <a href="#estadistica">📊 Estadística</a>
         <a href="#unitats">🔁 Unitats</a>
         <a href="#equacions">🧮 Equacions</a>
         <a href="#funcions">📈 Funcions</a>
-        <a href="#formats">🧾 Formats</a>
-        <a href="#errors">⚠️ Errors</a>
       </nav>
-      <div class="actions" style="display:flex;gap:8px">
-        <input id="search" class="btn" placeholder="🔎 Cerca ràpida (temes o paraules)" style="min-width:260px" />
+      
+      <div class="actions">
+        <input id="search" class="btn" placeholder="🔍 Cerca ràpida..." />
         <button id="printBtn" class="btn" title="Imprimeix o desa en PDF">🖨️ Imprimeix</button>
         <button id="themeBtn" class="btn" aria-label="Canvia tema">🌙 Fosc</button>
       </div>
     </div>
   </header>
 
-  <main class="container" style="padding:24px 0 28px">
-    <div class="grid grid-2">
-      <!-- Taula de continguts -->
-      <aside class="card toc">
-        <p class="small" style="margin:0 0 8px"><strong>Continguts</strong></p>
-        <a href="#aritmetica">🔢 # Aritmètica</a>
-        <a href="#fraccions">🍰 # Fraccions</a>
-        <a href="#percentatges">％ # Percentatges</a>
-        <a href="#geometria">🟦 # Geometria (àrea, perímetre, volum)</a>
-        <a href="#estadistica">📊 # Estadística bàsica</a>
-        <a href="#unitats">🔁 # Unitats i conversions</a>
-        <a href="#equacions">🧮 # Equacions</a>
-        <a href="#funcions">📈 # Funcions (estudi bàsic)</a>
-        <a href="#formats">🧾 # Formats de resposta</a>
-        <a href="#errors">⚠️ # Errors típics</a>
-        <div style="margin-top:8px"><span class="chip">lectura àgil</span><span class="chip">tot en una pàgina</span><span class="chip">ESO</span></div>
-      </aside>
+  <main class="container main-content">
+    <!-- Taula de continguts -->
+    <aside class="sidebar">
+      <div class="toc">
+        <div class="toc-header">
+          <p><strong>📑 Continguts</strong></p>
+        </div>
+        <ul class="toc-list">
+          <li class="toc-item"><a href="#aritmetica" class="toc-link">🔢 Aritmètica</a></li>
+          <li class="toc-item"><a href="#fraccions" class="toc-link">🍰 Fraccions</a></li>
+          <li class="toc-item"><a href="#percentatges" class="toc-link">% Percentatges</a></li>
+          <li class="toc-item"><a href="#geometria" class="toc-link">🟦 Geometria</a></li>
+          <li class="toc-item"><a href="#estadistica" class="toc-link">📊 Estadística</a></li>
+          <li class="toc-item"><a href="#unitats" class="toc-link">🔁 Unitats</a></li>
+          <li class="toc-item"><a href="#equacions" class="toc-link">🧮 Equacions</a></li>
+          <li class="toc-item"><a href="#funcions" class="toc-link">📈 Funcions</a></li>
+          <li class="toc-item"><a href="#formats" class="toc-link">🧾 Formats</a></li>
+          <li class="toc-item"><a href="#errors" class="toc-link">⚠️ Errors</a></li>
+        </ul>
+        
+        <div class="toc-chips">
+          <span class="chip">lectura àgil</span>
+          <span class="chip">ESO</span>
+          <span class="chip">estudi</span>
+        </div>
+      </div>
+    </aside>
 
-      <!-- Contingut -->
-      <article id="content" class="grid" style="gap:16px">
-        <section class="card hero">
-          <h1>Guia exprés per estudiar i respondre bé 🧠✅ <span class="kbd">Desa-la com a “chuleta” 📌</span></h1>
-          <p class="small muted">Orientada a l’ESO. Inclou normes clau, formats de resposta i errors típics (amb emojis per memoritzar millor 😉).</p>
-          <div class="note small" style="margin-top:8px">Truc: fes servir la <strong>cerca ràpida</strong> de dalt (o <span class="kbd">Ctrl/⌘+F</span>) per saltar directament al que necessites.</div>
-        </section>
+    <!-- Contingut principal -->
+    <article class="content-section">
+      <section class="hero">
+        <h1>Guia exprés per estudiar i respondre bé 🧠✅</h1>
+        <p>Orientada a l'ESO. Inclou normes clau, formats de resposta i errors típics (amb emojis per memoritzar millor 😉).</p>
+        
+        <div class="note">
+          <strong>💡 Consell:</strong> Fes servir la <strong>cerca ràpida</strong> de dalt (o <span class="kbd">Ctrl/⌘ + F</span>) per trobar directament el que necessites.
+        </div>
+      </section>
 
-        <section id="aritmetica" class="card topic">
-          <h2>🔢 # Aritmètica</h2>
-          <ul>
-            <li><strong>Operacions bàsiques:</strong> suma, resta, multiplicació, divisió; prioritat (<em>parèntesis → ×/÷ → +/−</em>).</li>
-            <li><strong>Negatius:</strong> regles de signes (<code>−×− = +</code>, <code>+×− = −</code>, etc.).</li>
-            <li><strong>Divisions exactes:</strong> factors i <strong>múltiples</strong>; comprova si el divisor “cap” al dividend.</li>
-            <li><strong>Trucs ràpids:</strong> propietats <strong>associativa</strong>, <strong>commutativa</strong> i <strong>distributiva</strong>.</li>
-          </ul>
-        </section>
+      <section id="aritmetica" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">🔢</span>
+          <h2 class="topic-title">Aritmètica</h2>
+        </div>
+        
+        <ul>
+          <li><strong>Operacions bàsiques:</strong> suma, resta, multiplicació, divisió; prioritat (<em>parèntesis → ×/÷ → +/−</em>).</li>
+          <li><strong>Negatius:</strong> regles de signes (<code>−×− = +</code>, <code>+×− = −</code>, etc.).</li>
+          <li><strong>Divisions exactes:</strong> factors i <strong>múltiples</strong>; comprova si el divisor "cap" al dividend.</li>
+          <li><strong>Trucs ràpids:</strong> propietats <strong>associativa</strong>, <strong>commutativa</strong> i <strong>distributiva</strong>.</li>
+        </ul>
+      </section>
 
-        <section id="fraccions" class="card topic">
-          <h2>🍰 # Fraccions</h2>
-          <ul>
-            <li><strong>Parts:</strong> numerador/denominador; fracció equivalent; <strong>simplificar</strong> amb mcd.</li>
-            <li><strong>Aritmètica:</strong>
-              <ul>
-                <li><code>a/b + c/d = (ad+bc)/bd</code></li>
-                <li><code>a/b − c/d = (ad−bc)/bd</code></li>
-                <li><code>a/b × c/d = ac/bd</code></li>
-                <li><code>a/b ÷ c/d = a d / b c</code> (multiplica pel <strong>recíproc</strong>)</li>
-              </ul>
-            </li>
-            <li><strong>De decimal a fracció:</strong> <code>0.25 → 25/100 → 1/4</code>.</li>
-            <li><strong>Fracció de dibuix:</strong> parts ombrejades / parts totals (i <strong>simplificar</strong>).</li>
-            <li><strong>Quan exigeix forma més simple:</strong> el numerador i el denominador han de ser <strong>coprimers</strong>.</li>
-          </ul>
-        </section>
+      <section id="fraccions" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">🍰</span>
+          <h2 class="topic-title">Fraccions</h2>
+        </div>
+        
+        <ul>
+          <li><strong>Parts:</strong> numerador/denominador; fracció equivalent; <strong>simplificar</strong> amb mcd.</li>
+          <li><strong>Aritmètica:</strong>
+            <div class="formula">a/b + c/d = (ad+bc)/bd</div>
+            <div class="formula">a/b − c/d = (ad−bc)/bd</div>
+            <div class="formula">a/b × c/d = ac/bd</div>
+            <div class="formula">a/b ÷ c/d = a d / b c</div> (multiplica pel <strong>recíproc</strong>)
+          </li>
+          <li><strong>De decimal a fracció:</strong> <code>0.25 → 25/100 → 1/4</code>.</li>
+          <li><strong>Fracció de dibuix:</strong> parts ombrejades / parts totals (i <strong>simplificar</strong>).</li>
+          <li><strong>Quan exigeix forma més simple:</strong> el numerador i el denominador han de ser <strong>coprimers</strong>.</li>
+        </ul>
+      </section>
 
-        <section id="percentatges" class="card topic">
-          <h2>％ # Percentatges</h2>
-          <ul>
-            <li><strong>Definició:</strong> <code>p% = p/100</code>.</li>
-            <li><strong>Tres tipus típics:</strong>
-              <ol>
-                <li>“<em>p% de n</em>” → <code>n·p/100</code></li>
-                <li>“<em>k és el p% de ?</em>” → <code>? = k·100/p</code></li>
-                <li><strong>Descompte</strong> p% sobre n → <code>n·(1 − p/100)</code></li>
-              </ol>
-            </li>
-            <li><strong>Canvis successius</strong> no es sumen: <code>20% + 20% ≠ 40%</code> (usa factors multiplicatius).</li>
-          </ul>
-        </section>
+      <section id="percentatges" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">%</span>
+          <h2 class="topic-title">Percentatges</h2>
+        </div>
+        
+        <ul>
+          <li><strong>Definició:</strong> <code>p% = p/100</code>.</li>
+          <li><strong>Tres tipus típics:</strong>
+            <ol>
+              <li>"<em>p% de n</em>" → <code>n·p/100</code></li>
+              <li>"<em>k és el p% de ?</em>" → <code>? = k·100/p</code></li>
+              <li><strong>Descompte</strong> p% sobre n → <code>n·(1 − p/100)</code></li>
+            </ol>
+          </li>
+          <li><strong>Canvis successius</strong> no es sumen: <code>20% + 20% ≠ 40%</code> (usa factors multiplicatius).</li>
+        </ul>
+      </section>
 
-        <section id="geometria" class="card topic">
-          <h2>🟦 # Geometria (àrea, perímetre, volum)</h2>
-          <ul>
-            <li><strong>Unitats:</strong> longitud <code>u</code>, àrea <code>u²</code>, volum <code>u³</code>. Escriu la unitat si el programa <strong>ho demana</strong>.</li>
-            <li><strong>Formules clau:</strong>
-              <ul>
-                <li>Rectangle: <code>A = b·h</code>, <code>P = 2(b+h)</code></li>
-                <li>Triangle: <code>A = (b·h)/2</code>, <code>P = a+b+c</code></li>
-                <li>Cercle: <code>A = πr²</code>, <code>P = 2πr = πd</code></li>
-                <li>Polígon regular: <code>P = n·c</code>; <code>A = (P·apotema)/2</code></li>
-                <li>Prisma rectangular (cuboid): <code>V = a·b·h</code></li>
-                <li>Cilindre: <code>V = πr²h</code></li>
-              </ul>
-            </li>
-            <li><strong>Exacte amb π:</strong> deixa el resultat com <code>k·π</code> si l’opció diu <em>“π exacte”</em>.</li>
-            <li><strong>Arrodoniments:</strong> respecta els <strong>decimals</strong> que demana la configuració.</li>
-          </ul>
-        </section>
+      <section id="geometria" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">🟦</span>
+          <h2 class="topic-title">Geometria (àrea, perímetre, volum)</h2>
+        </div>
+        
+        <ul>
+          <li><strong>Unitats:</strong> longitud <code>u</code>, àrea <code>u²</code>, volum <code>u³</code>. Escriu la unitat si el programa <strong>ho demana</strong>.</li>
+          <li><strong>Formules clau:</strong>
+            <ul>
+              <li>Rectangle: <code>A = b·h</code>, <code>P = 2(b+h)</code></li>
+              <li>Triangle: <code>A = (b·h)/2</code>, <code>P = a+b+c</code></li>
+              <li>Cercle: <code>A = πr²</code>, <code>P = 2πr = πd</code></li>
+              <li>Polígon regular: <code>P = n·c</code>; <code>A = (P·apotema)/2</code></li>
+              <li>Prisma rectangular (cuboid): <code>V = a·b·h</code></li>
+              <li>Cilindre: <code>V = πr²h</code></li>
+            </ul>
+          </li>
+          <li><strong>Exacte amb π:</strong> deixa el resultat com <code>k·π</code> si l'opció diu <em>"π exacte"</em>.</li>
+          <li><strong>Arrodoniments:</strong> respecta els <strong>decimals</strong> que demana la configuració.</li>
+        </ul>
+      </section>
 
-        <section id="estadistica" class="card topic">
-          <h2>📊 # Estadística bàsica</h2>
-          <p>Donada una llista de valors:</p>
-          <ul>
-            <li><strong>Mitjana</strong>: suma/quantitat.</li>
-            <li><strong>Mediana</strong>: valor central (o mitjana dels dos centrals).</li>
-            <li><strong>Moda</strong>: valor que més es repeteix.</li>
-            <li><strong>Rang</strong>: màxim − mínim.</li>
-            <li><strong>Desviació mitjana</strong>: mitjana de <code>|xi − mitjana|</code>.</li>
-          </ul>
-          <p><strong>Gràfics:</strong> identifica la <strong>barra/sector</strong> més gran.</p>
-        </section>
+      <section id="estadistica" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">📊</span>
+          <h2 class="topic-title">Estadística bàsica</h2>
+        </div>
+        
+        <p>Donada una llista de valors:</p>
+        <ul>
+          <li><strong>Mitjana</strong>: suma/quantitat.</li>
+          <li><strong>Mediana</strong>: valor central (o mitjana dels dos centrals).</li>
+          <li><strong>Moda</strong>: valor que més es repeteix.</li>
+          <li><strong>Rang</strong>: màxim − mínim.</li>
+          <li><strong>Desviació mitjana</strong>: mitjana de <code>|xi − mitjana|</code>.</li>
+        </ul>
+        <p><strong>Gràfics:</strong> identifica la <strong>barra/sector</strong> més gran.</p>
+      </section>
 
-        <section id="unitats" class="card topic">
-          <h2>🔁 # Unitats i conversions</h2>
-          <ul>
-            <li><strong>Sistema mètric:</strong>
-              <ul>
-                <li>Longitud: km ↔ m ↔ cm ↔ mm (<code>×10</code>, <code>×100</code>, <code>×1000</code>…)</li>
-                <li>Massa: kg ↔ g ↔ mg</li>
-                <li>Volum: L ↔ mL</li>
-                <li><strong>Àrea:</strong> factors al <strong>quadrat</strong> (<code>1 m² = 10 000 cm²</code>)</li>
-                <li><strong>Temps:</strong> h ↔ min ↔ s (60 i 3600)</li>
-              </ul>
-            </li>
-            <li><strong>Mètode:</strong> valor · <strong>factor</strong> (o / factor si és el camí invers). Vigila amb <code>u²</code>, <code>u³</code>.</li>
-          </ul>
-        </section>
+      <section id="unitats" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">🔁</span>
+          <h2 class="topic-title">Unitats i conversions</h2>
+        </div>
+        
+        <ul>
+          <li><strong>Sistema mètric:</strong>
+            <ul>
+              <li>Longitud: km ↔ m ↔ cm ↔ mm (<code>×10</code>, <code>×100</code>, <code>×1000</code>…)</li>
+              <li>Massa: kg ↔ g ↔ mg</li>
+              <li>Volum: L ↔ mL</li>
+              <li><strong>Àrea:</strong> factors al <strong>quadrat</strong> (<code>1 m² = 10 000 cm²</code>)</li>
+              <li><strong>Temps:</strong> h ↔ min ↔ s (60 i 3600)</li>
+            </ul>
+          </li>
+          <li><strong>Mètode:</strong> valor · <strong>factor</strong> (o / factor si és el camí invers). Vigila amb <code>u²</code>, <code>u³</code>.</li>
+        </ul>
+      </section>
 
-        <section id="equacions" class="card topic">
-          <h2>🧮 # Equacions</h2>
-          <h3>1r grau <code>ax + b = 0</code></h3>
-          <p>Passa termes i divideix: <code>x = −b/a</code>.</p>
-          <h3>2n grau <code>ax² + bx + c = 0</code></h3>
-          <ul>
-            <li><strong>Factorització</strong> si es pot, o <strong>fórmula general</strong>: <code>x = (−b ± √(b² − 4ac)) / (2a)</code></li>
-            <li><strong>Incompletes:</strong> <code>ax² + c = 0</code> → <code>x = ±√(−c/a)</code>; <code>ax² + bx = 0</code> → <code>x(ax + b)=0</code> → <code>x=0</code> o <code>x=−b/a</code>.</li>
-            <li><strong>Discriminant</strong> <code>Δ=b²−4ac</code> (2, 1 o 0 arrels reals).</li>
-          </ul>
-          <h3>Sistemes 2×2</h3>
-          <p><strong>Substitució</strong> o <strong>reducció</strong>; comprova casos <strong>sense solució</strong> o <strong>infinites</strong> (rectes paral·leles/ coincidents).</p>
-          <h3>Equacions amb fraccions</h3>
-          <p>Troba <strong>mcd</strong>/<strong>mcm</strong> i multiplica per l’<strong>mcm</strong> per eliminar denominadors, després resol.</p>
-          <h3>Parèntesis</h3>
-          <p><strong>Distributiva</strong>, agrupa termes semblants, i resol com una de 1r grau.</p>
-        </section>
+      <section id="equacions" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">🧮</span>
+          <h2 class="topic-title">Equacions</h2>
+        </div>
+        
+        <h3>1r grau <code>ax + b = 0</code></h3>
+        <p>Passa termes i divideix: <code>x = −b/a</code>.</p>
+        
+        <h3>2n grau <code>ax² + bx + c = 0</code></h3>
+        <ul>
+          <li><strong>Factorització</strong> si es pot, o <strong>fórmula general</strong>: <code>x = (−b ± √(b² − 4ac)) / (2a)</code></li>
+          <li><strong>Incompletes:</strong> <code>ax² + c = 0</code> → <code>x = ±√(−c/a)</code>; <code>ax² + bx = 0</code> → <code>x(ax + b)=0</code> → <code>x=0</code> o <code>x=−b/a</code>.</li>
+          <li><strong>Discriminant</strong> <code>Δ=b²−4ac</code> (2, 1 o 0 arrels reals).</li>
+        </ul>
+        
+        <h3>Sistemes 2×2</h3>
+        <p><strong>Substitució</strong> o <strong>reducció</strong>; comprova casos <strong>sense solució</strong> o <strong>infinites</strong> (rectes paral·leles/coincidents).</p>
+        
+        <h3>Equacions amb fraccions</h3>
+        <p>Troba <strong>mcd</strong>/<strong>mcm</strong> i multiplica per l'<strong>mcm</strong> per eliminar denominadors, després resol.</p>
+        
+        <h3>Parèntesis</h3>
+        <p><strong>Distributiva</strong>, agrupa termes semblants, i resol com una de 1r grau.</p>
+      </section>
 
-        <section id="funcions" class="card topic">
-          <h2>📈 # Funcions (estudi bàsic)</h2>
-          <h3>Identificació:</h3>
-          <ul>
-            <li>Lineal <code>mx+n</code>; Quadràtica <code>ax²+bx+c</code>; Polinòmica grau n; Racional <code>P(x)/Q(x)</code>;</li>
-            <li>Radical <code>a√(x+b)+c</code>; Exponencial <code>a·b^x + c</code>; Logarítmica <code>a·log_b(x)+c</code>.</li>
-          </ul>
-          <h3>Domini:</h3>
-          <ul>
-            <li>Lineal/quadràtica/polinòmica: ℝ</li>
-            <li>Racional: exclou zeros del denominador</li>
-            <li>Radical: interior de l’arrel ≥ 0 (si és √ parell)</li>
-            <li>Logarítmica: x > 0</li>
-          </ul>
-          <h3>Punts de tall:</h3>
-          <ul>
-            <li>Amb y: posa x=0; amb x: resol f(x)=0.</li>
-          </ul>
-          <h3>Simetria i extrems (quadràtiques):</h3>
-          <ul>
-            <li>Simetria respecte <code>x = −b/2a</code>.</li>
-            <li>Vèrtex <code>x_v = −b/2a</code>; si <code>a>0</code> mínim, si <code>a<0</code> màxim.</li>
-          </ul>
-          <h3>Monotonia:</h3>
-          <ul>
-            <li>Lineal creix si <code>m>0</code>, decreix si <code>m<0</code>; quadràtica canvia en el vèrtex.</li>
-          </ul>
-        </section>
+      <section id="funcions" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">📈</span>
+          <h2 class="topic-title">Funcions (estudi bàsic)</h2>
+        </div>
+        
+        <h3>Identificació:</h3>
+        <ul>
+          <li>Lineal <code>mx+n</code>; Quadràtica <code>ax²+bx+c</code>; Polinòmica grau n; Racional <code>P(x)/Q(x)</code>;</li>
+          <li>Radical <code>a√(x+b)+c</code>; Exponencial <code>a·b^x + c</code>; Logarítmica <code>a·log_b(x)+c</code>.</li>
+        </ul>
+        
+        <h3>Domini:</h3>
+        <ul>
+          <li>Lineal/quadràtica/polinòmica: ℝ</li>
+          <li>Racional: exclou zeros del denominador</li>
+          <li>Radical: interior de l'arrel ≥ 0 (si és √ parell)</li>
+          <li>Logarítmica: x > 0</li>
+        </ul>
+        
+        <h3>Punts de tall:</h3>
+        <ul>
+          <li>Amb y: posa x=0; amb x: resol f(x)=0.</li>
+        </ul>
+        
+        <h3>Simetria i extrems (quadràtiques):</h3>
+        <ul>
+          <li>Simetria respecte <code>x = −b/2a</code>.</li>
+          <li>Vèrtex <code>x_v = −b/2a</code>; si <code>a>0</code> mínim, si <code>a<0</code> màxim.</li>
+        </ul>
+        
+        <h3>Monotonia:</h3>
+        <ul>
+          <li>Lineal creix si <code>m>0</code>, decreix si <code>m<0</code>; quadràtica canvia en el vèrtex.</li>
+        </ul>
+      </section>
 
-        <section id="formats" class="card topic">
-          <h2>🧾 # Formats de resposta (molt important en aquesta app)</h2>
-          <ul>
-            <li><strong>Nombres i decimals:</strong> millor amb <strong>punt</strong> (p. ex. <code>3.5</code>).</li>
-            <li><strong>Fraccions:</strong> <code>a/b</code> (simplificades si es demana “forma més simple”).</li>
-            <li><strong>π exacte:</strong> escriu <strong><code>kπ</code></strong> (p. ex. <code>12π</code>).</li>
-            <li><strong>Unitats (geometria):</strong> si l’opció “exigir unitats” està activa, afegeix <code>cm</code>, <code>cm²</code>, <code>cm³</code>…</li>
-            <li><strong>Equacions de 1r/2n grau:</strong> pots escriure <code>x=3</code> o <code>3</code>; per a dues arrels, separa amb coma <code>x1,x2</code>.</li>
-            <li><strong>Sistemes 2×2:</strong> <code>(x, y)</code> o <code>x,y</code> (p. ex. <code>(2, -1)</code>).</li>
-            <li><strong>Conversions:</strong> escriu <strong>només el número</strong> (la unitat ja surt a l’enunciat).</li>
-          </ul>
-        </section>
+      <section id="formats" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">🧾</span>
+          <h2 class="topic-title">Formats de resposta</h2>
+        </div>
+        
+        <ul>
+          <li><strong>Nombres i decimals:</strong> millor amb <strong>punt</strong> (p. ex. <code>3.5</code>).</li>
+          <li><strong>Fraccions:</strong> <code>a/b</code> (simplificades si es demana "forma més simple").</li>
+          <li><strong>π exacte:</strong> escriu <strong><code>kπ</code></strong> (p. ex. <code>12π</code>).</li>
+          <li><strong>Unitats (geometria):</strong> si l'opció "exigir unitats" està activa, afegeix <code>cm</code>, <code>cm²</code>, <code>cm³</code>…</li>
+          <li><strong>Equacions de 1r/2n grau:</strong> pots escriure <code>x=3</code> o <code>3</code>; per a dues arrels, separa amb coma <code>x1,x2</code>.</li>
+          <li><strong>Sistemes 2×2:</strong> <code>(x, y)</code> o <code>x,y</code> (p. ex. <code>(2, -1)</code>).</li>
+          <li><strong>Conversions:</strong> escriu <strong>només el número</strong> (la unitat ja surt a l'enunciat).</li>
+        </ul>
+      </section>
 
-        <section id="errors" class="card topic">
-          <h2>⚠️ # Errors típics a evitar</h2>
-          <ul>
-            <li>Oblidar <strong>unitats</strong> o el <strong>quadradet/cubet</strong> en àrees/volums.</li>
-            <li>No <strong>simplificar</strong> fraccions quan cal.</li>
-            <li>Confondre <code>d</code> i <code>r</code> en cercles (<code>P=πd</code>, <code>A=πr²</code>).</li>
-            <li>Sumar/descomptar <strong>percentatges</strong> en comptes d’usar factors multiplicatius.</li>
-            <li>En 2n grau, oblidar comprovar el <strong>discriminant</strong> o canviar signes.</li>
-            <li>En sistemes, no revisar si hi ha <strong>paral·lelisme</strong> (cap solució) o <strong>coincidència</strong> (infinites).</li>
-          </ul>
-        </section>
+      <section id="errors" class="topic-card">
+        <div class="topic-header">
+          <span class="topic-icon">⚠️</span>
+          <h2 class="topic-title">Errors típics a evitar</h2>
+        </div>
+        
+        <ul>
+          <li>Oblidar <strong>unitats</strong> o el <strong>quadradet/cubet</strong> en àrees/volums.</li>
+          <li>No <strong>simplificar</strong> fraccions quan cal.</li>
+          <li>Confondre <code>d</code> i <code>r</code> en cercles (<code>P=πd</code>, <code>A=πr²</code>).</li>
+          <li>Sumar/descomptar <strong>percentatges</strong> en comptes d'usar factors multiplicatius.</li>
+          <li>En 2n grau, oblidar comprovar el <strong>discriminant</strong> o canviar signes.</li>
+          <li>En sistemes, no revisar si hi ha <strong>paral·lelisme</strong> (cap solució) o <strong>coincidència</strong> (infinites).</li>
+        </ul>
+      </section>
 
-        <section class="card print-only">
-          <p style="margin:0">© <span id="year"></span> Focus Academy · Chuleta ESO</p>
-        </section>
-      </article>
-    </div>
+      <section class="topic-card print-only">
+        <p style="margin:0">© <span id="year"></span> Focus Academy · Chuleta ESO</p>
+      </section>
+    </article>
   </main>
 
-  <button id="toTop" class="btn float-top" title="Torna amunt">⬆️ Dalt</button>
+  <button id="toTop" class="float-top" title="Torna amunt">⬆️</button>
 
   <footer class="footer">
     <div class="container">
-      <div class="grid" style="grid-template-columns:1fr;gap:16px">
+      <div class="footer-content">
         <div>
-          <p style="margin:0 0 6px"><strong>Contacte</strong></p>
-          <p class="small" style="margin:0">Dubtes o errades? Escriu a <a href="mailto:info@focusacademy.cat">info@focusacademy.cat</a></p>
+          <h3>Contacte</h3>
+          <p>Dubtes o errades? Escriu a <a href="mailto:info@focusacademy.cat">info@focusacademy.cat</a></p>
         </div>
-        <div class="small">© <span id="year2"></span> Focus Academy. Tots els drets reservats.</div>
+        <div>
+          <h3>Més recursos</h3>
+          <p>Visita el nostre web per a més materials d'estudi.</p>
+        </div>
+      </div>
+      <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+        <p>© <span id="year2"></span> Focus Academy. Tots els drets reservats.</p>
       </div>
     </div>
   </footer>
 
   <script>
-    const el=(s)=>document.querySelector(s);
-    let dark=false;
+    const el = (s) => document.querySelector(s);
+    const els = (s) => document.querySelectorAll(s);
+    let dark = false;
 
-    function applyTheme(d){ document.documentElement.classList.toggle('dark', d); el('#themeBtn').innerHTML = d ? '☀️ Clar' : '🌙 Fosc'; }
+    // Aplicar tema
+    function applyTheme(d) {
+      document.documentElement.classList.toggle('dark', d);
+      el('#themeBtn').innerHTML = d ? '☀️ Clar' : '🌙 Fosc';
+      localStorage.setItem('theme', d ? 'dark' : 'light');
+    }
 
     // Cerca i ressaltat
-    function clearMarks(node){ node.querySelectorAll('mark').forEach(m=>{ const parent=m.parentNode; parent.replaceChild(document.createTextNode(m.textContent), m); parent.normalize(); }); }
-    function highlight(node, term){ if(!term) return; const re = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\]/g,'\$&')})`, 'gi');
-      node.querySelectorAll('h2,h3,li,p,code').forEach(n=>{
-        if(n.children.length) return; const txt=n.textContent; if(!re.test(txt)) return; n.innerHTML = txt.replace(re, '<mark>$1</mark>');
+    function clearHighlights() {
+      els('.search-highlight').forEach(el => {
+        el.replaceWith(document.createTextNode(el.textContent));
       });
     }
 
-    function quickSearch(q){
-      const articles = document.querySelectorAll('section.topic');
-      articles.forEach(sec=> clearMarks(sec));
-      const term = q.trim();
-      if(term===''){ articles.forEach(sec=> sec.style.display=''); return; }
-      articles.forEach(sec=>{
-        const hit = sec.textContent.toLowerCase().includes(term.toLowerCase());
-        sec.style.display = hit ? '' : 'none';
-        if(hit) highlight(sec, term);
+    function highlightText(node, term) {
+      if (!term) return;
+      
+      const re = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+      
+      // Processar tot el text del node
+      Array.from(node.childNodes).forEach(child => {
+        if (child.nodeType === 3) { // Text node
+          const text = child.textContent;
+          if (re.test(text)) {
+            const highlighted = text.replace(re, '<span class="search-highlight">$1</span>');
+            const newSpan = document.createElement('span');
+            newSpan.innerHTML = highlighted;
+            child.replaceWith(newSpan);
+          }
+        } else if (child.nodeType === 1 && child.childNodes.length > 0) { // Element node with children
+          highlightText(child, term);
+        }
       });
     }
 
-    document.addEventListener('DOMContentLoaded', ()=>{
-      el('#year').textContent = new Date().getFullYear();
-      el('#year2').textContent = new Date().getFullYear();
+    function quickSearch(q) {
+      clearHighlights();
+      const term = q.trim().toLowerCase();
+      
+      if (term === '') {
+        els('.topic-card').forEach(card => {
+          card.style.display = '';
+        });
+        return;
+      }
+      
+      // Amagar totes les targetes primer
+      els('.topic-card').forEach(card => {
+        card.style.display = 'none';
+      });
+      
+      // Mostrar només les que coincideixin
+      els('.topic-card').forEach(card => {
+        if (card.textContent.toLowerCase().includes(term)) {
+          card.style.display = '';
+          highlightText(card, term);
+        }
+      });
+    }
 
-      // tema
+    // Actualitzar l'enllaç actiu al TOC
+    function updateActiveTocLink() {
+      const sections = els('.topic-card');
+      const navLinks = els('.toc-link');
+      
+      let currentSection = '';
+      
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        if (scrollY >= sectionTop - 120) {
+          currentSection = section.getAttribute('id');
+        }
+      });
+      
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href').substring(1) === currentSection) {
+          link.classList.add('active');
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Any actual
+      const currentYear = new Date().getFullYear();
+      el('#year').textContent = currentYear;
+      el('#year2').textContent = currentYear;
+      
+      // Verificar tema guardat
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        dark = true;
+      }
       applyTheme(dark);
-      el('#themeBtn').addEventListener('click',()=>{ dark=!dark; applyTheme(dark); });
-
-      // imprimeix
-      el('#printBtn').addEventListener('click',()=> window.print());
-
-      // cerca instantània
-      el('#search').addEventListener('input', (e)=> quickSearch(e.target.value));
-
-      // botó dalt
-      el('#toTop').addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
-    });
-  </script>
-</body>
-</html>
-<!doctype html>
-<html lang="ca">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chuleta ESO · Teoria i Estudi</title>
-  <meta name="description" content="Guia exprés i buscable per a l'ESO: aritmètica, fraccions, percentatges, geometria, estadística, unitats, equacions, funcions, formats i errors típics" />
-  <style>
-    :root{
-      --bg: #f8fafc; /* slate-50 */
-      --text: #0f172a; /* slate-900 */
-      --muted: #475569; /* slate-600 */
-      --card: #ffffff;
-      --border: #e2e8f0; /* slate-200 */
-      --accent: #0f172a; /* slate-900 */
-      --shadow: rgba(15, 23, 42, 0.06);
-      --good: #22c55e; /* green-500 */
-      --bad: #ef4444; /* red-500 */
-      --chip: #e2e8f0; /* slate-200 */
-      --yellow: #fef08a; /* yellow-200 */
-    }
-    .dark{ --bg:#0b1220; --text:#e2e8f0; --muted:#94a3b8; --card:#0f172a; --border:#1f2937; --accent:#ffffff; --shadow: rgba(0,0,0,.35); --chip:#1f2937 }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
-    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, 'Noto Sans', Arial, sans-serif; background:var(--bg); color:var(--text)}
-    a{color:inherit}
-    .container{max-width:1100px;margin:0 auto;padding:0 16px}
-    header{position:sticky;top:0;z-index:30;backdrop-filter:blur(8px);border-bottom:1px solid var(--border);background:color-mix(in oklab, var(--bg), transparent 20%)}
-    .navbar{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
-    .brand{display:flex;align-items:center;gap:8px;font-weight:700}
-    .brand svg{width:24px;height:24px}
-    nav a{margin-left:12px;font-size:14px;text-decoration:none}
-    nav a:hover{text-decoration:underline}
-    .btn{border-radius:16px;padding:8px 12px;border:1px solid var(--border);background:transparent;color:inherit;cursor:pointer;box-shadow:0 1px 0 var(--shadow)}
-    .btn:hover{box-shadow:0 2px 8px var(--shadow)}
-    .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 1px 0 var(--shadow)}
-    .muted{color:var(--muted)}
-    .small{color:var(--muted);font-size:0.92rem}
-    .hero h1{font-size:clamp(1.8rem,2.5vw + 1rem,2.6rem);margin:0}
-    .hero p{margin:8px 0 0}
-    .grid{display:grid;gap:16px}
-    .grid-2{grid-template-columns:1fr}
-    @media(min-width:960px){.grid-2{grid-template-columns:280px 1fr}}
-    .toc a{display:block;padding:8px 10px;border-radius:10px;text-decoration:none}
-    .toc a:hover{background:color-mix(in oklab, var(--border), transparent 70%)}
-    section.topic{scroll-margin-top:80px}
-    code{background:color-mix(in oklab, var(--border), transparent 60%);padding:2px 6px;border-radius:6px}
-    .kbd{background:color-mix(in oklab, var(--border), transparent 40%);border:1px solid var(--border);border-radius:6px;padding:2px 6px}
-    .footer{border-top:1px solid var(--border);padding:24px 0;margin-top:24px}
-    .print-only{display:none}
-    .chip{display:inline-block;border:1px solid var(--border);background:var(--chip);border-radius:999px;padding:4px 8px;font-size:12px;margin-right:6px}
-    .note{border-left:4px solid var(--accent);padding:8px 10px;border-radius:10px;background:color-mix(in oklab, var(--border), transparent 70%)}
-    mark{background:var(--yellow)}
-    .float-top{position:fixed;right:16px;bottom:16px;z-index:50}
-    @media print{header, .actions, .footer, .float-top{display:none!important} .print-only{display:block} body{background:#fff;color:#000} a{text-decoration:none}}
-  </style>
-</head>
-<body>
-  <header>
-    <div class="container navbar">
-      <div class="brand">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10L12 4 2 10l10 6 10-6Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>
-        <span>Chuleta ESO · Teoria i Estudi 📚✨</span>
-      </div>
-      <nav class="hide-sm">
-        <a href="#aritmetica">🔢 Aritmètica</a>
-        <a href="#fraccions">🍰 Fraccions</a>
-        <a href="#percentatges">％ Percentatges</a>
-        <a href="#geometria">🟦 Geometria</a>
-        <a href="#estadistica">📊 Estadística</a>
-        <a href="#unitats">🔁 Unitats</a>
-        <a href="#equacions">🧮 Equacions</a>
-        <a href="#funcions">📈 Funcions</a>
-        <a href="#formats">🧾 Formats</a>
-        <a href="#errors">⚠️ Errors</a>
-      </nav>
-      <div class="actions" style="display:flex;gap:8px">
-        <input id="search" class="btn" placeholder="🔎 Cerca ràpida (temes o paraules)" style="min-width:260px" />
-        <button id="printBtn" class="btn" title="Imprimeix o desa en PDF">🖨️ Imprimeix</button>
-        <button id="themeBtn" class="btn" aria-label="Canvia tema">🌙 Fosc</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="container" style="padding:24px 0 28px">
-    <div class="grid grid-2">
-      <!-- Taula de continguts -->
-      <aside class="card toc">
-        <p class="small" style="margin:0 0 8px"><strong>Continguts</strong></p>
-        <a href="#aritmetica">🔢 # Aritmètica</a>
-        <a href="#fraccions">🍰 # Fraccions</a>
-        <a href="#percentatges">％ # Percentatges</a>
-        <a href="#geometria">🟦 # Geometria (àrea, perímetre, volum)</a>
-        <a href="#estadistica">📊 # Estadística bàsica</a>
-        <a href="#unitats">🔁 # Unitats i conversions</a>
-        <a href="#equacions">🧮 # Equacions</a>
-        <a href="#funcions">📈 # Funcions (estudi bàsic)</a>
-        <a href="#formats">🧾 # Formats de resposta</a>
-        <a href="#errors">⚠️ # Errors típics</a>
-        <div style="margin-top:8px"><span class="chip">lectura àgil</span><span class="chip">tot en una pàgina</span><span class="chip">ESO</span></div>
-      </aside>
-
-      <!-- Contingut -->
-      <article id="content" class="grid" style="gap:16px">
-        <section class="card hero">
-          <h1>Guia exprés per estudiar i respondre bé 🧠✅ <span class="kbd">Desa-la com a “chuleta” 📌</span></h1>
-          <p class="small muted">Orientada a l’ESO. Inclou normes clau, formats de resposta i errors típics (amb emojis per memoritzar millor 😉).</p>
-          <div class="note small" style="margin-top:8px">Truc: fes servir la <strong>cerca ràpida</strong> de dalt (o <span class="kbd">Ctrl/⌘+F</span>) per saltar directament al que necessites.</div>
-        </section>
-
-        <section id="aritmetica" class="card topic">
-          <h2>🔢 # Aritmètica</h2>
-          <ul>
-            <li><strong>Operacions bàsiques:</strong> suma, resta, multiplicació, divisió; prioritat (<em>parèntesis → ×/÷ → +/−</em>).</li>
-            <li><strong>Negatius:</strong> regles de signes (<code>−×− = +</code>, <code>+×− = −</code>, etc.).</li>
-            <li><strong>Divisions exactes:</strong> factors i <strong>múltiples</strong>; comprova si el divisor “cap” al dividend.</li>
-            <li><strong>Trucs ràpids:</strong> propietats <strong>associativa</strong>, <strong>commutativa</strong> i <strong>distributiva</strong>.</li>
-          </ul>
-        </section>
-
-        <section id="fraccions" class="card topic">
-          <h2>🍰 # Fraccions</h2>
-          <ul>
-            <li><strong>Parts:</strong> numerador/denominador; fracció equivalent; <strong>simplificar</strong> amb mcd.</li>
-            <li><strong>Aritmètica:</strong>
-              <ul>
-                <li><code>a/b + c/d = (ad+bc)/bd</code></li>
-                <li><code>a/b − c/d = (ad−bc)/bd</code></li>
-                <li><code>a/b × c/d = ac/bd</code></li>
-                <li><code>a/b ÷ c/d = a d / b c</code> (multiplica pel <strong>recíproc</strong>)</li>
-              </ul>
-            </li>
-            <li><strong>De decimal a fracció:</strong> <code>0.25 → 25/100 → 1/4</code>.</li>
-            <li><strong>Fracció de dibuix:</strong> parts ombrejades / parts totals (i <strong>simplificar</strong>).</li>
-            <li><strong>Quan exigeix forma més simple:</strong> el numerador i el denominador han de ser <strong>coprimers</strong>.</li>
-          </ul>
-        </section>
-
-        <section id="percentatges" class="card topic">
-          <h2>％ # Percentatges</h2>
-          <ul>
-            <li><strong>Definició:</strong> <code>p% = p/100</code>.</li>
-            <li><strong>Tres tipus típics:</strong>
-              <ol>
-                <li>“<em>p% de n</em>” → <code>n·p/100</code></li>
-                <li>“<em>k és el p% de ?</em>” → <code>? = k·100/p</code></li>
-                <li><strong>Descompte</strong> p% sobre n → <code>n·(1 − p/100)</code></li>
-              </ol>
-            </li>
-            <li><strong>Canvis successius</strong> no es sumen: <code>20% + 20% ≠ 40%</code> (usa factors multiplicatius).</li>
-          </ul>
-        </section>
-
-        <section id="geometria" class="card topic">
-          <h2>🟦 # Geometria (àrea, perímetre, volum)</h2>
-          <ul>
-            <li><strong>Unitats:</strong> longitud <code>u</code>, àrea <code>u²</code>, volum <code>u³</code>. Escriu la unitat si el programa <strong>ho demana</strong>.</li>
-            <li><strong>Formules clau:</strong>
-              <ul>
-                <li>Rectangle: <code>A = b·h</code>, <code>P = 2(b+h)</code></li>
-                <li>Triangle: <code>A = (b·h)/2</code>, <code>P = a+b+c</code></li>
-                <li>Cercle: <code>A = πr²</code>, <code>P = 2πr = πd</code></li>
-                <li>Polígon regular: <code>P = n·c</code>; <code>A = (P·apotema)/2</code></li>
-                <li>Prisma rectangular (cuboid): <code>V = a·b·h</code></li>
-                <li>Cilindre: <code>V = πr²h</code></li>
-              </ul>
-            </li>
-            <li><strong>Exacte amb π:</strong> deixa el resultat com <code>k·π</code> si l’opció diu <em>“π exacte”</em>.</li>
-            <li><strong>Arrodoniments:</strong> respecta els <strong>decimals</strong> que demana la configuració.</li>
-          </ul>
-        </section>
-
-        <section id="estadistica" class="card topic">
-          <h2>📊 # Estadística bàsica</h2>
-          <p>Donada una llista de valors:</p>
-          <ul>
-            <li><strong>Mitjana</strong>: suma/quantitat.</li>
-            <li><strong>Mediana</strong>: valor central (o mitjana dels dos centrals).</li>
-            <li><strong>Moda</strong>: valor que més es repeteix.</li>
-            <li><strong>Rang</strong>: màxim − mínim.</li>
-            <li><strong>Desviació mitjana</strong>: mitjana de <code>|xi − mitjana|</code>.</li>
-          </ul>
-          <p><strong>Gràfics:</strong> identifica la <strong>barra/sector</strong> més gran.</p>
-        </section>
-
-        <section id="unitats" class="card topic">
-          <h2>🔁 # Unitats i conversions</h2>
-          <ul>
-            <li><strong>Sistema mètric:</strong>
-              <ul>
-                <li>Longitud: km ↔ m ↔ cm ↔ mm (<code>×10</code>, <code>×100</code>, <code>×1000</code>…)</li>
-                <li>Massa: kg ↔ g ↔ mg</li>
-                <li>Volum: L ↔ mL</li>
-                <li><strong>Àrea:</strong> factors al <strong>quadrat</strong> (<code>1 m² = 10 000 cm²</code>)</li>
-                <li><strong>Temps:</strong> h ↔ min ↔ s (60 i 3600)</li>
-              </ul>
-            </li>
-            <li><strong>Mètode:</strong> valor · <strong>factor</strong> (o / factor si és el camí invers). Vigila amb <code>u²</code>, <code>u³</code>.</li>
-          </ul>
-        </section>
-
-        <section id="equacions" class="card topic">
-          <h2>🧮 # Equacions</h2>
-          <h3>1r grau <code>ax + b = 0</code></h3>
-          <p>Passa termes i divideix: <code>x = −b/a</code>.</p>
-          <h3>2n grau <code>ax² + bx + c = 0</code></h3>
-          <ul>
-            <li><strong>Factorització</strong> si es pot, o <strong>fórmula general</strong>: <code>x = (−b ± √(b² − 4ac)) / (2a)</code></li>
-            <li><strong>Incompletes:</strong> <code>ax² + c = 0</code> → <code>x = ±√(−c/a)</code>; <code>ax² + bx = 0</code> → <code>x(ax + b)=0</code> → <code>x=0</code> o <code>x=−b/a</code>.</li>
-            <li><strong>Discriminant</strong> <code>Δ=b²−4ac</code> (2, 1 o 0 arrels reals).</li>
-          </ul>
-          <h3>Sistemes 2×2</h3>
-          <p><strong>Substitució</strong> o <strong>reducció</strong>; comprova casos <strong>sense solució</strong> o <strong>infinites</strong> (rectes paral·leles/ coincidents).</p>
-          <h3>Equacions amb fraccions</h3>
-          <p>Troba <strong>mcd</strong>/<strong>mcm</strong> i multiplica per l’<strong>mcm</strong> per eliminar denominadors, després resol.</p>
-          <h3>Parèntesis</h3>
-          <p><strong>Distributiva</strong>, agrupa termes semblants, i resol com una de 1r grau.</p>
-        </section>
-
-        <section id="funcions" class="card topic">
-          <h2>📈 # Funcions (estudi bàsic)</h2>
-          <h3>Identificació:</h3>
-          <ul>
-            <li>Lineal <code>mx+n</code>; Quadràtica <code>ax²+bx+c</code>; Polinòmica grau n; Racional <code>P(x)/Q(x)</code>;</li>
-            <li>Radical <code>a√(x+b)+c</code>; Exponencial <code>a·b^x + c</code>; Logarítmica <code>a·log_b(x)+c</code>.</li>
-          </ul>
-          <h3>Domini:</h3>
-          <ul>
-            <li>Lineal/quadràtica/polinòmica: ℝ</li>
-            <li>Racional: exclou zeros del denominador</li>
-            <li>Radical: interior de l’arrel ≥ 0 (si és √ parell)</li>
-            <li>Logarítmica: x > 0</li>
-          </ul>
-          <h3>Punts de tall:</h3>
-          <ul>
-            <li>Amb y: posa x=0; amb x: resol f(x)=0.</li>
-          </ul>
-          <h3>Simetria i extrems (quadràtiques):</h3>
-          <ul>
-            <li>Simetria respecte <code>x = −b/2a</code>.</li>
-            <li>Vèrtex <code>x_v = −b/2a</code>; si <code>a>0</code> mínim, si <code>a<0</code> màxim.</li>
-          </ul>
-          <h3>Monotonia:</h3>
-          <ul>
-            <li>Lineal creix si <code>m>0</code>, decreix si <code>m<0</code>; quadràtica canvia en el vèrtex.</li>
-          </ul>
-        </section>
-
-        <section id="formats" class="card topic">
-          <h2>🧾 # Formats de resposta (molt important en aquesta app)</h2>
-          <ul>
-            <li><strong>Nombres i decimals:</strong> millor amb <strong>punt</strong> (p. ex. <code>3.5</code>).</li>
-            <li><strong>Fraccions:</strong> <code>a/b</code> (simplificades si es demana “forma més simple”).</li>
-            <li><strong>π exacte:</strong> escriu <strong><code>kπ</code></strong> (p. ex. <code>12π</code>).</li>
-            <li><strong>Unitats (geometria):</strong> si l’opció “exigir unitats” està activa, afegeix <code>cm</code>, <code>cm²</code>, <code>cm³</code>…</li>
-            <li><strong>Equacions de 1r/2n grau:</strong> pots escriure <code>x=3</code> o <code>3</code>; per a dues arrels, separa amb coma <code>x1,x2</code>.</li>
-            <li><strong>Sistemes 2×2:</strong> <code>(x, y)</code> o <code>x,y</code> (p. ex. <code>(2, -1)</code>).</li>
-            <li><strong>Conversions:</strong> escriu <strong>només el número</strong> (la unitat ja surt a l’enunciat).</li>
-          </ul>
-        </section>
-
-        <section id="errors" class="card topic">
-          <h2>⚠️ # Errors típics a evitar</h2>
-          <ul>
-            <li>Oblidar <strong>unitats</strong> o el <strong>quadradet/cubet</strong> en àrees/volums.</li>
-            <li>No <strong>simplificar</strong> fraccions quan cal.</li>
-            <li>Confondre <code>d</code> i <code>r</code> en cercles (<code>P=πd</code>, <code>A=πr²</code>).</li>
-            <li>Sumar/descomptar <strong>percentatges</strong> en comptes d’usar factors multiplicatius.</li>
-            <li>En 2n grau, oblidar comprovar el <strong>discriminant</strong> o canviar signes.</li>
-            <li>En sistemes, no revisar si hi ha <strong>paral·lelisme</strong> (cap solució) o <strong>coincidència</strong> (infinites).</li>
-          </ul>
-        </section>
-
-        <section class="card print-only">
-          <p style="margin:0">© <span id="year"></span> Focus Academy · Chuleta ESO</p>
-        </section>
-      </article>
-    </div>
-  </main>
-
-  <button id="toTop" class="btn float-top" title="Torna amunt">⬆️ Dalt</button>
-
-  <footer class="footer">
-    <div class="container">
-      <div class="grid" style="grid-template-columns:1fr;gap:16px">
-        <div>
-          <p style="margin:0 0 6px"><strong>Contacte</strong></p>
-          <p class="small" style="margin:0">Dubtes o errades? Escriu a <a href="mailto:info@focusacademy.cat">info@focusacademy.cat</a></p>
-        </div>
-        <div class="small">© <span id="year2"></span> Focus Academy. Tots els drets reservats.</div>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    const el=(s)=>document.querySelector(s);
-    let dark=false;
-
-    function applyTheme(d){ document.documentElement.classList.toggle('dark', d); el('#themeBtn').innerHTML = d ? '☀️ Clar' : '🌙 Fosc'; }
-
-    // Cerca i ressaltat
-    function clearMarks(node){ node.querySelectorAll('mark').forEach(m=>{ const parent=m.parentNode; parent.replaceChild(document.createTextNode(m.textContent), m); parent.normalize(); }); }
-    function highlight(node, term){ if(!term) return; const re = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\]/g,'\$&')})`, 'gi');
-      node.querySelectorAll('h2,h3,li,p,code').forEach(n=>{
-        if(n.children.length) return; const txt=n.textContent; if(!re.test(txt)) return; n.innerHTML = txt.replace(re, '<mark>$1</mark>');
+      
+      // Botó de tema
+      el('#themeBtn').addEventListener('click', () => {
+        dark = !dark;
+        applyTheme(dark);
       });
-    }
-
-    function quickSearch(q){
-      const articles = document.querySelectorAll('section.topic');
-      articles.forEach(sec=> clearMarks(sec));
-      const term = q.trim();
-      if(term===''){ articles.forEach(sec=> sec.style.display=''); return; }
-      articles.forEach(sec=>{
-        const hit = sec.textContent.toLowerCase().includes(term.toLowerCase());
-        sec.style.display = hit ? '' : 'none';
-        if(hit) highlight(sec, term);
+      
+      // Botó d'impressió
+      el('#printBtn').addEventListener('click', () => window.print());
+      
+      // Cerca
+      el('#search').addEventListener('input', (e) => quickSearch(e.target.value));
+      
+      // Botó per anar a dalt
+      el('#toTop').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-    }
-
-    document.addEventListener('DOMContentLoaded', ()=>{
-      el('#year').textContent = new Date().getFullYear();
-      el('#year2').textContent = new Date().getFullYear();
-
-      // tema
-      applyTheme(dark);
-      el('#themeBtn').addEventListener('click',()=>{ dark=!dark; applyTheme(dark); });
-
-      // imprimeix
-      el('#printBtn').addEventListener('click',()=> window.print());
-
-      // cerca instantània
-      el('#search').addEventListener('input', (e)=> quickSearch(e.target.value));
-
-      // botó dalt
-      el('#toTop').addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+      
+      // Actualitzar TOC en scroll
+      window.addEventListener('scroll', updateActiveTocLink);
+      updateActiveTocLink();
+      
+      // Suavitzar scroll per enllaços interns
+      els('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('href');
+          const targetElement = el(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
     });
   </script>
 </body>
