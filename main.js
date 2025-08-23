@@ -1313,7 +1313,7 @@ function genEqLinear(level, opts){
   const sol = niceIntIf(rng(-9,9), !!opts.forceInt);
   const b = -a * sol;
   const text = `${a}·x ${b>=0?'+':'−'} ${Math.abs(b)} = 0`;
-  const hint = opts.hints ? `<div class="chip">Pista: mou el terme independent i divideix per a</div> : ''`;
+  const hint = opts.hints ? `<div class="chip">Pista: mou el terme independent i divideix per a</div>` : '';
   return { type:'eq-lin', text:`Resol: ${text}`, html: opts.hints? `<div class="chip">Pista: mou el terme independent i divideix per a</div>`:'', sol: sol, answer: sol };
 }
 
