@@ -38,6 +38,7 @@ const MODULES = [
   { id:'stats', name:'Estadística bàsica', desc:'Mitjana/mediana/moda, rang/desviació i gràfics.', badge:'Dades', gen: genStats },
   { id:'units', name:'Unitats i conversions', desc:'Longitud, massa, volum, superfície i temps.', badge:'Mesures', gen: genUnits },
   { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', badge:'Àlgebra', gen: genEq },
+  { id:'func', name:'Estudi de funcions', desc:'Identificar tipus, domini, recorregut, punts de tall, simetria, límits, extrems relatius i monotonia.', badge:'Funcions', gen: genFunctions },
 ];
 
 let pendingModule = null; // mòdul seleccionat per configurar
@@ -230,6 +231,43 @@ function openConfig(moduleId){
 
     <div class="subtitle">Format de resposta: <b>x=3</b> o <b>3</b>; per sistemes <b>(2, -1)</b> o <b>2,-1</b>; fraccions <b>3/4</b> o decimals.</div>
   `;
+    // ... dins de openConfig() després dels altres mòduls ...
+} else if(pendingModule.id === 'func'){
+  wrap.innerHTML = `
+    <div class="section-title">Estudi de funcions</div>
+    <div class="controls">
+      <div class="group" role="group" aria-label="Tipus de funcions">
+        <label class="toggle"><input class="check" type="checkbox" id="f-lin" checked> Lineals</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-quad" checked> Quadràtiques</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-poly" checked> Polinòmiques</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-rac" checked> Racionals</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-rad" checked> Radicals</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-exp" checked> Exponencials</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-log" checked> Logarítmiques</label>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="group" role="group" aria-label="Aspectes a estudiar">
+        <label class="toggle"><input class="check" type="checkbox" id="f-type" checked> Identificar tipus</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-domain"> Domini i recorregut</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-intercepts"> Punts de tall</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-symmetry"> Simetria</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-limits"> Límits</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-extrema"> Extrems relatius</label>
+        <label class="toggle"><input class="check" type="checkbox" id="f-monotony"> Monotonia</label>
+      </div>
+    </div>
+    <div class="controls">
+      <label class="field chip">Dificultat
+        <select id="func-diff">
+          <option value="1" selected>Bàsic</option>
+          <option value="2">Intermedi</option>
+          <option value="3">Avançat</option>
+        </select>
+      </label>
+    </div>
+  `;
+    
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -294,6 +332,27 @@ function startFromConfig(){
   options.forceInt = !!$('#eq-int-sol')?.checked;
   options.allowIncomplete = !!$('#eq-incomplete')?.checked;
   options.hints = !!$('#eq-hints')?.checked;
+    // ... dins de startFromConfig() després dels altres mòduls ...
+  } else if(pendingModule.id==='func'){
+  options.types = {
+    lin: !!$('#f-lin')?.checked,
+    quad: !!$('#f-quad')?.checked,
+    poly: !!$('#f-poly')?.checked,
+    rac: !!$('#f-rac')?.checked,
+    rad: !!$('#f-rad')?.checked,
+    exp: !!$('#f-exp')?.checked,
+    log: !!$('#f-log')?.checked
+  };
+  options.aspects = {
+    type: !!$('#f-type')?.checked,
+    domain: !!$('#f-domain')?.checked,
+    intercepts: !!$('#f-intercepts')?.checked,
+    symmetry: !!$('#f-symmetry')?.checked,
+    limits: !!$('#f-limits')?.checked,
+    extrema: !!$('#f-extrema')?.checked,
+    monotony: !!$('#f-monotony')?.checked
+  };
+  options.difficulty = parseInt($('#func-diff').value || '1');
 }
 
   startQuiz(pendingModule.id, {count, time, level, options});
@@ -568,8 +627,48 @@ function checkAnswer(){
     } else {
       ok = raw.replace(/\s+/g,'').toLowerCase() === String(q.answer).replace(/\s+/g,'').toLowerCase();
     }
+    // ... dins de checkAnswer() després dels altres tipus ...
+// Funcions
+else if(q.type && q.type.startsWith('func-')){
+  // Normalitzar la resposta de l'usuari
+  const userAnswer = raw.toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/á/gi, 'a')
+    .replace(/é/gi, 'e')
+    .replace(/í/gi, 'i')
+    .replace(/ó/gi, 'o')
+    .replace(/ú/gi, 'u')
+    .replace(/à/gi, 'a')
+    .replace(/è/gi, 'e')
+    .replace(/ì/gi, 'i')
+    .replace(/ò/gi, 'o')
+    .replace(/ù/gi, 'u')
+    .trim();
+  
+  // Normalitzar la resposta correcta
+  const correctAnswer = String(q.answer).toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/á/gi, 'a')
+    .replace(/é/gi, 'e')
+    .replace(/í/gi, 'i')
+    .replace(/ó/gi, 'o')
+    .replace(/ú/gi, 'u')
+    .replace(/à/gi, 'a')
+    .replace(/è/gi, 'e')
+    .replace(/ì/gi, 'i')
+    .replace(/ò/gi, 'o')
+    .replace(/ù/gi, 'u')
+    .trim();
+  
+  // Comparar respostes
+  ok = userAnswer === correctAnswer;
+  
+  // Per a respostes numèriques amb tolerància
+  if (!ok && q.meta && q.meta.numeric) {
+    const num = parseFloat(raw.replace(',', '.'));
+    ok = Number.isFinite(num) && equalsTol(num, q.meta.numeric, 1e-6);
   }
-
+}
   if(ok){
     session.correct++;
     feedback(true, `Correcte!`);
@@ -1467,7 +1566,276 @@ function genUnits(level, opts={}){
   const set = choice(pool);
   return convQuestion(set, round);
 }
+/* ===== Estudi de Funcions ===== */
+function genFunctions(level, opts={}) {
+  const types = opts.types || {
+    lin: true, quad: true, poly: true, rac: true, rad: true, exp: true, log: true
+  };
+  const aspects = opts.aspects || { type: true };
+  const difficulty = opts.difficulty || 1;
+  
+  // Obtenir els tipus de funció seleccionats
+  const availableTypes = [];
+  if (types.lin) availableTypes.push('lin');
+  if (types.quad) availableTypes.push('quad');
+  if (types.poly) availableTypes.push('poly');
+  if (types.rac) availableTypes.push('rac');
+  if (types.rad) availableTypes.push('rad');
+  if (types.exp) availableTypes.push('exp');
+  if (types.log) availableTypes.push('log');
+  
+  if (availableTypes.length === 0) availableTypes.push('lin'); // Per defecte
+  
+  const selectedType = choice(availableTypes);
+  const selectedAspect = getRandomAspect(aspects);
+  
+  return generateFunctionQuestion(selectedType, selectedAspect, difficulty, level);
+}
 
+function getRandomAspect(aspects) {
+  const availableAspects = [];
+  for (const aspect in aspects) {
+    if (aspects[aspect]) availableAspects.push(aspect);
+  }
+  return availableAspects.length > 0 ? choice(availableAspects) : 'type';
+}
+
+function generateFunctionQuestion(type, aspect, difficulty, level) {
+  let question = {};
+  
+  switch (type) {
+    case 'lin':
+      question = generateLinearFunction(aspect, difficulty, level);
+      break;
+    case 'quad':
+      question = generateQuadraticFunction(aspect, difficulty, level);
+      break;
+    case 'poly':
+      question = generatePolynomialFunction(aspect, difficulty, level);
+      break;
+    case 'rac':
+      question = generateRationalFunction(aspect, difficulty, level);
+      break;
+    case 'rad':
+      question = generateRadicalFunction(aspect, difficulty, level);
+      break;
+    case 'exp':
+      question = generateExponentialFunction(aspect, difficulty, level);
+      break;
+    case 'log':
+      question = generateLogarithmicFunction(aspect, difficulty, level);
+      break;
+  }
+  
+  return {
+    type: `func-${type}-${aspect}`,
+    text: question.text,
+    html: question.html || '',
+    answer: question.answer,
+    meta: question.meta || {}
+  };
+}
+
+function generateLinearFunction(aspect, difficulty, level) {
+  const m = rng(-5, 5); if (m === 0) m = 1;
+  const n = rng(-10, 10);
+  const f = `f(x) = ${m}x ${n >= 0 ? '+' : ''} ${n}`;
+  
+  switch (aspect) {
+    case 'type':
+      return {
+        text: `Quin tipus de funció és ${f}?`,
+        answer: 'lineal'
+      };
+    case 'domain':
+      return {
+        text: `Quin és el domini de ${f}?`,
+        answer: 'tots els reals'
+      };
+    case 'intercepts':
+      const xIntercept = n !== 0 ? `(${-n/m}, 0)` : '(0, 0)';
+      return {
+        text: `Quins són els punts de tall amb els eixos de ${f}? (Format: (x,0), (0,y))`,
+        answer: `${xIntercept}, (0, ${n})`
+      };
+    case 'symmetry':
+      return {
+        text: `Quina simetria té ${f}?`,
+        answer: 'cap simetria'
+      };
+    case 'limits':
+      const limitInf = m > 0 ? '-∞' : '∞';
+      const limitSup = m > 0 ? '∞' : '-∞';
+      return {
+        text: `Calcula els límits de ${f} quan x tendeix a ±∞ (Format: -∞: valor, ∞: valor)`,
+        answer: `-∞: ${limitInf}, ∞: ${limitSup}`
+      };
+    case 'extrema':
+      return {
+        text: `La funció ${f} té extrems relatius?`,
+        answer: 'no'
+      };
+    case 'monotony':
+      const monotony = m > 0 ? 'creixent' : 'decreixent';
+      return {
+        text: `Quina és la monotonia de ${f}?`,
+        answer: monotony
+      };
+  }
+}
+
+function generateQuadraticFunction(aspect, difficulty, level) {
+  const a = rng(-3, 3); if (a === 0) a = 1;
+  const b = rng(-5, 5);
+  const c = rng(-10, 10);
+  const f = `f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}`;
+  const discriminant = b*b - 4*a*c;
+  
+  switch (aspect) {
+    case 'type':
+      return {
+        text: `Quin tipus de funció és ${f}?`,
+        answer: 'quadràtica'
+      };
+    case 'domain':
+      return {
+        text: `Quin és el domini de ${f}?`,
+        answer: 'tots els reals'
+      };
+    case 'intercepts':
+      let xIntercepts = '';
+      if (discriminant > 0) {
+        const x1 = (-b + Math.sqrt(discriminant))/(2*a);
+        const x2 = (-b - Math.sqrt(discriminant))/(2*a);
+        xIntercepts = `(${roundTo(x1, 2)}, 0), (${roundTo(x2, 2)}, 0)`;
+      } else if (discriminant === 0) {
+        const x = -b/(2*a);
+        xIntercepts = `(${roundTo(x, 2)}, 0)`;
+      } else {
+        xIntercepts = 'cap';
+      }
+      return {
+        text: `Quins són els punts de tall amb els eixos de ${f}? (Format: (x,0), (0,y))`,
+        answer: `${xIntercepts}, (0, ${c})`
+      };
+    case 'symmetry':
+      const vertexX = -b/(2*a);
+      return {
+        text: `Quina simetria té ${f}?`,
+        answer: `simètrica respecte x = ${roundTo(vertexX, 2)}`
+      };
+    case 'limits':
+      const limitInf = a > 0 ? '∞' : '-∞';
+      const limitSup = a > 0 ? '∞' : '-∞';
+      return {
+        text: `Calcula els límits de ${f} quan x tendeix a ±∞ (Format: -∞: valor, ∞: valor)`,
+        answer: `-∞: ${limitInf}, ∞: ${limitSup}`
+      };
+    case 'extrema':
+      const vertexY = c - b*b/(4*a);
+      const extremumType = a > 0 ? 'mínim' : 'màxim';
+      return {
+        text: `Quins són els extrems relatius de ${f}? (Format: tipus (x,y))`,
+        answer: `${extremumType} (${roundTo(-b/(2*a), 2)}, ${roundTo(vertexY, 2)})`
+      };
+    case 'monotony':
+      const vertexX2 = -b/(2*a);
+      const behavior1 = a > 0 ? 'decreixent' : 'creixent';
+      const behavior2 = a > 0 ? 'creixent' : 'decreixent';
+      return {
+        text: `Descriu la monotonia de ${f} (Format: (-∞,a): comportament, (a,∞): comportament)`,
+        answer: `(-∞,${roundTo(vertexX2, 2)}): ${behavior1}, (${roundTo(vertexX2, 2)},∞): ${behavior2}`
+      };
+  }
+}
+
+// Funcions auxiliars per als altres tipus de funcions (polinòmiques, racionals, radicals, exponencials, logarítmiques)
+// Implementa aquestes funcions segons les teves necessitats
+
+function generatePolynomialFunction(aspect, difficulty, level) {
+  // Implementació per a funcions polinòmiques
+  const degree = difficulty === 1 ? 3 : (difficulty === 2 ? 4 : 5);
+  const coefficients = Array.from({length: degree+1}, () => rng(-5, 5));
+  // Assegurar que el coeficient de major grau no sigui zero
+  coefficients[coefficients.length-1] = coefficients[coefficients.length-1] || 1;
+  
+  let f = 'f(x) = ';
+  for (let i = coefficients.length-1; i >= 0; i--) {
+    if (coefficients[i] !== 0) {
+      if (i < coefficients.length-1 && coefficients[i] > 0) f += '+';
+      if (i === 0) {
+        f += coefficients[i];
+      } else if (i === 1) {
+        f += `${coefficients[i]}x`;
+      } else {
+        f += `${coefficients[i]}x^${i}`;
+      }
+    }
+  }
+  
+  // Simplificar preguntes segons l'aspecte
+  return {
+    text: `Identifica el tipus de funció: ${f}`,
+    answer: 'polinòmica'
+  };
+}
+
+function generateRationalFunction(aspect, difficulty, level) {
+  // Implementació per a funcions racionals
+  const numerator = [rng(-5,5), rng(-5,5)];
+  const denominator = [rng(-5,5), rng(-5,5)];
+  // Assegurar que el denominador no sigui zero
+  if (denominator[1] === 0) denominator[1] = 1;
+  
+  const f = `f(x) = (${numerator[1]}x ${numerator[0] >= 0 ? '+' : ''} ${numerator[0]}) / (${denominator[1]}x ${denominator[0] >= 0 ? '+' : ''} ${denominator[0]})`;
+  
+  return {
+    text: `Identifica el tipus de funció: ${f}`,
+    answer: 'racional'
+  };
+}
+
+function generateRadicalFunction(aspect, difficulty, level) {
+  // Implementació per a funcions radicals
+  const a = rng(1, 5);
+  const b = rng(-5, 5);
+  const c = rng(-5, 5);
+  
+  const f = `f(x) = ${a}√(x ${b >= 0 ? '+' : ''} ${b}) ${c >= 0 ? '+' : ''} ${c}`;
+  
+  return {
+    text: `Identifica el tipus de funció: ${f}`,
+    answer: 'radical'
+  };
+}
+
+function generateExponentialFunction(aspect, difficulty, level) {
+  // Implementació per a funcions exponencials
+  const a = rng(1, 5);
+  const b = rng(2, 5);
+  const c = rng(-5, 5);
+  
+  const f = `f(x) = ${a}·${b}^x ${c >= 0 ? '+' : ''} ${c}`;
+  
+  return {
+    text: `Identifica el tipus de funció: ${f}`,
+    answer: 'exponencial'
+  };
+}
+
+function generateLogarithmicFunction(aspect, difficulty, level) {
+  // Implementació per a funcions logarítmiques
+  const a = rng(1, 5);
+  const b = rng(2, 5);
+  const c = rng(-5, 5);
+  
+  const f = `f(x) = ${a}·log${b}(x) ${c >= 0 ? '+' : ''} ${c}`;
+  
+  return {
+    text: `Identifica el tipus de funció: ${f}`,
+    answer: 'logarítmica'
+  };
+}
 /* ===================== RESULTS ===================== */
 function renderResults(){
   const data = store.all();
