@@ -288,7 +288,7 @@ function startFromConfig(){
   } else if(pendingModule.id==='units'){
     options.sub = document.querySelector('input[name="units-sub"]:checked')?.value || 'length';
     options.round = parseInt($('#units-round').value || '2');
-  } else if(pendingModule.id==='eq'){
+  else if(pendingModule.id==='eq'){
   options.format = document.querySelector('input[name="eq-format"]:checked')?.value || 'normal';
   options.degree = document.querySelector('input[name="eq-degree"]:checked')?.value || '1';
   options.range = ($('#eq-range').value || 'small');
