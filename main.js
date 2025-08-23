@@ -62,7 +62,6 @@ function buildHome(){
     const el = document.createElement('div');
     el.className='option';
     el.innerHTML = `
-      <span class="badge">${m.badge}</span>
       <h3>${m.name}</h3>
       <p>${m.desc}</p>`;
     el.onclick = ()=> openConfig(m.id);
