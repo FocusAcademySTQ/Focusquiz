@@ -194,16 +194,23 @@ function openConfig(moduleId){
       </div>
     `;
   } else if(pendingModule.id === 'eq'){
-    /* ===== Configuració del mòdul Equacions ===== */
     wrap.innerHTML = `
-      <div class="section-title">Equacions · Subtemes</div>
+      <div class="section-title">Equacions · Tipus</div>
       <div class="controls">
-        <div class="group" role="group" aria-label="Subtemes d'equacions">
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="lin" checked> 1) Primer grau (ax + b = 0)</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="quad"> 2) Segon grau (completes / incompletes)</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="sys"> 3) Sistemes 2x2</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="frac"> 4) Amb fraccions</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="par"> 5) Amb parèntesis</label>
+        <div class="group" role="group" aria-label="Tipus d'equacions">
+          <label class="toggle"><input class="check" type="radio" name="eq-type" value="normal" checked> Equacions normals</label>
+          <label class="toggle"><input class="check" type="radio" name="eq-type" value="frac"> Amb fraccions</label>
+          <label class="toggle"><input class="check" type="radio" name="eq-type" value="par"> Amb parèntesis</label>
+          <label class="toggle"><input class="check" type="radio" name="eq-type" value="sys"> Sistemes d'equacions</label>
+        </div>
+      </div>
+
+      <div class="section-title">Equacions · Grau</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Grau de les equacions">
+          <label class="toggle"><input class="check" type="radio" name="eq-grade" value="1st" checked> 1) Primer grau</label>
+          <label class="toggle"><input class="check" type="radio" name="eq-grade" value="2nd"> 2) Segon grau</label>
+          <label class="toggle"><input class="check" type="radio" name="eq-grade" value="mixed"> 3) Barrejats (1r i 2n grau)</label>
         </div>
       </div>
 
@@ -217,12 +224,17 @@ function openConfig(moduleId){
           </select>
         </label>
         <label class="toggle"><input class="check" type="checkbox" id="eq-int-sol" checked> Força solucions enteres</label>
-        <label class="toggle"><input class="check" type="checkbox" id="eq-incomplete" checked> Inclou incompletes (només 2n grau)</label>
+        <label class="toggle"><input class="check" type="checkbox" id="eq-incomplete"> Inclou equacions incompletes (2n grau)</label>
         <label class="toggle"><input class="check" type="checkbox" id="eq-hints"> Mostrar pistes</label>
       </div>
 
-      <div class="subtitle">Format de resposta: <b>x=3</b> o <b>3</b>; per sistemes <b>(2, -1)</b> o <b>2,-1</b>; fraccions <b>3/4</b> o decimals.</div>
+      <div class="subtitle">Format de resposta: 
+        <b>x=3</b> o <b>3</b>; 
+        per sistemes <b>(2, -1)</b> o <b>2,-1</b>; 
+        fraccions <b>3/4</b> o decimals.
+      </div>
     `;
+  }
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -281,7 +293,12 @@ function startFromConfig(){
     options.sub = document.querySelector('input[name="units-sub"]:checked')?.value || 'length';
     options.round = parseInt($('#units-round').value || '2');
   } else if(pendingModule.id==='eq'){
-    options.sub = document.querySelector('input[name="eq-sub"]:checked')?.value || 'lin';
+    // NOVA CONFIGURACIÓ PER A EQUACIONS
+    const type = document.querySelector('input[name="eq-type"]:checked')?.value || 'normal';
+    const grade = document.querySelector('input[name="eq-grade"]:checked')?.value || '1st';
+    
+    options.type = type;
+    options.grade = grade;
     options.range = ($('#eq-range').value || 'small');
     options.forceInt = !!$('#eq-int-sol')?.checked;
     options.allowIncomplete = !!$('#eq-incomplete')?.checked;
@@ -1193,7 +1210,6 @@ function niceIntIf(v, forceInt){
 }
 // 1) Primer grau
 function genEqLinear(level, opts){
-  // ax + b = 0 → x = -b/a (forcem sencer si cal ajustant b)
   const a = randCoef(opts.range || 'small');
   const sol = niceIntIf(rng(-9,9), !!opts.forceInt);
   const b = -a * sol;
@@ -1201,15 +1217,13 @@ function genEqLinear(level, opts){
   const hint = opts.hints ? `<div class="chip">Pista: mou el terme independent i divideix per a</div>` : '';
   return { type:'eq-lin', text:`Resol: ${text}`, html: hint, sol: sol, answer: sol };
 }
-// 2) Segon grau (completes / incompletes)
+
 function genEqQuadratic(level, opts){
   const allowIncomplete = !!opts.allowIncomplete;
   const forceInt = !!opts.forceInt;
   const R = opts.range || 'small';
-
   if(allowIncomplete && Math.random()<0.4){
     if(Math.random()<0.5){
-      // ax^2 + c = 0 → x = ±sqrt(-c/a), forcem -c/a = k^2
       const a = randCoef(R), k = rng(1, 9);
       const c = -a * k * k;
       const text = `${a}·x² ${c>=0?'+':'−'} ${Math.abs(c)} = 0`;
@@ -1217,7 +1231,6 @@ function genEqQuadratic(level, opts){
       const hint = opts.hints ? `<div class="chip">Pista: x² = −c/a</div>` : '';
       return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
     } else {
-      // ax² + bx = 0 → x(ax + b)=0 → x=0 o x=−b/a
       const a = randCoef(R), b = randCoef(R);
       const x2 = -b / a;
       const sols = [ 0, niceIntIf(x2, forceInt) ];
@@ -1226,7 +1239,6 @@ function genEqQuadratic(level, opts){
       return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
     }
   } else {
-    // Completes amb arrels “netes” (a=1 per simplicitat)
     const r1 = rng(-9,9), r2 = rng(-9,9);
     const sols = [r1, r2].map(v => niceIntIf(v, forceInt));
     const b = -(sols[0] + sols[1]);
@@ -1236,7 +1248,7 @@ function genEqQuadratic(level, opts){
     return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
   }
 }
-// 3) Sistemes 2x2
+
 function genEqSystem2x2(level, opts){
   const R = opts.range || 'small';
   let x = rng(-6,6), y = rng(-6,6);
@@ -1245,11 +1257,9 @@ function genEqSystem2x2(level, opts){
   const a2 = randCoef(R), b2 = randCoef(R);
   const c1 = a1*x + b1*y;
   const c2 = a2*x + b2*y;
-
-  // Casos especials
   if(Math.random()<0.12){
     const k = rng(2,6);
-    const aa2 = a1*k, bb2 = b1*k, cc2 = c2 + (Math.random()<.5? 1 : -1); // trenca proporcionalitat en terme independent
+    const aa2 = a1*k, bb2 = b1*k, cc2 = c2 + (Math.random()<.5? 1 : -1);
     const text = `{ ${a1}x ${b1>=0?'+':'−'} ${Math.abs(b1)}y = ${c1} ; ${aa2}x ${bb2>=0?'+':'−'} ${Math.abs(bb2)}y = ${cc2} }`;
     return { type:'eq-sys', text:`Resol el sistema: ${text}`, html: opts.hints? `<div class="chip">Pista: comprova compatibilitat (sense solució)</div>`:'', sol:{x,y}, meta:{special:'none'}, answer:`(${x}, ${y})` };
   }
@@ -1258,14 +1268,12 @@ function genEqSystem2x2(level, opts){
     const text = `{ ${a1}x ${b1>=0?'+':'−'} ${Math.abs(b1)}y = ${c1} ; ${a1*k}x ${b1*k>=0?'+':'−'} ${Math.abs(b1*k)}y = ${c1*k} }`;
     return { type:'eq-sys', text:`Resol el sistema: ${text}`, html: opts.hints? `<div class="chip">Pista: equacions coincidents (infinites solucions)</div>`:'', sol:{x,y}, meta:{special:'inf'}, answer:`(${x}, ${y})` };
   }
-
   const text = `{ ${a1}x ${b1>=0?'+':'−'} ${Math.abs(b1)}y = ${c1} ; ${a2}x ${b2>=0?'+':'−'} ${Math.abs(b2)}y = ${c2} }`;
   const hint = opts.hints ? `<div class="chip">Pista: substitució o reducció</div>` : '';
   return { type:'eq-sys', text:`Resol el sistema: ${text}`, html: hint, sol:{x,y}, answer:`(${x}, ${y})` };
 }
-// 4) Equacions amb fraccions
+
 function genEqFractions(level, opts){
-  // (x/denX) + A/B = rhs  → x = (rhs - A/B) * denX
   const denX = rng(2,9);
   const A = rng(1,8), B = rng(2,9);
   const rhs = rng(1,12);
@@ -1274,9 +1282,8 @@ function genEqFractions(level, opts){
   const html = opts.hints? `<div class="chip">Pista: passa termes i redueix a comú denominador</div>` : '';
   return { type:'eq-frac', text:`Resol: ${A}/${B} + x/${denX} = ${rhs}`, html, sol, answer: sol };
 }
-// 5) Equacions amb parèntesis
+
 function genEqParentheses(level, opts){
-  // a(x+b) − c(x+d) = rhs, forcem solució neta
   const R = opts.range || 'small';
   const sol = opts.forceInt ? rng(-9,9) : rng(-9,9);
   const a = randCoef(R), b = randCoef(R);
@@ -1286,17 +1293,51 @@ function genEqParentheses(level, opts){
   const hint = opts.hints? `<div class="chip">Pista: desenvolupa, agrupa termes i resol</div>` : '';
   return { type:'eq-par', text:`Resol: ${text}`, html: hint, sol, answer: sol };
 }
-function genEq(level, opts={}){
-  const sub = opts.sub || 'lin';
-  if(sub==='lin')  return genEqLinear(level, opts);
-  if(sub==='quad') return genEqQuadratic(level, opts);
-  if(sub==='sys')  return genEqSystem2x2(level, opts);
-  if(sub==='frac') return genEqFractions(level, opts);
-  return genEqParentheses(level, opts);
+
+function genEqQuadraticFractions(level, opts){
+  const allowIncomplete = !!opts.allowIncomplete;
+  if(allowIncomplete && Math.random() < 0.5) {
+    const a = randCoef(opts.range || 'small');
+    const k = rng(1, 6);
+    const c = -a * k * k;
+    const text = `${a}·x² ${c>=0?'+':'−'} ${Math.abs(c)} = 0`;
+    const sols = [ -k, k ].map(v => niceIntIf(v, !!opts.forceInt));
+    const hint = opts.hints ? `<div class="chip">Pista: x² = −c/a</div>` : '';
+    return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
+  } else {
+    return genEqQuadratic(level, opts);
+  }
 }
 
-/* ===== (antic) Equacions lineals =====
-   Mantinc la funció per compatibilitat, però el mòdul nou usa genEq. */
+function genEqQuadraticParentheses(level, opts){
+  const r1 = rng(-6,6), r2 = rng(-6,6);
+  const sols = [r1, r2].map(v => niceIntIf(v, !!opts.forceInt));
+  const text = `(x ${r1>=0?'+':'−'} ${Math.abs(r1)})(x ${r2>=0?'+':'−'} ${Math.abs(r2)}) = 0`;
+  const hint = opts.hints ? `<div class="chip">Pista: cada parèntesi pot ser zero</div>` : '';
+  return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
+}
+
+function genEq(level, opts={}){
+  const type = opts.type || 'normal';
+  const grade = opts.grade || '1st';
+  let concreteGrade = grade;
+  if(grade === 'mixed') {
+    concreteGrade = Math.random() < 0.7 ? '1st' : '2nd';
+  }
+  if(concreteGrade === '1st') {
+    if(type === 'normal') return genEqLinear(level, opts);
+    if(type === 'frac') return genEqFractions(level, opts);
+    if(type === 'par') return genEqParentheses(level, opts);
+    if(type === 'sys') return genEqSystem2x2(level, opts);
+  } else {
+    if(type === 'normal') return genEqQuadratic(level, opts);
+    if(type === 'frac') return genEqQuadraticFractions(level, opts);
+    if(type === 'par') return genEqQuadraticParentheses(level, opts);
+    if(type === 'sys') return genEqSystem2x2(level, opts);
+  }
+  return genEqLinear(level, opts);
+}
+
 function genEq1(level){
   const a = rng(1, 12) * (Math.random()<.25? -1: 1);
   const x = rng(-15, 15);
