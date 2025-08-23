@@ -6,25 +6,12 @@
   <title>Focus Academy · Matemàtiques</title>
   <meta name="description" content="Pràctiques de matemàtiques tipus ThatQuiz per a estudiants. Single-file, sense dependències." />
   <link rel="stylesheet" href="style.css">
-  <style>
-    /* Ajust estètic pels títols dels mòduls */
-    #moduleGrid .option h3 {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--ink);
-    }
-    #moduleGrid .option p {
-      font-size: .92rem;
-    }
-    /* Amaguem qualsevol badge que arribi del JS */
-    #moduleGrid .badge { display: none !important; }
-  </style>
 </head>
 <body>
   <header>
     <div class="wrap row">
       <div class="brand">
-        <div class="logo" aria-hidden="true">FQ</div>
+        <div class="logo" aria-hidden="true">Q</div>
         <h1>Focus Academy · Matemàtiques</h1>
       </div>
       <nav class="right">
@@ -90,7 +77,7 @@
         <div class="panel card">
           <div class="q-header">
             <div style="display:flex; align-items:center; gap:10px">
-              <span id="qModule" class="chip">Mòdul</span>
+              <span id="qModule" class="badge">Mòdul</span>
               <span id="qLevel" class="chip">Nivell 1</span>
               <span id="timer" class="chip timer">--:--</span>
             </div>
@@ -150,6 +137,39 @@
         </div>
         <div id="resultsTable">No hi ha dades encara.</div>
       </div>
+
+      <!-- PERFIL / ANALYTICS -->
+      <div class="panel card" id="results-analytics">
+        <div class="row" style="align-items:center">
+          <h3 class="title" style="margin:0">Perfil i gràfiques</h3>
+          <div class="subtitle">Es basa en el filtre d'<b>alumne</b> i (opcionalment) el de <b>mòdul</b>.</div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid" id="kpiWrap">
+          <!-- S’omple des de JS -->
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">Evolució de puntuació</div>
+            <div id="chartScoreTrend"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Mitjana per mòdul</div>
+            <div id="chartByModule"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Temps vs Puntuació</div>
+            <div id="chartTimeVsScore"></div>
+          </div>
+        </div>
+
+        <div id="analyticsHint" class="chip" style="margin-top:10px; display:none">
+          Escriu un nom d’alumne/a al filtre per veure el seu perfil.
+        </div>
+      </div>
     </section>
 
     <!-- ABOUT -->
@@ -159,8 +179,8 @@
         <p class="subtitle">Web single-file creada per Focus Academy. Inspirada en ThatQuiz, sense comptes ni dependències. Dades locals al navegador.</p>
         <ul>
           <li>Generador de preguntes per: Aritmètica, Fraccions, Percentatges, Equacions lineals, Geometria (àrees/perímetres/volums), Estadística i Unitats.</li>
-          <li>Temps opcional, nivell 1–4, i repàs de només les preguntes errònies.</li>
-          <li>Historial exportable a CSV.</li>
+          <li>Temps opcional, nivell 1–20, i repàs de només les preguntes errònies.</li>
+          <li>Historial exportable a CSV i mode offline (funciona sense internet).</li>
         </ul>
       </div>
     </section>
@@ -175,3 +195,4 @@
   <script src="main.js" defer></script>
 </body>
 </html>
+```
