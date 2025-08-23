@@ -1862,21 +1862,73 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
 
 /* ===================== RESULTS ===================== */
 
+// ==== HELPERS D'ANÀLISI I GRÀFICS ====
+function avg(a){ return a.length ? a.reduce((s,x)=>s+x,0)/a.length : 0; }
+function by(arr, key){
+  return arr.reduce((m,x)=>{ const k = x[key]; (m[k]=m[k]||[]).push(x); return m; }, {});
+}
+function fmtPct(x){ return Math.round(x); }
+
+// Gràfic de línies simple (puntuació vs temps)
+function lineChartSVG(values, labels){
+  const w=360, h=200, p=28;
+  const max = Math.max(100, ...values);
+  const min = 0;
+  const n = values.length || 1;
+  const dx = (w - 2*p) / Math.max(1, n-1);
+  const mapX = i => p + i*dx;
+  const mapY = v => h - p - ((v-min)/(max-min))*(h-2*p);
+  let path = '';
+  values.forEach((v,i)=>{ const x=mapX(i), y=mapY(v); path += (i?` L ${x} ${y}`:`M ${x} ${y}`); });
+  const dots = values.map((v,i)=>`<circle cx="${mapX(i)}" cy="${mapY(v)}" r="3" fill="#0f172a"/>`).join('');
+  return `<svg viewBox="0 0 ${w} ${h}">
+    <rect x="0" y="0" width="${w}" height="${h}" rx="16" ry="16" fill="#f8fafc"/>
+    <path d="${path}" fill="none" stroke="#93c5fd" stroke-width="3"/>
+    ${dots}
+    ${labels.map((lb,i)=>`<text class="svg-label" x="${mapX(i)}" y="${h-6}" text-anchor="middle">${lb}</text>`).join('')}
+  </svg>`;
+}
+
+// Scatter (Temps en minuts vs Puntuació %)
+function scatterSVG(points){
+  const w=360, h=200, p=28;
+  const maxX = Math.max(1, ...points.map(p=>p.x));
+  const maxY = 100;
+  const mapX = v => p + (v/maxX)*(w-2*p);
+  const mapY = v => h - p - (v/maxY)*(h-2*p);
+  const dots = points.map(pt=>`<circle cx="${mapX(pt.x)}" cy="${mapY(pt.y)}" r="4" fill="#a7f3d0" stroke="#64748b"/>`).join('');
+  return `<svg viewBox="0 0 ${w} ${h}">
+    <rect x="0" y="0" width="${w} ${h}" rx="16" ry="16" fill="#f8fafc"/>
+    ${dots}
+    <text class="svg-label" x="${p}" y="${p+4}">Temps (min)</text>
+    <text class="svg-label" x="${w-p-40}" y="${p+4}">Punts (%)</text>
+  </svg>`;
+}
+
+// ==== RENDER PRINCIPAL DE RESULTATS + PERFIL ====
 function renderResults(){
   const data = store.all();
   const modFilter = $('#filter-module').value || '';
   const nameFilter = ($('#filter-student').value||'').toLowerCase();
-  const filtered = data.filter(r=>
-    (!modFilter || r.module===modFilter) && (!nameFilter || (r.name||'').toLowerCase().includes(nameFilter))
+
+  const filtered = data.filter(r =>
+    (!modFilter || r.module===modFilter) &&
+    (!nameFilter || (r.name||'').toLowerCase().includes(nameFilter))
   );
-  if(!filtered.length){ $('#resultsTable').innerHTML = '<div class="chip">No hi ha dades.</div>'; return }
+
+  // Taula
+  if(!filtered.length){
+    $('#resultsTable').innerHTML = '<div class="chip">No hi ha dades.</div>';
+    renderAnalytics([], nameFilter); // neteja i mostra hint si cal
+    return;
+  }
   const rows = filtered.map((r,i)=>{
     const m = MODULES.find(m=>m.id===r.module)?.name || r.module;
     const d = new Date(r.at);
     return `<tr>
       <td>${i+1}</td>
       <td>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
-      <td>${r.name}</td>
+      <td>${r.name||''}</td>
       <td>${m}</td>
       <td>Nivell ${r.level}</td>
       <td>${r.correct}/${r.count}</td>
@@ -1890,9 +1942,75 @@ function renderResults(){
     <tr><th>#</th><th>Data</th><th>Alumne/a</th><th>Mòdul</th><th>Nivell</th><th>Encerts</th><th>Puntuació</th><th>Temps</th></tr>
   </thead>
   <tbody>${rows}</tbody>
-</table>
-`;
+</table>`;
+
+  // Perfil + gràfiques
+  renderAnalytics(filtered, nameFilter);
 }
+
+// ==== PERFIL I GRÀFIQUES ====
+function renderAnalytics(filtered, nameFilter){
+  const hint = $('#analyticsHint');
+  const kpi = $('#kpiWrap');
+  const cTrend = $('#chartScoreTrend');
+  const cByMod = $('#chartByModule');
+  const cScatter = $('#chartTimeVsScore');
+
+  // Mostra pista si no hi ha filtre d'alumne
+  const hasName = !!nameFilter;
+  if(hint) hint.style.display = hasName ? 'none' : 'inline-flex';
+
+  // Neteja
+  if(kpi) kpi.innerHTML = '';
+  if(cTrend) cTrend.innerHTML = '';
+  if(cByMod) cByMod.innerHTML = '';
+  if(cScatter) cScatter.innerHTML = '';
+
+  if(!filtered.length) return;
+
+  // Subconjunt segons alumne (si n'hi ha filtre)
+  let set = filtered;
+  if(hasName){
+    set = filtered.filter(r => (r.name||'').toLowerCase().includes(nameFilter));
+    if(!set.length) return; // sense dades per a aquest nom
+  }
+
+  // ==== KPIs bàsics ====
+  const scores = set.map(r=>r.score);
+  const avgScore = avg(scores);
+  const best = Math.max(...scores);
+  const attempts = set.length;
+  const avgTimeMin = avg(set.map(r=>r.time_spent))/60;
+
+  if(kpi){
+    kpi.innerHTML = `
+      <div class="kpi"><div class="label">Mitjana de puntuació</div><div class="value">${fmtPct(avgScore)}%</div></div>
+      <div class="kpi"><div class="label">Millor resultat</div><div class="value">${fmtPct(best)}%</div></div>
+      <div class="kpi"><div class="label">Nº intents</div><div class="value">${attempts}</div></div>
+      <div class="kpi"><div class="label">Temps mig (min)</div><div class="value">${avgTimeMin.toFixed(1)}</div></div>
+    `;
+  }
+
+  // ==== Gràfic 1: evolució temporal ====
+  const sorted = [...set].sort((a,b)=> new Date(a.at)-new Date(b.at));
+  const trendVals = sorted.map(r=>r.score);
+  const trendLabs = sorted.map(r=>{
+    const d = new Date(r.at);
+    return `${d.getDate()}/${d.getMonth()+1}`;
+  });
+  if(cTrend) cTrend.innerHTML = lineChartSVG(trendVals, trendLabs);
+
+  // ==== Gràfic 2: mitjana per mòdul ====
+  const modGroups = by(set, 'module');
+  const labels = Object.keys(modGroups).map(id => MODULES.find(m=>m.id===id)?.name || id);
+  const vals = Object.values(modGroups).map(arr => Math.round(avg(arr.map(r=>r.score))));
+  if(cByMod) cByMod.innerHTML = barChartSVG(vals, labels); // reutilitza el teu barChartSVG existent
+
+  // ==== Gràfic 3: temps vs puntuació ====
+  const pts = set.map(r=>({ x: +(r.time_spent/60).toFixed(2), y: r.score }));
+  if(cScatter) cScatter.innerHTML = scatterSVG(pts);
+}
+
 
 function exportCSV(){
   const data = store.all();
@@ -1940,5 +2058,11 @@ function init(){
   buildHome();
   showView('home');
   $('#year').textContent = new Date().getFullYear();
+
+  // 🔁 Redibuixa resultats i perfil quan canvien els filtres
+  const fm = $('#filter-module');
+  const fs = $('#filter-student');
+  if(fm) fm.addEventListener('change', renderResults);
+  if(fs) fs.addEventListener('input', renderResults);
 }
 init();
