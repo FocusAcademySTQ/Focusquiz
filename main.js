@@ -1012,17 +1012,26 @@ function genGeometry(level, opts={}){
     return { type:'geom-pi', text, html, piCoef: coef, answer: `${coef}π` };
   }
 
+  // CORRECCIÓ: Verificar correctament les opcions de figures
   const figs2D = [];
-  if(!opts.fig || opts.fig.rect) figs2D.push('rect');
-  if(!opts.fig || opts.fig.tri) figs2D.push('tri');
-  if(!opts.fig || opts.fig.circ) figs2D.push('circ');
-  if(opts.fig?.poly) figs2D.push('poly');
-  if(opts.fig?.grid) figs2D.push('grid');
-  if(opts.fig?.comp) figs2D.push('comp');
+  if(opts.fig && opts.fig.rect) figs2D.push('rect');
+  if(opts.fig && opts.fig.tri) figs2D.push('tri');
+  if(opts.fig && opts.fig.circ) figs2D.push('circ');
+  if(opts.fig && opts.fig.poly) figs2D.push('poly');
+  if(opts.fig && opts.fig.grid) figs2D.push('grid');
+  if(opts.fig && opts.fig.comp) figs2D.push('comp');
 
   const figs3D = [];
-  if(opts.fig?.cube) figs3D.push('cuboid');
-  if(opts.fig?.cylinder) figs3D.push('cylinder');
+  if(opts.fig && opts.fig.cube) figs3D.push('cuboid');
+  if(opts.fig && opts.fig.cylinder) figs3D.push('cylinder');
+
+  // Si no hi ha figures seleccionades, afegir les per defecte
+  if(figs2D.length === 0 && scope !== 'vol') {
+    figs2D.push('rect', 'tri', 'circ'); // Figures per defecte per a 2D
+  }
+  if(figs3D.length === 0 && scope === 'vol') {
+    figs3D.push('cuboid', 'cylinder'); // Figures per defecte per a 3D
+  }
 
   if(scope==='vol'){
     const f = figs3D.length? choice(figs3D) : choice(['cuboid','cylinder']);
@@ -1150,7 +1159,6 @@ function genGeometry(level, opts={}){
     };
   }
 }
-
 /* ===== Percentatges ===== */
 function genPercent(level){
   const mode = Math.random()<.33? 'of' : (Math.random()<.5? 'is-of' : 'discount');
