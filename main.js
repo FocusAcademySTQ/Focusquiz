@@ -194,23 +194,16 @@ function openConfig(moduleId){
       </div>
     `;
   } else if(pendingModule.id === 'eq'){
+    /* ===== Configuració del mòdul Equacions ===== */
     wrap.innerHTML = `
-      <div class="section-title">Equacions · Tipus</div>
+      <div class="section-title">Equacions · Subtemes</div>
       <div class="controls">
-        <div class="group" role="group" aria-label="Tipus d'equacions">
-          <label class="toggle"><input class="check" type="radio" name="eq-type" value="normal" checked> Equacions normals</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-type" value="frac"> Amb fraccions</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-type" value="par"> Amb parèntesis</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-type" value="sys"> Sistemes d'equacions</label>
-        </div>
-      </div>
-
-      <div class="section-title">Equacions · Grau</div>
-      <div class="controls">
-        <div class="group" role="group" aria-label="Grau de les equacions">
-          <label class="toggle"><input class="check" type="radio" name="eq-grade" value="1st" checked> 1) Primer grau</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-grade" value="2nd"> 2) Segon grau</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-grade" value="mixed"> 3) Barrejats (1r i 2n grau)</label>
+        <div class="group" role="group" aria-label="Subtemes d'equacions">
+          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="lin" checked> 1) Primer grau (ax + b = 0)</label>
+          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="quad"> 2) Segon grau (completes / incompletes)</label>
+          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="sys"> 3) Sistemes 2x2</label>
+          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="frac"> 4) Amb fraccions</label>
+          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="par"> 5) Amb parèntesis</label>
         </div>
       </div>
 
@@ -224,17 +217,12 @@ function openConfig(moduleId){
           </select>
         </label>
         <label class="toggle"><input class="check" type="checkbox" id="eq-int-sol" checked> Força solucions enteres</label>
-        <label class="toggle"><input class="check" type="checkbox" id="eq-incomplete"> Inclou equacions incompletes (2n grau)</label>
+        <label class="toggle"><input class="check" type="checkbox" id="eq-incomplete" checked> Inclou incompletes (només 2n grau)</label>
         <label class="toggle"><input class="check" type="checkbox" id="eq-hints"> Mostrar pistes</label>
       </div>
 
-      <div class="subtitle">Format de resposta: 
-        <b>x=3</b> o <b>3</b>; 
-        per sistemes <b>(2, -1)</b> o <b>2,-1</b>; 
-        fraccions <b>3/4</b> o decimals.
-      </div>
+      <div class="subtitle">Format de resposta: <b>x=3</b> o <b>3</b>; per sistemes <b>(2, -1)</b> o <b>2,-1</b>; fraccions <b>3/4</b> o decimals.</div>
     `;
-  }
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -293,12 +281,7 @@ function startFromConfig(){
     options.sub = document.querySelector('input[name="units-sub"]:checked')?.value || 'length';
     options.round = parseInt($('#units-round').value || '2');
   } else if(pendingModule.id==='eq'){
-    // NOVA CONFIGURACIÓ PER A EQUACIONS
-    const type = document.querySelector('input[name="eq-type"]:checked')?.value || 'normal';
-    const grade = document.querySelector('input[name="eq-grade"]:checked')?.value || '1st';
-    
-    options.type = type;
-    options.grade = grade;
+    options.sub = document.querySelector('input[name="eq-sub"]:checked')?.value || 'lin';
     options.range = ($('#eq-range').value || 'small');
     options.forceInt = !!$('#eq-int-sol')?.checked;
     options.allowIncomplete = !!$('#eq-incomplete')?.checked;
@@ -1013,7 +996,6 @@ function genGeometry(level, opts={}){
   const roundDigits = Number.isInteger(opts.round)? opts.round : 2;
   const circleMode = opts.circleMode || 'numeric';
   const sideMax = level<7? 20 : (level<14? 50 : 120);
-  const sideMax3D = level<7? 15 : (level<14? 30 : 50); // Dimensions majors per a figures 3D
 
   function packNum({text, html, value, pow}){
     const v = roundTo(value, roundDigits);
@@ -1029,39 +1011,28 @@ function genGeometry(level, opts={}){
     return { type:'geom-pi', text, html, piCoef: coef, answer: `${coef}π` };
   }
 
-  // CORRECCIÓ: Verificar correctament les opcions de figures
   const figs2D = [];
-  if(opts.fig && opts.fig.rect) figs2D.push('rect');
-  if(opts.fig && opts.fig.tri) figs2D.push('tri');
-  if(opts.fig && opts.fig.circ) figs2D.push('circ');
-  if(opts.fig && opts.fig.poly) figs2D.push('poly');
-  if(opts.fig && opts.fig.grid) figs2D.push('grid');
-  if(opts.fig && opts.fig.comp) figs2D.push('comp');
+  if(!opts.fig || opts.fig.rect) figs2D.push('rect');
+  if(!opts.fig || opts.fig.tri) figs2D.push('tri');
+  if(!opts.fig || opts.fig.circ) figs2D.push('circ');
+  if(opts.fig?.poly) figs2D.push('poly');
+  if(opts.fig?.grid) figs2D.push('grid');
+  if(opts.fig?.comp) figs2D.push('comp');
 
   const figs3D = [];
-  if(opts.fig && opts.fig.cube) figs3D.push('cuboid');
-  if(opts.fig && opts.fig.cylinder) figs3D.push('cylinder');
-
-  // Si no hi ha figures seleccionades, afegir les per defecte
-  if(figs2D.length === 0 && scope !== 'vol') {
-    figs2D.push('rect', 'tri', 'circ'); // Figures per defecte per a 2D
-  }
-  if(figs3D.length === 0 && scope === 'vol') {
-    figs3D.push('cuboid', 'cylinder'); // Figures per defecte per a 3D
-  }
+  if(opts.fig?.cube) figs3D.push('cuboid');
+  if(opts.fig?.cylinder) figs3D.push('cylinder');
 
   if(scope==='vol'){
     const f = figs3D.length? choice(figs3D) : choice(['cuboid','cylinder']);
     if(f==='cuboid'){
-      // Augmentar les dimensions dels cuboides perquè siguin més significatives
-      const w=rng(5, Math.max(8, Math.floor(sideMax3D/4)));
-      const h=rng(5, Math.max(8, Math.floor(sideMax3D/4)));
-      const l=rng(5, Math.max(8, Math.floor(sideMax3D/4)));
+      const w=rng(2, Math.max(6, Math.floor(sideMax/10)));
+      const h=rng(2, Math.max(6, Math.floor(sideMax/10)));
+      const l=rng(2, Math.max(6, Math.floor(sideMax/10)));
       return packNum({ text:`Volum del prisma rectangular`, html: svgCuboidFig(w,h,l,U), value: w*h*l, pow: 3 });
     } else {
-      // Augmentar les dimensions dels cilindres
-      const r=rng(4, Math.max(8, Math.floor(sideMax3D/8)));
-      const h=rng(6, Math.max(12, Math.floor(sideMax3D/6)));
+      const r=rng(2, Math.max(6, Math.floor(sideMax/10)));
+      const h=rng(3, Math.max(8, Math.floor(sideMax/8)));
       if(circleMode==='pi-exacte'){
         return packPi({ text:`Volum del cilindre (exacte, en π)`, html: svgCylinderFig(r,h,U), coef: r*r*h });
       } else {
@@ -1073,7 +1044,6 @@ function genGeometry(level, opts={}){
   const pick = figs2D.length? choice(figs2D) : choice(['rect','tri','circ']);
   const wantA = (scope==='area' || scope==='both');
   const wantP = (scope==='perim' || scope==='both');
-  
   if(pick==='rect'){
     const b=rng(3, Math.max(4, Math.floor(sideMax/2)));
     const h=rng(3, Math.max(4, Math.floor(sideMax/2)));
@@ -1082,7 +1052,6 @@ function genGeometry(level, opts={}){
     if(mode==='A') return packNum({ text:`Àrea del rectangle`, html, value: b*h, pow: 2 });
     return packNum({ text:`Perímetre del rectangle`, html, value: 2*(b+h), pow: 0 });
   }
-  
   if(pick==='tri'){
     const mode = scope==='both'? choice(['A','P']) : (wantA? 'A':'P');
     if(mode==='A'){
@@ -1104,7 +1073,6 @@ function genGeometry(level, opts={}){
       return packNum({ text:`Perímetre del triangle`, html, value: a+b+c, pow: 0 });
     }
   }
-  
   if(pick==='circ'){
     const mode = scope==='both'? choice(['A','P']) : (wantA? 'A':'P');
     if(mode==='A'){
@@ -1119,7 +1087,6 @@ function genGeometry(level, opts={}){
       return packNum({ text:`Perímetre del cercle`, html, value: Math.PI*d, pow: 0 });
     }
   }
-  
   if(pick==='poly'){
     const n = rng(5,8);
     const c = rng(2, Math.max(6, Math.floor(sideMax/10)));
@@ -1130,7 +1097,6 @@ function genGeometry(level, opts={}){
     if(mode==='A') return packNum({ text:`Àrea del polígon regular`, html, value: (P*a/2), pow: 2 });
     return packNum({ text:`Perímetre del polígon regular`, html, value: P, pow: 0 });
   }
-  
   if(pick==='grid'){
     const cols = rng(4, 10), rows = rng(4, 10);
     const total = cols*rows;
@@ -1139,43 +1105,19 @@ function genGeometry(level, opts={}){
     const html = svgGridMask(cols, rows, set);
     return packNum({ text:`Àrea de la figura ombrejada (unitats²)`, html, value: k, pow: 2 });
   }
-  
-  // comp – figura composta a graella (millorada)
-  if(pick==='comp'){
-    const cols = rng(8, 12), rows = rng(8, 12);
-    const mask = new Set();
-    
-    function fillRect(x,y,w,h){ 
-      for(let r=y;r<y+h;r++){ 
-        for(let c=x;c<x+w;c++){ 
-          if(r < rows && c < cols) {
-            mask.add(r*cols + c); 
-          }
-        } 
-      } 
-    }
-    
-    // Crear 2-3 rectangles que es sobreposin parcialment
-    const numRectangles = rng(2, 3);
-    for(let i=0; i<numRectangles; i++){
-      const x = rng(0, cols-3);
-      const y = rng(0, rows-3);
-      const w = rng(2, Math.min(5, cols-x));
-      const h = rng(2, Math.min(5, rows-y));
-      fillRect(x, y, w, h);
-    }
-    
-    const html = svgGridMask(cols, rows, mask);
-    return { 
-      type:'geom-num', 
-      text:`Àrea de la figura composta (unitats²)`, 
-      html, 
-      numeric: mask.size, 
-      meta:{requireUnits:false, units:'u', pow:2, round:0}, 
-      answer: String(mask.size) 
-    };
-  }
+  // comp – figura composta a graella
+  const cols = rng(6, 10), rows = rng(6, 10);
+  const mask = new Set();
+  function fillRect(x,y,w,h){ for(let r=y;r<y+h;r++){ for(let c=x;c<x+w;c++){ mask.add(r*cols + c); } } }
+  const ax = rng(0, Math.floor(cols/2)-1), ay = rng(0, Math.floor(rows/2)-1);
+  const aw = rng(2, Math.floor(cols/2)), ah = rng(2, Math.floor(rows/2));
+  const bx = rng(Math.floor(cols/2), cols-2), by = rng(Math.floor(rows/2), rows-2);
+  const bw = rng(2, Math.min(aw, cols-bx)), bh = rng(2, Math.min(ah, rows-by));
+  fillRect(ax, ay, aw, ah); fillRect(bx, by, bw, bh);
+  const html = svgGridMask(cols, rows, mask);
+  return { type:'geom-num', text:`Àrea de la figura composta (unitats²)`, html, numeric: mask.size, meta:{requireUnits:false, units:'u', pow:2, round:0}, answer: String(mask.size) };
 }
+
 /* ===== Percentatges ===== */
 function genPercent(level){
   const mode = Math.random()<.33? 'of' : (Math.random()<.5? 'is-of' : 'discount');
@@ -1196,51 +1138,29 @@ function genPercent(level){
     return { type:'percent-discount', text:`Descompte del ${off}% sobre ${n} → preu final = ?`, answer: ans };
   }
 }
-/* ===== Equacions (MÒDUL REORGANITZAT) ===== */
+
+/* ===== Equacions (NOU MÒDUL) ===== */
 function randCoef(rangeKey){
   const [mn, mx] = rngRangeKey(rangeKey);
   let a = rng(mn, mx);
   if(a===0) a = (Math.random()<.5? -1: 1);
   return a;
 }
-
 function niceIntIf(v, forceInt){
   if(forceInt) return Math.round(v);
   return v;
 }
-
-// 1) PRIMER GRAU
+// 1) Primer grau
 function genEqLinear(level, opts){
+  // ax + b = 0 → x = -b/a (forcem sencer si cal ajustant b)
   const a = randCoef(opts.range || 'small');
   const sol = niceIntIf(rng(-9,9), !!opts.forceInt);
   const b = -a * sol;
   const text = `${a}·x ${b>=0?'+':'−'} ${Math.abs(b)} = 0`;
-  const hint = opts.hints ? `<div class="chip">Pista: aïlla la x</div>` : '';
+  const hint = opts.hints ? `<div class="chip">Pista: mou el terme independent i divideix per a</div>` : '';
   return { type:'eq-lin', text:`Resol: ${text}`, html: hint, sol: sol, answer: sol };
 }
-
-function genEqFractions(level, opts){
-  const denX = rng(2,9);
-  const A = rng(1,8), B = rng(2,9);
-  const rhs = rng(1,12);
-  const x = (rhs - A/B) * denX;
-  const sol = opts.forceInt ? Math.round(x) : x;
-  const html = opts.hints? `<div class="chip">Pista: redueix a comú denominador</div>` : '';
-  return { type:'eq-frac', text:`Resol: ${A}/${B} + x/${denX} = ${rhs}`, html, sol, answer: sol };
-}
-
-function genEqParentheses(level, opts){
-  const R = opts.range || 'small';
-  const sol = opts.forceInt ? rng(-9,9) : rng(-9,9);
-  const a = randCoef(R), b = randCoef(R);
-  const c = randCoef(R), d = randCoef(R);
-  const rhs = (a - c)*sol + (a*b - c*d);
-  const text = `${a}(x ${b>=0?'+':'−'} ${Math.abs(b)}) ${c>=0?'−':'+'} ${Math.abs(c)}(x ${d>=0?'+':'−'} ${Math.abs(d)}) = ${rhs}`;
-  const hint = opts.hints? `<div class="chip">Pista: desenvolupa els parèntesis</div>` : '';
-  return { type:'eq-par', text:`Resol: ${text}`, html: hint, sol, answer: sol };
-}
-
-// 2) SEGON GRAU
+// 2) Segon grau (completes / incompletes)
 function genEqQuadratic(level, opts){
   const allowIncomplete = !!opts.allowIncomplete;
   const forceInt = !!opts.forceInt;
@@ -1248,7 +1168,7 @@ function genEqQuadratic(level, opts){
 
   if(allowIncomplete && Math.random()<0.4){
     if(Math.random()<0.5){
-      // ax² + c = 0
+      // ax^2 + c = 0 → x = ±sqrt(-c/a), forcem -c/a = k^2
       const a = randCoef(R), k = rng(1, 9);
       const c = -a * k * k;
       const text = `${a}·x² ${c>=0?'+':'−'} ${Math.abs(c)} = 0`;
@@ -1256,7 +1176,7 @@ function genEqQuadratic(level, opts){
       const hint = opts.hints ? `<div class="chip">Pista: x² = −c/a</div>` : '';
       return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
     } else {
-      // ax² + bx = 0
+      // ax² + bx = 0 → x(ax + b)=0 → x=0 o x=−b/a
       const a = randCoef(R), b = randCoef(R);
       const x2 = -b / a;
       const sols = [ 0, niceIntIf(x2, forceInt) ];
@@ -1265,7 +1185,7 @@ function genEqQuadratic(level, opts){
       return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
     }
   } else {
-    // ax² + bx + c = 0 (completa)
+    // Completes amb arrels “netes” (a=1 per simplicitat)
     const r1 = rng(-9,9), r2 = rng(-9,9);
     const sols = [r1, r2].map(v => niceIntIf(v, forceInt));
     const b = -(sols[0] + sols[1]);
@@ -1275,31 +1195,7 @@ function genEqQuadratic(level, opts){
     return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
   }
 }
-
-function genEqQuadraticFractions(level, opts){
-  const allowIncomplete = !!opts.allowIncomplete;
-  if(allowIncomplete && Math.random() < 0.5) {
-    const a = randCoef(opts.range || 'small');
-    const k = rng(1, 6);
-    const c = -a * k * k;
-    const text = `${a}·x² ${c>=0?'+':'−'} ${Math.abs(c)} = 0`;
-    const sols = [ -k, k ].map(v => niceIntIf(v, !!opts.forceInt));
-    const hint = opts.hints ? `<div class="chip">Pista: x² = −c/a</div>` : '';
-    return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0]}, ${sols[1]}` };
-  } else {
-    return genEqQuadratic(level, opts);
-  }
-}
-
-function genEqQuadraticParentheses(level, opts){
-  const r1 = rng(-6,6), r2 = rng(-6,6);
-  const sols = [r1, r2].map(v => niceIntIf(v, !!opts.forceInt));
-  const text = `(x ${r1>=0?'+':'−'} ${Math.abs(r1)})(x ${r2>=0?'+':'−'} ${Math.abs(r2)}) = 0`;
-  const hint = opts.hints ? `<div class="chip">Pista: cada parèntesi pot ser zero</div>` : '';
-  return { type:'eq-quad', text:`Resol: ${text}`, html: hint, sols, answer: `${sols[0], ${sols[1]}` };
-}
-
-// 3) SISTEMES
+// 3) Sistemes 2x2
 function genEqSystem2x2(level, opts){
   const R = opts.range || 'small';
   let x = rng(-6,6), y = rng(-6,6);
@@ -1312,51 +1208,54 @@ function genEqSystem2x2(level, opts){
   // Casos especials
   if(Math.random()<0.12){
     const k = rng(2,6);
-    const aa2 = a1*k, bb2 = b1*k, cc2 = c2 + (Math.random()<.5? 1 : -1);
+    const aa2 = a1*k, bb2 = b1*k, cc2 = c2 + (Math.random()<.5? 1 : -1); // trenca proporcionalitat en terme independent
     const text = `{ ${a1}x ${b1>=0?'+':'−'} ${Math.abs(b1)}y = ${c1} ; ${aa2}x ${bb2>=0?'+':'−'} ${Math.abs(bb2)}y = ${cc2} }`;
-    return { type:'eq-sys', text:`Resol: ${text}`, html: opts.hints? `<div class="chip">Sistema incompatible</div>`:'', sol:{x,y}, meta:{special:'none'}, answer:`sense solució` };
+    return { type:'eq-sys', text:`Resol el sistema: ${text}`, html: opts.hints? `<div class="chip">Pista: comprova compatibilitat (sense solució)</div>`:'', sol:{x,y}, meta:{special:'none'}, answer:`(${x}, ${y})` };
   }
   if(Math.random()<0.12){
     const k = rng(2,6);
     const text = `{ ${a1}x ${b1>=0?'+':'−'} ${Math.abs(b1)}y = ${c1} ; ${a1*k}x ${b1*k>=0?'+':'−'} ${Math.abs(b1*k)}y = ${c1*k} }`;
-    return { type:'eq-sys', text:`Resol: ${text}`, html: opts.hints? `<div class="chip">Sistema indeterminat</div>`:'', sol:{x,y}, meta:{special:'inf'}, answer:`infinites solucions` };
+    return { type:'eq-sys', text:`Resol el sistema: ${text}`, html: opts.hints? `<div class="chip">Pista: equacions coincidents (infinites solucions)</div>`:'', sol:{x,y}, meta:{special:'inf'}, answer:`(${x}, ${y})` };
   }
 
   const text = `{ ${a1}x ${b1>=0?'+':'−'} ${Math.abs(b1)}y = ${c1} ; ${a2}x ${b2>=0?'+':'−'} ${Math.abs(b2)}y = ${c2} }`;
   const hint = opts.hints ? `<div class="chip">Pista: substitució o reducció</div>` : '';
-  return { type:'eq-sys', text:`Resol: ${text}`, html: hint, sol:{x,y}, answer:`(${x}, ${y})` };
+  return { type:'eq-sys', text:`Resol el sistema: ${text}`, html: hint, sol:{x,y}, answer:`(${x}, ${y})` };
 }
-
-// FUNCIÓ PRINCIPAL
+// 4) Equacions amb fraccions
+function genEqFractions(level, opts){
+  // (x/denX) + A/B = rhs  → x = (rhs - A/B) * denX
+  const denX = rng(2,9);
+  const A = rng(1,8), B = rng(2,9);
+  const rhs = rng(1,12);
+  const x = (rhs - A/B) * denX;
+  const sol = opts.forceInt ? Math.round(x) : x;
+  const html = opts.hints? `<div class="chip">Pista: passa termes i redueix a comú denominador</div>` : '';
+  return { type:'eq-frac', text:`Resol: ${A}/${B} + x/${denX} = ${rhs}`, html, sol, answer: sol };
+}
+// 5) Equacions amb parèntesis
+function genEqParentheses(level, opts){
+  // a(x+b) − c(x+d) = rhs, forcem solució neta
+  const R = opts.range || 'small';
+  const sol = opts.forceInt ? rng(-9,9) : rng(-9,9);
+  const a = randCoef(R), b = randCoef(R);
+  const c = randCoef(R), d = randCoef(R);
+  const rhs = (a - c)*sol + (a*b - c*d);
+  const text = `${a}(x ${b>=0?'+':'−'} ${Math.abs(b)}) ${c>=0?'−':'+'} ${Math.abs(c)}(x ${d>=0?'+':'−'} ${Math.abs(d)}) = ${rhs}`;
+  const hint = opts.hints? `<div class="chip">Pista: desenvolupa, agrupa termes i resol</div>` : '';
+  return { type:'eq-par', text:`Resol: ${text}`, html: hint, sol, answer: sol };
+}
 function genEq(level, opts={}){
-  const format = opts.format || 'normal'; // normal, frac, par, sys
-  const grade = opts.grade || '1st';      // 1st, 2nd, mixed
-  
-  let concreteGrade = grade;
-  if(grade === 'mixed') {
-    concreteGrade = Math.random() < 0.7 ? '1st' : '2nd';
-  }
-
-  // PRIMER GRAU
-  if(concreteGrade === '1st') {
-    if(format === 'normal') return genEqLinear(level, opts);
-    if(format === 'frac') return genEqFractions(level, opts);
-    if(format === 'par') return genEqParentheses(level, opts);
-    if(format === 'sys') return genEqSystem2x2(level, opts);
-  }
-  
-  // SEGON GRAU
-  if(concreteGrade === '2nd') {
-    if(format === 'normal') return genEqQuadratic(level, opts);
-    if(format === 'frac') return genEqQuadraticFractions(level, opts);
-    if(format === 'par') return genEqQuadraticParentheses(level, opts);
-    if(format === 'sys') return genEqSystem2x2(level, opts);
-  }
-  
-  return genEqLinear(level, opts);
+  const sub = opts.sub || 'lin';
+  if(sub==='lin')  return genEqLinear(level, opts);
+  if(sub==='quad') return genEqQuadratic(level, opts);
+  if(sub==='sys')  return genEqSystem2x2(level, opts);
+  if(sub==='frac') return genEqFractions(level, opts);
+  return genEqParentheses(level, opts);
 }
 
-// (Funció antiga per compatibilitat)
+/* ===== (antic) Equacions lineals =====
+   Mantinc la funció per compatibilitat, però el mòdul nou usa genEq. */
 function genEq1(level){
   const a = rng(1, 12) * (Math.random()<.25? -1: 1);
   const x = rng(-15, 15);
