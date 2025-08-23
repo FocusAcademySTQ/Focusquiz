@@ -1,32 +1,53 @@
+/* =========================
+   Focus Pastel · Pro‑Study
+   ========================= */
+
 :root{
-  /* Paleta pastel corporativa */
+  /* Paleta base */
   --bg: #f7f7fb;
   --card: #ffffff;
   --ink: #0f172a;
   --muted: #6b7280;
-  --primary: #7aa2ff;
-  --accent: #22c55e;
-  --ok: #86efac;
+
+  /* Paleta pastel viva (accents) */
+  --p-blue:   #8fb5ff;
+  --p-mint:   #7fe7c9;
+  --p-lilac:  #c7b5ff;
+  --p-peach:  #ffc9a9;
+  --p-yellow: #ffe08a;
+  --p-rose:   #ffb3c1;
+
+  /* Primaris per a UI */
+  --primary: #7aa2ff;     /* blau pastel */
+  --accent:  #22c55e;     /* verd ok */
+
+  /* Estat */
+  --ok:  #86efac;
   --bad: #fca5a5;
-  --warn: #fde68a;
+  --warn:#fde68a;
+
   --radius: 18px;
   --shadow: 0 8px 22px rgba(27,30,40,.08);
-  --hair: #e5e7eb;
-  --focus: 0 0 0 3px rgba(122,162,255,.35);
+  --hair:   #e5e7eb;
+  --focus:  0 0 0 3px rgba(122,162,255,.35);
 }
+
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
-  margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color:var(--ink);
-  /* Suau perquè no embruti la Home */
-  background: linear-gradient(180deg, var(--bg), #eef2ff 180px);
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #eaf2ff 0%, transparent 60%),
+    radial-gradient(1000px 600px at 100% 0%, #eafaf5 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg), #eef2ff 220px);
 }
 
-/* ---------- Header ---------- */
+/* ===== Header ===== */
 header{
   position:sticky; top:0; z-index:5;
-  backdrop-filter:saturate(1.2) blur(10px);
+  backdrop-filter:saturate(1.1) blur(8px);
   background:rgba(255,255,255,.7);
   border-bottom:1px solid var(--hair);
 }
@@ -34,7 +55,7 @@ header{
 .brand{display:flex; align-items:center; gap:12px;}
 .logo{
   width:38px;height:38px; display:grid; place-items:center; border-radius:12px;
-  background:linear-gradient(135deg, var(--primary), #c7d2fe);
+  background:conic-gradient(from 180deg, var(--p-blue), var(--p-lilac), var(--p-rose), var(--p-blue));
   box-shadow: var(--shadow); color:#0f172a; font-weight:900
 }
 .brand h1{font-size:1.1rem; margin:0; letter-spacing:.2px}
@@ -52,42 +73,56 @@ nav{display:flex; gap:8px; flex-wrap:wrap}
 }
 .input:focus, select:focus{box-shadow:var(--focus); border-color:transparent}
 
-/* ---------- Layout & cards ---------- */
+/* ===== Layout & cards ===== */
 main{padding: 28px 0 60px}
 .hero{display:grid; grid-template-columns: 1fr; gap:20px}
 .panel{background: var(--card); border:1px solid var(--hair); border-radius: var(--radius); box-shadow: var(--shadow)}
 .card{padding: clamp(16px, 2.2vw, 26px)}
-.title{font-size: clamp(1.3rem, 2.6vw, 2rem); margin:0 0 10px}
+.title{font-size: clamp(1.5rem, 3vw, 2.2rem); margin:0 0 10px}
 .subtitle{color:var(--muted); margin:0 0 18px}
 
 .grid{display:grid; grid-template-columns: repeat(4, 1fr); gap:14px}
 @media (max-width: 1000px){ .grid{grid-template-columns: repeat(2, 1fr)} }
 @media (max-width: 560px){ .grid{grid-template-columns: 1fr} }
 
+/* Targetes mòduls amb accents pastel alterns */
 .option{
   position:relative; overflow:hidden; padding:16px; border-radius:18px; cursor:pointer;
   border:1px solid var(--hair); transition:.2s;
-  background:linear-gradient(180deg, #fbfbfd, #f5f7fb);
+  background:linear-gradient(180deg, #ffffff, #f8fafc);
   box-shadow: var(--shadow);
 }
+.option::after{
+  content:""; position:absolute; inset:auto auto 0 0; height:6px; width:100%;
+  background: var(--p-blue); opacity:.35;
+}
+.option:nth-child(2)::after{ background: var(--p-mint); }
+.option:nth-child(3)::after{ background: var(--p-lilac); }
+.option:nth-child(4)::after{ background: var(--p-peach); }
+.option:nth-child(5)::after{ background: var(--p-yellow); }
+.option:nth-child(6)::after{ background: var(--p-rose); }
+.option:nth-child(7)::after{ background: var(--p-lilac); }
+.option:nth-child(8)::after{ background: var(--p-mint); }
+
 .option:hover{transform: translateY(-2px); border-color: #cbd5e1; background:#fff}
-.option h3{margin:8px 0 6px; font-size:1rem}
-.option p{margin:0; color:var(--muted); font-size:.9rem}
+.option h3{margin:8px 0 6px; font-size:1.05rem}
+.option p{margin:0; color:var(--muted); font-size:.92rem}
 
 .badge{
   font-size:.75rem; color:#0f172a; font-weight:800; letter-spacing:.3px;
+  padding:6px 10px; border-radius:999px; display:inline-block;
   background:#eef2ff; border:1px solid var(--hair);
-  padding:6px 10px; border-radius:999px; display:inline-block
 }
 
+/* Seccions */
 .section-title{margin: 18px 0 8px; font-size:1rem; color:var(--muted); letter-spacing:.3px}
 
-/* ---------- Controls ---------- */
+/* ===== Controls ===== */
 .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
 .controls .field{display:flex; align-items:center; gap:8px}
 .controls .group{display:flex; gap:8px; flex-wrap:wrap}
 
-/* NOVA ESTÈTICA només dins el panell de configuració */
+/* Nova estètica només dins Config */
 #cfg-specific .toggle {
   display:inline-flex; align-items:center; gap:10px;
   padding:8px 18px; margin:4px 9px 4px 0;
@@ -109,22 +144,22 @@ main{padding: 28px 0 60px}
 #cfg-specific .group{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:.7em }
 #cfg-specific .controls{ margin-bottom:1.1em }
 
-/* Fallback genèric de toggle (fora de config) */
+/* Fallback toggle genèric */
 .toggle{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--hair); border-radius:12px; background:#fff}
 .check{width:18px; height:18px}
 
-/* ---------- Buttons ---------- */
+/* ===== Buttons ===== */
 button{
   background:linear-gradient(135deg, var(--primary), #a5b4fc); color:#0f172a; border:0;
   padding:12px 14px; border-radius:14px; font-weight:800; cursor:pointer; box-shadow: var(--shadow); transition:.2s
 }
 button:hover{transform: translateY(-1px)}
-.btn-secondary{background:#eef2ff; border:1px solid var(--hair); color:#0f172a; font-weight:800}
+.btn-secondary{background:linear-gradient(180deg, #eef2ff, #e9efff); border:1px solid var(--hair); color:#0f172a; font-weight:800}
 .btn-ghost{background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700}
 
 .hidden{display:none}
 
-/* ---------- Quiz ---------- */
+/* ===== Quiz ===== */
 .quiz{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px}
 @media (max-width: 1000px){ .quiz{grid-template-columns: 1fr} }
 .q-header{display:flex; align-items:center; justify-content:space-between; gap:10px}
@@ -151,14 +186,14 @@ button:hover{transform: translateY(-1px)}
 .timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.2rem}
 .chip{border:1px solid var(--hair); color:var(--muted); padding:6px 10px; border-radius:999px; background:#fff}
 
-/* ---------- Results (taula) ---------- */
+/* ===== Results (taula) ===== */
 table{width:100%; border-collapse:collapse}
 th, td{padding:10px 12px; border-bottom:1px solid var(--hair); text-align:left}
 th{color:var(--muted); font-weight:800}
 tr:hover td{background: #f9fafb}
 .tbl-actions{display:flex; gap:8px}
 
-/* ---------- Analytics/Perfil (AÏLLAT a #view-results) ---------- */
+/* ===== Analytics/Perfil (aïllat a #view-results) ===== */
 #view-results .kpi-grid{
   display:grid; grid-template-columns: repeat(4, minmax(0,1fr));
   gap:12px; margin:10px 0 16px;
@@ -190,11 +225,11 @@ tr:hover td{background: #f9fafb}
 #view-results .chart-title{ color: var(--muted); font-size:.9rem; margin-bottom:8px }
 #view-results .chart-card svg{ width:100%; height:auto; display:block }
 
-/* ---------- Footer ---------- */
+/* ===== Footer ===== */
 footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
 .link{color:#6366f1; text-decoration:none}
 
-/* ---------- Utilitats ---------- */
+/* ===== Utilitats ===== */
 .pulse{animation:pulse 1.6s infinite}
 @keyframes pulse{0%{opacity:.4}50%{opacity:1}100%{opacity:.4}}
 .modal{position:fixed; inset:0; background:rgba(10,13,24,.25); backdrop-filter: blur(6px); display:grid; place-items:center; z-index:50}
@@ -206,3 +241,21 @@ footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
 }
 .fade-in{ animation: fade .45s ease both }
 @keyframes fade { from{opacity:0; transform: translateY(6px)} to{opacity:1; transform:none} }
+
+/* ======================================
+   STUDY MODE — afavoreix lectura/atenció
+   Activa-ho afegint la classe al <body>:
+   <body class="study-mode">
+   ====================================== */
+body.study-mode{
+  --shadow: 0 2px 10px rgba(27,30,40,.05);
+  scroll-behavior: smooth;
+}
+body.study-mode .card{ padding: clamp(18px, 2.6vw, 30px) }
+body.study-mode .title{ letter-spacing:.2px }
+body.study-mode .subtitle{ color:#475569 }
+body.study-mode .option{ transform: none !important }         /* menys distracció */
+body.study-mode .kbd{ background:#f1f5f9 }
+body.study-mode .input, body.study-mode select{ background:#f8fafc }
+body.study-mode .answer{ font-size:1.25rem }
+body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !important; }
