@@ -194,35 +194,43 @@ function openConfig(moduleId){
       </div>
     `;
   } else if(pendingModule.id === 'eq'){
-    /* ===== Configuració del mòdul Equacions ===== */
-    wrap.innerHTML = `
-      <div class="section-title">Equacions · Subtemes</div>
-      <div class="controls">
-        <div class="group" role="group" aria-label="Subtemes d'equacions">
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="lin" checked> 1) Primer grau (ax + b = 0)</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="quad"> 2) Segon grau (completes / incompletes)</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="sys"> 3) Sistemes 2x2</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="frac"> 4) Amb fraccions</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-sub" value="par"> 5) Amb parèntesis</label>
-        </div>
+  wrap.innerHTML = `
+    <div class="section-title">Equacions · Format</div>
+    <div class="controls">
+      <div class="group" role="group" aria-label="Format de les equacions">
+        <label class="toggle"><input class="check" type="radio" name="eq-format" value="normal" checked> Normals</label>
+        <label class="toggle"><input class="check" type="radio" name="eq-format" value="frac"> Amb fraccions</label>
+        <label class="toggle"><input class="check" type="radio" name="eq-format" value="par"> Amb parèntesis</label>
+        <label class="toggle"><input class="check" type="radio" name="eq-format" value="sys"> Sistemes d'equacions</label>
       </div>
+    </div>
 
-      <div class="section-title">Opcions</div>
-      <div class="controls">
-        <label class="field chip">Coeficients (rang)
-          <select id="eq-range">
-            <option value="small" selected>petits (−9…9)</option>
-            <option value="med">mitjans (−20…20)</option>
-            <option value="big">grans (−60…60)</option>
-          </select>
-        </label>
-        <label class="toggle"><input class="check" type="checkbox" id="eq-int-sol" checked> Força solucions enteres</label>
-        <label class="toggle"><input class="check" type="checkbox" id="eq-incomplete" checked> Inclou incompletes (només 2n grau)</label>
-        <label class="toggle"><input class="check" type="checkbox" id="eq-hints"> Mostrar pistes</label>
+    <div class="section-title">Grau de les equacions</div>
+    <div class="controls">
+      <div class="group" role="group" aria-label="Grau de les equacions">
+        <label class="toggle"><input class="check" type="radio" name="eq-degree" value="1" checked> 1r grau</label>
+        <label class="toggle"><input class="check" type="radio" name="eq-degree" value="2"> 2n grau</label>
+        <label class="toggle"><input class="check" type="radio" name="eq-degree" value="mixed"> Barrejats</label>
       </div>
+    </div>
 
-      <div class="subtitle">Format de resposta: <b>x=3</b> o <b>3</b>; per sistemes <b>(2, -1)</b> o <b>2,-1</b>; fraccions <b>3/4</b> o decimals.</div>
-    `;
+    <div class="section-title">Opcions</div>
+    <div class="controls">
+      <label class="field chip">Coeficients (rang)
+        <select id="eq-range">
+          <option value="small" selected>petits (−9…9)</option>
+          <option value="med">mitjans (−20…20)</option>
+          <option value="big">grans (−60…60)</option>
+        </select>
+      </label>
+      <label class="toggle"><input class="check" type="checkbox" id="eq-int-sol" checked> Força solucions enteres</label>
+      <label class="toggle"><input class="check" type="checkbox" id="eq-incomplete"> Inclou incompletes (només 2n grau)</label>
+      <label class="toggle"><input class="check" type="checkbox" id="eq-hints"> Mostrar pistes</label>
+    </div>
+
+    <div class="subtitle">Format de resposta: <b>x=3</b> o <b>3</b>; per sistemes <b>(2, -1)</b> o <b>2,-1</b>; fraccions <b>3/4</b> o decimals.</div>
+  `;
+}
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
