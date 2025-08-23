@@ -230,7 +230,6 @@ function openConfig(moduleId){
 
     <div class="subtitle">Format de resposta: <b>x=3</b> o <b>3</b>; per sistemes <b>(2, -1)</b> o <b>2,-1</b>; fraccions <b>3/4</b> o decimals.</div>
   `;
-}
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
