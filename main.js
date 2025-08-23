@@ -11,28 +11,25 @@ function showModal(contentHTML){
 
 function closeModal(){ const m = document.querySelector('.modal'); if(m) m.remove(); }
 
-const $  = (q) => document.querySelector(q);
+const $ = (q) => document.querySelector(q);
 const $$ = (q) => Array.from(document.querySelectorAll(q));
-
-const rng    = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
+const rng = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
 const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
-const clamp  = (x,a,b)=> Math.max(a, Math.min(b,x));
-
-const gcd = (a,b)=>{ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a||1; };
-
-const simplifyFrac = (n,d)=>{ const g=gcd(n,d); return [n/g, d/g]; };
+const clamp = (x,a,b)=> Math.max(a, Math.min(b,x));
+const gcd = (a,b)=>{ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b] } return a||1 };
+const simplifyFrac = (n,d)=>{ const g=gcd(n,d); return [n/g, d/g] };
 
 const store = {
-  get k(){ return 'focus-math-results-v1'; },
-  all(){ try{ return JSON.parse(localStorage.getItem(this.k)||'[]'); }catch{ return []; } },
-  save(entry){ const all=this.all(); all.push(entry); localStorage.setItem(this.k, JSON.stringify(all)); },
-  clear(){ localStorage.removeItem(this.k); }
+  get k(){ return 'focus-math-results-v1' },
+  all(){ try{ return JSON.parse(localStorage.getItem(this.k)||'[]') }catch{ return [] } },
+  save(entry){ const all=this.all(); all.push(entry); localStorage.setItem(this.k, JSON.stringify(all)) },
+  clear(){ localStorage.removeItem(this.k) }
 };
 
 const fmtTime = (sec)=>{
   const m = Math.floor(sec/60), s = sec%60;
   return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-};
+}
 
 /* ===================== APP STATE ===================== */
 
@@ -44,7 +41,7 @@ const MODULES = [
   { id:'stats', name:'Estadística bàsica', desc:'Mitjana/mediana/moda, rang/desviació i gràfics.', badge:'Dades', gen: genStats },
   { id:'units', name:'Unitats i conversions', desc:'Longitud, massa, volum, superfície i temps.', badge:'Mesures', gen: genUnits },
   { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', badge:'Àlgebra', gen: genEq },
-  { id:'func',  name:'Estudi de funcions', desc:'Identificar tipus, domini, recorregut, punts de tall, simetria, límits, extrems relatius i monotonia.', badge:'Funcions', gen: genFunctions },
+  { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', badge:'Funcions', gen: genFunctions },
 ];
 
 let pendingModule = null; // mòdul seleccionat per configurar
@@ -76,25 +73,24 @@ function buildHome(){
   const fm = $('#filter-module');
   fm.innerHTML = `<option value="">Tots</option>` + MODULES.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
 
-  // nivells 1..20
+  // nivells 1..4
   const sl = $('#cfg-level');
-  sl.innerHTML = Array.from({length:20},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+  sl.innerHTML = Array.from({length:4},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
   sl.value = DEFAULTS.level;
 }
 
 function openConfig(moduleId){
   pendingModule = MODULES.find(m=>m.id===moduleId) || MODULES[0];
-
   $('#cfg-title').textContent = `Configura: ${pendingModule.name}`;
-  $('#cfg-desc').textContent  = pendingModule.desc;
+  $('#cfg-desc').textContent = pendingModule.desc;
 
   // valors per defecte
   $('#cfg-count').value = DEFAULTS.count;
-  $('#cfg-time').value  = DEFAULTS.time;
+  $('#cfg-time').value = DEFAULTS.time;
   $('#cfg-level').value = DEFAULTS.level;
 
   // Opcions específiques
-  const box  = document.createElement('div');
+  const box = document.createElement('div');
   box.className = 'card';
   const wrap = document.createElement('div');
 
@@ -204,76 +200,77 @@ function openConfig(moduleId){
     `;
   } else if(pendingModule.id === 'eq'){
     wrap.innerHTML = `
-      <div class="section-title">Equacions · Format</div>
-      <div class="controls">
-        <div class="group" role="group" aria-label="Format de les equacions">
-          <label class="toggle"><input class="check" type="radio" name="eq-format" value="normal" checked> Normals</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-format" value="frac"> Amb fraccions</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-format" value="par"> Amb parèntesis</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-format" value="sys"> Sistemes d'equacions</label>
-        </div>
-      </div>
+<div class="section-title">Equacions · Format</div>
+<div class="controls">
+  <div class="group" role="group" aria-label="Format de les equacions">
+    <label class="toggle"><input class="check" type="radio" name="eq-format" value="normal" checked> Normals</label>
+    <label class="toggle"><input class="check" type="radio" name="eq-format" value="frac"> Amb fraccions</label>
+    <label class="toggle"><input class="check" type="radio" name="eq-format" value="par"> Amb parèntesis</label>
+    <label class="toggle"><input class="check" type="radio" name="eq-format" value="sys"> Sistemes d'equacions</label>
+  </div>
+</div>
 
-      <div class="section-title">Grau de les equacions</div>
-      <div class="controls">
-        <div class="group" role="group" aria-label="Grau de les equacions">
-          <label class="toggle"><input class="check" type="radio" name="eq-degree" value="1" checked> 1r grau</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-degree" value="2"> 2n grau</label>
-          <label class="toggle"><input class="check" type="radio" name="eq-degree" value="mixed"> Barrejats</label>
-        </div>
-      </div>
+<div class="section-title">Grau de les equacions</div>
+<div class="controls">
+  <div class="group" role="group" aria-label="Grau de les equacions">
+    <label class="toggle"><input class="check" type="radio" name="eq-degree" value="1" checked> 1r grau</label>
+    <label class="toggle"><input class="check" type="radio" name="eq-degree" value="2"> 2n grau</label>
+    <label class="toggle"><input class="check" type="radio" name="eq-degree" value="mixed"> Barrejats</label>
+  </div>
+</div>
 
-      <div class="section-title">Opcions</div>
-      <div class="controls">
-        <label class="field chip">Coeficients (rang)
-          <select id="eq-range">
-            <option value="small" selected>petits (−9…9)</option>
-            <option value="med">mitjans (−20…20)</option>
-            <option value="big">grans (−60…60)</option>
-          </select>
-        </label>
-        <label class="toggle"><input class="check" type="checkbox" id="eq-int-sol" checked> Força solucions enteres</label>
-        <label class="toggle"><input class="check" type="checkbox" id="eq-incomplete"> Inclou incompletes (només 2n grau)</label>
-        <label class="toggle"><input class="check" type="checkbox" id="eq-hints"> Mostrar pistes</label>
-      </div>
+<div class="section-title">Opcions</div>
+<div class="controls">
+  <label class="field chip">Coeficients (rang)
+    <select id="eq-range">
+      <option value="small" selected>petits (−9…9)</option>
+      <option value="med">mitjans (−20…20)</option>
+      <option value="big">grans (−60…60)</option>
+    </select>
+  </label>
+  <label class="toggle"><input class="check" type="checkbox" id="eq-int-sol" checked> Força solucions enteres</label>
+  <label class="toggle"><input class="check" type="checkbox" id="eq-incomplete"> Inclou incompletes (només 2n grau)</label>
+  <label class="toggle"><input class="check" type="checkbox" id="eq-hints"> Mostrar pistes</label>
+</div>
 
-      <div class="subtitle">Format de resposta: <b>x=3</b> o <b>3</b>; per sistemes <b>(2, -1)</b> o <b>2,-1</b>; fraccions <b>3/4</b> o decimals.</div>
-    `;
+<div class="subtitle">Format de resposta: <b>x=3</b> o <b>3</b>; per sistemes <b>(2, -1)</b> o <b>2,-1</b>; fraccions <b>3/4</b> o decimals.</div>
+`;
   } else if(pendingModule.id === 'func'){
     wrap.innerHTML = `
-      <div class="section-title">Estudi de funcions</div>
-      <div class="controls">
-        <div class="group" role="group" aria-label="Tipus de funcions">
-          <label class="toggle"><input class="check" type="checkbox" id="f-lin" checked> Lineals</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-quad" checked> Quadràtiques</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-poly" checked> Polinòmiques</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-rac" checked> Racionals</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-rad" checked> Radicals</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-exp" checked> Exponencials</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-log" checked> Logarítmiques</label>
-        </div>
-      </div>
-      <div class="controls">
-        <div class="group" role="group" aria-label="Aspectes a estudiar">
-          <label class="toggle"><input class="check" type="checkbox" id="f-type" checked> Identificar tipus</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-domain"> Domini i recorregut</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-intercepts"> Punts de tall</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-symmetry"> Simetria</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-limits"> Límits</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-extrema"> Extrems relatius</label>
-          <label class="toggle"><input class="check" type="checkbox" id="f-monotony"> Monotonia</label>
-        </div>
-      </div>
-      <div class="controls">
-        <label class="field chip">Dificultat
-          <select id="func-diff">
-            <option value="1" selected>Bàsic</option>
-            <option value="2">Intermedi</option>
-            <option value="3">Avançat</option>
-          </select>
-        </label>
-      </div>
-    `;
+<div class="section-title">Estudi de funcions</div>
+<div class="controls">
+  <div class="group" role="group" aria-label="Tipus de funcions">
+    <label class="toggle"><input class="check" type="checkbox" id="f-lin" checked> Lineals</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-quad" checked> Quadràtiques</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-poly" checked> Polinòmiques</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-rac" checked> Racionals</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-rad" checked> Radicals</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-exp" checked> Exponencials</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-log" checked> Logarítmiques</label>
+  </div>
+</div>
+<div class="controls">
+  <div class="group" role="group" aria-label="Aspectes a estudiar">
+    <label class="toggle"><input class="check" type="checkbox" id="f-type" checked> Identificar tipus</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-domain"> Domini i recorregut</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-intercepts"> Punts de tall</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-symmetry"> Simetria</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-limits"> Límits</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-extrema"> Extrems relatius</label>
+    <label class="toggle"><input class="check" type="checkbox" id="f-monotony"> Monotonia</label>
+  </div>
+</div>
+<div class="controls">
+  <label class="field chip">Dificultat
+    <select id="func-diff">
+      <option value="1" selected>Bàsic</option>
+      <option value="2">Intermedi</option>
+      <option value="3">Avançat</option>
+      <option value="4">Expert</option>
+    </select>
+  </label>
+</div>
+`;
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -288,34 +285,31 @@ function openConfig(moduleId){
 
 function startFromConfig(){
   if(!pendingModule) return;
-
   const count = parseInt($('#cfg-count').value||DEFAULTS.count);
-  const time  = parseInt($('#cfg-time').value||0);
+  const time = parseInt($('#cfg-time').value||0);
   const level = parseInt($('#cfg-level').value||1);
   const options = {};
 
   if(pendingModule.id==='arith'){
     const ops = [];
-    if($('#op-plus').checked)  ops.push('+');
+    if($('#op-plus').checked) ops.push('+');
     if($('#op-minus').checked) ops.push('-');
     if($('#op-times').checked) ops.push('×');
-    if($('#op-div').checked)   ops.push('÷');
+    if($('#op-div').checked) ops.push('÷');
     if(!ops.length){ alert('Selecciona almenys una operació.'); return; }
     options.ops = ops;
     options.allowNeg = !!$('#allow-neg').checked;
     options.tri = !!$('#tri-numbers').checked;
-
   } else if(pendingModule.id==='frac'){
     const sub = document.querySelector('input[name="frac-sub"]:checked')?.value || 'identify';
     options.sub = sub;
-    options.mixedGrids   = !!$('#frac-mixed-grids')?.checked;
+    options.mixedGrids = !!$('#frac-mixed-grids')?.checked;
     options.forceSimplest = !!$('#frac-force-simplest')?.checked;
-
   } else if(pendingModule.id==='geom'){
     options.scope = document.querySelector('input[name="geom-scope"]:checked')?.value || 'area';
     options.fig = {
       rect: !!$('#g-rect')?.checked,
-      tri:  !!$('#g-tri')?.checked,
+      tri: !!$('#g-tri')?.checked,
       circ: !!$('#g-circ')?.checked,
       poly: !!$('#g-poly')?.checked,
       grid: !!$('#g-grid')?.checked,
@@ -325,43 +319,39 @@ function startFromConfig(){
     };
     options.units = $('#geom-units').value || 'cm';
     options.round = parseInt($('#geom-round').value||'2');
-    options.circleMode   = $('#geom-circle-mode').value || 'numeric';
+    options.circleMode = $('#geom-circle-mode').value || 'numeric';
     options.requireUnits = !!$('#geom-require-units')?.checked;
-
   } else if(pendingModule.id==='stats'){
-    options.sub   = document.querySelector('input[name="stats-sub"]:checked')?.value || 'mmm';
+    options.sub = document.querySelector('input[name="stats-sub"]:checked')?.value || 'mmm';
     options.round = parseInt($('#stats-round').value || '2');
-
   } else if(pendingModule.id==='units'){
-    options.sub   = document.querySelector('input[name="units-sub"]:checked')?.value || 'length';
+    options.sub = document.querySelector('input[name="units-sub"]:checked')?.value || 'length';
     options.round = parseInt($('#units-round').value || '2');
-
   } else if(pendingModule.id==='eq'){
     options.format = document.querySelector('input[name="eq-format"]:checked')?.value || 'normal';
     options.degree = document.querySelector('input[name="eq-degree"]:checked')?.value || '1';
-    options.range  = ($('#eq-range').value || 'small');
-    options.forceInt       = !!$('#eq-int-sol')?.checked;
-    options.allowIncomplete= !!$('#eq-incomplete')?.checked;
-    options.hints          = !!$('#eq-hints')?.checked;
-
+    options.range = ($('#eq-range').value || 'small');
+    options.forceInt = !!$('#eq-int-sol')?.checked;
+    options.allowIncomplete = !!$('#eq-incomplete')?.checked;
+    options.hints = !!$('#eq-hints')?.checked;
   } else if(pendingModule.id==='func'){
     options.types = {
-      lin:  !!$('#f-lin')?.checked,
+      lin: !!$('#f-lin')?.checked,
       quad: !!$('#f-quad')?.checked,
       poly: !!$('#f-poly')?.checked,
-      rac:  !!$('#f-rac')?.checked,
-      rad:  !!$('#f-rad')?.checked,
-      exp:  !!$('#f-exp')?.checked,
-      log:  !!$('#f-log')?.checked
+      rac: !!$('#f-rac')?.checked,
+      rad: !!$('#f-rad')?.checked,
+      exp: !!$('#f-exp')?.checked,
+      log: !!$('#f-log')?.checked
     };
     options.aspects = {
-      type:      !!$('#f-type')?.checked,
-      domain:    !!$('#f-domain')?.checked,
-      intercepts:!!$('#f-intercepts')?.checked,
-      symmetry:  !!$('#f-symmetry')?.checked,
-      limits:    !!$('#f-limits')?.checked,
-      extrema:   !!$('#f-extrema')?.checked,
-      monotony:  !!$('#f-monotony')?.checked
+      type: !!$('#f-type')?.checked,
+      domain: !!$('#f-domain')?.checked,
+      intercepts: !!$('#f-intercepts')?.checked,
+      symmetry: !!$('#f-symmetry')?.checked,
+      limits: !!$('#f-limits')?.checked,
+      extrema: !!$('#f-extrema')?.checked,
+      monotony: !!$('#f-monotony')?.checked
     };
     options.difficulty = parseInt($('#func-diff').value || '1');
   }
@@ -374,8 +364,8 @@ function startFromConfig(){
 function startQuiz(moduleId, cfg){
   const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
   const count = clamp(parseInt(cfg.count)||10, 1, 200);
-  const time  = clamp(parseInt(cfg.time)||0, 0, 180);
-  const level = clamp(parseInt(cfg.level)||1, 1, 20);
+  const time = clamp(parseInt(cfg.time)||0, 0, 180);
+  const level = clamp(parseInt(cfg.level)||1, 1, 4);
 
   session = {
     module: moduleId,
@@ -392,14 +382,12 @@ function startQuiz(moduleId, cfg){
   for(let i=0;i<count;i++) session.questions.push(module.gen(level, session.options));
 
   $('#qModule').textContent = module.name;
-  $('#qLevel').textContent  = `Nivell ${level}`;
-  $('#feedback').innerHTML  = '';
-  $('#answer').value = '';
-
+  $('#qLevel').textContent = `Nivell ${level}`;
+  $('#feedback').innerHTML='';
+  $('#answer').value='';
   updateProgress();
   showView('quiz');
   renderQuestion();
-
   stopTimer();
   if(time>0) startTimer(); else $('#timer').textContent='Sense límit';
   $('#answer').focus();
@@ -408,7 +396,6 @@ function startQuiz(moduleId, cfg){
 // Nova: començar amb preguntes existents (repàs d'errors)
 function startQuizFromExisting(moduleId, options, questions){
   const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
-
   session = {
     module: moduleId,
     count: questions.length,
@@ -422,12 +409,10 @@ function startQuizFromExisting(moduleId, options, questions){
     questions: questions.map(q=>({ type:q.type, text:q.text, title:q.title, html:q.html, answer:q.answer, meta:q.meta, numeric:q.numeric, piCoef:q.piCoef, sol:q.sol, sols:q.sols })),
     options: options || {}
   };
-
   $('#qModule').textContent = module.name + ' (repàs d\'errors)';
-  $('#qLevel').textContent  = 'Personalitzat';
-  $('#feedback').innerHTML  = '';
-  $('#answer').value = '';
-
+  $('#qLevel').textContent = 'Personalitzat';
+  $('#feedback').innerHTML='';
+  $('#answer').value='';
   updateProgress();
   showView('quiz');
   renderQuestion();
@@ -438,8 +423,8 @@ function startQuizFromExisting(moduleId, options, questions){
 function renderQuestion(){
   const q = session.questions[session.idx];
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
-  $('#qText').innerHTML   = q.title || q.text;
-  $('#qMedia').innerHTML  = q.html ? `<div class="fade-in">${q.html}</div>` : '';
+  $('#qText').innerHTML = q.title || q.text;
+  $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value='';
   $('#feedback').innerHTML='';
 }
@@ -460,6 +445,7 @@ function startTimer(){
     }
   }, 1000);
 }
+
 function stopTimer(){ if(timerHandle) clearInterval(timerHandle); timerHandle=null; }
 
 /* ===================== CHECK ANSWER ===================== */
@@ -470,7 +456,7 @@ function equalsTol(a,b,eps=1e-6){ return Math.abs(a-b) <= eps; }
 function parsePiAnswer(raw){
   const s = String(raw).trim().toLowerCase().replace(/\s+/g,'');
   const replaced = s.replace('×','*').replace(/\*/g,'');
-  if(replaced.includes('π'))  return parseFloat(replaced.replace('π',''));
+  if(replaced.includes('π')) return parseFloat(replaced.replace('π',''));
   if(replaced.includes('pi')) return parseFloat(replaced.replace('pi',''));
   return NaN;
 }
@@ -500,7 +486,7 @@ function parseFrac(str){
     const [ns, ds] = s.split('/');
     return normFrac(parseInt(ns,10), parseInt(ds,10));
   }
-  if(/^-?\d+(?:\.\d+)?$/.test(s)){
+  if(/^-?\d+(\.\d+)?$/.test(s)){
     const num = parseFloat(s);
     const k = (s.split('.')[1]||'').length;
     const den = Math.pow(10, k);
@@ -527,10 +513,10 @@ function parseNumberOrFrac(s){
 
 function parsePair(raw){
   const s = String(raw).trim()
-  .replace(/\s+/g,'')
-  .replace(/[()]/g,'')
-  .replace(/x=/gi,'').replace(/y=/gi,'')
-  .replace(/;/g,',');
+    .replace(/\s+/g,'')
+    .replace(/[()]/g,'')
+    .replace(/x=/gi,'').replace(/y=/gi,'')
+    .replace(/;/g,',');
   const parts = s.split(',');
   if(parts.length!==2) return [NaN, NaN];
   return [parseNumberOrFrac(parts[0]), parseNumberOrFrac(parts[1])];
@@ -538,10 +524,10 @@ function parsePair(raw){
 
 function rootsFromRaw(raw){
   const s = String(raw).trim()
-  .replace(/\s+/g,'')
-  .replace(/[()]/g,'')
-  .replace(/x1=|x2=|x=|r1=|r2=/gi,'')
-  .replace(/;/g,',');
+    .replace(/\s+/g,'')
+    .replace(/[()]/g,'')
+    .replace(/x1=|x2=|x=|r1=|r2=/gi,'')
+    .replace(/;/g,',');
   const parts = s.split(',');
   if(parts.length===1){
     const v = parseNumberOrFrac(parts[0]);
@@ -551,8 +537,7 @@ function rootsFromRaw(raw){
 }
 
 function checkAnswer(){
-  if(!session || session.done){ flashFeedback('Prova finalitzada. Torna a Inici.'); return; }
-
+  if(!session || session.done){ flashFeedback('Prova finalitzada. Torna a Inici.'); return }
   const q = session.questions[session.idx];
   const raw = $('#answer').value.trim();
   if(raw==='') { flashFeedback('Escriu una resposta o prem Omet.', 'warn'); return; }
@@ -633,7 +618,7 @@ function checkAnswer(){
     }
   }
 
-  // Sistemes 2x2
+  // Sistemes 2x2: resposta com (x,y); també casos especials
   else if(q.type === 'eq-sys'){
     const [ux, uy] = parsePair(raw);
     ok = Number.isFinite(ux) && Number.isFinite(uy) &&
@@ -661,12 +646,14 @@ function checkAnswer(){
   else if(q.type && q.type.startsWith('func-')){
     const userAnswer = raw.toLowerCase()
       .replace(/\s+/g, ' ')
-      .normalize('NFD').replace(/[\u0300-\u036f]/g,'') // treu accents
+      .replace(/á/gi, 'a').replace(/é/gi, 'e').replace(/í/gi, 'i').replace(/ó/gi, 'o').replace(/ú/gi, 'u')
+      .replace(/à/gi, 'a').replace(/è/gi, 'e').replace(/ì/gi, 'i').replace(/ò/gi, 'o').replace(/ù/gi, 'u')
       .trim();
 
     const correctAnswer = String(q.answer).toLowerCase()
       .replace(/\s+/g, ' ')
-      .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .replace(/á/gi, 'a').replace(/é/gi, 'e').replace(/í/gi, 'i').replace(/ó/gi, 'o').replace(/ú/gi, 'u')
+      .replace(/à/gi, 'a').replace(/è/gi, 'e').replace(/ì/gi, 'i').replace(/ò/gi, 'o').replace(/ù/gi, 'u')
       .trim();
 
     ok = userAnswer === correctAnswer;
@@ -697,17 +684,17 @@ function checkAnswer(){
 
   session.idx++;
   updateProgress();
-  if(session.idx>=session.count){ finishQuiz(false); }
+  if(session.idx>=session.count){ finishQuiz(false) }
   else renderQuestion();
 }
 
 function skip(){
-  if(!session || session.done){ flashFeedback('Prova finalitzada. Torna a Inici.'); return; }
+  if(!session || session.done){ flashFeedback('Prova finalitzada. Torna a Inici.'); return }
   const q = session.questions[session.idx];
   session.wrongs.push({ ...q, user: '— (omet)' });
   session.idx++;
   updateProgress();
-  if(session.idx>=session.count){ finishQuiz(false); }
+  if(session.idx>=session.count){ finishQuiz(false) }
   else renderQuestion();
 }
 
@@ -717,7 +704,7 @@ function feedback(isOk, msg){
 
 function flashFeedback(msg, type='warn'){
   const color = type==='warn'? 'var(--warn)':'#fecaca';
-  const bg    = type==='warn'? '#fffbeb':'#fff1f2';
+  const bg = type==='warn'? '#fffbeb':'#fff1f2';
   $('#feedback').innerHTML = `<div class="feedback" style="background:${bg};border-color:${color};color:#78350f">${msg}</div>`;
 }
 
@@ -749,28 +736,27 @@ function finishQuiz(timeUp){
   });
 
   session.done = true;
-
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
   const html = `
-    <h3 style="margin-top:0">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
-    <p class="subtitle">${name} · ${MODULES.find(m=>m.id===session.module).name} · Nivell ${session.level}</p>
-    <div class="row" style="align-items:flex-end; gap:16px">
-      <div>
-        <div class="section-title">Resultat</div>
-        <div style="font-size:2.2rem; font-weight:900">${score}%</div>
-        <div class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</div>
-        <div class="controls" style="margin-top:10px; flex-wrap:wrap">
-          ${wrongsBtn}
-          <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
-          <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
-          <button class="btn-ghost" onclick="closeModal()">Tanca</button>
-        </div>
-      </div>
-      <div style="flex:1"></div>
+<h3 style="margin-top:0">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
+<p class="subtitle">${name} · ${MODULES.find(m=>m.id===session.module).name} · Nivell ${session.level}</p>
+<div class="row" style="align-items:flex-end; gap:16px">
+  <div>
+    <div class="section-title">Resultat</div>
+    <div style="font-size:2.2rem; font-weight:900">${score}%</div>
+    <div class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</div>
+    <div class="controls" style="margin-top:10px; flex-wrap:wrap">
+      ${wrongsBtn}
+      <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
+      <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
+      <button class="btn-ghost" onclick="closeModal()">Tanca</button>
     </div>
-    <div class="section-title">Errors i correccions</div>
-    ${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
-  `;
+  </div>
+  <div style="flex:1"></div>
+</div>
+<div class="section-title">Errors i correccions</div>
+${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
+`;
   showModal(html);
 }
 
@@ -785,37 +771,43 @@ function redoWrongs(){
 
 function renderWrongs(wr){
   return `<table><thead><tr><th>#</th><th>Pregunta</th><th>La teva</th><th>Correcta</th></tr></thead><tbody>`+
-    wr.map((w,i)=>`<tr><td>${i+1}</td><td>${w.text}</td><td>${w.user}</td><td>${fmtAns(w.answer)}</td></tr>`).join('')+
-    `</tbody></table>`;
+  wr.map((w,i)=>`<tr><td>${i+1}</td><td>${w.text}</td><td>${w.user}</td><td>${fmtAns(w.answer)}</td></tr>`).join('')+
+  `</tbody></table>`;
 }
 
 /* ===================== GENERADORS ===================== */
 
-// Helper: mapeig de nivell (1–20) a rangs aritmètics
+/* ===== Sistema de nivells 1..4 ===== */
+
+// Rang bàsic per aritmètica (i altres que el facin servir)
 function levelRange(level){
-  const t = clamp(level,1,20);
-  const max = Math.round(10 + t*9.5); // 1≈20, 20≈200
-  return [-Math.floor(max/3), max];
+  const L = clamp(level,1,4);
+  // màxims aproximats de l’operand: 1→20, 2→50, 3→120, 4→200
+  const maxes = [0, 20, 50, 120, 200];
+  const max = maxes[L];
+  return [-Math.floor(max/3), max]; // si allowNeg=false ja es talla a 0..max
 }
 
 /* ===== Aritmètica ===== */
 
 function genArith(level, opts={}){
   const allowNeg = !!opts.allowNeg;
-  const tri      = !!opts.tri;
+  const tri = !!opts.tri;
   const ops = (opts.ops && opts.ops.length)? opts.ops : ['+','-','×','÷'];
   const [mn, mx] = levelRange(level);
   const low = allowNeg ? mn : 0;
 
-  const a = rng(low, mx), b = rng(low, mx);
-  const op = choice(ops);
-
-  function makeDivisible(xmin, xmax){
-    let y = rng(1, 12);
-    let x = Math.abs(rng(xmin, xmax));
-    const prod = y * rng(1, 12);
+  function makeDivisible(xmin, xmax, lvl=1){
+    const L = clamp(lvl,1,4);
+    const maxDiv = [0,14,20,30,40][L]; // divisor més gran a nivells alts
+    const y = rng(2, maxDiv);
+    const mult = rng(2, 8 + 4*L);      // fa el dividend més gran
+    const prod = y * mult;
     return [prod, y];
   }
+
+  const a = rng(low, mx), b = rng(low, mx);
+  const op = choice(ops);
 
   let text, ans;
 
@@ -824,14 +816,14 @@ function genArith(level, opts={}){
     let expOp1 = op;
     let expOp2 = choice(ops);
     let x=a, y=b, z=c;
-    if(expOp1==='÷'){ [x,y] = makeDivisible(low, mx); }
-    if(expOp2==='÷'){ [y,z] = makeDivisible(low, mx); }
+    if(expOp1==='÷'){ [x,y] = makeDivisible(low, mx, level); }
+    if(expOp2==='÷'){ [y,z] = makeDivisible(low, mx, level); }
     text = `${x} ${expOp1} ${y} ${expOp2} ${z} = ?`;
     ans = evalArith(x, expOp1, y);
     ans = evalArith(ans, expOp2, z);
   } else {
     let x=a, y=b, expOp = op;
-    if(expOp==='÷'){ [x,y] = makeDivisible(low, mx); }
+    if(expOp==='÷'){ [x,y] = makeDivisible(low, mx, level); }
     text = `${x} ${expOp} ${y} = ?`;
     ans = evalArith(x, expOp, y);
   }
@@ -857,7 +849,8 @@ function mulFrac(a,b){ return normFrac(a[0]*b[0], a[1]*b[1]); }
 function divFrac(a,b){ return normFrac(a[0]*b[1], a[1]*b[0]); }
 
 function svgGridFraction(cols, rows, filled){
-  const w=300, h=160, pad=10, pad2=pad*2;
+  const w=300, h=160, pad=10;
+  const pad2 = pad*2;
   const cellW = (w - pad2)/cols, cellH = (h - pad2)/rows;
   const total = cols*rows;
   filled = Math.max(0, Math.min(filled, total));
@@ -875,13 +868,13 @@ function svgGridFraction(cols, rows, filled){
   }
   return `
     <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Parts ombrejades d'una fracció"><defs>
-      <linearGradient id="fillGrad" x1="0" x2="1">
-        <stop offset="0" stop-color="#a7f3d0"/><stop offset="1" stop-color="#7dd3fc"/>
-      </linearGradient>
-    </defs>
-    <rect x="0" y="0" width="${w}" height="${h}" fill="#f9fafb" rx="14" ry="14" />
-    ${rects}
-    </svg>`;
+    <linearGradient id="fillGrad" x1="0" x2="1">
+      <stop offset="0" stop-color="#a7f3d0"/><stop offset="1" stop-color="#7dd3fc"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="${w}" height="${h}" fill="#f9fafb" rx="14" ry="14" />
+  ${rects}
+  </svg>`;
 }
 
 function svgBarFraction(segments, filled){
@@ -898,13 +891,13 @@ function svgBarFraction(segments, filled){
   }
   return `
     <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Barra segmentada per fraccions"><defs>
-      <linearGradient id="barGrad" x1="0" x2="1">
-        <stop offset="0" stop-color="#fcd34d"/><stop offset="1" stop-color="#a7f3d0"/>
-      </linearGradient>
-    </defs>
-    <rect x="0" y="0" width="${w}" height="${h}" fill="#f9fafb" rx="14" ry="14" />
-    ${rects}
-    </svg>`;
+    <linearGradient id="barGrad" x1="0" x2="1">
+      <stop offset="0" stop-color="#fcd34d"/><stop offset="1" stop-color="#a7f3d0"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="${w}" height="${h}" fill="#f9fafb" rx="14" ry="14" />
+  ${rects}
+  </svg>`;
 }
 
 function svgPieFraction(segments, filled){
@@ -928,13 +921,13 @@ function svgPieFraction(segments, filled){
   }
   return `
     <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Pastís segmentat per fraccions" style="display:block;margin:auto"><defs>
-      <linearGradient id="pieGrad" x1="0" x2="1">
-        <stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#a7f3d0"/>
-      </linearGradient>
-    </defs>
-    <rect x="0" y="0" width="${size}" height="${size}" fill="#f9fafc" rx="16" ry="16" />
-    ${paths}
-    </svg>`;
+    <linearGradient id="pieGrad" x1="0" x2="1">
+      <stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#a7f3d0"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="${size}" height="${size}" fill="#f9fafc" rx="16" ry="16" />
+  ${paths}
+  </svg>`;
 }
 
 function genFracIdentify(level, opts={}){
@@ -978,7 +971,10 @@ function genFracArithmetic(level, opts={}){
 function genFracSimplify(level, opts={}){
   let n = rng(2, 30), d = rng(2, 30); if(n===d) d++;
   const [sn, sd] = normFrac(n, d);
-  if(sn===n && sd===d){ n = n*2; d = d*2; }
+  if(sn===n && sd===d){ // força a tenir simplificació
+    const n2 = n+1, d2 = d+2;
+    n = n2; d = d2;
+  }
   const [fn, fd] = normFrac(n, d);
   return { type:'frac-simplify', text:`Simplifica: ${n}/${d}`, answer: `${fn}/${fd}` };
 }
@@ -1015,15 +1011,15 @@ function svgRectFig(b,h,units){
   const x=90, y=50, w=200, hh=110;
   return `
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Rectangle"><defs>
-      <linearGradient id="rectGrad" x1="0" x2="1"><stop offset="0" stop-color="#a7f3d0"/><stop offset="1" stop-color="#93c5fd"/></linearGradient>
-    </defs>
-    <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="${rx}" ry="${rx}" fill="#f8fafc" />
-    <rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="url(#rectGrad)" stroke="#64748b">
-      <animate attributeName="opacity" from="0" to="1" dur=".3s" fill="freeze"/>
-    </rect>
-    ${dimLineOutside(x, y+hh, x+w, y+hh, `base = ${b} ${units}`, 20, 'h')}
-    ${dimLineOutside(x, y, x, y+hh, `alçada = ${h} ${units}`, 24, 'v')}
-    </svg>`;
+    <linearGradient id="rectGrad" x1="0" x2="1"><stop offset="0" stop-color="#a7f3d0"/><stop offset="1" stop-color="#93c5fd"/></linearGradient>
+  </defs>
+  <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="${rx}" ry="${rx}" fill="#f8fafc" />
+  <rect x="${x}" y="${y}" width="${w}" height="${hh}" fill="url(#rectGrad)" stroke="#64748b">
+    <animate attributeName="opacity" from="0" to="1" dur=".3s" fill="freeze"/>
+  </rect>
+  ${dimLineOutside(x, y+hh, x+w, y+hh, `base = ${b} ${units}`, 20, 'h')}
+  ${dimLineOutside(x, y, x, y+hh, `alçada = ${h} ${units}`, 24, 'v')}
+  </svg>`;
 }
 
 function svgTriFig(b,h,units){
@@ -1032,35 +1028,35 @@ function svgTriFig(b,h,units){
   const Hx=180, Hy=180;
   return `
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Triangle"><defs>
-      <linearGradient id="triGrad" x1="0" x2="1"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#a7f3d0"/></linearGradient>
-    </defs>
-    <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="${rx}" ry="${rx}" fill="#f8fafc" />
-    <polygon points="${A[0]},${A[1]} ${B[0]},${B[1]} ${C[0]},${C[1]}" fill="url(#triGrad)" stroke="#64748b"/>
-    <line x1="${C[0]}" y1="${C[1]}" x2="${Hx}" y2="${Hy}" stroke="#1f2937" stroke-dasharray="3 3"/>
-    ${labelText(Hx+6, (C[1]+Hy)/2, `altura = ${h} ${units}`)}
-    ${dimLineOutside(A[0], B[1], B[0], B[1], `base = ${b} ${units}`, 18, 'h')}
-    </svg>`;
+    <linearGradient id="triGrad" x1="0" x2="1"><stop offset="0" stop-color="#fde68a"/><stop offset="1" stop-color="#a7f3d0"/></linearGradient>
+  </defs>
+  <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="${rx}" ry="${rx}" fill="#f8fafc" />
+  <polygon points="${A[0]},${A[1]} ${B[0]},${B[1]} ${C[0]},${C[1]}" fill="url(#triGrad)" stroke="#64748b"/>
+  <line x1="${C[0]}" y1="${C[1]}" x2="${Hx}" y2="${Hy}" stroke="#1f2937" stroke-dasharray="3 3"/>
+  ${labelText(Hx+6, (C[1]+Hy)/2, `altura = ${h} ${units}`)}
+  ${dimLineOutside(A[0], B[1], B[0], B[1], `base = ${b} ${units}`, 18, 'h')}
+  </svg>`;
 }
 
 function svgCircleFig(labelTextStr){
   const size=220, pad=12, cx=size/2, cy=size/2, R=size/2 - pad - 8;
   return `
     <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Cercle" style="display:block;margin:auto"><defs>
-      <radialGradient id="circGrad"><stop offset="0" stop-color="#e9d5ff"/><stop offset="1" stop-color="#93c5fd"/></radialGradient>
-    </defs>
-    <rect x="0" y="0" width="${size}" height="${size}" fill="#f8fafc" rx="18" ry="18" />
-    <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#circGrad)" stroke="#64748b">
-      <animate attributeName="r" from="${R*0.6}" to="${R}" dur=".35s" fill="freeze"/>
-    </circle>
-    ${labelText(cx, size-10, labelTextStr)}
-    </svg>`;
+    <radialGradient id="circGrad"><stop offset="0" stop-color="#e9d5ff"/><stop offset="1" stop-color="#93c5fd"/></radialGradient>
+  </defs>
+  <rect x="0" y="0" width="${size}" height="${size}" fill="#f8fafc" rx="18" ry="18" />
+  <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#circGrad)" stroke="#64748b">
+    <animate attributeName="r" from="${R*0.6}" to="${R}" dur=".35s" fill="freeze"/>
+  </circle>
+  ${labelText(cx, size-10, labelTextStr)}
+  </svg>`;
 }
 
 function svgPolyFig(n, c, units){
   return `
-    <div style="text-align:center"><div class="chip">Polígon regular de ${n} costats</div>
-    <div class="subtitle" style="margin-top:6px">costat = ${c} ${units}</div>
-    </div>`;
+  <div style="text-align:center"><div class="chip">Polígon regular de ${n} costats</div>
+  <div class="subtitle" style="margin-top:6px">costat = ${c} ${units}</div>
+  </div>`;
 }
 
 function svgGridMask(cols, rows, maskSet){
@@ -1080,43 +1076,43 @@ function svgGridMask(cols, rows, maskSet){
   }
   return `
     <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Graella per àrea"><defs>
-      <linearGradient id="gmGrad" x1="0" x2="1"><stop offset="0" stop-color="#a7f3d0"/><stop offset="1" stop-color="#93c5fd"/></linearGradient>
-    </defs>
-    <rect x="0" y="0" width="${w}" height="${h}" fill="#f8fafc" rx="14" ry="14" />
-    ${rects}
-    </svg>`;
+    <linearGradient id="gmGrad" x1="0" x2="1"><stop offset="0" stop-color="#a7f3d0"/><stop offset="1" stop-color="#93c5fd"/></linearGradient>
+  </defs>
+  <rect x="0" y="0" width="${w}" height="${h}" fill="#f8fafc" rx="14" ry="14" />
+  ${rects}
+  </svg>`;
 }
 
-function svgCuboidFig(wd,hg,lg,units){
+function svgCuboidFig(w,h,l,units){
   const W=380,H=240,p=14;
   return `
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Prisma rectangular"><defs>
-      <linearGradient id="cubeA" x1="0" x2="1"><stop offset="0" stop-color="#a7f3d0"/><stop offset="1" stop-color="#93c5fd"/></linearGradient>
-      <linearGradient id="cubeB" x1="0" x2="1"><stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#60a5fa"/></linearGradient>
-      <linearGradient id="cubeC" x1="0" x2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#a7f3d0"/></linearGradient>
-    </defs>
-    <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="16" ry="16" fill="#f8fafc" />
-    <polygon points="90,70 230,70 300,110 160,110" fill="url(#cubeA)" stroke="#64748b"/>
-    <polygon points="160,110 300,110 300,190 160,190" fill="url(#cubeB)" stroke="#64748b"/>
-    <polygon points="90,70 160,110 160,190 90,150" fill="url(#cubeC)" stroke="#64748b"/>
-    ${labelText(185, 58, `amplada = ${wd} ${units}`)}
-    ${labelText(305, 155, `alçada = ${hg} ${units}`)}
-    ${labelText(95, 162, `llargada = ${lg} ${units}`)}
-    </svg>`;
+    <linearGradient id="cubeA" x1="0" x2="1"><stop offset="0" stop-color="#a7f3d0"/><stop offset="1" stop-color="#93c5fd"/></linearGradient>
+    <linearGradient id="cubeB" x1="0" x2="1"><stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#60a5fa"/></linearGradient>
+    <linearGradient id="cubeC" x1="0" x2="1"><stop offset="0" stop-color="#7dd3fc"/><stop offset="1" stop-color="#a7f3d0"/></linearGradient>
+  </defs>
+  <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="16" ry="16" fill="#f8fafc" />
+  <polygon points="90,70 230,70 300,110 160,110" fill="url(#cubeA)" stroke="#64748b"/>
+  <polygon points="160,110 300,110 300,190 160,190" fill="url(#cubeB)" stroke="#64748b"/>
+  <polygon points="90,70 160,110 160,190 90,150" fill="url(#cubeC)" stroke="#64748b"/>
+  ${labelText(185, 58, `amplada = ${w} ${units}`)}
+  ${labelText(305, 155, `alçada = ${h} ${units}`)}
+  ${labelText(95, 162, `llargada = ${l} ${units}`)}
+  </svg>`;
 }
 
 function svgCylinderFig(r,h,units){
   const W=380,H=240,p=14;
   return `
     <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cilindre"><defs>
-      <linearGradient id="cyl" x1="0" x2="1"><stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#a7f3d0"/></linearGradient>
-    </defs>
-    <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="16" ry="16" fill="#f8fafc" />
-    <ellipse cx="190" cy="80" rx="80" ry="20" fill="url(#cyl)" stroke="#64748b"/>
-    <rect x="110" y="80" width="160" height="90" fill="url(#cyl)" stroke="#64748b"/>
-    <ellipse cx="190" cy="170" rx="80" ry="20" fill="url(#cyl)" stroke="#64748b"/>
-    ${labelText(190, 200, `radi = ${r} ${units}, alçada = ${h} ${units}`)}
-    </svg>`;
+    <linearGradient id="cyl" x1="0" x2="1"><stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#a7f3d0"/></linearGradient>
+  </defs>
+  <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="16" ry="16" fill="#f8fafc" />
+  <ellipse cx="190" cy="80" rx="80" ry="20" fill="url(#cyl)" stroke="#64748b"/>
+  <rect x="110" y="80" width="160" height="90" fill="url(#cyl)" stroke="#64748b"/>
+  <ellipse cx="190" cy="170" rx="80" ry="20" fill="url(#cyl)" stroke="#64748b"/>
+  ${labelText(190, 200, `radi = ${r} ${units}, alçada = ${h} ${units}`)}
+  </svg>`;
 }
 
 function withUnits(val, units, pow, requireUnits){
@@ -1133,7 +1129,9 @@ function genGeometry(level, opts={}){
   const wantUnits = !!opts.requireUnits;
   const roundDigits = Number.isInteger(opts.round)? opts.round : 2;
   const circleMode = opts.circleMode || 'numeric';
-  const sideMax = level<7? 20 : (level<14? 50 : 120);
+
+  // sideMax per nivell 1..4
+  const sideMax = [0, 20, 50, 120, 200][clamp(level,1,4)];
 
   function packNum({text, html, value, pow}){
     const v = roundTo(value, roundDigits);
@@ -1145,20 +1143,21 @@ function genGeometry(level, opts={}){
       answer: withUnitsAnswer(v, U, pow, wantUnits)
     };
   }
+
   function packPi({text, html, coef}){
     return { type:'geom-pi', text, html, piCoef: coef, answer: `${coef}π` };
   }
 
   const figs2D = [];
   if(!opts.fig || opts.fig.rect) figs2D.push('rect');
-  if(!opts.fig || opts.fig.tri)  figs2D.push('tri');
+  if(!opts.fig || opts.fig.tri) figs2D.push('tri');
   if(!opts.fig || opts.fig.circ) figs2D.push('circ');
   if(opts.fig?.poly) figs2D.push('poly');
   if(opts.fig?.grid) figs2D.push('grid');
   if(opts.fig?.comp) figs2D.push('comp');
 
   const figs3D = [];
-  if(opts.fig?.cube)     figs3D.push('cuboid');
+  if(opts.fig?.cube) figs3D.push('cuboid');
   if(opts.fig?.cylinder) figs3D.push('cylinder');
 
   if(scope==='vol'){
@@ -1205,11 +1204,11 @@ function genGeometry(level, opts={}){
       const c=rng(Math.abs(a-b)+1, a+b-1);
       const W=360,H=230,p=14;
       const html = `
-        <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Triangle (costats)">
-          <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="16" ry="16" fill="#f8fafc" />
-          <polygon points="80,170 280,170 180,70" fill="#a7f3d0" stroke="#64748b"/>
-          ${labelText(180, 200, `costats: ${a}, ${b}, ${c} ${U}`)}
-        </svg>`;
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Triangle (costats)">
+        <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="16" ry="16" fill="#f8fafc" />
+        <polygon points="80,170 280,170 180,70" fill="#a7f3d0" stroke="#64748b"/>
+        ${labelText(180, 200, `costats: ${a}, ${b}, ${c} ${U}`)}
+      </svg>`;
       return packNum({ text:`Perímetre del triangle`, html, value: a+b+c, pow: 0 });
     }
   }
@@ -1254,9 +1253,9 @@ function genGeometry(level, opts={}){
   const mask = new Set();
   function fillRect(x,y,w,h){ for(let r=y;r<y+h;r++){ for(let c=x;c<x+w;c++){ mask.add(r*cols + c); } } }
   const ax = rng(0, Math.floor(cols/2)-1), ay = rng(0, Math.floor(rows/2)-1);
-  const aw = rng(2, Math.floor(cols/2)),   ah = rng(2, Math.floor(rows/2));
+  const aw = rng(2, Math.floor(cols/2)), ah = rng(2, Math.floor(rows/2));
   const bx = rng(Math.floor(cols/2), cols-2), by = rng(Math.floor(rows/2), rows-2);
-  const bw = rng(2, Math.min(aw, cols-bx)),  bh = rng(2, Math.min(ah, rows-by));
+  const bw = rng(2, Math.min(aw, cols-bx)), bh = rng(2, Math.min(ah, rows-by));
   fillRect(ax, ay, aw, ah); fillRect(bx, by, bw, bh);
   const html = svgGridMask(cols, rows, mask);
   return { type:'geom-num', text:`Àrea de la figura composta (unitats²)`, html, numeric: mask.size, meta:{requireUnits:false, units:'u', pow:2, round:0}, answer: String(mask.size) };
@@ -1265,21 +1264,31 @@ function genGeometry(level, opts={}){
 /* ===== Percentatges ===== */
 
 function genPercent(level){
+  const L = clamp(level,1,4);
+  const easy = [5,10,15,20,25,50];
+  const mid  = easy.concat([30,40]);
+  const hard = mid.concat([12.5,33.33,66.67,75]);
+  const xhard= hard.concat([17.5,22.5,80]);
+
+  const poolP = [null, easy, mid, hard, xhard][L];
+  const baseMax = [0, 200, 600, 1000, 1500][L];
+
   const mode = Math.random()<.33? 'of' : (Math.random()<.5? 'is-of' : 'discount');
+
   if(mode==='of'){
-    const p = [5,10,12.5,15,20,25,30,40,50,60,75][rng(0,10)];
-    const n = rng(20, 800);
-    const ans = +(n * p / 100).toFixed(2);
+    const p = choice(poolP);
+    const n = rng(20, baseMax);
+    const ans = +(n * p / 100).toFixed(L>=3? 2 : 0);
     return { type:'percent-of', text:`${p}% de ${n} = ?`, answer: ans };
   } else if(mode==='is-of'){
-    const p = [10,12.5,20,25,33.33,40,50,66.67,75,80][rng(0,9)];
-    const part = rng(10,600);
-    const whole = +(part * 100 / p).toFixed(2);
+    const p = choice(poolP);
+    const part = rng(10, Math.max(60, Math.floor(baseMax/2)));
+    const whole = +(part * 100 / p).toFixed(L>=3? 2 : 0);
     return { type:'percent-is-of', text:`${part} és el ${p}% de ?`, answer: whole };
   } else {
-    const n = rng(20, 900);
-    const off = [5,10,12,15,20,25,30,40][rng(0,7)];
-    const ans = +(n * (1 - off/100)).toFixed(2);
+    const n = rng(20, baseMax);
+    const off = choice([5,10,12,15,20,25,30,40]);
+    const ans = +(n * (1 - off/100)).toFixed(L>=3? 2 : 0);
     return { type:'percent-discount', text:`Descompte del ${off}% sobre ${n} → preu final = ?`, answer: ans };
   }
 }
@@ -1292,7 +1301,11 @@ function randCoef(rangeKey){
   if(a===0) a = (Math.random()<.5? -1: 1);
   return a;
 }
-function niceIntIf(v, forceInt){ return forceInt ? Math.round(v) : v; }
+
+function niceIntIf(v, forceInt){
+  if(forceInt) return Math.round(v);
+  return v;
+}
 
 // 1) Equacions de primer grau
 function genEqLinear(level, opts){
@@ -1300,8 +1313,8 @@ function genEqLinear(level, opts){
   const sol = niceIntIf(rng(-9,9), !!opts.forceInt);
   const b = -a * sol;
   const text = `${a}·x ${b>=0?'+':'−'} ${Math.abs(b)} = 0`;
-  const hint = opts.hints ? `<div class="chip">Pista: mou el terme independent i divideix per a</div>` : '';
-  return { type:'eq-lin', text:`Resol: ${text}`, html: hint, sol: sol, answer: sol };
+  const hint = opts.hints ? `<div class="chip">Pista: mou el terme independent i divideix per a</div> : ''`;
+  return { type:'eq-lin', text:`Resol: ${text}`, html: opts.hints? `<div class="chip">Pista: mou el terme independent i divideix per a</div>`:'', sol: sol, answer: sol };
 }
 
 // 2) Equacions de segon grau
@@ -1349,7 +1362,7 @@ function genEqSystem2x2(level, opts){
   const a2 = randCoef(R), b2 = randCoef(R);
   const c1 = a1*x + b1*y;
   const c2 = a2*x + b2*y;
-  const text = `${a1}x ${b1>=0?'+':'−'} ${Math.abs(b1)}y = ${c1} ; ${a2}x ${b2>=0?'+':'−'} ${Math.abs(b2)}y = ${c2}`;
+  const text = `{ ${a1}x ${b1>=0?'+':'−'} ${Math.abs(b1)}y = ${c1} ; ${a2}x ${b2>=0?'+':'−'} ${Math.abs(b2)}y = ${c2} }`;
   const hint = opts.hints ? `<div class="chip">Pista: substitució o reducció</div>` : '';
   return { type:'eq-sys', text:`Resol el sistema: ${text}`, html: hint, sol:{x,y}, answer:`(${x}, ${y})` };
 }
@@ -1377,30 +1390,51 @@ function genEqParentheses(level, opts){
   return { type:'eq-par', text:`Resol: ${text}`, html: hint, sol, answer: sol };
 }
 
-// Funció principal
+// Map defaults segons nivell (1..4)
 function genEq(level, opts={}){
+  function rangeFromLevel(L){
+    return [null,'small','med','med','big'][L];
+  }
+  const L = clamp(level,1,4);
+
+  if(!opts.range)  opts.range  = rangeFromLevel(L);
+  if(opts.forceInt === undefined) opts.forceInt = (L<=3);
+  if(opts.hints === undefined)    opts.hints    = (L===1);
+
+  if(!opts.format && !opts.degree){
+    if(L===1){ opts.format='normal'; opts.degree='1'; }
+    else if(L===2){ opts.format = Math.random()<0.5? 'frac':'par'; opts.degree='1'; }
+    else if(L===3){ opts.format='normal'; opts.degree='2'; opts.allowIncomplete = true; }
+    else { // L4
+      opts.format = Math.random()<0.4? 'sys':'normal';
+      opts.degree = (opts.format==='sys')? '1' : '2';
+      opts.allowIncomplete = true;
+    }
+  }
+
   const format = opts.format || 'normal'; // normal, frac, par, sys
   const degree = opts.degree || '1';      // 1, 2, mixed
 
-  if (format === 'sys')  return genEqSystem2x2(level, opts);
+  if (format === 'sys') return genEqSystem2x2(level, opts);
   if (format === 'frac') return genEqFractions(level, opts);
   if (format === 'par')  return genEqParentheses(level, opts);
 
   if (degree === '1') return genEqLinear(level, opts);
   if (degree === '2') return genEqQuadratic(level, opts);
-
-  // Mixed: 70% 1r grau, 30% 2n grau
   return Math.random() < 0.7 ? genEqLinear(level, opts) : genEqQuadratic(level, opts);
 }
 
 /* ===== Estadística bàsica ===== */
 
 function statsList(level){
+  const L = clamp(level,1,4);
   const len = rng(5, 9);
-  const max = level<7? 20 : (level<14? 50 : 100);
-  const arr = Array.from({length:len}, ()=> rng(1,max));
-  return arr;
+  const maxByL = [0, 20, 50, 100, 150];
+  const max = maxByL[L];
+  const allowZero = false;
+  return Array.from({length:len}, ()=> rng(allowZero?0:1, max));
 }
+
 const arrMean = a => a.reduce((s,x)=>s+x,0)/a.length;
 function arrMedian(a){
   const b=[...a].sort((x,y)=>x-y);
@@ -1461,7 +1495,7 @@ function genStatsMMM(level, opts){
   const arr = statsList(level);
   const round = opts.round ?? 2;
   const mean = roundTo(arrMean(arr), round);
-  const med  = roundTo(arrMedian(arr), round);
+  const med = roundTo(arrMedian(arr), round);
   const mode = arrMode(arr);
   const kind = choice(['mitjana','mediana','moda']);
   const html = barChartSVG(arr, arr.map((_,i)=>String(i+1)));
@@ -1560,22 +1594,23 @@ const ICON = {
 function genUnits(level, opts={}){
   const round = opts.round ?? 2;
   const group = opts.sub || 'length';
+
   const sets = {
     length: [
-      {group:'length', from:'km', to:'m', factor:1000, icon:ICON.ruler},
-      {group:'length', from:'m',  to:'cm', factor:100,  icon:ICON.ruler},
-      {group:'length', from:'cm', to:'mm', factor:10,   icon:ICON.ruler},
-      {group:'length', from:'mm', to:'cm', factor:0.1,  icon:ICON.ruler},
-      {group:'length', from:'m',  to:'km', factor:0.001,icon:ICON.ruler},
+      {group:'length', from:'km', to:'m',  factor:1000,  icon:ICON.ruler},
+      {group:'length', from:'m',  to:'cm', factor:100,   icon:ICON.ruler},
+      {group:'length', from:'cm', to:'mm', factor:10,    icon:ICON.ruler},
+      {group:'length', from:'mm', to:'cm', factor:0.1,   icon:ICON.ruler},
+      {group:'length', from:'m',  to:'km', factor:0.001, icon:ICON.ruler},
     ],
     mass: [
-      {group:'mass', from:'kg', to:'g',  factor:1000, icon:ICON.scale},
-      {group:'mass', from:'g',  to:'kg', factor:0.001,icon:ICON.scale},
-      {group:'mass', from:'g',  to:'mg', factor:1000, icon:ICON.scale},
-      {group:'mass', from:'mg', to:'g',  factor:0.001,icon:ICON.scale},
+      {group:'mass', from:'kg', to:'g',  factor:1000,  icon:ICON.scale},
+      {group:'mass', from:'g',  to:'kg', factor:0.001, icon:ICON.scale},
+      {group:'mass', from:'g',  to:'mg', factor:1000,  icon:ICON.scale},
+      {group:'mass', from:'mg', to:'g',  factor:0.001, icon:ICON.scale},
     ],
     volume: [
-      {group:'volume', from:'L',  to:'mL', factor:1000, icon:ICON.cube},
+      {group:'volume', from:'L',  to:'mL', factor:1000,  icon:ICON.cube},
       {group:'volume', from:'mL', to:'L',  factor:0.001, icon:ICON.cube},
     ],
     area: [
@@ -1589,49 +1624,100 @@ function genUnits(level, opts={}){
       {group:'time', from:'min', to:'h',   factor:1/60, icon:ICON.clock},
     ]
   };
-  const pool = sets[group] || sets.length;
-  const set = choice(pool);
+
+  function filterSetsByLevel(sets, group, level){
+    const L = clamp(level,1,4);
+    const base = sets[group];
+    const isAdj = (from,to) => (
+      (from==='km' && to==='m') || (from==='m' && to==='cm') || (from==='cm' && to==='mm') ||
+      (from==='kg' && to==='g') || (from==='g' && to==='mg') ||
+      (from==='L'  && to==='mL') || (from==='mL' && to==='L') ||
+      (from==='min'&& to==='s') || (from==='h'  && to==='min')
+    );
+    return base.filter(s=>{
+      if(L===1){
+        if(group==='area' || group==='time') return false;
+        return isAdj(s.from, s.to);
+      }
+      if(L===2){
+        if(group==='area') return false;
+        if(s.from==='h' && s.to==='s') return false;
+        if(s.from==='s' && s.to==='h') return false;
+        return true;
+      }
+      if(L===3){
+        if(s.from==='h' && s.to==='s') return false;
+        if(s.from==='s' && s.to==='h') return false;
+        return true;
+      }
+      return true;
+    });
+  }
+
+  const pool = filterSetsByLevel(sets, group, level);
+  const set = choice(pool.length ? pool : sets[group]);
   return convQuestion(set, round);
 }
 
 /* ===== Estudi de Funcions ===== */
 
 function genFunctions(level, opts={}) {
-  const types = opts.types || { lin: true, quad: true, poly: true, rac: true, rad: true, exp: true, log: true };
+  if(!('difficulty' in opts)) opts.difficulty = clamp(level,1,4);
+
+  const types = opts.types || {
+    lin: true, quad: true, poly: true, rac: true, rad: true, exp: true, log: true
+  };
   const aspects = opts.aspects || { type: true };
   const difficulty = opts.difficulty || 1;
 
   const availableTypes = [];
-  if (types.lin)  availableTypes.push('lin');
+  if (types.lin) availableTypes.push('lin');
   if (types.quad) availableTypes.push('quad');
   if (types.poly) availableTypes.push('poly');
-  if (types.rac)  availableTypes.push('rac');
-  if (types.rad)  availableTypes.push('rad');
-  if (types.exp)  availableTypes.push('exp');
-  if (types.log)  availableTypes.push('log');
+  if (types.rac) availableTypes.push('rac');
+  if (types.rad) availableTypes.push('rad');
+  if (types.exp) availableTypes.push('exp');
+  if (types.log) availableTypes.push('log');
   if (availableTypes.length === 0) availableTypes.push('lin');
 
   const selectedType = choice(availableTypes);
   const selectedAspect = getRandomAspect(aspects);
+
   return generateFunctionQuestion(selectedType, selectedAspect, difficulty, level);
 }
 
 function getRandomAspect(aspects) {
   const availableAspects = [];
-  for (const aspect in aspects) if (aspects[aspect]) availableAspects.push(aspect);
+  for (const aspect in aspects) {
+    if (aspects[aspect]) availableAspects.push(aspect);
+  }
   return availableAspects.length > 0 ? choice(availableAspects) : 'type';
 }
 
 function generateFunctionQuestion(type, aspect, difficulty, level) {
   let question = {};
   switch (type) {
-    case 'lin':  question = generateLinearFunction(aspect, difficulty, level); break;
-    case 'quad': question = generateQuadraticFunction(aspect, difficulty, level); break;
-    case 'poly': question = generatePolynomialFunction(aspect, difficulty, level); break;
-    case 'rac':  question = generateRationalFunction(aspect, difficulty, level); break;
-    case 'rad':  question = generateRadicalFunction(aspect, difficulty, level); break;
-    case 'exp':  question = generateExponentialFunction(aspect, difficulty, level); break;
-    case 'log':  question = generateLogarithmicFunction(aspect, difficulty, level); break;
+    case 'lin':
+      question = generateLinearFunction(aspect, difficulty, level);
+      break;
+    case 'quad':
+      question = generateQuadraticFunction(aspect, difficulty, level);
+      break;
+    case 'poly':
+      question = generatePolynomialFunction(aspect, difficulty, level);
+      break;
+    case 'rac':
+      question = generateRationalFunction(aspect, difficulty, level);
+      break;
+    case 'rad':
+      question = generateRadicalFunction(aspect, difficulty, level);
+      break;
+    case 'exp':
+      question = generateExponentialFunction(aspect, difficulty, level);
+      break;
+    case 'log':
+      question = generateLogarithmicFunction(aspect, difficulty, level);
+      break;
   }
   return {
     type: `func-${type}-${aspect}`,
@@ -1645,7 +1731,8 @@ function generateFunctionQuestion(type, aspect, difficulty, level) {
 function generateLinearFunction(aspect, difficulty, level) {
   let m = rng(-5, 5); if (m === 0) m = 1;
   const n = rng(-10, 10);
-  const f = `f(x) = ${m}x${n >= 0 ? ' + ' : ' '}${n}`;
+  const f = `f(x) = ${m}x ${n >= 0 ? '+' : ''} ${n}`;
+
   switch (aspect) {
     case 'type':
       return { text: `Quin tipus de funció és ${f}?`, answer: 'lineal' };
@@ -1665,8 +1752,8 @@ function generateLinearFunction(aspect, difficulty, level) {
     case 'extrema':
       return { text: `La funció ${f} té extrems relatius?`, answer: 'no' };
     case 'monotony': {
-      const mono = m > 0 ? 'creixent' : 'decreixent';
-      return { text: `Quina és la monotonia de ${f}?`, answer: mono };
+      const monotony = m > 0 ? 'creixent' : 'decreixent';
+      return { text: `Quina és la monotonia de ${f}?`, answer: monotony };
     }
   }
 }
@@ -1675,7 +1762,7 @@ function generateQuadraticFunction(aspect, difficulty, level) {
   let a = rng(-3, 3); if (a === 0) a = 1;
   const b = rng(-5, 5);
   const c = rng(-10, 10);
-  const f = `f(x) = ${a}x²${b >= 0 ? ' + ' : ' '}${b}x${c >= 0 ? ' + ' : ' '}${c}`;
+  const f = `f(x) = ${a}x² ${b >= 0 ? '+' : ''} ${b}x ${c >= 0 ? '+' : ''} ${c}`;
   const discriminant = b*b - 4*a*c;
 
   switch (aspect) {
@@ -1702,8 +1789,9 @@ function generateQuadraticFunction(aspect, difficulty, level) {
       return { text: `Quina simetria té ${f}?`, answer: `simètrica respecte x = ${roundTo(vertexX, 2)}` };
     }
     case 'limits': {
-      const lim = a > 0 ? '∞' : '-∞';
-      return { text: `Calcula els límits de ${f} quan x tendeix a ±∞ (Format: -∞: valor, ∞: valor)`, answer: `-∞: ${a>0?'-∞':'∞'}, ∞: ${lim}` };
+      const limitInf = a > 0 ? '∞' : '-∞';
+      const limitSup = a > 0 ? '∞' : '-∞';
+      return { text: `Calcula els límits de ${f} quan x tendeix a ±∞ (Format: -∞: valor, ∞: valor)`, answer: `-∞: ${limitInf}, ∞: ${limitSup}` };
     }
     case 'extrema': {
       const vertexY = c - b*b/(4*a);
@@ -1711,19 +1799,19 @@ function generateQuadraticFunction(aspect, difficulty, level) {
       return { text: `Quins són els extrems relatius de ${f}? (Format: tipus (x,y))`, answer: `${extremumType} (${roundTo(-b/(2*a), 2)}, ${roundTo(vertexY, 2)})` };
     }
     case 'monotony': {
-      const vx = -b/(2*a);
+      const vx = roundTo(-b/(2*a), 2);
       const behavior1 = a > 0 ? 'decreixent' : 'creixent';
       const behavior2 = a > 0 ? 'creixent' : 'decreixent';
-      return { text: `Descriu la monotonia de ${f} (Format: (-∞,a): comportament, (a,∞): comportament)`, answer: `(-∞,${roundTo(vx, 2)}): ${behavior1}, (${roundTo(vx, 2)},∞): ${behavior2}` };
+      return { text: `Descriu la monotonia de ${f} (Format: (-∞,a): comportament, (a,∞): comportament)`, answer: `(-∞,${vx}): ${behavior1}, (${vx},∞): ${behavior2}` };
     }
   }
 }
 
+// Polinòmiques
 function generatePolynomialFunction(aspect, difficulty, level) {
-  const degree = difficulty === 1 ? 3 : (difficulty === 2 ? 4 : 5);
+  const degree = difficulty === 1 ? 3 : (difficulty === 2 ? 4 : (difficulty>=4?5:5));
   const coefficients = Array.from({length: degree+1}, () => rng(-5, 5));
   coefficients[coefficients.length-1] = coefficients[coefficients.length-1] || 1;
-
   let f = 'f(x) = ';
   for (let i = coefficients.length-1; i >= 0; i--) {
     if (coefficients[i] !== 0) {
@@ -1736,35 +1824,39 @@ function generatePolynomialFunction(aspect, difficulty, level) {
   return { text: `Identifica el tipus de funció: ${f}`, answer: 'polinòmica' };
 }
 
+// Racionals
 function generateRationalFunction(aspect, difficulty, level) {
-  const numerator   = [rng(-5,5), rng(-5,5)];
+  const numerator = [rng(-5,5), rng(-5,5)];
   const denominator = [rng(-5,5), rng(-5,5)];
   if (denominator[1] === 0) denominator[1] = 1;
-  const f = `f(x) = (${numerator[1]}x${numerator[0] >= 0 ? ' + ' : ' '}${numerator[0]}) / (${denominator[1]}x${denominator[0] >= 0 ? ' + ' : ' '}${denominator[0]})`;
+  const f = `f(x) = (${numerator[1]}x ${numerator[0] >= 0 ? '+' : ''} ${numerator[0]}) / (${denominator[1]}x ${denominator[0] >= 0 ? '+' : ''} ${denominator[0]})`;
   return { text: `Identifica el tipus de funció: ${f}`, answer: 'racional' };
 }
 
+// Radicals
 function generateRadicalFunction(aspect, difficulty, level) {
   const a = rng(1, 5);
   const b = rng(-5, 5);
   const c = rng(-5, 5);
-  const f = `f(x) = ${a}√(x${b >= 0 ? ' + ' : ' '}${b})${c >= 0 ? ' + ' : ' '}${c}`;
+  const f = `f(x) = ${a}√(x ${b >= 0 ? '+' : ''} ${b}) ${c >= 0 ? '+' : ''} ${c}`;
   return { text: `Identifica el tipus de funció: ${f}`, answer: 'radical' };
 }
 
+// Exponencials
 function generateExponentialFunction(aspect, difficulty, level) {
   const a = rng(1, 5);
   const b = rng(2, 5);
   const c = rng(-5, 5);
-  const f = `f(x) = ${a}·${b}^x${c >= 0 ? ' + ' : ' '}${c}`;
+  const f = `f(x) = ${a}·${b}^x ${c >= 0 ? '+' : ''} ${c}`;
   return { text: `Identifica el tipus de funció: ${f}`, answer: 'exponencial' };
 }
 
+// Logarítmiques
 function generateLogarithmicFunction(aspect, difficulty, level) {
   const a = rng(1, 5);
   const b = rng(2, 5);
   const c = rng(-5, 5);
-  const f = `f(x) = ${a}·log${b}(x)${c >= 0 ? ' + ' : ' '}${c}`;
+  const f = `f(x) = ${a}·log${b}(x) ${c >= 0 ? '+' : ''} ${c}`;
   return { text: `Identifica el tipus de funció: ${f}`, answer: 'logarítmica' };
 }
 
@@ -1772,13 +1864,12 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
 
 function renderResults(){
   const data = store.all();
-  const modFilter  = $('#filter-module').value || '';
+  const modFilter = $('#filter-module').value || '';
   const nameFilter = ($('#filter-student').value||'').toLowerCase();
   const filtered = data.filter(r=>
     (!modFilter || r.module===modFilter) && (!nameFilter || (r.name||'').toLowerCase().includes(nameFilter))
   );
-  if(!filtered.length){ $('#resultsTable').innerHTML = '<div class="chip">No hi ha dades.</div>'; return; }
-
+  if(!filtered.length){ $('#resultsTable').innerHTML = '<div class="chip">No hi ha dades.</div>'; return }
   const rows = filtered.map((r,i)=>{
     const m = MODULES.find(m=>m.id===r.module)?.name || r.module;
     const d = new Date(r.at);
@@ -1793,24 +1884,24 @@ function renderResults(){
       <td>${fmtTime(r.time_spent)}</td>
     </tr>`;
   }).join('');
-
   $('#resultsTable').innerHTML = `
-  <table>
-    <thead>
-      <tr><th>#</th><th>Data</th><th>Alumne/a</th><th>Mòdul</th><th>Nivell</th><th>Encerts</th><th>Puntuació</th><th>Temps</th></tr>
-    </thead>
-    <tbody>${rows}</tbody>
-  </table>`;
+<table>
+  <thead>
+    <tr><th>#</th><th>Data</th><th>Alumne/a</th><th>Mòdul</th><th>Nivell</th><th>Encerts</th><th>Puntuació</th><th>Temps</th></tr>
+  </thead>
+  <tbody>${rows}</tbody>
+</table>
+`;
 }
 
 function exportCSV(){
   const data = store.all();
-  if(!data.length){ alert('No hi ha dades per exportar.'); return; }
+  if(!data.length){ alert('No hi ha dades per exportar.'); return }
   const header = ['data','alumne','modul','nivell','preguntes','correctes','puntuacio','temps_limit','temps_consumit'];
   const lines = [header.join(',')];
   data.forEach(r=>{
-    lines.push([r.at, r.name, r.module, r.level, r.count, r.correct, r.score, r.time_limit, r.time_spent].join(','));
-  });
+    lines.push([r.at, r.name, r.module, r.level, r.count, r.correct, r.score, r.time_limit, r.time_spent].join(','))
+  })
   const blob = new Blob([lines.join('\n')], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href=url; a.download='focus-academy-math-results.csv'; a.click();
@@ -1841,9 +1932,10 @@ document.addEventListener('keydown', (e)=>{
 });
 
 $('#btnCheck').onclick = checkAnswer;
-$('#btnSkip').onclick  = skip;
+$('#btnSkip').onclick = skip;
 
 /* ===================== INIT ===================== */
+
 function init(){
   buildHome();
   showView('home');
