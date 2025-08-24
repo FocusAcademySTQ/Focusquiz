@@ -68,16 +68,33 @@ function showView(name){
 }
 
 function buildHome(){
-  const grid = $('#moduleGrid'); grid.innerHTML='';
-  MODULES.forEach(m=>{
-    const el = document.createElement('div');
-    el.className='option';
-    el.innerHTML = `
-      <h3>${m.name}</h3>
-      <p>${m.desc}</p>`;
-    el.onclick = ()=> openConfig(m.id);
-    grid.appendChild(el);
-  });
+  const grid = $('#moduleGrid'); 
+  grid.innerHTML = '';
+
+  // Helper per pintar seccions per categories
+  function renderSection(title, cat){
+    const mods = MODULES.filter(m=>m.category===cat);
+    if(!mods.length) return;
+    const section = document.createElement('div');
+    section.innerHTML = `<div class="section-title">${title}</div>`;
+    const subgrid = document.createElement('div');
+    subgrid.className = 'grid';
+    mods.forEach(m=>{
+      const el = document.createElement('div');
+      el.className='option';
+      el.innerHTML = `
+        <h3>${m.name}</h3>
+        <p>${m.desc}</p>`;
+      el.onclick = ()=> openConfig(m.id);
+      subgrid.appendChild(el);
+    });
+    section.appendChild(subgrid);
+    grid.appendChild(section);
+  }
+
+  // Seccions
+  renderSection('Mòduls de matemàtiques','math');
+  renderSection('Mòduls de llengua catalana','cat');
 
   // filtre resultats
   const fm = $('#filter-module');
