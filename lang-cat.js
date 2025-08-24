@@ -41,19 +41,21 @@
   }
 
   const CAT_MODULES = [
-    {
-      id: 'cat-ort',
-      name: 'Català · Ortografia',
-      desc: 'Accents, b/v, s/ss/ç, perquè/per què…',
-      badge: 'CAT',
-      gen: genFromBank(BANK_ORT)
-    },
-    {
-      id: 'cat-morf',
-      name: 'Català · Morfologia',
-      desc: 'Categories gramaticals bàsiques.',
-      badge: 'CAT',
-      gen: genFromBank(BANK_MORF)
+  {
+    id: 'cat-ort',
+    name: 'Català · Ortografia',
+    desc: 'Accents, b/v, s/ss/ç, perquè/per què…',
+    badge: 'CAT',
+    gen: genFromBank(BANK_ORT),
+    category: 'cat'
+  },
+  {
+    id: 'cat-morf',
+    name: 'Català · Morfologia',
+    desc: 'Categories gramaticals bàsiques.',
+    badge: 'CAT',
+    gen: genFromBank(BANK_MORF),
+    category: 'cat'
     }
   ];
 
