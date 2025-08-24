@@ -392,11 +392,13 @@ function startFromConfig(){
     };
     options.difficulty = parseInt($('#func-diff').value || '1');
   }
-// 🔌 Recull opcions personalitzades d'un mòdul extern (si n'hi ha)
+
+  // 🔌 Recull opcions personalitzades d'un mòdul extern (si n'hi ha)
   if (pendingModule && pendingModule.config && typeof pendingModule.config.collect === 'function') {
     const ext = pendingModule.config.collect();
     if (ext && typeof ext === 'object') Object.assign(options, ext);
   }
+
   startQuiz(pendingModule.id, {count, time, level, options});
 }
 
