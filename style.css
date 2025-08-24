@@ -59,7 +59,7 @@ header{
   display: grid;
   place-items: center;
   border-radius: 12px;
-  background: conic-gradient(from 180deg, white, black, white);
+  background: conic-gradient(from 180deg, var(--p-blue), var(--p-lilac), var(--p-rose), var(--p-blue));
   box-shadow: var(--shadow);
   color: #0f172a;
   font-weight: 900;
