@@ -263,7 +263,7 @@
     {
       id: 'cat-ort',
       name: 'Ortografia',
-      desc: 'b/v, j/g, s/c/ç/z/x, h, r/rr, l/l·l.',
+      desc: 'b/v, j/g, s/c/ç/z/x, corregir, r/rr, l/l·l.',
       badge: 'CAT',
       category: 'cat',
       gen: genCatOrt,
