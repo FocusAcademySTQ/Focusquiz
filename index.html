@@ -3,143 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Focus Academy · Matemàtiques i Català</title>
-  <meta name="description" content="Pràctiques de matemàtiques i català tipus ThatQuiz per a estudiants. Single-file, sense dependències." />
-  <style>
-    /* Estils bàsics per a la visualització */
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      color: #333;
-      line-height: 1.6;
-    }
-    .wrap {
-      max-width: 1000px;
-      margin: 0 auto;
-      padding: 0 16px;
-    }
-    header {
-      background: #f8f9fa;
-      border-bottom: 1px solid #e9ecef;
-      padding: 12px 0;
-    }
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo {
-      width: 36px;
-      height: 36px;
-      background: #4a6ee0;
-      color: white;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      font-size: 20px;
-    }
-    h1 {
-      margin: 0;
-      font-size: 1.5rem;
-    }
-    nav {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    button {
-      background: #4a6ee0;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 16px;
-      cursor: pointer;
-    }
-    .pill {
-      border-radius: 16px;
-    }
-    .input {
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    .panel {
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      padding: 20px;
-      margin-bottom: 20px;
-    }
-    .card {
-      border: 1px solid #e9ecef;
-    }
-    .title {
-      margin-top: 0;
-    }
-    .subtitle {
-      color: #6c757d;
-      margin-top: -0.5rem;
-    }
-    .section-title {
-      font-weight: 600;
-      margin: 20px 0 10px;
-      color: #495057;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 16px;
-      margin-top: 16px;
-    }
-    .module {
-      background: white;
-      border: 1px solid #e9ecef;
-      border-radius: 8px;
-      padding: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .module:hover {
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transform: translateY(-2px);
-    }
-    .module h3 {
-      margin: 0 0 8px;
-      color: #4a6ee0;
-    }
-    .module p {
-      margin: 0;
-      color: #6c757d;
-      font-size: 0.9rem;
-    }
-    .hidden {
-      display: none;
-    }
-    footer {
-      margin-top: 40px;
-      padding: 20px 0;
-      border-top: 1px solid #e9ecef;
-      color: #6c757d;
-      font-size: 0.9rem;
-    }
-  </style>
+  <title>Focus Academy · Matemàtiques</title>
+  <meta name="description" content="Pràctiques de matemàtiques tipus ThatQuiz per a estudiants. Single-file, sense dependències." />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <div class="wrap row">
       <div class="brand">
         <div class="logo" aria-hidden="true">Q</div>
-        <h1>Focus Academy · Matemàtiques i Català</h1>
+        <h1>Focus Academy · Matemàtiques</h1>
       </div>
       <nav class="right">
         <button class="pill" onclick="showView('home')">Inici</button>
@@ -159,54 +32,7 @@
         <p class="subtitle">Tria un mòdul per configurar-lo i començar. Tot queda guardat en aquest dispositiu (sense comptes).</p>
 
         <div class="section-title">Mòduls de matemàtiques</div>
-        <div class="grid" id="moduleGrid">
-          <!-- Mòduls de matemàtiques existents -->
-          <div class="module" onclick="configureModule('aritmetica')">
-            <h3>Aritmètica</h3>
-            <p>Operacions bàsiques amb nombres enters i decimals</p>
-          </div>
-          <div class="module" onclick="configureModule('fraccions')">
-            <h3>Fraccions</h3>
-            <p>Operacions amb fraccions i conversions</p>
-          </div>
-          <div class="module" onclick="configureModule('percentatges')">
-            <h3>Percentatges</h3>
-            <p>Càlcul de percentatges, descomptes i augments</p>
-          </div>
-          <div class="module" onclick="configureModule('equacions')">
-            <h3>Equacions</h3>
-            <p>Equacions lineals i sistemes d'equacions</p>
-          </div>
-          <div class="module" onclick="configureModule('geometria')">
-            <h3>Geometria</h3>
-            <p>Àrees, perímetres i volums de figures geomètriques</p>
-          </div>
-          <div class="module" onclick="configureModule('estadistica')">
-            <h3>Estadística</h3>
-            <p>Mitjanes, moda, mitjana i gràfiques</p>
-          </div>
-          <div class="module" onclick="configureModule('unitats')">
-            <h3>Unitats</h3>
-            <p>Conversió entre unitats de mesura</p>
-          </div>
-        </div>
-
-        <div class="section-title">Mòduls de Llengua Catalana</div>
-        <div class="grid" id="catalanModuleGrid">
-          <!-- Nous mòduls de català -->
-          <div class="module" onclick="configureModule('ortografia')">
-            <h3>Ortografia</h3>
-            <p>Regles d'ortografia i exercicis pràctics</p>
-          </div>
-          <div class="module" onclick="configureModule('gramatica')">
-            <h3>Gramàtica</h3>
-            <p>Morfosintaxi, verbs i construccions gramaticals</p>
-          </div>
-          <div class="module" onclick="configureModule('lexic')">
-            <h3>Lexic</h3>
-            <p>Vocabulari, expressions i frases fetes</p>
-          </div>
-        </div>
+        <div class="grid" id="moduleGrid"></div>
       </div>
     </section>
 
@@ -353,52 +179,19 @@
         <p class="subtitle">Web single-file creada per Focus Academy. Inspirada en ThatQuiz, sense comptes ni dependències. Dades locals al navegador.</p>
         <ul>
           <li>Generador de preguntes per: Aritmètica, Fraccions, Percentatges, Equacions lineals, Geometria (àrees/perímetres/volums), Estadística i Unitats.</li>
-          <li>Nous mòduls de Llengua Catalana: Ortografia, Gramàtica i Lexic.</li>
-          <li>Temps opcional, nivell 1–4, i repàs de només les preguntes errònies.</li>
+          <li>Temps opcional, nivell 1–20, i repàs de només les preguntes errònies.</li>
           <li>Historial exportable a CSV i mode offline (funciona sense internet).</li>
         </ul>
       </div>
     </section>
 
     <footer class="wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
-      <div>Fet per Focus Academy Sant Cugat · © <span id="year">2023</span></div>
+      <div>Fet per Focus Academy Sant Cugat · © <span id="year"></span></div>
       <img src="https://static.wixstatic.com/media/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png/v1/crop/x_836,y_591,w_1877,h_1328/fill/w_642,h_454,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png"
            alt="Logo Focus Academy" style="height:40px; width:auto; object-fit:contain"
            referrerpolicy="no-referrer" />
     </footer>
   </main>
-  
-  <script>
-    // Funcions bàsiques per a la navegació
-    function showView(viewId) {
-      document.querySelectorAll('section').forEach(section => {
-        section.classList.add('hidden');
-      });
-      document.getElementById(`view-${viewId}`).classList.remove('hidden');
-    }
-    
-    function configureModule(module) {
-      showView('config');
-      document.getElementById('cfg-title').textContent = `Configura ${module}`;
-      // Aquí aniria la lògica específica de configuració per a cada mòdul
-    }
-    
-    function startFromConfig() {
-      showView('quiz');
-      // Aquí aniria la lògica per iniciar el quiz amb la configuració seleccionada
-    }
-    
-    function typeKey(key) {
-      const answerInput = document.getElementById('answer');
-      if (key === 'del') {
-        answerInput.value = answerInput.value.slice(0, -1);
-      } else {
-        answerInput.value += key;
-      }
-    }
-    
-    // Inicialització bàsica
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+  <script src="main.js" defer></script>
 </body>
 </html>
