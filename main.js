@@ -43,6 +43,16 @@ const MODULES = [
   { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', badge:'Àlgebra', gen: genEq },
   { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', badge:'Funcions', gen: genFunctions },
 ];
+// Registre de mòduls externs (p.ex. llengua) i refresc de la Home
+window.addModules = function(mods){
+  if(!Array.isArray(mods)) return;
+  mods.forEach(m => MODULES.push(m));
+  if (document.readyState !== 'loading') {
+    try { buildHome(); } catch {}
+  } else {
+    document.addEventListener('DOMContentLoaded', ()=>{ try { buildHome(); } catch {} });
+  }
+};
 
 let pendingModule = null; // mòdul seleccionat per configurar
 const DEFAULTS = { count: 10, time: 0, level: 1 };
