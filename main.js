@@ -303,10 +303,20 @@ function openConfig(moduleId){
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
   }
 
-  box.appendChild(wrap);
+   box.appendChild(wrap);
   const holder = $('#cfg-specific');
   holder.innerHTML = '';
-  holder.appendChild(box);
+
+  // 🔌 Permet que un mòdul extern defineixi la seva UI de configuració
+  if (pendingModule.config && typeof pendingModule.config.render === 'function') {
+    const custom = document.createElement('div');
+    custom.className = 'card';
+    custom.appendChild(pendingModule.config.render());
+    holder.appendChild(custom);
+  } else {
+    holder.appendChild(box);
+  }
+
   showView('config');
 }
 
@@ -382,7 +392,11 @@ function startFromConfig(){
     };
     options.difficulty = parseInt($('#func-diff').value || '1');
   }
-
+// 🔌 Recull opcions personalitzades d'un mòdul extern (si n'hi ha)
+  if (pendingModule && pendingModule.config && typeof pendingModule.config.collect === 'function') {
+    const ext = pendingModule.config.collect();
+    if (ext && typeof ext === 'object') Object.assign(options, ext);
+  }
   startQuiz(pendingModule.id, {count, time, level, options});
 }
 
