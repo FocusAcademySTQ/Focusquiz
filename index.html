@@ -77,7 +77,6 @@
         <div class="panel card">
           <div class="q-header">
             <div style="display:flex; align-items:center; gap:10px">
-              <span id="qModule" class="badge">Mòdul</span>
               <span id="qLevel" class="chip">Nivell 1</span>
               <span id="timer" class="chip timer">--:--</span>
             </div>
@@ -137,6 +136,39 @@
         </div>
         <div id="resultsTable">No hi ha dades encara.</div>
       </div>
+
+      <!-- PERFIL / ANALYTICS -->
+      <div class="panel card" id="results-analytics">
+        <div class="row" style="align-items:center">
+          <h3 class="title" style="margin:0">Perfil i gràfiques</h3>
+          <div class="subtitle">Es basa en el filtre d'<b>alumne</b> i (opcionalment) el de <b>mòdul</b>.</div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid" id="kpiWrap">
+          <!-- S’omple des de JS -->
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-title">Evolució de puntuació</div>
+            <div id="chartScoreTrend"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Mitjana per mòdul</div>
+            <div id="chartByModule"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Temps vs Puntuació</div>
+            <div id="chartTimeVsScore"></div>
+          </div>
+        </div>
+
+        <div id="analyticsHint" class="chip" style="margin-top:10px; display:none">
+          Escriu un nom d’alumne/a al filtre per veure el seu perfil.
+        </div>
+      </div>
     </section>
 
     <!-- ABOUT -->
@@ -162,3 +194,4 @@
   <script src="main.js" defer></script>
 </body>
 </html>
+```
