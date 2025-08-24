@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Focus Academy · Teoria</title>
+  <meta name="description" content="Guia de teoria: ortografia, gramàtica, morfologia, sintaxi i normes lingüístiques." />
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#f7f7fb; --card:#fff; --ink:#0f172a; --muted:#6b7280;
+      --primary:#7aa2ff; --accent:#22c55e; --hair:#e5e7eb;
+      --radius:18px; --shadow:0 8px 22px rgba(27,30,40,.08);
+      --focus:0 0 0 3px rgba(122,162,255,.35);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:var(--sans);
+      color:var(--ink);
+      background: radial-gradient(1200px 1200px at 10% -10%, #eef2ff 0, transparent 60%), var(--bg);
+      line-height:1.65;
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+
+    .wrap{max-width:1100px; margin:0 auto; padding:0 16px}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+    .card{background:var(--card); border:1px solid var(--hair); border-radius:var(--radius); box-shadow:var(--shadow)}
+    .title{font-weight:800; letter-spacing:-.01em}
+    .subtitle{color:var(--muted)}
+
+    .pill{
+      appearance:none; border:1px solid var(--hair); background:#fff; color:var(--ink);
+      padding:8px 14px; border-radius:999px; cursor:pointer; font-weight:600;
+      box-shadow:0 1px 2px rgba(15,23,42,.06); transition:.15s transform, .15s border-color;
+    }
+    .pill:hover{border-color:#d1d5db; transform:translateY(-1px)}
+    .input{
+      border:1px solid var(--hair); background:#fff; padding:10px 12px; border-radius:12px;
+      outline:none; min-width:220px;
+    }
+    .input:focus{box-shadow:var(--focus); border-color:#c7d2fe}
+
+    header{
+      position:sticky; top:0; z-index:10;
+      background: color-mix(in oklab, #ffffff, transparent 18%);
+      backdrop-filter: blur(8px);
+      border-bottom:1px solid var(--hair);
+    }
+    .brand{display:flex; align-items:center; gap:10px}
+    .logo{
+      width:34px; height:34px; display:grid; place-items:center; font-weight:900;
+      color:#1f2937; background:linear-gradient(135deg,#bfdbfe,#a7f3d0);
+      border-radius:10px; border:1px solid #cbd5e1; text-shadow:0 1px 0 #fff
+    }
+    nav{display:flex; gap:8px; flex-wrap:wrap}
+
+    main{padding:24px 0 56px}
+
+    .layout{display:grid; grid-template-columns:1fr; gap:20px}
+    @media (min-width:980px){
+      .layout{grid-template-columns:280px 1fr}
+      .toc{position:sticky; top:86px}
+    }
+
+    .toc{padding:16px}
+    .toc h3{margin:0 0 10px}
+    .toc ul{list-style:none; padding:0; margin:0; display:grid; gap:6px}
+    .toc a{
+      display:flex; align-items:center; gap:8px; padding:8px 10px;
+      border-radius:10px; color:#1f2937; text-decoration:none; transition:.15s background,.15s color;
+    }
+    .toc a:hover,.toc a.active{background:#eef2ff; color:#1d4ed8}
+    .chips{margin-top:10px; display:flex; flex-wrap:wrap; gap:8px}
+    .chip{
+      display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
+      border-radius:999px; font-size:.85rem; background:#f3f4f6; border:1px solid var(--hair); color:#334155
+    }
+
+    .hero{padding:22px}
+    .hero h1{font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.2rem); margin:0}
+    .note{margin-top:12px; background:#f8fafc; border:1px dashed #c7d2fe; border-radius:12px; padding:10px 12px; color:#334155}
+
+    article{display:grid; gap:14px}
+    .section{padding:18px 20px}
+    .section + .section{margin-top:2px}
+    .hdr{display:flex; align-items:center; gap:10px; padding-bottom:10px; border-bottom:1px solid var(--hair)}
+    .section h2{font-size:1.25rem; margin:0; color:#1d4ed8}
+    .section h3{margin:14px 0 8px; color:#2563eb; font-size:1.05rem}
+    .section ul{margin:8px 0 0 18px}
+    .section li{margin:6px 0}
+    code{background:#f3f4f6; border:1px solid #e5e7eb; border-radius:6px; padding:2px 6px; font-family:var(--mono)}
+
+    .formula{
+      background:#f8fafc; border-left:3px solid #c7d2fe; padding:10px 12px;
+      border-radius:8px; margin:10px 0; overflow-x:auto;
+    }
+    .formula .katex-display{margin:.1rem 0}
+    .katex{font-size:1.02rem; line-height:1.35}
+    .katex-display>.katex{white-space:normal}
+
+    ol.steps{margin:8px 0 0 20px}
+    ol.steps li{margin:6px 0}
+
+    .toTop{
+      position:fixed; right:18px; bottom:18px; width:48px; height:48px; border-radius:50%;
+      display:grid; place-items:center; background:var(--primary); color:#fff; border:none; cursor:pointer; box-shadow:var(--shadow)
+    }
+    .toTop:hover{filter:brightness(1.05); transform:translateY(-1px)}
+
+    footer{border-top:1px solid var(--hair); padding:26px 0; color:#475569}
+
+    @media print{
+      header, .toTop, .toc, .chips, nav{display:none !important}
+      main{padding-top:0}
+      .section{box-shadow:none; border:1px solid #e5e7eb}
+      .formula{background:#fff; border-color:#e5e7eb}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap row" style="padding:10px 0">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">FQ</div>
+        <div>
+          <div class="title" style="font-size:1.05rem">Focus Academy · Teoria</div>
+          <div class="subtitle" style="font-size:.9rem">Guia ràpida de normes lingüístiques</div>
+        </div>
+      </div>
+      <nav>
+        <a class="pill" href="index.html" title="Torna a la pàgina principal">Inici</a>
+        <button id="printBtn" class="pill" title="Imprimeix o desa en PDF">🖨️ Imprimeix</button>
+        <input id="search" class="input" placeholder="Cerca ràpida…" />
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="layout">
+      <aside>
+        <div class="toc card">
+          <h3 class="title" style="font-size:1rem">Continguts</h3>
+          <ul id="tocLinks">
+            <li><a href="#ortografia">Ortografia</a></li>
+            <li><a href="#b-v">B / V</a></li>
+            <li><a href="#j-g">J / G</a></li>
+            <li><a href="#s-c-z-x">S / C / Ç / Z / X</a></li>
+            <li><a href="#h">H</a></li>
+            <li><a href="#r-rr">R / RR</a></li>
+            <li><a href="#l-ll">L / L·L</a></li>
+            <li><a href="#accentuacio">Accentuació</a></li>
+            <li><a href="#gramatica">Gramàtica</a></li>
+            <li><a href="#errors">Errors freqüents</a></li>
+          </ul>
+          <div class="chips">
+            <span class="chip">Català</span><span class="chip">ESO</span><span class="chip">Batxillerat</span>
+          </div>
+        </div>
+      </aside>
+
+      <article>
+        <section class="hero card">
+          <h1>Guia de normes ortogràfiques del català</h1>
+          <p class="subtitle">Regles bàsiques d'ortografia, gramàtica i normes lingüístiques</p>
+          <div class="note"><b>Consell:</b> fes servir la cerca per trobar directament el que necessites.</div>
+        </section>
+
+        <!-- ORTOGRAFIA -->
+        <section id="ortografia" class="section card">
+          <div class="hdr"><h2>Ortografia bàsica</h2></div>
+          <ul>
+            <li><b>Principis fonètics:</b> cada lletra representa un so específic.</li>
+            <li><b>Principis etimològics:</b> conservació de l'origen de les paraules.</li>
+            <li><b>Homòfons:</b> paraules que sonen igual però s'escriuen diferent.</li>
+            <li><b>Normes d'escriptura:</b> majúscules, signes de puntuació, abbreviations.</li>
+          </ul>
+          <h3>Regles generals</h3>
+          <ul>
+            <li>Les lletres dobles: només existeixen <b>rr</b>, <b>ss</b>, <b>l·l</b>, <b>tll</b>, <b>ny</b>, <b>l·l</b>.</li>
+            <li>La <b>h</b> és muda excepte en els dígrafs <b>sh</b>, <b>kh</b> i <b>rh</b> en paraules d'origen estranger.</li>
+          </ul>
+        </section>
+
+        <!-- B / V -->
+        <section id="b-v" class="section card">
+          <div class="hdr"><h2>B / V</h2></div>
+          <ul>
+            <li><b>So similar:</b> ambdues representen el so bilabial sonor /b/.</li>
+            <li><b>Regla general:</b> s'escriu <b>B</b> després de <b>m</b> i <b>n</b>: <code>també</code>, <code>canviar</code>.</li>
+            <li><b>Excepcions:</b> <code>envà</code>, <code>envejar</code>, <code>convèncer</code>.</li>
+          </ul>
+          <h3>Casos específics</h3>
+          <ul>
+            <li>S'escriu <b>B</b>:
+              <ul>
+                <li>En les terminacions <b>-bil</b>, <b>-bilitat</b>: <code>possible</code>, <code>habilitat</code></li>
+                <li>En les paraules que comencen per <b>bi-</b>, <b>bis-</b>, <b>bene-</b>, <b>beni-</b>: <code>bisavi</code>, <code>benefic</code></li>
+                <li>En els imperatius de verbs en <b>-ar</b>: <code>estigues</code> → <code>estiga</code></li>
+              </ul>
+            </li>
+            <li>S'escriu <b>V</b>:
+              <ul>
+                <li>En les terminacions <b>-ívora</b>, <b>-ívore</b>, <b>-ívori</b>, <b>-ívou</b>: <code>herbívor</code></li>
+                <li>Després de <b>d</b>: <code>advertir</code>, <code>advocat</code></li>
+                <li>En els pretèrits imperfectes d'indicatiu: <code>escriviva</code>, <code>tinguives</code></li>
+              </ul>
+            </li>
+          </ul>
+          <!-- Exemple -->
+          <h3>Exemples contrastius</h3>
+          <div class="formula">
+            B → beure, abans, sobre, braç<br>
+            V → viure, avançar, cavall, novell
+          </div>
+        </section>
+
+        <!-- J / G -->
+        <section id="j-g" class="section card">
+          <div class="hdr"><h2>J / G</h2></div>
+          <ul>
+            <li><b>So /ʒ/ (jota):</b> es representa amb <b>j</b> davant de <b>a</b>, <b>o</b>, <b>u</b>: <code>joc</code>, <code>jove</code>, <code>jabón</code>.</li>
+            <li><b>So /ʒ/ amb G:</b> es representa amb <b>g</b> davant de <b>e</b>, <b>i</b>: <code>germà</code>, <code>girar</code>.</li>
+            <li><b>So /g/ dur:</b> amb <b>g</b> davant de <b>a</b>, <b>o</b>, <b>u</b>: <code>gat</code>, <code>gota</code>, <code>guant</code>.</li>
+          </ul>
+          <h3>Regles específiques</h3>
+          <ul>
+            <li>S'escriu <b>J</b>:
+              <ul>
+                <li>En les terminacions <b>-aje</b>: <code>viaje</code>, <code>garaje</code></li>
+                <li>En les paraules que acaben en <b>-jero</b>, <b>-jería</b>: <code>relojero</code></li>
+                <li>En els verbs els infinitius dels quals acaben en <b>-jar</b>, <b>-jerar</b>: <code>trabajar</code>, <code>tejer</code></li>
+              </ul>
+            </li>
+            <li>S'escriu <b>G</b>:
+              <ul>
+                <li>En les paraules que comencen per <b>geo-</b>: <code>geografia</code></li>
+                <li>En les terminacions <b>-gía</b>, <b>-gío</b>, <b>-gélico</b>, <b>-genario</b>, <b>-génico</b>, <b>-géneo</b></li>
+                <li>En els derivats de paraules que porten <b>g</b>: <code>protegir</code> → <code>protecció</code></li>
+              </ul>
+            </li>
+          </ul>
+          <!-- Exemple -->
+          <h3>Exemples contrastius</h3>
+          <div class="formula">
+            J → jove, joc, menjar, viatge<br>
+            G → gelat, girafa, gerani, llegir
+          </div>
+        </section>
+
+        <!-- S / C / Ç / Z / X -->
+        <section id="s-c-z-x" class="section card">
+          <div class="hdr"><h2>S / C / Ç / Z / X</h2></div>
+          <ul>
+            <li><b>S</b>: so /s/ en qualsevol posició: <code>casa</code>, <code>sol</code>, <code>mesa</code>.</li>
+            <li><b>C</b>: so /s/ davant de <b>e</b>, <b>i</b>: <code>ceràmic</code>, <code>ciutat</code>.</li>
+            <li><b>Ç</b>: so /s/ davant de <b>a</b>, <b>o</b>, <b>u</b>: <code>caça</code>, <code>ço</code>, <code>força</code>.</li>
+            <li><b>Z</b>: so /θ/ (interdental) en qualsevol posició: <code>zoo</code>, <code>zebra</code>, <code>llapis</code>.</li>
+            <li><b>X</b>: so /ʃ/ o /ks/: <code>xocolata</code>, <code>examen</code>, <code>fixar</code>.</li>
+          </ul>
+          <h3>Regles específiques</h3>
+          <ul>
+            <li>La <b>ç</b> (ce trencada) només s'usa davant de <b>a</b>, <b>o</b>, <b>u</b>.</li>
+            <li>El so /ks/ es pot representar amb <b>x</b> o <b>cs</b>: <code>examen</code> o <code>ecsamen</code>.</li>
+            <li>El so /ʃ/ (xa) es representa amb <b>x</b> en posició inicial o interior: <code>xarop</code>, <code>caixa</code>.</li>
+          </ul>
+          <!-- Exemple -->
+          <h3>Exemples contrastius</h3>
+          <div class="formula">
+            S → sol, casa, mes, pas<br>
+            C → cel, cistell, cercle<br>
+            Ç → caça, força, braç<br>
+            Z → zoo, zebra, llapis<br>
+            X → xarxa, caixa, examen
+          </div>
+        </section>
+
+        <!-- H -->
+        <section id="h" class="section card">
+          <div class="hdr"><h2>H</h2></div>
+          <ul>
+            <li><b>H muda:</b> no es pronuncia però s'escriu per raons etimològiques: <code>home</code>, <code>història</code>.</li>
+            <li><b>Dígrafs:</b> en paraules d'origen estranger: <code>shopping</code>, <code>khaki</code>, <code>rhythm</code>.</li>
+            <li><b>Excepcions:</b> en algunes interjeccions: <code>ah!</code>, <code>oh!</code>, <code>eh!</code>.</li>
+          </ul>
+          <h3>Regles d'ús</h3>
+          <ul>
+            <li>S'escriu <b>H</b>:
+              <ul>
+                <li>En les paraules que comencen per <b>hue-</b>, <b>hui-</b>, <b>huma-</b>, <b>hume-</b>: <code>huè</code>, <code>huit</code>, <code>humà</code></li>
+                <li>En els derivats de paraules que porten <b>h</b>: <code>herba</code> → <code>herbatge</code></li>
+                <li>En les formes dels verbs <b>haver</b> i <b>fer</b>: <code>he</code>, <code>has</code>, <code>ha</code>, <code>fem</code>, <code>feu</code></li>
+              </ul>
+            </li>
+            <li>No s'escriu <b>H</b>:
+              <ul>
+                <li>En les paraules que comencen per <b>ue-</b>, <b>ui-</b>, <b>uma-</b>, <b>ume-</b> (sense h): <code>uel</code>, <code>uï</code>, <code>um</code></li>
+                <li>En les interjeccions (excepte les esmentades): <code>ai!</code>, <code>oi!</code>, <code>ui!</code></li>
+              </ul>
+            </li>
+          </ul>
+          <!-- Exemple -->
+          <h3>Exemples contrastius</h3>
+          <div class="formula">
+            Amb H → home, hora, història, hàbit<br>
+            Sense H → ora, istòria, àbit (incorrectes)
+          </div>
+        </section>
+
+        <!-- R / RR -->
+        <section id="r-rr" class="section card">
+          <div class="hdr"><h2>R / RR</h2></div>
+          <ul>
+            <li><b>R simple</b>: so simple /ɾ/ en posició intervocàlica o final: <code>cara</code>, <code>parlar</code>.</li>
+            <li><b>RR múltiple</b>: so múltiple /r/ en posició intervocàlica: <code>carro</code>, <code>terrat</code>.</li>
+            <li><b>R inicial</b>: so múltiple /r/ en posició inicial: <code>rata</code>, <code>roca</code>.</li>
+          </ul>
+          <h3>Regles d'ús</h3>
+          <ul>
+            <li>S'escriu <b>RR</b>:
+              <ul>
+                <li>Entre vocals quan es vol representar el so múltiple: <code>perro</code>, <code>garra</code></li>
+                <li>En els derivats de paraules que porten <b>rr</b>: <code>terrat</code> → <code>aterra</code></li>
+              </ul>
+            </li>
+            <li>S'escriu <b>R</b> simple:
+              <ul>
+                <li>En posició final: <code>parlar</code>, <code>menjar</code></li>
+                <li>Després de consonant: <code>honra</code>, <code>alredor</code></li>
+                <li>En posició intervocàlica amb so simple: <code>cara</code>, <code>pera</code></li>
+              </ul>
+            </li>
+          </ul>
+          <!-- Exemple -->
+          <h3>Exemples contrastius</h3>
+          <div class="formula">
+            R simple → cara, pera, mar, honor<br>
+            RR múltiple → carro, terra, barra, gorra
+          </div>
+        </section>
+
+        <!-- L / L·L -->
+        <section id="l-ll" class="section card">
+          <div class="hdr"><h2>L / L·L</h2></div>
+          <ul>
+            <li><b>L simple</b>: so lateral /l/ en qualsevol posició: <code>ala</code>, <code>sol</code>, <code>pal</code>.</li>
+            <li><b>L·L geminada</b>: so doble /lː/ representat amb punt volat: <code>col·legi</code>, <code>il·lusió</code>.</li>
+            <li><b>Diferenciació</b>: el punt volat diferencia significats: <code>cel·la</code> (habitació) vs <code>cella</code> (pèl).</li>
+          </ul>
+          <h3>Regles d'ús</h3>
+          <ul>
+            <li>S'escriu <b>L·L</b>:
+              <ul>
+                <li>En paraules cultes d'origen llatí: <code>col·lecció</code>, <code>il·legal</code></li>
+                <li>En paraules que en llatí tenien <b>ll</b> doble: <code>il·lusió</code> (de illusio)</li>
+                <li>Quan es vol diferenciar de paraules amb <b>l</b> simple: <code>pel·lícula</code> vs <code>película</code></li>
+              </ul>
+            </li>
+            <li>S'escriu <b>L</b> simple:
+              <ul>
+                <li>En la majoria de paraules: <code>ala</code>, <code>sol</code>, <code>pal</code></li>
+                <li>En paraules d'origen no llatí: <code>hotel</code>, <code>golf</code></li>
+              </ul>
+            </li>
+          </ul>
+          <!-- Exemple -->
+          <h3>Exemples contrastius</h3>
+          <div class="formula">
+            L simple → ala, sol, mal, cel<br>
+            L·L geminada → col·legi, il·lusió, tel·la, mil·lenni
+          </div>
+        </section>
+
+        <!-- ACCENTUACIÓ -->
+        <section id="accentuacio" class="section card">
+          <div class="hdr"><h2>Accentuació</h2></div>
+          <ul>
+            <li><b>Paraules agudes</b>: accent en l'última síl·laba. Porten accent quan acaben en vocal, -n o -s: <code>camí</code>, <code>ació</code>, <code>estació</code>.</li>
+            <li><b>Paraules planes</b>: accent en la penúltima síl·laba. Porten accent quan NO acaben en vocal, -n o -s: <code>fàcil</code>, <code>útil</code>, <code>àrbol</code>.</li>
+            <li><b>Paraules esdrúixoles</b>: accent en la antepenúltima síl·laba. Sempre porten accent: <code>síl·laba</code>, <code>esdrúixol</code>, <code>telèfon</code>.</li>
+            <li><b>Paraules sobresdrúixoles</b>: accent abans de l'esdrúixola. Sempre porten accent: <code>explíquem</code>, <code>fàcilment</code>.</li>
+          </ul>
+          <h3>Regles específiques</h3>
+          <ul>
+            <li><b>Diftongs</b>: els diftongs i triftongs segueixen les regals generals d'accentuació.</li>
+            <li><b>Hiats</b>: quan es forma un hiat, s'accentua la vocal feble: <code>país</code>, <code>raïm</code>, <code>veïna</code>.</li>
+            <li><b>Monosíl·labs</b>: no porten accent excepte per diferenciar homògrafs: <code>sí</code> (afirmació) vs <code>si</code> (condicional).</li>
+          </ul>
+          <!-- Exemple -->
+          <h3>Exemples d'accentuació</h3>
+          <div class="formula">
+            Agudes → cantar, llegir, parabrisas<br>
+            Planes → fàcil, útil, àrbol<br>
+            Esdrúixoles → síl·laba, esdrúixol, telèfon<br>
+            Sobresdrúixoles → explíquem, fàcilment
+          </div>
+        </section>
+
+        <!-- GRAMÀTICA -->
+        <section id="gramatica" class="section card">
+          <div class="hdr"><h2>Gramàtica bàsica</h2></div>
+          <ul>
+            <li><b>Articles</b>: determinats (<code>el</code>, <code>la</code>, <code>els</code>, <code>les</code>) i indeterminats (<code>un</code>, <code>una</code>, <code>uns</code>, <code>unes</code>).</li>
+            <li><b>Substantius</b>: gènere (masculí/femení) i nombre (singular/plural).</li>
+            <li><b>Adjectius</b>: concorden en gènere i nombre amb el substantiu.</li>
+            <li><b>Verbs</b>: conjugació (1a, 2a, 3a), modes (indicatiu, subjuntiu, imperatiu), temps (present, passat, futur).</li>
+            <li><b>Pronoms</b>: personals, possessius, demostratius, relatius, interrogatius.</li>
+          </ul>
+          <h3>Estructura de l'oració</h3>
+          <ul>
+            <li><b>Sujete</b>: qui realitza l'acció.</li>
+            <li><b>Predicat</b>: allò que es diu del sujeto.</li>
+            <li><b>Complement</b>: objecte directe, indirecte, circumstancial, etc.</li>
+          </ul>
+        </section>
+
+        <!-- ERRORS -->
+        <section id="errors" class="section card">
+          <div class="hdr"><h2>Errors freqüents a evitar</h2></div>
+          <ul>
+            <li>Confondre <b>b</b> i <b>v</b>: <code>haver</code> vs <code>haver</code> (correcte: <code>haver</code>).</li>
+            <li>Confondre <b>j</b> i <b>g</b>: <code>viatge</code> vs <code>viatje</code> (correcte: <code>viatge</code>).</li>
+            <li>Ometre la <b>h</b> inicial: <code>ora</code> vs <code>hora</code> (correcte: <code>hora</code>).</li>
+            <li>Confondre <b>r</b> i <b>rr</b>: <code>caro</code> vs <code>carro</code> (ambdés correctes però amb significats diferents).</li>
+            <li>Ometre el punt volat en <b>l·l</b>: <code>collegi</code> vs <code>col·legi</code> (correcte: <code>col·legi</code>).</li>
+            <li>Errors d'accentuació: <code>sabado</code> vs <code>dissabte</code> (correcte: <code>dissabte</code>).</li>
+            <li>Confondre <b>s</b>, <b>c</b>, <b>z</b>, <b>x</b>: <code>casa</code>, <code>caça</code>, <code>caza</code> (ambdés correctes però amb significats diferents).</li>
+          </ul>
+        </section>
+
+        <section class="section card" style="display:none" id="printFooter">
+          <p style="margin:0">© <span id="year"></span> Focus Academy · Teoria</p>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <button class="toTop" id="toTop" title="Torna amunt">↑</button>
+
+  <footer>
+    <div class="wrap row" style="align-items:flex-start">
+      <div>
+        <div class="title" style="font-size:1rem">Contacte</div>
+        <div>Dubtes? <a href="mailto:focusacademyamc@gmail.com">focusacademyamc@gmail.com</a></div>
+      </div>
+      <div class="subtitle">© <span id="year2"></span> Focus Academy</div>
+    </div>
+  </footer>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+
+    const y = new Date().getFullYear();
+    $('#year') && ($('#year').textContent = y);
+    $('#year2').textContent = y;
+
+    $('#printBtn').addEventListener('click', ()=> window.print());
+
+    const cards = $$('.section.card');
+    const tocLinks = $$('#tocLinks a');
+
+    function clearHighlights(node){
+      node.querySelectorAll('mark').forEach(m=>{
+        const text = document.createTextNode(m.textContent);
+        m.replaceWith(text);
+      });
+    }
+
+    function highlightNode(node, re){
+      if (node.nodeType === 1) {
+        const el = node;
+        if (el.classList && (el.classList.contains('katex') || el.closest('.katex'))) return;
+        if (['CODE','A','BUTTON','INPUT','NAV'].includes(el.tagName)) return;
+      }
+      if (node.nodeType === 3) {
+        const text = node.textContent;
+        if (!re.test(text)) return;
+        const span = document.createElement('span');
+        span.innerHTML = text.replace(re,'<mark>$1</mark>');
+        node.replaceWith(span);
+      } else {
+        node.childNodes.forEach(child => highlightNode(child, re));
+      }
+    }
+
+    function highlight(container, term){
+      const safe = term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+      const re = new RegExp('('+safe+')','gi');
+      highlightNode(container, re);
+    }
+
+    $('#search').addEventListener('input', e=>{
+      const q = e.target.value.trim().toLowerCase();
+      cards.forEach(c=>{
+        clearHighlights(c);
+        if(!q){ c.style.display=''; return; }
+        const hit = c.textContent.toLowerCase().includes(q);
+        c.style.display = hit? '' : 'none';
+        if(hit) highlight(c, q);
+      });
+    });
+
+    tocLinks.forEach(a=>{
+      a.addEventListener('click', (ev)=>{
+        ev.preventDefault();
+        const id = a.getAttribute('href');
+        const t = document.querySelector(id);
+        if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+      });
+    });
+
+    function updateActive(){
+      let current='';
+      cards.forEach(sec=>{
+        if(window.scrollY >= sec.offsetTop - 120) current = '#'+sec.id;
+      });
+      tocLinks.forEach(a=>{
+        a.classList.toggle('active', a.getAttribute('href')===current);
+      });
+    }
+    window.addEventListener('scroll', updateActive); updateActive();
+
+    $('#toTop').addEventListener('click', ()=> window.scrollTo({top:0, behavior:'smooth'}));
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "\\[", right: "\\]", display: true},
+          {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+      });
+    });
+  </script>
+</body>
+</html>
