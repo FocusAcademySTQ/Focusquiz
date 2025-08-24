@@ -245,7 +245,7 @@
     {
       id: 'cat-ort',
       name: 'Ortografia',
-      desc: 'B/V, J/G, S/C/Ç/Z/X, H, R/RR, L/L·L.',
+      desc: 'b/v, j/g, s/c/ç/z/x, h, r/rr, l/l·l.',
       badge: 'CAT',
       category: 'cat',
       gen: genCatOrt,
