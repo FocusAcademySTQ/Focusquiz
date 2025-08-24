@@ -10,8 +10,8 @@
 
   // B / V
   const BANK_BV = [
-    { text: `Escriu correctament amb B o V: ha_er`,                 answer: `haver` },
-    { text: `Escriu correctament correctament (B/V): a__ans`,      answer: `abans` },
+    { text: `Escriu correctament (B/V): ha_er`,                 answer: `haver` },
+    { text: `Escriu correctament (B/V): a__ans`,      answer: `abans` },
     { text: `Escriu correctament (B/V): pro__ar (intentar)`,         answer: `provar` },
     { text: `Escriu correctament (B/V): cu__erta (d’un llibre)`, answer: `coberta` },
     { text: `Escriu correctament (B/V): su__stituir`,               answer: `substituir` },
