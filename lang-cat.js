@@ -242,4 +242,26 @@
       config: OrtografiaConfig
     },
     {
-      id: 'cat-morf',
+id: 'cat-morf',
+      name: 'Morfologia',
+      desc: 'Subjecte, temps verbals, categories, concordança, funcions sintàctiques.',
+      badge: 'CAT',
+      category: 'cat',
+      gen: genCatMorf,
+      config: MorfologiaConfig
+    }
+  ];
+
+  /* ========== REGISTRE ========== */
+  if (typeof window.addModules === 'function') {
+    window.addModules(CAT_MODULES);
+  } else {
+    window._PENDING_CAT_MODULES_ = CAT_MODULES;
+    window.addEventListener('DOMContentLoaded', ()=>{
+      if (typeof window.addModules === 'function' && window._PENDING_CAT_MODULES_) {
+        window.addModules(window._PENDING_CAT_MODULES_);
+        delete window._PENDING_CAT_MODULES_;
+      }
+    });
+  }
+})();
