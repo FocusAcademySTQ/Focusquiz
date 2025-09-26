@@ -34,11 +34,8 @@
     { text: `Escriu correctament (B/V): __ocabulari`,           answer: `vocabulari` },
     { text: `Escriu correctament (B/V): ha__itar (viure en un lloc)`, answer: `habitar` },
     { text: `Escriu correctament (B/V): a__usar (fer mal ús)`,  answer: `abusar` },
-    { text: `Escriu correctament (B/V): __olcà (muntanya que treu foc)`, answer: `volca` },
+    { text: `Escriu correctament (B/V): __olcà (muntanya que treu foc)`, answer: `volcà` },
     { text: `Escriu correctament (B/V): __ell (molts anys)`, answer: `vell` },
-    { text: `Escriu correctament (B/V): __uitar (guitar)`, answer: `guitar` },
-    { text: `Escriu correctament (B/V): __anar (anar)`, answer: `vanar` },
-    { text: `Escriu correctament (B/V): __acil (fàcil)`, answer: `fàcil` },
     { text: `Escriu correctament (B/V): __otar (eleccions)`, answer: `votar` },
     { text: `Escriu correctament (B/V): __enir (caminar)`, answer: `venir` },
     { text: `Escriu correctament (B/V): __alència (ciutat)`, answer: `valència` },
@@ -47,7 +44,7 @@
 
   // J / G
   const BANK_JG = [
-    { text: `Escriu correctament correctament (g/j): via_tge`,     answer: `viatge` },
+    { text: `Escriu correctament (g/j): viat_e`,     answer: `viatge` },
     { text: `Escriu correctament (g/j): pro_ecció`,                  answer: `projecció` },
     { text: `Escriu correctament (g/j): le__islació`,            answer: `legislació` },
     { text: `Escriu correctament (g/j): _erani (planta)`,            answer: `gerani` },
@@ -58,7 +55,6 @@
     { text: `Escriu correctament (g/j): obli__ar (forçar)`,          answer: `obligar` },
     { text: `Escriu correctament (g/j): prodi__i`,               answer: `prodigi` },
     { text: `Escriu correctament (g/j): ma__ia (encanteri)`,       answer: `màgia` },
-    { text: `Escriu correctament (g/j): in__enier (professió)`,      answer: `enginyer` },
     { text: `Escriu correctament (g/j): __ove (adolescent)`,        answer: `jove` },
     { text: `Escriu correctament (g/j): __utjar (valorar)`,        answer: `jutjar` },
     { text: `Escriu correctament (g/j): di__ital (numèric)`,     answer: `digital` },
@@ -75,7 +71,7 @@
 
   // S / C / Ç / Z / X
   const BANK_SCCZX = [
-    { text: `Escriu correctament correctament (c/ç): can_ó`,       answer: `cançó` },
+    { text: `Escriu correctament (c/ç): can_ó`,       answer: `cançó` },
     { text: `Escriu correctament (c/ç): a_ció`,                      answer: `acció` },
     { text: `Escriu correctament (c/ç): bra_`,                   answer: `braç` },
     { text: `Escriu correctament (x/ks): e_aminar`,                answer: `examinar` },
@@ -144,7 +140,6 @@
 { text: `Corregix: egzamen`, answer: `examen` },
 { text: `Corregix: aquet`, answer: `aquest` },
 { text: `Corregix: vui`, answer: `vull` },
-{ text: `Corregix: boi`, answer: `voi` },
 { text: `Corregix: mirala`, answer: `mira-la` },
 { text: `Corregix: nose`, answer: `no sé` },
 { text: `Corregix: porke`, answer: `perquè` },
