@@ -167,18 +167,30 @@
 
   /* ========== GENERADORS ========== */
   function genCatOrt(level, opts = {}){
-    const subKey = opts.sub || 'bv';
-    const sub = SUBS.find(s => s.key === subKey) || SUBS[0];
-    const q = choice(sub.bank);
-    return { type: 'cat-ort', text: q.text, answer: q.answer };
-  }
+  const subKey = opts.sub || 'bv';
+  const sub = SUBS.find(s => s.key === subKey) || SUBS[0];
+  const q = choice(sub.bank);
+  return { 
+    type: 'cat-ort', 
+    text: q.text, 
+    answer: q.answer, 
+    options: q.options || null,
+    input: "text"
+  };
+}
 
-  function genCatMorf(level, opts = {}){
-    const subKey = opts.sub || 'categories';
-    const sub = SUBS_MORF.find(s => s.key === subKey) || SUBS_MORF[0];
-    const q = choice(sub.bank);
-    return { type: 'cat-morf', text: q.text, answer: q.answer };
-  }
+function genCatMorf(level, opts = {}){
+  const subKey = opts.sub || 'categories';
+  const sub = SUBS_MORF.find(s => s.key === subKey) || SUBS_MORF[0];
+  const q = choice(sub.bank);
+  return { 
+    type: 'cat-morf', 
+    text: q.text, 
+    answer: q.answer, 
+    options: q.options || null,
+    input: "text"
+  };
+}
 
   /* ========== UI DE CONFIG ========== */
   const OrtografiaConfig = {
