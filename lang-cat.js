@@ -388,15 +388,6 @@
       category: 'cat',
       gen: genFromBank(BANK_MORF)
     }
-   {
-      id: 'cat-ort2',
-      name: '3r català',
-      desc: 'una cosa',
-      badge: 'CAT',
-      category: 'cat',
-      gen: genCatOrt,
-      config: OrtografiaConfig
-    },
   ];
 
   /* ========== REGISTRE ========== */
@@ -412,4 +403,3 @@
     });
   }
 })();
-
