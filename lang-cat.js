@@ -309,83 +309,32 @@
   }
 
   const BANK_MORF = [
-      /* ---------- 1) Subjecte / predicat ---------- */
-  {
-    text: `Quin és el subjecte de l’oració: "Els alumnes estudien molt."`,
-    options: ["Els alumnes", "Estudien molt", "Els alumnes estudien molt"],
-    answer: "Els alumnes"
-  },
-  {
-    text: `Quin és el predicat de l’oració: "La Marta juga al parc."`,
-    options: ["La Marta", "juga al parc", "La Marta juga"],
-    answer: "juga al parc"
-  },
-
-  /* ---------- 2) Temps i mode verbal ---------- */
-  {
-    text: `Indica el temps i mode del verb: "Cantàvem"`,
-    options: ["Present d'indicatiu", "Imperfet d'indicatiu", "Futur simple"],
-    answer: "Imperfet d'indicatiu"
-  },
-  {
-    text: `Indica el temps i mode del verb: "Hauré menjat"`,
-    options: ["Futur compost d'indicatiu", "Condicional perfet", "Perfet d'indicatiu"],
-    answer: "Futur compost d'indicatiu"
-  },
-
-  /* ---------- 3) Categories gramaticals ---------- */
-  {
-    text: `Quina categoria gramatical és: "ràpidament"`,
-    options: ["Adverbi", "Adjectiu", "Nom"],
-    answer: "Adverbi"
-  },
-  {
-    text: `Quina categoria gramatical és: "gossos"`,
-    options: ["Nom comú", "Verb", "Article"],
-    answer: "Nom comú"
-  },
-
-  /* ---------- 4) Concordança ---------- */
-  {
-    text: `Quina frase és correcta?`,
-    options: [
-      "Els nen juga a pilota",
-      "Els nens juguen a pilota",
-      "Els nens juga a pilota"
-    ],
-    answer: "Els nens juguen a pilota"
-  },
-  {
-    text: `Quina frase és correcta?`,
-    options: [
-      "La noies bonica",
-      "Les noies boniques",
-      "Les noia boniques"
-    ],
-    answer: "Les noies boniques"
-  },
-
-  /* ---------- 5) Funcions sintàctiques ---------- */
-  {
-    text: `Funció sintàctica de "al parc" a l’oració: "La Marta juga al parc"`,
-    options: [
-      "Complement directe",
-      "Complement circumstancial de lloc",
-      "Atribut"
-    ],
-    answer: "Complement circumstancial de lloc"
-  },
-  {
-    text: `Funció sintàctica de "un llibre" a l’oració: "Vaig comprar un llibre"`,
-    options: [
-      "Subjecte",
-      "Complement directe",
-      "Complement de règim"
-    ],
-    answer: "Complement directe"
-  }
-
-];
+    { text: `Identifica la categoria gramatical de "ràpidament".`, answer: `adverbi` },
+    { text: `Identifica la categoria gramatical de "nosaltres".`,  answer: `pronom personal` },
+    { text: `Identifica la categoria gramatical de "gran".`,       answer: `adjectiu` },
+    { text: `Quina categoria és "el"?`,                            answer: `article determinat` },
+    { text: `Quina categoria és "una"?`,                           answer: `article indeterminat` },
+    { text: `Quina categoria és "casa"?`,                          answer: `nom comú` },
+    { text: `Quina categoria és "Barcelona"?`,                     answer: `nom propi` },
+    { text: `Quina categoria és "córrer"?`,                        answer: `verb` },
+    { text: `Quina categoria és "amb"?`,                           answer: `preposició` },
+    { text: `Quina categoria és "però"?`,                          answer: `conjunció` },
+    { text: `Quina categoria és "ai!"?`,                           answer: `interjecció` },
+    { text: `Quina categoria és "meu" (en "el meu llibre")?`,      answer: `adjectiu possessiu` },
+    { text: `Quina categoria és "alguns"?`,                        answer: `determinant indefinit` },
+    { text: `Quina categoria és "aquestes"?`,                      answer: `determinant demostratiu` },
+    { text: `Quina categoria és "on"?`,                            answer: `pronom relatiu / adverbi interrogatiu` },
+    { text: `Quina categoria és "mai"?`,                           answer: `adverbi de temps` },
+    { text: `Quina categoria és "molt"?`,                          answer: `adverbi de quantitat` },
+    { text: `Quina categoria és "jo"?`,                            answer: `pronom personal` },
+    { text: `Quina categoria és "que" en "El llibre que vull"?`,   answer: `pronom relatiu` },
+    { text: `Quina categoria és "se" en "se'n va"?`,               answer: `pronom feble` },
+    { text: `Quina categoria és "cap" en "No hi ha cap problema"?`,answer: `determinant quantitatiu` },
+    { text: `Quina categoria és "tothom"?`,                        answer: `pronom indefinit` },
+    { text: `Quina categoria és "quan" (interrogatiu)?`,           answer: `adverbi interrogatiu` },
+    { text: `Quina categoria és "sempre"?`,                        answer: `adverbi de temps` },
+    { text: `Quina categoria és "tan" en "és tan alt"?`,           answer: `adverbi de quantitat` }
+  ];
 
   function genFromBank(bank){
     return function(level, opts = {}){
