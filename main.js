@@ -495,7 +495,7 @@ function renderQuestion() {
   $('#answer').style.display = 'block';
   $('#answer').type = 'text';
   $('#answer').setAttribute('inputmode','decimal');
-  renderKeypad(); // 👉 aquí sí que volem teclat
+  renderKeypad(); // 👈 aquí torna a pintar el teclat numèric dins #keypad
 }
 }
 
