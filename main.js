@@ -470,7 +470,8 @@ function renderQuestion(){
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value = '';
   $('#feedback').innerHTML = '';
-  $('#keypad').innerHTML = ''; // netegem abans de pintar
+  $('#keypad').querySelectorAll('*').forEach(el => el.remove()); // ✅ només buida dins
+
 
   const mod = MODULES.find(m => m.id === session.module);
 
