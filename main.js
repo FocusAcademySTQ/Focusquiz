@@ -471,12 +471,27 @@ function renderQuestion(){
   $('#answer').value='';
   $('#feedback').innerHTML='';
 
-  // 🔹 Ajust segons mòdul
+  // 🔹 Ajustar segons categoria del mòdul
   const mod = MODULES.find(m => m.id === session.module);
+
   if (mod?.category === 'cat') {
+    // Català: sempre text, mai teclat numèric
+    $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
+
+    // Si la pregunta té opcions → mostra-les
+    if (q.options) {
+      $('#qMedia').innerHTML += `
+        <div class="options">
+          ${q.options.map(opt => `
+            <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
+          `).join('')}
+        </div>`;
+    }
   } else {
-    $('#answer').setAttribute('inputmode', 'decimal');
+    // Matemàtiques i altres mòduls: permet numèric
+    $('#answer').type = 'text';
+    $('#answer').setAttribute('inputmode','decimal');
   }
 }
 
