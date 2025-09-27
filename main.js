@@ -474,22 +474,31 @@ function renderQuestion(){
 
   const mod = MODULES.find(m => m.id === session.module);
 
+  function renderQuestion(){
+  const q = session.questions[session.idx];
+  $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
+  $('#qText').innerHTML = q.title || q.text;
+  $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
+  $('#answer').value='';
+  $('#feedback').innerHTML='';
+  $('#keypad').innerHTML='';
+
+  const mod = MODULES.find(m => m.id === session.module);
+
   if (mod?.category === 'cat') {
     // 🔹 Mòduls de llengua catalana
-
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
     if (q.options && Array.isArray(q.options)) {
-      // Si és multiple choice → amaguem input i mostrem opcions a la dreta
       $('#answer').style.display = 'none';
       const optionsHtml = q.options.map(opt => `
         <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
       `).join('');
       $('#keypad').innerHTML = `<div class="options">${optionsHtml}</div>`;
     } else {
-      // Si no té opcions → input text normal
       $('#answer').style.display = 'block';
+      $('#keypad').innerHTML = '';
     }
 
   } else {
@@ -497,9 +506,9 @@ function renderQuestion(){
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
-    renderKeypad(); // 👈 assegura't que tens definida la funció que pinta el teclat numèric
+    $('#keypad').innerHTML = ''; // o crida a renderKeypad() si el vols
   }
-}
+} // 👈 només una per l’else i una per la funció
 
 
 function updateProgress(){
