@@ -468,34 +468,35 @@ function renderQuestion(){
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
   $('#qText').innerHTML = q.title || q.text;
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
-  $('#answer').value = '';
-  $('#feedback').innerHTML = '';
+  $('#answer').value='';
+  $('#feedback').innerHTML='';
+  $('#keypad').innerHTML=''; // 🔹 netegem sempre la zona dreta
 
   const mod = MODULES.find(m => m.id === session.module);
 
   if (mod?.category === 'cat') {
-    // Sempre text, mai teclat numèric
+    // 🔹 Mòduls de llengua catalana → multiple choice o text
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
     if (q.options && Array.isArray(q.options)) {
-      // Amaguem input quan hi ha multiple choice
+      // Si té opcions → amaguem input i mostrem-les a la dreta
       $('#answer').style.display = 'none';
-
-      // Renderitzem botons
       const optionsHtml = q.options.map(opt => `
         <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
       `).join('');
-      $('#qMedia').innerHTML += `<div class="options">${optionsHtml}</div>`;
+      $('#keypad').innerHTML = `<div class="options">${optionsHtml}</div>`;
     } else {
-      // Mostrem input normal
+      // Sense opcions → mantenim l’input de text
       $('#answer').style.display = 'block';
     }
+
   } else {
-    // Matemàtiques i altres mòduls → numèric
+    // 🔹 Matemàtiques i altres mòduls → teclat numèric
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
+    renderKeypad(); // 👉 pinta el teclat numèric a la dreta
   }
 }
 
