@@ -468,37 +468,38 @@ function renderQuestion(){
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
   $('#qText').innerHTML = q.title || q.text;
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
-  $('#answer').value='';
-  $('#feedback').innerHTML='';
-  $('#keypad').innerHTML=''; // 🔹 netegem sempre la zona dreta
+  $('#answer').value = '';
+  $('#feedback').innerHTML = '';
+  $('#keypad').innerHTML = ''; // 🧹 netegem la dreta
 
   const mod = MODULES.find(m => m.id === session.module);
 
   if (mod?.category === 'cat') {
-    // 🔹 Mòduls de llengua catalana → multiple choice o text
+    // 🔹 Llengua catalana
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
     if (q.options && Array.isArray(q.options)) {
-      // Si té opcions → amaguem input i mostrem-les a la dreta
+      // Multiple choice → amaguem input i mostrem opcions a la dreta
       $('#answer').style.display = 'none';
       const optionsHtml = q.options.map(opt => `
         <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
       `).join('');
-      $('#keypad').innerHTML = `<div class="options">${optionsHtml}</div>`;
+      $('#keypad').innerHTML = `<div class="options-grid">${optionsHtml}</div>`;
     } else {
-      // Sense opcions → mantenim l’input de text
+      // Sense opcions → mostrem input text
       $('#answer').style.display = 'block';
     }
 
   } else {
-    // 🔹 Matemàtiques i altres mòduls → teclat numèric
+    // 🔹 Matemàtiques i altres → teclat numèric
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
-    renderKeypad(); // 👉 pinta el teclat numèric a la dreta
+    renderKeypad(); // 👈 pinta el teclat numèric a la dreta
   }
 }
+
 
 function updateProgress(){
   const pct = (session.idx / session.count) * 100;
