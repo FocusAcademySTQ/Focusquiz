@@ -464,13 +464,13 @@ function startQuizFromExisting(moduleId, options, questions){
 }
 
 function renderQuestion(){
-    const q = session.questions[session.idx];
+  const q = session.questions[session.idx];
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
   $('#qText').innerHTML = q.title || q.text;
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
-  $('#answer').value='';
-  $('#feedback').innerHTML='';
-  $('#keypad').innerHTML='';
+  $('#answer').value = '';
+  $('#feedback').innerHTML = '';
+  $('#keypad').innerHTML = ''; // 👈 netegem la zona de teclat/opcions
 
   const mod = MODULES.find(m => m.id === session.module);
 
@@ -495,8 +495,10 @@ function renderQuestion(){
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
-    $('#keypad').innerHTML = ''; // o crida a renderKeypad() si el vols
+    $('#keypad').innerHTML = ''; // o crida a renderKeypad() si vols teclat numèric
   }
+}
+
 
 
 function updateProgress(){
