@@ -464,18 +464,7 @@ function startQuizFromExisting(moduleId, options, questions){
 }
 
 function renderQuestion(){
-  const q = session.questions[session.idx];
-  $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
-  $('#qText').innerHTML = q.title || q.text;
-  $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
-  $('#answer').value = '';
-  $('#feedback').innerHTML = '';
-  $('#keypad').innerHTML = ''; // 👈 netegem la zona de teclat/opcions
-
-  const mod = MODULES.find(m => m.id === session.module);
-
-  function renderQuestion(){
-  const q = session.questions[session.idx];
+    const q = session.questions[session.idx];
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
   $('#qText').innerHTML = q.title || q.text;
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
