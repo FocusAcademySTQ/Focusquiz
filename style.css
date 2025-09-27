@@ -186,26 +186,6 @@ button:hover{transform: translateY(-1px)}
 .board{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
 .board button{height:50px}
 
-/* ===== Multiple choice ===== */
-.options-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-}
-.options-grid .option {
-  background: #e0e7ff;
-  border: none;
-  border-radius: 12px;
-  padding: 14px;
-  font-size: 1rem;
-  font-weight: 600;
-  text-align: center;
-  cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: background .2s;
-}
-.options-grid .option:hover { background: #c7d2fe }
-
 .feedback{padding:12px; border-radius:12px; background: #ecfdf5; border:1px solid #bbf7d0; color:#065f46}
 .feedback.bad{background: #fff1f2; border-color: #fecaca; color:#7f1d1d}
 
@@ -285,3 +265,27 @@ body.study-mode .kbd{ background:#f1f5f9 }
 body.study-mode .input, body.study-mode select{ background:#f8fafc }
 body.study-mode .answer{ font-size:1.25rem }
 body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !important; }
+
+/* ===== Multiple choice al lloc del teclat ===== */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 columnes */
+  gap: 12px;
+}
+
+.options-grid .option {
+  background: #e0e7ff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background .2s;
+}
+
+.options-grid .option:hover {
+  background: #c7d2fe;
+}
