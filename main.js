@@ -470,36 +470,34 @@ function renderQuestion(){
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value = '';
   $('#feedback').innerHTML = '';
-  $('#keypad').innerHTML = ''; // 👈 netegem la zona de teclat/opcions
 
   const mod = MODULES.find(m => m.id === session.module);
 
   if (mod?.category === 'cat') {
-    // 🔹 Mòduls de llengua catalana
+    // Sempre text, mai teclat numèric
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
     if (q.options && Array.isArray(q.options)) {
+      // Amaguem input quan hi ha multiple choice
       $('#answer').style.display = 'none';
+
+      // Renderitzem botons
       const optionsHtml = q.options.map(opt => `
         <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
       `).join('');
-      $('#keypad').innerHTML = `<div class="options">${optionsHtml}</div>`;
+      $('#qMedia').innerHTML += `<div class="options">${optionsHtml}</div>`;
     } else {
+      // Mostrem input normal
       $('#answer').style.display = 'block';
-      $('#keypad').innerHTML = '';
     }
-
   } else {
-    // 🔹 Matemàtiques i altres mòduls
+    // Matemàtiques i altres mòduls → numèric
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
-    $('#keypad').innerHTML = ''; // o crida a renderKeypad() si vols teclat numèric
   }
 }
-
-
 
 function updateProgress(){
   const pct = (session.idx / session.count) * 100;
