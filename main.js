@@ -468,28 +468,32 @@ function renderQuestion(){
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
   $('#qText').innerHTML = q.title || q.text;
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
-  $('#answer').value='';
-  $('#feedback').innerHTML='';
+  $('#answer').value = '';
+  $('#feedback').innerHTML = '';
 
-  // 🔹 Ajustar segons categoria del mòdul
   const mod = MODULES.find(m => m.id === session.module);
 
   if (mod?.category === 'cat') {
-    // Català: sempre text, mai teclat numèric
+    // Sempre text, mai teclat numèric
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
-    // Si la pregunta té opcions → mostra-les
-    if (q.options) {
-      $('#qMedia').innerHTML += `
-        <div class="options">
-          ${q.options.map(opt => `
-            <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
-          `).join('')}
-        </div>`;
+    if (q.options && Array.isArray(q.options)) {
+      // Amaguem input quan hi ha multiple choice
+      $('#answer').style.display = 'none';
+
+      // Renderitzem botons
+      const optionsHtml = q.options.map(opt => `
+        <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
+      `).join('');
+      $('#qMedia').innerHTML += `<div class="options">${optionsHtml}</div>`;
+    } else {
+      // Mostrem input normal
+      $('#answer').style.display = 'block';
     }
   } else {
-    // Matemàtiques i altres mòduls: permet numèric
+    // Matemàtiques i altres mòduls → numèric
+    $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
   }
