@@ -133,37 +133,70 @@
   /* ========== MORFOLOGIA (5 SUBTEMES) ========== */
 
   const BANK_MORFO_SUBJECTE = [
-    { text: `Quin és el subjecte de: "Els alumnes estudien molt."`, answer: `Els alumnes` },
-    { text: `Quin és el predicat de: "La Marta juga al parc."`, answer: `juga al parc` }
-  ];
+  { 
+    text: `Quin és el subjecte de: "Els alumnes estudien molt."`, 
+    options: ["Els alumnes", "molt", "estudien", "cap"], 
+    answer: `Els alumnes` 
+  },
+  { 
+    text: `Quin és el predicat de: "La Marta juga al parc."`, 
+    options: ["La Marta", "juga al parc", "al parc", "juga"], 
+    answer: `juga al parc` 
+  }
+];
 
-  const BANK_MORFO_TEMPS = [
-    { text: `Indica temps i mode: "Cantàvem"`, answer: `Imperfet d'indicatiu` },
-    { text: `Indica temps i mode: "Hauré menjat"`, answer: `Futur compost d'indicatiu` }
-  ];
+const BANK_MORFO_TEMPS = [
+  { 
+    text: `Indica temps i mode: "Cantàvem"`, 
+    options: ["Present d’indicatiu", "Imperfet d’indicatiu", "Futur simple", "Condicional"], 
+    answer: `Imperfet d'indicatiu` 
+  },
+  { 
+    text: `Indica temps i mode: "Hauré menjat"`, 
+    options: ["Passat simple", "Futur compost d’indicatiu", "Imperfet subjuntiu", "Condicional compost"], 
+    answer: `Futur compost d'indicatiu` 
+  }
+];
 
-  const BANK_MORFO_CATEGORIES = [
-    { text: `Categoria gramatical de "ràpidament"`, answer: `Adverbi` },
-    { text: `Categoria gramatical de "gossos"`, answer: `Nom comú` }
-  ];
+const BANK_MORFO_CATEGORIES = [
+  { 
+    text: `Categoria gramatical de "ràpidament"`, 
+    options: ["Nom comú", "Adverbi", "Adjectiu", "Verb"], 
+    answer: `Adverbi` 
+  },
+  { 
+    text: `Categoria gramatical de "gossos"`, 
+    options: ["Nom comú", "Verb", "Pronom", "Adjectiu"], 
+    answer: `Nom comú` 
+  }
+];
 
-  const BANK_MORFO_CONCORDANCA = [
-    { text: `Frase correcta:`, options:["Els nen juga a pilota","Els nens juguen a pilota"], answer: `Els nens juguen a pilota` },
-    { text: `Frase correcta:`, options:["La noies bonica","Les noies boniques"], answer: `Les noies boniques` }
-  ];
+const BANK_MORFO_CONCORDANCA = [
+  { 
+    text: `Frase correcta:`, 
+    options:["Els nen juga a pilota","Els nens juguen a pilota","Els nens juga a pilota","Els nen juguen a pilota"], 
+    answer: `Els nens juguen a pilota` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["La noies bonica","Les noies boniques","La noia boniques","Les noia bonica"], 
+    answer: `Les noies boniques` 
+  }
+];
 
-  const BANK_MORFO_FUNCIONS = [
-    { text: `Funció de "al parc" en: "La Marta juga al parc"`, answer: `Complement circumstancial de lloc` },
-    { text: `Funció de "un llibre" en: "Vaig comprar un llibre"`, answer: `Complement directe` }
-  ];
+const BANK_MORFO_FUNCIONS = [
+  { 
+    text: `Funció de "al parc" en: "La Marta juga al parc"`, 
+    options: ["Complement circumstancial de lloc", "Subjecte", "Complement directe", "Complement de règim"], 
+    answer: `Complement circumstancial de lloc` 
+  },
+  { 
+    text: `Funció de "un llibre" en: "Vaig comprar un llibre"`, 
+    options: ["Complement directe", "Subjecte", "Atribut", "Complement de lloc"], 
+    answer: `Complement directe` 
+  }
+];
 
-  const SUBS_MORF = [
-    { key: 'subjecte', label: 'Subjecte / Predicat', bank: BANK_MORFO_SUBJECTE },
-    { key: 'temps', label: 'Temps i mode verbal', bank: BANK_MORFO_TEMPS },
-    { key: 'categories', label: 'Categories gramaticals', bank: BANK_MORFO_CATEGORIES },
-    { key: 'concordanca', label: 'Concordança', bank: BANK_MORFO_CONCORDANCA },
-    { key: 'funcions', label: 'Funcions sintàctiques', bank: BANK_MORFO_FUNCIONS }
-  ];
 
   /* ========== GENERADORS ========== */
   function genCatOrt(level, opts = {}){
