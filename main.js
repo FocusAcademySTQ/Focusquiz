@@ -463,42 +463,42 @@ function startQuizFromExisting(moduleId, options, questions){
   $('#answer').focus();
 }
 
-function renderQuestion(){
+function renderQuestion() {
   const q = session.questions[session.idx];
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
   $('#qText').innerHTML = q.title || q.text;
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value = '';
   $('#feedback').innerHTML = '';
-  $('#keypad').innerHTML = ''; // 🧹 netegem la dreta
+  $('#keypad').innerHTML = ''; // 👈 netegem sempre la zona dreta
 
   const mod = MODULES.find(m => m.id === session.module);
 
   if (mod?.category === 'cat') {
-    // 🔹 Llengua catalana
+    // 🔹 Llengua catalana → multiple choice o text
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
     if (q.options && Array.isArray(q.options)) {
-      // Multiple choice → amaguem input i mostrem opcions a la dreta
+      // Multiple choice → es mostra a la dreta
       $('#answer').style.display = 'none';
       const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
+        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer();">${opt}</button>
       `).join('');
       $('#keypad').innerHTML = `<div class="options-grid">${optionsHtml}</div>`;
     } else {
-      // Sense opcions → mostrem input text
+      // Resposta oberta
       $('#answer').style.display = 'block';
     }
-
   } else {
     // 🔹 Matemàtiques i altres → teclat numèric
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
-    $('#answer').setAttribute('inputmode','decimal');
-    renderKeypad(); // 👈 pinta el teclat numèric a la dreta
+    $('#answer').setAttribute('inputmode', 'decimal');
+    renderKeypad(); // 👈 només aquí
   }
 }
+
 
 
 function updateProgress(){
