@@ -217,11 +217,11 @@ function genCatMorf(level, opts = {}){
   const sub = SUBS_MORF.find(s => s.key === subKey) || SUBS_MORF[0];
   const q = choice(sub.bank);
   return { 
-    type: 'cat-morf', 
-    text: q.text, 
-    answer: q.answer, 
+    type: 'cat-morf',
+    text: q.text,
+    answer: q.answer,
     options: q.options || null,
-    input: "text"
+    input: q.options ? "choice" : "text"   // 👈 si té options → multiple choice
   };
 }
 
