@@ -508,7 +508,6 @@ function renderQuestion(){
     $('#answer').setAttribute('inputmode','decimal');
     $('#keypad').innerHTML = ''; // o crida a renderKeypad() si el vols
   }
-} // 👈 només una per l’else i una per la funció
 
 
 function updateProgress(){
