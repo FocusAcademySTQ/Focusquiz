@@ -468,8 +468,18 @@ function renderQuestion(){
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
   $('#qText').innerHTML = q.title || q.text;
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
-  $('#answer').value='';
-  $('#feedback').innerHTML='';
+  $('#answer').value = '';
+  $('#feedback').innerHTML = '';
+
+  // 🔹 Ajustar input segons el mòdul
+  const mod = MODULES.find(m => m.id === session.module);
+  if (mod?.category === 'cat') {
+    $('#answer').type = 'text';
+    $('#answer').removeAttribute('inputmode');
+  } else {
+    $('#answer').type = 'text';
+    $('#answer').setAttribute('inputmode', 'decimal');
+  }
 }
 
 function updateProgress(){
