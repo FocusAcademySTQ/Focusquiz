@@ -491,12 +491,12 @@ function renderQuestion() {
       $('#answer').style.display = 'block';
     }
   } else {
-    // 🔹 Matemàtiques i altres → teclat numèric
-    $('#answer').style.display = 'block';
-    $('#answer').type = 'text';
-    $('#answer').setAttribute('inputmode', 'decimal');
-    renderKeypad(); // 👈 només aquí
-  }
+  // 🔹 Matemàtiques i altres → teclat numèric
+  $('#answer').style.display = 'block';
+  $('#answer').type = 'text';
+  $('#answer').setAttribute('inputmode','decimal');
+  renderKeypad(); // 👉 aquí sí que volem teclat
+}
 }
 
 
