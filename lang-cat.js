@@ -372,7 +372,7 @@
   text: `Quin és el predicat de: "La mestra escriu a la pissarra."`, 
   options: ["La mestra", "escriu a la pissarra", "escriu", "pissarra"], 
   answer: `escriu a la pissarra` 
-}
+},
 { 
   text: `Quin és el subjecte de: "El pare condueix el cotxe."`, 
   options: ["El pare", "condueix", "el cotxe", "cap"], 
