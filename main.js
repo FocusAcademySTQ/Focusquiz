@@ -463,42 +463,66 @@ function startQuizFromExisting(moduleId, options, questions){
   $('#answer').focus();
 }
 
-function renderQuestion() {
+function renderQuestion(){
   const q = session.questions[session.idx];
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
   $('#qText').innerHTML = q.title || q.text;
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value = '';
   $('#feedback').innerHTML = '';
-  $('#keypad').innerHTML = ''; // 👈 netegem sempre la zona dreta
+  $('#keypad').querySelectorAll('*').forEach(el => el.remove()); // ✅ només buida dins
+
 
   const mod = MODULES.find(m => m.id === session.module);
 
   if (mod?.category === 'cat') {
-    // 🔹 Llengua catalana → multiple choice o text
+    // 🔹 Mòduls de català → sense teclat numèric
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
     if (q.options && Array.isArray(q.options)) {
-      // Multiple choice → es mostra a la dreta
       $('#answer').style.display = 'none';
       const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer();">${opt}</button>
+        <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
       `).join('');
-      $('#keypad').innerHTML = `<div class="options-grid">${optionsHtml}</div>`;
+      $('#keypad').innerHTML = `<div class="options">${optionsHtml}</div>`;
     } else {
-      // Resposta oberta
       $('#answer').style.display = 'block';
     }
+
   } else {
-  // 🔹 Matemàtiques i altres → teclat numèric
-  $('#answer').style.display = 'block';
-  $('#answer').type = 'text';
-  $('#answer').setAttribute('inputmode','decimal');
-  renderKeypad(); // 👉 aquí sí que volem teclat
-}
+    // 🔹 Matemàtiques i altres → teclat numèric
+    $('#answer').style.display = 'block';
+    $('#answer').type = 'text';
+    $('#answer').setAttribute('inputmode','decimal');
+    renderKeypad(); // 👈 aquí va la crida
+  }
 }
 
+// ✨ Aquí fora va la definició del teclat
+function renderKeypad(){
+  $('#keypad').innerHTML = `
+    <h3 class="title" style="margin-top:0">Teclat numèric</h3>
+    <div class="board">
+      <button onclick="typeKey('7')">7</button>
+      <button onclick="typeKey('8')">8</button>
+      <button onclick="typeKey('9')">9</button>
+      <button onclick="typeKey('4')">4</button>
+      <button onclick="typeKey('5')">5</button>
+      <button onclick="typeKey('6')">6</button>
+      <button onclick="typeKey('1')">1</button>
+      <button onclick="typeKey('2')">2</button>
+      <button onclick="typeKey('3')">3</button>
+      <button onclick="typeKey('0')">0</button>
+      <button onclick="typeKey('-')">±</button>
+      <button onclick="typeKey('del')">⌫</button>
+    </div>
+    <div style="margin-top:10px; display:flex; gap:10px; align-items:center">
+      <span class="kbd">↵</span> <span class="subtitle">comprova</span>
+      <span class="kbd">→</span> <span class="subtitle">omet</span>
+    </div>
+  `;
+}
 
 
 function updateProgress(){
