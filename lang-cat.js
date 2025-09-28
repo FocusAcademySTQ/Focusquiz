@@ -110,7 +110,16 @@
   const BANK_RR = [
     { text: `Escriu correctament, R o RR: ca_era (via).`, answer: `carretera` },
     { text: `Escriu correctament, R o RR: te__a (sòl).`, answer: `terra` },
-    { text: `Escriu correctament, R o RR: ca__il (vial).`, answer: `carril` }
+    { text: `Escriu correctament, R o RR: ca__il (vial).`, answer: `carril` }, 
+    { text: `Escriu correctament, R o RR: co_eu (casc urbà).`, answer: `carrer` },
+   { text: `Escriu correctament, R o RR: ba_a (animal de granja).`, answer: `barra` },
+   { text: `Escriu correctament, R o RR: co__eus (cos humà).`, answer: `còrreus` },
+   { text: `Escriu correctament, R o RR: se__a (eina).`, answer: `serra` }, 
+   { text: `Escriu correctament, R o RR: fe__o (material).`, answer: `ferro` },
+   { text: `Escriu correctament, R o RR: a__òs (menjar).`, answer: `arròs` }, 
+   { text: `Escriu correctament, R o RR: te_eny (espai).`, answer: `terreny` },
+   { text: `Escriu correctament, R o RR: _atolí (animal petit).`, answer: `ratolí` },
+   { text: `Escriu correctament, R o RR: ba_era (símbol).`, answer: `bandera` }
   ];
 
   // L / L·L
