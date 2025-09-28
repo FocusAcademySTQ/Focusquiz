@@ -483,7 +483,7 @@ function renderQuestion(){
     if (q.options && Array.isArray(q.options)) {
       $('#answer').style.display = 'none';
       const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'">${opt}</button>
+        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
       `).join('');
       $('#keypad').innerHTML = `<div class="options">${optionsHtml}</div>`;
     } else {
