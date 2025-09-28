@@ -820,7 +820,7 @@ const BANK_MORFO_FUNCIONS = [
 ];
 
    const SUBS_MORF = [
-  { key: 'subjecte', label: 'Subjecte / Predicat', bank: BANK_MORFO_SUBJECTE },
+  { key: 'subjecte', label: 'Subjecte Vs Predicat', bank: BANK_MORFO_SUBJECTE },
   { key: 'temps', label: 'Temps i mode verbal', bank: BANK_MORFO_TEMPS },
   { key: 'categories', label: 'Categories gramaticals', bank: BANK_MORFO_CATEGORIES },
   { key: 'concordanca', label: 'Concordança', bank: BANK_MORFO_CONCORDANCA },
