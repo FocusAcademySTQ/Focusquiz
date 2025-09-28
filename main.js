@@ -1,4 +1,3 @@
-
 /* ===================== UTILS ===================== */
 
 function showModal(contentHTML){
@@ -496,7 +495,7 @@ function renderQuestion() {
   $('#answer').style.display = 'block';
   $('#answer').type = 'text';
   $('#answer').setAttribute('inputmode','decimal');
-  renderKeypad(); // 👈 aquí torna a pintar el teclat numèric dins #keypad
+  renderKeypad(); // 👉 aquí sí que volem teclat
 }
 }
 
