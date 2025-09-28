@@ -268,7 +268,46 @@
   const BANK_LLG = [
     { text: `Escriu correctament, L o L·L: co__egi`, answer: `col·legi` },
     { text: `Escriu correctament, L o L·L: inte__igent`, answer: `intel·ligent` },
-    { text: `Escriu correctament, L o L·L: para__el`, answer: `paral·lel` }
+    { text: `Escriu correctament, L o L·L: para__el`, answer: `paral·lel` },
+     { text: `Escriu correctament, L o L·L L o L·L: inte__igent`,      answer: `intel·ligent` },
+    { text: `Escriu correctament, L o L·L L o L·L: para__el`,         answer: `paral·lel` },
+    { text: `Escriu correctament, L o L·L L o L·L: i__lusió`,         answer: `il·lusió` },
+    { text: `Escriu correctament, L o L·L L o L·L: a__lot`,           answer: `al·lot` },
+    { text: `Escriu correctament, L o L·L L o L·L: mi__lenni`,        answer: `mil·lenni` },
+    { text: `Escriu correctament, L o L·L L o L·L: co__lecció`,       answer: `col·lecció` },
+    { text: `Escriu correctament, L o L·L L o L·L: co__lapse`,        answer: `col·lapse` },
+    { text: `Escriu correctament, L o L·L L o L·L: a__legoria`,       answer: `al·legoria` },
+    { text: `Escriu correctament, L o L·L L o L·L: a__lèrgia`,        answer: `al·lèrgia` },
+    { text: `Escriu correctament, L o L·L L o L·L: pe__lícula`,       answer: `pel·lícula` },
+    { text: `Escriu correctament, L o L·L L o L·L: co__locar`,        answer: `col·locar` },
+    { text: `Escriu correctament, L o L·L L o L·L: il__lustrar`,      answer: `il·lustrar` },
+    { text: `Escriu correctament, L o L·L L o L·L: co__laborar`,      answer: `col·laborar` },
+    { text: `Escriu correctament, L o L·L L o L·L: intel__lecte`,     answer: `intel·lecte` },
+    { text: `Escriu correctament, L o L·L L o L·L: intel__lectual`,   answer: `intel·lectual` },
+    { text: `Escriu correctament, L o L·L L o L·L: par__lelisme`,     answer: `paral·lelisme` },
+    { text: `Escriu correctament, L o L·L L o L·L: a__ternatiu`,      answer: `al·ternatiu` },
+    { text: `Escriu correctament, L o L·L L o L·L: ce__lular`,        answer: `cel·lular` },
+    { text: `Escriu correctament, L o L·L L o L·L: a__lusió`,         answer: `al·lusió` }, 
+     { text: `Escriu correctament, L o L·L: a__a (part del cos d’un ocell)`, answer: `ala` },
+{ text: `Escriu correctament, L o L·L: fi__a (cua ordenada)`, answer: `fila` },
+{ text: `Escriu correctament, L o L·L: so__a (única, sense ningú)`, answer: `sola` },
+{ text: `Escriu correctament, L o L·L: ve__a (per navegar)`, answer: `vela` },
+{ text: `Escriu correctament, L o L·L: ca__a (indret de la costa)`, answer: `cala` },
+{ text: `Escriu correctament, L o L·L: ma__a (dolenta)`, answer: `mala` },
+{ text: `Escriu correctament, L o L·L: sa__at (amb sal)`, answer: `salat` },
+{ text: `Escriu correctament, L o L·L: co__or (pigment, tonalitat)`, answer: `color` },
+{ text: `Escriu correctament, L o L·L: me__ó (fruit)`, answer: `meló` },
+{ text: `Escriu correctament, L o L·L: vo__er (tenir intenció de fer)`, answer: `voler` },
+{ text: `Escriu correctament, L o L·L: ca__aix (moble o cala petita)`, answer: `calaix` },
+{ text: `Escriu correctament, L o L·L: pa__eta (ofici de la construcció)`, answer: `paleta` },
+{ text: `Escriu correctament, L o L·L: esca__a (per pujar pisos)`, answer: `escala` },
+{ text: `Escriu correctament, L o L·L: so__ar (relatiu al sol)`, answer: `solar` },
+{ text: `Escriu correctament, L o L·L: ga__eta (galeta dolça)`, answer: `galeta` },
+{ text: `Escriu correctament, L o L·L: ba__ança (per mesurar pes)`, answer: `balança` },
+{ text: `Escriu correctament, L o L·L: ca__amar (animal marí)`, answer: `calamar` },
+{ text: `Escriu correctament, L o L·L: co__oma (ocell blanc)`, answer: `coloma` },
+{ text: `Escriu correctament, L o L·L: li__a (color entre blau i violeta)`, answer: `lila` },
+{ text: `Escriu correctament, L o L·L: va__enta (valerosa)`, answer: `valenta` }
   ];
 
   // Catàleg de subtemes Ortografia
@@ -280,6 +319,7 @@
     { key: 'rr', label: 'R / RR', bank: BANK_RR },
     { key: 'llg', label: 'L / L·L', bank: BANK_LLG }
   ];
+   
 
   /* ========== MORFOLOGIA (5 SUBTEMES) ========== */
 
