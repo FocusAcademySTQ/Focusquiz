@@ -817,7 +817,357 @@ const BANK_MORFO_TEMPS = [
     text: `Indica temps i mode: "Hauré menjat"`, 
     options: ["Passat simple", "Futur compost d’indicatiu", "Imperfet subjuntiu", "Condicional compost"], 
     answer: `Futur compost d'indicatiu` 
-  }
+  },
+   { 
+  text: `Indica temps i mode: "Cantaria"`, 
+  options: ["Condicional simple", "Futur simple", "Imperfet d’indicatiu", "Present de subjuntiu"], 
+  answer: `Condicional simple` 
+},
+{ 
+  text: `Indica temps i mode: "Havia estudiat"`, 
+  options: ["Plusquamperfet d’indicatiu", "Perfet de subjuntiu", "Condicional compost", "Futur compost"], 
+  answer: `Plusquamperfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Correrem"`, 
+  options: ["Condicional simple", "Futur simple d’indicatiu", "Imperfet de subjuntiu", "Present d’indicatiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Cantéssiu"`, 
+  options: ["Present de subjuntiu", "Perfet de subjuntiu", "Imperfet de subjuntiu", "Condicional"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Ha plogut"`, 
+  options: ["Perfet d’indicatiu", "Plusquamperfet d’indicatiu", "Futur compost", "Condicional compost"], 
+  answer: `Perfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Canti"`, 
+  options: ["Present de subjuntiu", "Present d’indicatiu", "Imperfet de subjuntiu", "Condicional"], 
+  answer: `Present de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Haguérem menjat"`, 
+  options: ["Perfet de subjuntiu", "Plusquamperfet de subjuntiu", "Condicional compost", "Futur compost"], 
+  answer: `Plusquamperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Vindré"`, 
+  options: ["Condicional simple", "Futur simple d’indicatiu", "Imperfet d’indicatiu", "Present de subjuntiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Hauríeu arribat"`, 
+  options: ["Condicional compost", "Futur compost d’indicatiu", "Plusquamperfet d’indicatiu", "Perfet de subjuntiu"], 
+  answer: `Condicional compost` 
+},
+{ 
+  text: `Indica temps i mode: "Arribi"`, 
+  options: ["Present de subjuntiu", "Imperfet d’indicatiu", "Futur simple", "Condicional"], 
+  answer: `Present de subjuntiu` 
+},
+   { 
+  text: `Indica temps i mode: "Cantava"`, 
+  options: ["Imperfet d’indicatiu", "Present d’indicatiu", "Condicional", "Futur simple"], 
+  answer: `Imperfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Hauran jugat"`, 
+  options: ["Perfet de subjuntiu", "Futur compost d’indicatiu", "Condicional compost", "Plusquamperfet d’indicatiu"], 
+  answer: `Futur compost d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Cantarem"`, 
+  options: ["Condicional simple", "Futur simple d’indicatiu", "Imperfet de subjuntiu", "Perfet de subjuntiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Cantéssim"`, 
+  options: ["Imperfet de subjuntiu", "Present de subjuntiu", "Condicional compost", "Perfet d’indicatiu"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "He escrit"`, 
+  options: ["Perfet d’indicatiu", "Plusquamperfet d’indicatiu", "Futur compost", "Condicional compost"], 
+  answer: `Perfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Escrivia"`, 
+  options: ["Present d’indicatiu", "Imperfet d’indicatiu", "Condicional simple", "Imperfet de subjuntiu"], 
+  answer: `Imperfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Escrivint"`, 
+  options: ["Gerundi", "Infinitiu", "Participi", "Perfet d’indicatiu"], 
+  answer: `Gerundi` 
+},
+{ 
+  text: `Indica temps i mode: "Escrivint"`, 
+  options: ["Gerundi", "Participi", "Infinitiu", "Imperfet de subjuntiu"], 
+  answer: `Gerundi` 
+},
+{ 
+  text: `Indica temps i mode: "Correríeu"`, 
+  options: ["Condicional simple", "Futur simple", "Imperfet d’indicatiu", "Present de subjuntiu"], 
+  answer: `Condicional simple` 
+},
+{ 
+  text: `Indica temps i mode: "Haguérem parlat"`, 
+  options: ["Plusquamperfet d’indicatiu", "Perfet de subjuntiu", "Plusquamperfet de subjuntiu", "Condicional compost"], 
+  answer: `Plusquamperfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Parlaré"`, 
+  options: ["Present d’indicatiu", "Futur simple d’indicatiu", "Condicional simple", "Imperfet de subjuntiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Parleu"`, 
+  options: ["Present d’indicatiu", "Present de subjuntiu", "Imperfet d’indicatiu", "Perfet d’indicatiu"], 
+  answer: `Present d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Parlin"`, 
+  options: ["Imperfet d’indicatiu", "Present de subjuntiu", "Perfet de subjuntiu", "Futur simple"], 
+  answer: `Present de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Hauria arribat"`, 
+  options: ["Condicional compost", "Futur compost", "Plusquamperfet d’indicatiu", "Perfet de subjuntiu"], 
+  answer: `Condicional compost` 
+},
+{ 
+  text: `Indica temps i mode: "Va arribar"`, 
+  options: ["Perfet perifràstic d’indicatiu", "Passat simple", "Plusquamperfet", "Futur simple"], 
+  answer: `Perfet perifràstic d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Arribés"`, 
+  options: ["Imperfet de subjuntiu", "Present de subjuntiu", "Condicional simple", "Perfet d’indicatiu"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Sigui"`, 
+  options: ["Present de subjuntiu", "Present d’indicatiu", "Imperfet de subjuntiu", "Condicional"], 
+  answer: `Present de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Serem"`, 
+  options: ["Futur simple d’indicatiu", "Condicional simple", "Present d’indicatiu", "Perfet de subjuntiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Era"`, 
+  options: ["Present d’indicatiu", "Imperfet d’indicatiu", "Condicional simple", "Imperfet de subjuntiu"], 
+  answer: `Imperfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Fos"`, 
+  options: ["Imperfet de subjuntiu", "Present de subjuntiu", "Condicional simple", "Perfet d’indicatiu"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Hàgim parlat"`, 
+  options: ["Perfet de subjuntiu", "Perfet d’indicatiu", "Plusquamperfet d’indicatiu", "Condicional compost"], 
+  answer: `Perfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Cantareu"`, 
+  options: ["Futur simple d’indicatiu", "Condicional simple", "Imperfet d’indicatiu", "Present de subjuntiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Cantin"`, 
+  options: ["Present de subjuntiu", "Present d’indicatiu", "Condicional simple", "Imperfet de subjuntiu"], 
+  answer: `Present de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Cantà"`, 
+  options: ["Passat simple d’indicatiu", "Perfet d’indicatiu", "Condicional simple", "Futur simple"], 
+  answer: `Passat simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Havia viscut"`, 
+  options: ["Plusquamperfet d’indicatiu", "Perfet d’indicatiu", "Condicional compost", "Futur compost"], 
+  answer: `Plusquamperfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Visquéreu"`, 
+  options: ["Passat simple d’indicatiu", "Imperfet d’indicatiu", "Perfet de subjuntiu", "Condicional simple"], 
+  answer: `Passat simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Visquessin"`, 
+  options: ["Imperfet de subjuntiu", "Present de subjuntiu", "Condicional compost", "Perfet d’indicatiu"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Viu"`, 
+  options: ["Present d’indicatiu", "Present de subjuntiu", "Imperfet d’indicatiu", "Condicional"], 
+  answer: `Present d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Vius"`, 
+  options: ["Present d’indicatiu", "Present de subjuntiu", "Imperfet d’indicatiu", "Perfet d’indicatiu"], 
+  answer: `Present d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Viuré"`, 
+  options: ["Futur simple d’indicatiu", "Condicional simple", "Perfet de subjuntiu", "Imperfet d’indicatiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Voldria"`, 
+  options: ["Condicional simple", "Futur simple", "Imperfet d’indicatiu", "Present de subjuntiu"], 
+  answer: `Condicional simple` 
+},
+{ 
+  text: `Indica temps i mode: "Voldré"`, 
+  options: ["Futur simple d’indicatiu", "Condicional simple", "Present d’indicatiu", "Perfet d’indicatiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Volgués"`, 
+  options: ["Imperfet de subjuntiu", "Present de subjuntiu", "Imperfet d’indicatiu", "Condicional compost"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Vol"`, 
+  options: ["Present d’indicatiu", "Imperfet d’indicatiu", "Present de subjuntiu", "Perfet de subjuntiu"], 
+  answer: `Present d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Volgué"`, 
+  options: ["Passat simple d’indicatiu", "Perfet perifràstic", "Imperfet d’indicatiu", "Condicional simple"], 
+  answer: `Passat simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Haurien volgut"`, 
+  options: ["Condicional compost", "Futur compost d’indicatiu", "Plusquamperfet d’indicatiu", "Perfet de subjuntiu"], 
+  answer: `Condicional compost` 
+},
+{ 
+  text: `Indica temps i mode: "Hagin volgut"`, 
+  options: ["Perfet de subjuntiu", "Perfet d’indicatiu", "Plusquamperfet d’indicatiu", "Condicional compost"], 
+  answer: `Perfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Anàrem"`, 
+  options: ["Passat simple d’indicatiu", "Perfet d’indicatiu", "Imperfet de subjuntiu", "Condicional simple"], 
+  answer: `Passat simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Anés"`, 
+  options: ["Imperfet de subjuntiu", "Present de subjuntiu", "Imperfet d’indicatiu", "Condicional"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Aniria"`, 
+  options: ["Condicional simple", "Futur simple d’indicatiu", "Imperfet d’indicatiu", "Perfet de subjuntiu"], 
+  answer: `Condicional simple` 
+},
+   { 
+  text: `Indica temps i mode: "Cantaria"`, 
+  options: ["Condicional simple", "Futur simple", "Present d’indicatiu", "Imperfet de subjuntiu"], 
+  answer: `Condicional simple` 
+},
+{ 
+  text: `Indica temps i mode: "Hauríem sortit"`, 
+  options: ["Condicional compost", "Futur compost", "Perfet de subjuntiu", "Plusquamperfet d’indicatiu"], 
+  answer: `Condicional compost` 
+},
+{ 
+  text: `Indica temps i mode: "Sortí"`, 
+  options: ["Passat simple d’indicatiu", "Perfet perifràstic", "Imperfet d’indicatiu", "Condicional"], 
+  answer: `Passat simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Sortissin"`, 
+  options: ["Present de subjuntiu", "Imperfet de subjuntiu", "Condicional simple", "Perfet d’indicatiu"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Ha sortit"`, 
+  options: ["Perfet d’indicatiu", "Perfet de subjuntiu", "Condicional compost", "Futur compost"], 
+  answer: `Perfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Hagi sortit"`, 
+  options: ["Perfet de subjuntiu", "Perfet d’indicatiu", "Plusquamperfet d’indicatiu", "Condicional compost"], 
+  answer: `Perfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Dormia"`, 
+  options: ["Imperfet d’indicatiu", "Present d’indicatiu", "Condicional simple", "Imperfet de subjuntiu"], 
+  answer: `Imperfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Dormiré"`, 
+  options: ["Futur simple d’indicatiu", "Condicional simple", "Imperfet d’indicatiu", "Perfet de subjuntiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Dormís"`, 
+  options: ["Imperfet de subjuntiu", "Present de subjuntiu", "Condicional simple", "Perfet d’indicatiu"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Dormi"`, 
+  options: ["Present de subjuntiu", "Present d’indicatiu", "Imperfet de subjuntiu", "Condicional"], 
+  answer: `Present de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Hem dormit"`, 
+  options: ["Perfet d’indicatiu", "Condicional compost", "Perfet de subjuntiu", "Plusquamperfet d’indicatiu"], 
+  answer: `Perfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Haguessin dormit"`, 
+  options: ["Plusquamperfet de subjuntiu", "Condicional compost", "Futur compost", "Perfet de subjuntiu"], 
+  answer: `Plusquamperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Llegí"`, 
+  options: ["Passat simple d’indicatiu", "Perfet d’indicatiu", "Futur simple", "Condicional"], 
+  answer: `Passat simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Llegiràs"`, 
+  options: ["Futur simple d’indicatiu", "Condicional simple", "Present d’indicatiu", "Imperfet de subjuntiu"], 
+  answer: `Futur simple d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Llegissis"`, 
+  options: ["Imperfet de subjuntiu", "Present de subjuntiu", "Condicional compost", "Imperfet d’indicatiu"], 
+  answer: `Imperfet de subjuntiu` 
+},
+{ 
+  text: `Indica temps i mode: "Llegim"`, 
+  options: ["Present d’indicatiu", "Present de subjuntiu", "Imperfet d’indicatiu", "Condicional"], 
+  answer: `Present d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Llegiu"`, 
+  options: ["Present d’indicatiu", "Imperfet d’indicatiu", "Present de subjuntiu", "Condicional"], 
+  answer: `Present d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Havíem llegit"`, 
+  options: ["Plusquamperfet d’indicatiu", "Perfet d’indicatiu", "Futur compost", "Condicional compost"], 
+  answer: `Plusquamperfet d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Hauran llegit"`, 
+  options: ["Futur compost d’indicatiu", "Condicional compost", "Perfet de subjuntiu", "Plusquamperfet de subjuntiu"], 
+  answer: `Futur compost d'indicatiu` 
+},
+{ 
+  text: `Indica temps i mode: "Llegissin"`, 
+  options: ["Imperfet de subjuntiu", "Present de subjuntiu", "Condicional simple", "Perfet d’indicatiu"], 
+  answer: `Imperfet de subjuntiu` 
+}
 ];
 
 const BANK_MORFO_CATEGORIES = [
@@ -830,7 +1180,310 @@ const BANK_MORFO_CATEGORIES = [
     text: `Categoria gramatical de "gossos"`, 
     options: ["Nom comú", "Verb", "Pronom", "Adjectiu"], 
     answer: `Nom comú` 
-  }
+  }, 
+   { 
+  text: `Categoria gramatical de "blau"`, 
+  options: ["Adjectiu", "Nom comú", "Verb", "Adverbi"], 
+  answer: `Adjectiu` 
+},
+{ 
+  text: `Categoria gramatical de "menjar" (acció)`, 
+  options: ["Verb", "Nom comú", "Adverbi", "Pronom"], 
+  answer: `Verb` 
+},
+{ 
+  text: `Categoria gramatical de "taula"`, 
+  options: ["Nom comú", "Adjectiu", "Verb", "Article"], 
+  answer: `Nom comú` 
+},
+{ 
+  text: `Categoria gramatical de "elles"`, 
+  options: ["Pronom", "Nom comú", "Verb", "Adjectiu"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "molt"`, 
+  options: ["Adverbi", "Adjectiu", "Nom comú", "Conjunció"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "i"`, 
+  options: ["Conjunció", "Pronom", "Adjectiu", "Nom comú"], 
+  answer: `Conjunció` 
+},
+{ 
+  text: `Categoria gramatical de "amb"`, 
+  options: ["Preposició", "Adverbi", "Article", "Verb"], 
+  answer: `Preposició` 
+},
+{ 
+  text: `Categoria gramatical de "els" (article)`, 
+  options: ["Article", "Pronom", "Nom comú", "Adverbi"], 
+  answer: `Article` 
+},
+{ 
+  text: `Categoria gramatical de "aquell"`, 
+  options: ["Pronom", "Adjectiu", "Adverbi", "Conjunció"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "nosaltres"`, 
+  options: ["Pronom", "Nom comú", "Adjectiu", "Verb"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "feliç"`, 
+  options: ["Adjectiu", "Nom comú", "Verb", "Adverbi"], 
+  answer: `Adjectiu` 
+},
+{ 
+  text: `Categoria gramatical de "a"`, 
+  options: ["Preposició", "Article", "Conjunció", "Pronom"], 
+  answer: `Preposició` 
+},
+{ 
+  text: `Categoria gramatical de "què"`, 
+  options: ["Pronom", "Conjunció", "Nom comú", "Adverbi"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "quan"`, 
+  options: ["Adverbi", "Conjunció", "Pronom", "Article"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "sota"`, 
+  options: ["Preposició", "Adverbi", "Conjunció", "Pronom"], 
+  answer: `Preposició` 
+},
+{ 
+  text: `Categoria gramatical de "la" (article)`, 
+  options: ["Article", "Pronom", "Adverbi", "Adjectiu"], 
+  answer: `Article` 
+},
+{ 
+  text: `Categoria gramatical de "contentament"`, 
+  options: ["Nom comú", "Adjectiu", "Verb", "Adverbi"], 
+  answer: `Nom comú` 
+},
+{ 
+  text: `Categoria gramatical de "córrer"`, 
+  options: ["Verb", "Nom comú", "Adverbi", "Adjectiu"], 
+  answer: `Verb` 
+},
+{ 
+  text: `Categoria gramatical de "més"`, 
+  options: ["Adverbi", "Conjunció", "Pronom", "Nom comú"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "cap" (determinant)`, 
+  options: ["Determinant", "Nom comú", "Pronom", "Verb"], 
+  answer: `Determinant` 
+},
+   { 
+  text: `Categoria gramatical de "llum"`, 
+  options: ["Nom comú", "Adjectiu", "Verb", "Pronom"], 
+  answer: `Nom comú` 
+},
+{ 
+  text: `Categoria gramatical de "casa"`, 
+  options: ["Nom comú", "Adverbi", "Verb", "Adjectiu"], 
+  answer: `Nom comú` 
+},
+{ 
+  text: `Categoria gramatical de "ràpid"`, 
+  options: ["Adjectiu", "Nom comú", "Verb", "Adverbi"], 
+  answer: `Adjectiu` 
+},
+{ 
+  text: `Categoria gramatical de "ells"`, 
+  options: ["Pronom", "Article", "Verb", "Adverbi"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "perquè"`, 
+  options: ["Conjunció", "Adverbi", "Pronom", "Nom comú"], 
+  answer: `Conjunció` 
+},
+{ 
+  text: `Categoria gramatical de "sota"`, 
+  options: ["Preposició", "Article", "Adverbi", "Pronom"], 
+  answer: `Preposició` 
+},
+{ 
+  text: `Categoria gramatical de "els" (pronom)`, 
+  options: ["Pronom", "Article", "Nom comú", "Adverbi"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "bonic"`, 
+  options: ["Adjectiu", "Nom comú", "Adverbi", "Verb"], 
+  answer: `Adjectiu` 
+},
+{ 
+  text: `Categoria gramatical de "lentament"`, 
+  options: ["Adverbi", "Adjectiu", "Verb", "Nom comú"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "el" (article)`, 
+  options: ["Article", "Pronom", "Nom comú", "Adverbi"], 
+  answer: `Article` 
+},
+{ 
+  text: `Categoria gramatical de "vosaltres"`, 
+  options: ["Pronom", "Nom comú", "Verb", "Adjectiu"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "bonament"`, 
+  options: ["Adverbi", "Adjectiu", "Nom comú", "Verb"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "quan"`, 
+  options: ["Adverbi", "Conjunció", "Pronom", "Article"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "tot" (determinant)`, 
+  options: ["Determinant", "Nom comú", "Adverbi", "Pronom"], 
+  answer: `Determinant` 
+},
+{ 
+  text: `Categoria gramatical de "sense"`, 
+  options: ["Preposició", "Conjunció", "Adverbi", "Pronom"], 
+  answer: `Preposició` 
+},
+{ 
+  text: `Categoria gramatical de "moltíssim"`, 
+  options: ["Adverbi", "Nom comú", "Adjectiu", "Conjunció"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "quina"` , 
+  options: ["Pronom", "Determinant", "Adjectiu", "Adverbi"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "cap" (nom)`, 
+  options: ["Nom comú", "Determinant", "Adverbi", "Verb"], 
+  answer: `Nom comú` 
+},
+{ 
+  text: `Categoria gramatical de "aleshores"`, 
+  options: ["Adverbi", "Conjunció", "Pronom", "Nom comú"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "damunt"`, 
+  options: ["Preposició", "Adverbi", "Conjunció", "Pronom"], 
+  answer: `Preposició` 
+}, 
+   { 
+  text: `Categoria gramatical de "llibertat"`, 
+  options: ["Nom comú", "Adjectiu", "Verb", "Pronom"], 
+  answer: `Nom comú` 
+},
+{ 
+  text: `Categoria gramatical de "elles mateixes"`, 
+  options: ["Pronom", "Nom comú", "Article", "Adjectiu"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "tranquil·lament"`, 
+  options: ["Adverbi", "Adjectiu", "Verb", "Nom comú"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "fosc"`, 
+  options: ["Adjectiu", "Nom comú", "Verb", "Adverbi"], 
+  answer: `Adjectiu` 
+},
+{ 
+  text: `Categoria gramatical de "jo"`, 
+  options: ["Pronom", "Article", "Adverbi", "Nom comú"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "ells"`, 
+  options: ["Pronom", "Adjectiu", "Nom comú", "Conjunció"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "damunt"`, 
+  options: ["Preposició", "Adverbi", "Conjunció", "Pronom"], 
+  answer: `Preposició` 
+},
+{ 
+  text: `Categoria gramatical de "mentre"`, 
+  options: ["Conjunció", "Adverbi", "Pronom", "Nom comú"], 
+  answer: `Conjunció` 
+},
+{ 
+  text: `Categoria gramatical de "nosaltres"`, 
+  options: ["Pronom", "Article", "Nom comú", "Verb"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "dolçament"`, 
+  options: ["Adverbi", "Adjectiu", "Verb", "Nom comú"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "gran"`, 
+  options: ["Adjectiu", "Nom comú", "Adverbi", "Verb"], 
+  answer: `Adjectiu` 
+},
+{ 
+  text: `Categoria gramatical de "quina" (determinant)`, 
+  options: ["Determinant", "Pronom", "Article", "Adjectiu"], 
+  answer: `Determinant` 
+},
+{ 
+  text: `Categoria gramatical de "quan"`, 
+  options: ["Adverbi", "Conjunció", "Pronom", "Nom comú"], 
+  answer: `Adverbi` 
+},
+{ 
+  text: `Categoria gramatical de "per"`, 
+  options: ["Preposició", "Article", "Conjunció", "Pronom"], 
+  answer: `Preposició` 
+},
+{ 
+  text: `Categoria gramatical de "doncs"`, 
+  options: ["Conjunció", "Adverbi", "Pronom", "Nom comú"], 
+  answer: `Conjunció` 
+},
+{ 
+  text: `Categoria gramatical de "amics"`, 
+  options: ["Nom comú", "Verb", "Adjectiu", "Pronom"], 
+  answer: `Nom comú` 
+},
+{ 
+  text: `Categoria gramatical de "la" (pronom)`, 
+  options: ["Pronom", "Article", "Adjectiu", "Nom comú"], 
+  answer: `Pronom` 
+},
+{ 
+  text: `Categoria gramatical de "petit"`, 
+  options: ["Adjectiu", "Nom comú", "Verb", "Adverbi"], 
+  answer: `Adjectiu` 
+},
+{ 
+  text: `Categoria gramatical de "damunt"`, 
+  options: ["Preposició", "Conjunció", "Pronom", "Adverbi"], 
+  answer: `Preposició` 
+},
+{ 
+  text: `Categoria gramatical de "bé"`, 
+  options: ["Adverbi", "Nom comú", "Adjectiu", "Verb"], 
+  answer: `Adverbi` 
+}
+
+
+
 ];
 
 const BANK_MORFO_CONCORDANCA = [
