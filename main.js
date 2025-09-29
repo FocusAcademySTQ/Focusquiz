@@ -96,6 +96,7 @@ function buildHome(){
   // Seccions
   renderSection('Mòduls de matemàtiques','math');
   renderSection('Mòduls de llengua catalana','cat');
+  renderSection('Mòduls de ciències','sci');
 
   // filtre resultats
   const fm = $('#filter-module');
