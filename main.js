@@ -42,6 +42,7 @@ const MODULES = [
   { id:'units', name:'Unitats i conversions', desc:'Longitud, massa, volum, superfície i temps.', badge:'Mesures', gen: genUnits, category:'math' },
   { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', badge:'Àlgebra', gen: genEq, category:'math' },
   { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', badge:'Funcions', gen: genFunctions, category:'math' },
+  { id:'focusday',  name:'FocusDay', desc:'Una pregunta de cada mòdul, diferent cada cop.', badge:'Mix', gen: genFocusDay, category:'math' },
 
 ];
 // Registre de mòduls externs (p.ex. llengua) i refresc de la Home
@@ -1955,6 +1956,21 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
   const f = `f(x) = ${a}·log${b}(x) ${c >= 0 ? '+' : ''} ${c}`;
   return { text: `Identifica el tipus de funció: ${f}`, answer: 'logarítmica' };
 }
+
+// FocusDay
+function genFocusDay(level, opts={}){
+  // 🔹 Triem un mòdul a l’atzar (excepte focusday)
+  const candidates = MODULES.filter(m => m.id !== 'focusday' && typeof m.gen === 'function');
+  const mod = choice(candidates);
+
+  // 🔹 Generem una pregunta amb el seu generador
+  const q = mod.gen(level, opts);
+
+  // 🔹 Li afegim una etiqueta per saber de quin mòdul ve
+  q.text = `[${mod.name}] ${q.text}`;
+  return q;
+}
+
 
 /* ===================== RESULTS ===================== */
 
