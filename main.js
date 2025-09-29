@@ -472,16 +472,15 @@ function renderQuestion(){
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value = '';
   $('#feedback').innerHTML = '';
-  $('#keypad').innerHTML = ''; // buida sempre
+  $('#keypad').innerHTML = ''; // neteja sempre
 
   const mod = MODULES.find(m => m.id === session.module);
 
-  if (mod?.category === 'cat' || mod?.category === 'sci') {
-    // 🔹 Cat i Ciències: sense teclat numèric i sense columna dreta
+  if (mod?.category === 'cat') {
+    // 🔹 Català → sense teclat numèric però mantenim la columna dreta per a les opcions
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
-    // Si és multiple-choice, pinta botons
     if (q.options && Array.isArray(q.options)) {
       $('#answer').style.display = 'none';
       const optionsHtml = q.options.map(opt => `
@@ -492,20 +491,38 @@ function renderQuestion(){
       $('#answer').style.display = 'block';
     }
 
-    // 👇 aquí amaguem la columna dreta completament
-    document.querySelector('#rightCol')?.classList.add('hidden');
-    document.querySelector('#leftCol')?.style.flex = '1';
+    // columna dreta visible
+    $('#rightCol')?.classList.remove('hidden');
+    $('#leftCol').style.flex = '';
+
+  } else if (mod?.category === 'sci') {
+    // 🔹 Ciències (Química) → sense teclat numèric i sense columna dreta
+    $('#answer').type = 'text';
+    $('#answer').removeAttribute('inputmode');
+    $('#answer').style.display = q.options ? 'none' : 'block';
+
+    if (q.options && Array.isArray(q.options)) {
+      const optionsHtml = q.options.map(opt => `
+        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
+      `).join('');
+      // les opcions les pintem a l'esquerra mateix
+      $('#qMedia').innerHTML += `<div class="options">${optionsHtml}</div>`;
+    }
+
+    // 👇 amaguem columna dreta i expandim esquerra
+    $('#rightCol')?.classList.add('hidden');
+    $('#leftCol').style.flex = '1';
 
   } else {
-    // 🔹 Matemàtiques: mantenim el teclat numèric
+    // 🔹 Matemàtiques → teclat numèric a la dreta
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
     renderKeypad();
 
-    // Mostrem la columna dreta
-    document.querySelector('#rightCol')?.classList.remove('hidden');
-    document.querySelector('#leftCol')?.style.flex = '';
+    // columna dreta visible
+    $('#rightCol')?.classList.remove('hidden');
+    $('#leftCol').style.flex = '';
   }
 }
 
