@@ -472,16 +472,16 @@ function renderQuestion(){
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value = '';
   $('#feedback').innerHTML = '';
-  $('#keypad').querySelectorAll('*').forEach(el => el.remove()); // ✅ només buida dins
-
+  $('#keypad').innerHTML = ''; // buida sempre
 
   const mod = MODULES.find(m => m.id === session.module);
 
-  if (mod?.category === 'cat') {
-    // 🔹 Mòduls de català → sense teclat numèric
+  if (mod?.category === 'cat' || mod?.category === 'sci') {
+    // 🔹 Cat i Ciències: sense teclat numèric i sense columna dreta
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
+    // Si és multiple-choice, pinta botons
     if (q.options && Array.isArray(q.options)) {
       $('#answer').style.display = 'none';
       const optionsHtml = q.options.map(opt => `
@@ -492,16 +492,23 @@ function renderQuestion(){
       $('#answer').style.display = 'block';
     }
 
+    // 👇 aquí amaguem la columna dreta completament
+    document.querySelector('#rightCol')?.classList.add('hidden');
+    document.querySelector('#leftCol')?.style.flex = '1';
+
   } else {
-    // 🔹 Matemàtiques i altres → teclat numèric
+    // 🔹 Matemàtiques: mantenim el teclat numèric
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
-    renderKeypad(); // 👈 aquí va la crida
+    renderKeypad();
+
+    // Mostrem la columna dreta
+    document.querySelector('#rightCol')?.classList.remove('hidden');
+    document.querySelector('#leftCol')?.style.flex = '';
   }
 }
 
-// ✨ Aquí fora va la definició del teclat
 function renderKeypad(){
   $('#keypad').innerHTML = `
     <h3 class="title" style="margin-top:0">Teclat numèric</h3>
