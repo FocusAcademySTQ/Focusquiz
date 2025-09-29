@@ -20,15 +20,16 @@
     { symbols:["Fe","O"], name:"Òxid de ferro (Fe2O3)" },
   ];
 
-  // 🔹 Generador de preguntes
+  // 🔹 Generador de preguntes de química
   function genChem(level, opts={}) {
     const mode = opts.sub || "mixed";
 
     // ---- 1) Qui sóc jo ----
     if(mode==="whoami"){
       const el = choice(elements);
-      const options = shuffle(elements.map(e=>e.name)).slice(0,3);
+      let options = shuffle(elements.map(e=>e.name)).slice(0,3);
       if(!options.includes(el.name)) options[0] = el.name;
+      options = shuffle(options);
       return {
         type:"chem-whoami",
         text:`Sóc un ${el.group}, tinc Z=${el.num}. Qui sóc?`,
@@ -40,8 +41,9 @@
     // ---- 2) Compostos ----
     if(mode==="compounds"){
       const c = choice(compounds);
-      const options = shuffle(compounds.map(x=>x.name)).slice(0,3);
+      let options = shuffle(compounds.map(x=>x.name)).slice(0,3);
       if(!options.includes(c.name)) options[0] = c.name;
+      options = shuffle(options);
       return {
         type:"chem-compound",
         text:`Quin compost formen ${c.symbols.join(" + ")} ?`,
@@ -50,12 +52,13 @@
       };
     }
 
-    // ---- 3) Col·locar en la taula periòdica ----
+    // ---- 3) Grups de la taula periòdica ----
     if(mode==="table"){
       const el = choice(elements);
       const groups = ["metall alcalí","metall alcalinoterri","halogen","gas noble","no metall","metall de transició"];
-      const options = shuffle(groups).slice(0,3);
+      let options = shuffle(groups).slice(0,3);
       if(!options.includes(el.group)) options[0] = el.group;
+      options = shuffle(options);
       return {
         type:"chem-table",
         text:`A quin grup de la taula periòdica pertany <b>${el.name}</b>?`,
@@ -64,7 +67,7 @@
       };
     }
 
-    // ---- 4) Mode bàsic (ja el tenies) ----
+    // ---- 4) Modes bàsics ----
     const el = choice(elements);
     if(mode==="sym"){ 
       return { type:"chem", text:`Quin element té com a símbol <b>${el.sym}</b>?`, answer: el.name };
@@ -72,7 +75,8 @@
     if(mode==="name"){
       return { type:"chem", text:`Quin és el símbol de <b>${el.name}</b>?`, answer: el.sym };
     }
-    // mixed
+
+    // ---- 5) Mixed ----
     if(Math.random()<0.5){
       return { type:"chem", text:`Quin element té com a símbol <b>${el.sym}</b>?`, answer: el.name };
     } else {
