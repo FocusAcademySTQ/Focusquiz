@@ -1,30 +1,78 @@
 (function(){
   const elements = [
-    { num:1, sym:"H", name:"Hidrogen" },
-    { num:2, sym:"He", name:"Heli" },
-    { num:6, sym:"C", name:"Carboni" },
-    { num:7, sym:"N", name:"Nitrogen" },
-    { num:8, sym:"O", name:"Oxigen" },
-    { num:11, sym:"Na", name:"Sodi" },
-    { num:12, sym:"Mg", name:"Magnesi" },
-    { num:17, sym:"Cl", name:"Clor" },
-    { num:26, sym:"Fe", name:"Ferro" },
-    { num:29, sym:"Cu", name:"Coure" },
-    { num:79, sym:"Au", name:"Or" },
+    { num:1, sym:"H", name:"Hidrogen", group:"no metall" },
+    { num:2, sym:"He", name:"Heli", group:"gas noble" },
+    { num:6, sym:"C", name:"Carboni", group:"no metall" },
+    { num:7, sym:"N", name:"Nitrogen", group:"no metall" },
+    { num:8, sym:"O", name:"Oxigen", group:"no metall" },
+    { num:11, sym:"Na", name:"Sodi", group:"metall alcalí" },
+    { num:12, sym:"Mg", name:"Magnesi", group:"metall alcalinoterri" },
+    { num:17, sym:"Cl", name:"Clor", group:"halogen" },
+    { num:26, sym:"Fe", name:"Ferro", group:"metall de transició" },
+    { num:29, sym:"Cu", name:"Coure", group:"metall de transició" },
+    { num:79, sym:"Au", name:"Or", group:"metall de transició" },
+  ];
+
+  const compounds = [
+    { symbols:["Na","Cl"], name:"Clorur de sodi (NaCl)" },
+    { symbols:["H","O"],  name:"Aigua (H2O)" },
+    { symbols:["C","O"],  name:"Diòxid de carboni (CO2)" },
+    { symbols:["Fe","O"], name:"Òxid de ferro (Fe2O3)" },
   ];
 
   // 🔹 Generador de preguntes
   function genChem(level, opts={}) {
-    const el = choice(elements);
-    const mode = opts.sub || "mixed"; // "sym", "name", o "mixed"
+    const mode = opts.sub || "mixed";
 
-    if(mode === "sym"){ 
+    // ---- 1) Qui sóc jo ----
+    if(mode==="whoami"){
+      const el = choice(elements);
+      const options = shuffle(elements.map(e=>e.name)).slice(0,3);
+      if(!options.includes(el.name)) options[0] = el.name;
+      return {
+        type:"chem-whoami",
+        text:`Sóc un ${el.group}, tinc Z=${el.num}. Qui sóc?`,
+        options,
+        answer: el.name
+      };
+    }
+
+    // ---- 2) Compostos ----
+    if(mode==="compounds"){
+      const c = choice(compounds);
+      const options = shuffle(compounds.map(x=>x.name)).slice(0,3);
+      if(!options.includes(c.name)) options[0] = c.name;
+      return {
+        type:"chem-compound",
+        text:`Quin compost formen ${c.symbols.join(" + ")} ?`,
+        options,
+        answer: c.name
+      };
+    }
+
+    // ---- 3) Col·locar en la taula periòdica ----
+    if(mode==="table"){
+      const el = choice(elements);
+      const groups = ["metall alcalí","metall alcalinoterri","halogen","gas noble","no metall","metall de transició"];
+      const options = shuffle(groups).slice(0,3);
+      if(!options.includes(el.group)) options[0] = el.group;
+      return {
+        type:"chem-table",
+        text:`A quin grup de la taula periòdica pertany <b>${el.name}</b>?`,
+        options,
+        answer: el.group
+      };
+    }
+
+    // ---- 4) Mode bàsic (ja el tenies) ----
+    const el = choice(elements);
+    if(mode==="sym"){ 
       return { type:"chem", text:`Quin element té com a símbol <b>${el.sym}</b>?`, answer: el.name };
     }
-    if(mode === "name"){
+    if(mode==="name"){
       return { type:"chem", text:`Quin és el símbol de <b>${el.name}</b>?`, answer: el.sym };
     }
-    // 🔹 Mode "mixed"
+    // mixed
     if(Math.random()<0.5){
       return { type:"chem", text:`Quin element té com a símbol <b>${el.sym}</b>?`, answer: el.name };
     } else {
@@ -32,7 +80,7 @@
     }
   }
 
-  // 🔹 Configuració del mòdul (igual que aritmètica/fraccions)
+  // 🔹 Configuració del mòdul
   const chemConfig = {
     render: () => {
       const div = document.createElement('div');
@@ -42,6 +90,9 @@
           <div class="group" role="group" aria-label="Tipus de preguntes">
             <label class="toggle"><input class="check" type="radio" name="chem-sub" value="sym" checked> De símbol a nom</label>
             <label class="toggle"><input class="check" type="radio" name="chem-sub" value="name"> De nom a símbol</label>
+            <label class="toggle"><input class="check" type="radio" name="chem-sub" value="whoami"> Qui sóc jo?</label>
+            <label class="toggle"><input class="check" type="radio" name="chem-sub" value="compounds"> Compostos</label>
+            <label class="toggle"><input class="check" type="radio" name="chem-sub" value="table"> Grups de la taula</label>
             <label class="toggle"><input class="check" type="radio" name="chem-sub" value="mixed"> Barrejades</label>
           </div>
         </div>
@@ -59,7 +110,7 @@
     { 
       id:'chem', 
       name:'Química – Taula periòdica', 
-      desc:'Relaciona símbols i noms dels elements.', 
+      desc:'Elements, compostos i grups.', 
       badge:'⚗️', 
       gen: genChem, 
       category:'sci',
