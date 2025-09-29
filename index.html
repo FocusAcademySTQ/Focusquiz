@@ -72,41 +72,49 @@
       </div>
     </section>
 
-    <!-- QUIZ -->
-    <section id="view-quiz" class="hidden">
-      <div class="quiz">
-        <div class="panel card">
-          <div class="q-header">
-            <div style="display:flex; align-items:center; gap:10px">
-              <span id="qModule" class="chip">—</span>
-              <span id="qLevel" class="chip">Nivell 1</span>
-              <span id="timer" class="chip timer">--:--</span>
-            </div>
-            <div class="progress" style="flex:1"><i id="bar"></i></div>
-          </div>
+   <!-- QUIZ -->
+<section id="view-quiz" class="hidden">
+  <div class="quiz" style="display:flex; gap:20px; align-items:flex-start">
 
-          <div class="q">
-            <div class="meta" id="qMeta">Pregunta 1 de 10</div>
-            <h2 id="qText">—</h2>
-            <div id="qMedia" style="margin:4px 0 2px"></div>
-            <div class="answer-row">
-              <input id="answer" class="input answer" placeholder="Resposta" type="text" />
-              <button id="btnCheck">Comprova (↵)</button>
-              <button class="btn-secondary" id="btnSkip">Omet (→)</button>
-            </div>
-            <div id="feedback"></div>
+    <!-- 🔹 Columna esquerra -->
+    <div id="leftCol" style="flex:2; min-width:0">
+      <div class="panel card">
+        <div class="q-header">
+          <div style="display:flex; align-items:center; gap:10px">
+            <span id="qModule" class="chip">—</span>
+            <span id="qLevel" class="chip">Nivell 1</span>
+            <span id="timer" class="chip timer">--:--</span>
           </div>
+          <div class="progress" style="flex:1"><i id="bar"></i></div>
         </div>
 
-        <div class="panel card" id="keypad"></div>
-        
-          <div style="margin-top:10px; display:flex; gap:10px; align-items:center">
-            <span class="kbd">↵</span> <span class="subtitle">comprova</span>
-            <span class="kbd">→</span> <span class="subtitle">omet</span>
+        <div class="q">
+          <div class="meta" id="qMeta">Pregunta 1 de 10</div>
+          <h2 id="qText">—</h2>
+          <div id="qMedia" style="margin:4px 0 2px"></div>
+          <div class="answer-row">
+            <input id="answer" class="input answer" placeholder="Resposta" type="text" />
+            <button id="btnCheck">Comprova (↵)</button>
+            <button class="btn-secondary" id="btnSkip">Omet (→)</button>
           </div>
+          <div id="feedback"></div>
         </div>
       </div>
-    </section>
+    </div>
+
+    <!-- 🔹 Columna dreta (teclat o opcions) -->
+    <div id="rightCol" style="flex:1; min-width:220px">
+      <div class="panel card" id="keypad"></div>
+      
+      <div style="margin-top:10px; display:flex; gap:10px; align-items:center">
+        <span class="kbd">↵</span> <span class="subtitle">comprova</span>
+        <span class="kbd">→</span> <span class="subtitle">omet</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
 
     <!-- RESULTS -->
     <section id="view-results" class="hidden">
