@@ -192,6 +192,19 @@ button:hover{transform: translateY(-1px)}
 .timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.2rem}
 .chip{border:1px solid var(--hair); color:var(--muted); padding:6px 10px; border-radius:999px; background:#fff}
 
+/* ===== Quiz ===== */
+.quiz{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px}
+@media (max-width: 1000px){ .quiz{grid-template-columns: 1fr} }
+
+/* 🔹 Mode especial per a Química (ocupa tot l'ample i amaga el keypad) */
+.quiz.sci-mode {
+  grid-template-columns: 1fr;
+}
+
+.quiz.sci-mode #keypad {
+  display: none !important;
+}
+
 /* ===== Results (taula) ===== */
 table{width:100%; border-collapse:collapse}
 th, td{padding:10px 12px; border-bottom:1px solid var(--hair); text-align:left}
