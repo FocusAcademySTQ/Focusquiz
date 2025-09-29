@@ -475,9 +475,11 @@ function renderQuestion(){
   $('#keypad').innerHTML = ''; // neteja sempre
 
   const mod = MODULES.find(m => m.id === session.module);
+  const quizEl = document.querySelector('.quiz');
 
   if (mod?.category === 'cat') {
-    // 🔹 Català → sense teclat numèric però mantenim la columna dreta per a les opcions
+    // 🔹 Català → sense teclat numèric però mantenim la columna dreta
+    quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
@@ -491,12 +493,9 @@ function renderQuestion(){
       $('#answer').style.display = 'block';
     }
 
-    // columna dreta visible
-    $('#rightCol')?.classList.remove('hidden');
-    $('#leftCol').style.flex = '';
-
   } else if (mod?.category === 'sci') {
-    // 🔹 Ciències (Química) → sense teclat numèric i sense columna dreta
+    // 🔹 Química → sense columna dreta
+    quizEl.classList.add('sci-mode');
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
     $('#answer').style.display = q.options ? 'none' : 'block';
@@ -505,24 +504,16 @@ function renderQuestion(){
       const optionsHtml = q.options.map(opt => `
         <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
       `).join('');
-      // les opcions les pintem a l'esquerra mateix
       $('#qMedia').innerHTML += `<div class="options">${optionsHtml}</div>`;
     }
 
-    // 👇 amaguem columna dreta i expandim esquerra
-    $('#rightCol')?.classList.add('hidden');
-    $('#leftCol').style.flex = '1';
-
   } else {
     // 🔹 Matemàtiques → teclat numèric a la dreta
+    quizEl.classList.remove('sci-mode');
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
     renderKeypad();
-
-    // columna dreta visible
-    $('#rightCol')?.classList.remove('hidden');
-    $('#leftCol').style.flex = '';
   }
 }
 
