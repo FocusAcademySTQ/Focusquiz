@@ -153,49 +153,87 @@
     return { type:'chem-comp', text:`Quin compost formen <b>${c.syms.join(' + ')}</b>?`, options:opts, answer:c.name };
   }
 
-  // —————————————— 4) MAPA INTERACTIU (mini-taula SVG) ——————————————
-  // fem una taula reduïda (grups 1–2 i 13–18, períodes 1–4) amb ~20 elements d'ESO
-  const MINI = [
-    // period 1
-    {sym:'H',  col:1, row:1}, {sym:'He', col:18,row:1},
-    // period 2
-    {sym:'Li', col:1, row:2}, {sym:'Be', col:2, row:2}, {sym:'B', col:13,row:2}, {sym:'C', col:14,row:2}, {sym:'N', col:15,row:2}, {sym:'O', col:16,row:2}, {sym:'F', col:17,row:2}, {sym:'Ne',col:18,row:2},
-    // period 3
-    {sym:'Na', col:1, row:3}, {sym:'Mg', col:2, row:3}, {sym:'Al', col:13,row:3}, {sym:'Si',col:14,row:3}, {sym:'P', col:15,row:3}, {sym:'S', col:16,row:3}, {sym:'Cl',col:17,row:3}, {sym:'Ar',col:18,row:3},
-    // period 4 (una mica)
-    {sym:'K',  col:1, row:4}, {sym:'Ca',col:2,row:4}
-  ];
-  // helper global per clicar dins l’SVG
-  window.__chemPick = function(sym){ const a=$('#answer'); if(!a) return; a.value = sym; checkAnswer(); };
+  // —————————————— 4) MAPA INTERACTIU (taula periòdica completa) ——————————————
+// Llista simplificada amb tots els 118 elements (només símbol, col, row)
+const PERIODIC = [
+  // Període 1
+  {sym:'H', col:1,row:1}, {sym:'He',col:18,row:1},
 
-  function miniTableSVG(targetSym){
-    const cellW=34, cellH=34, gap=6, left=10, top=10;
-    const cols=18, rows=4;
-    function xy(col,row){ const x=left+(col-1)*(cellW+gap); const y=top+(row-1)*(cellH+gap); return {x,y}; }
-    const cells = MINI.map(e=>{
-      const {x,y} = xy(e.col,e.row);
-      const isTarget = e.sym===targetSym;
-      return `
-        <g>
-          <rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="5" ry="5"
-            fill="${isTarget?'#fde68a':'#f8fafc'}" stroke="#94a3b8" onclick="__chemPick('${e.sym}')" style="cursor:pointer"/>
-          <text x="${x+cellW/2}" y="${y+cellH/2+4}" text-anchor="middle" font-size="12" fill="#111827">${e.sym}</text>
-        </g>`;
-    }).join('');
-    const W=left+(cellW+gap)*cols, H=top+(cellH+gap)*rows;
-    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mini taula periòdica">${cells}</svg>`;
-  }
+  // Període 2
+  {sym:'Li',col:1,row:2},{sym:'Be',col:2,row:2},
+  {sym:'B',col:13,row:2},{sym:'C',col:14,row:2},{sym:'N',col:15,row:2},{sym:'O',col:16,row:2},{sym:'F',col:17,row:2},{sym:'Ne',col:18,row:2},
 
-  function genMap(){
-    const subset = E.filter(e=>MINI.some(m=>m.sym===e.sym));
-    const el = choice(subset);
-    return {
-      type:'chem-map',
-      text:`Clica la casella de l’element <b>${el.name}</b> (${el.sym}) a la mini-taula:`,
-      html: miniTableSVG(el.sym),
-      answer: el.sym
-    };
-  }
+  // Període 3
+  {sym:'Na',col:1,row:3},{sym:'Mg',col:2,row:3},
+  {sym:'Al',col:13,row:3},{sym:'Si',col:14,row:3},{sym:'P',col:15,row:3},{sym:'S',col:16,row:3},{sym:'Cl',col:17,row:3},{sym:'Ar',col:18,row:3},
+
+  // Període 4
+  {sym:'K',col:1,row:4},{sym:'Ca',col:2,row:4},
+  {sym:'Sc',col:3,row:4},{sym:'Ti',col:4,row:4},{sym:'V',col:5,row:4},{sym:'Cr',col:6,row:4},{sym:'Mn',col:7,row:4},{sym:'Fe',col:8,row:4},
+  {sym:'Co',col:9,row:4},{sym:'Ni',col:10,row:4},{sym:'Cu',col:11,row:4},{sym:'Zn',col:12,row:4},
+  {sym:'Ga',col:13,row:4},{sym:'Ge',col:14,row:4},{sym:'As',col:15,row:4},{sym:'Se',col:16,row:4},{sym:'Br',col:17,row:4},{sym:'Kr',col:18,row:4},
+
+  // Període 5
+  {sym:'Rb',col:1,row:5},{sym:'Sr',col:2,row:5},{sym:'Y',col:3,row:5},{sym:'Zr',col:4,row:5},{sym:'Nb',col:5,row:5},{sym:'Mo',col:6,row:5},{sym:'Tc',col:7,row:5},
+  {sym:'Ru',col:8,row:5},{sym:'Rh',col:9,row:5},{sym:'Pd',col:10,row:5},{sym:'Ag',col:11,row:5},{sym:'Cd',col:12,row:5},
+  {sym:'In',col:13,row:5},{sym:'Sn',col:14,row:5},{sym:'Sb',col:15,row:5},{sym:'Te',col:16,row:5},{sym:'I',col:17,row:5},{sym:'Xe',col:18,row:5},
+
+  // Període 6
+  {sym:'Cs',col:1,row:6},{sym:'Ba',col:2,row:6},
+  {sym:'La',col:3,row:9},{sym:'Ce',col:4,row:9},{sym:'Pr',col:5,row:9},{sym:'Nd',col:6,row:9},{sym:'Pm',col:7,row:9},{sym:'Sm',col:8,row:9},
+  {sym:'Eu',col:9,row:9},{sym:'Gd',col:10,row:9},{sym:'Tb',col:11,row:9},{sym:'Dy',col:12,row:9},{sym:'Ho',col:13,row:9},{sym:'Er',col:14,row:9},
+  {sym:'Tm',col:15,row:9},{sym:'Yb',col:16,row:9},{sym:'Lu',col:17,row:9},
+
+  {sym:'Hf',col:4,row:6},{sym:'Ta',col:5,row:6},{sym:'W',col:6,row:6},{sym:'Re',col:7,row:6},{sym:'Os',col:8,row:6},
+  {sym:'Ir',col:9,row:6},{sym:'Pt',col:10,row:6},{sym:'Au',col:11,row:6},{sym:'Hg',col:12,row:6},
+  {sym:'Tl',col:13,row:6},{sym:'Pb',col:14,row:6},{sym:'Bi',col:15,row:6},{sym:'Po',col:16,row:6},{sym:'At',col:17,row:6},{sym:'Rn',col:18,row:6},
+
+  // Període 7
+  {sym:'Fr',col:1,row:7},{sym:'Ra',col:2,row:7},
+  {sym:'Ac',col:3,row:10},{sym:'Th',col:4,row:10},{sym:'Pa',col:5,row:10},{sym:'U',col:6,row:10},{sym:'Np',col:7,row:10},{sym:'Pu',col:8,row:10},
+  {sym:'Am',col:9,row:10},{sym:'Cm',col:10,row:10},{sym:'Bk',col:11,row:10},{sym:'Cf',col:12,row:10},{sym:'Es',col:13,row:10},{sym:'Fm',col:14,row:10},
+  {sym:'Md',col:15,row:10},{sym:'No',col:16,row:10},{sym:'Lr',col:17,row:10},
+
+  {sym:'Rf',col:4,row:7},{sym:'Db',col:5,row:7},{sym:'Sg',col:6,row:7},{sym:'Bh',col:7,row:7},{sym:'Hs',col:8,row:7},
+  {sym:'Mt',col:9,row:7},{sym:'Ds',col:10,row:7},{sym:'Rg',col:11,row:7},{sym:'Cn',col:12,row:7},
+  {sym:'Nh',col:13,row:7},{sym:'Fl',col:14,row:7},{sym:'Mc',col:15,row:7},{sym:'Lv',col:16,row:7},{sym:'Ts',col:17,row:7},{sym:'Og',col:18,row:7},
+];
+
+// helper global per clicar dins l’SVG
+window.__chemPick = function(sym){
+  const a=$('#answer');
+  if(!a) return;
+  a.value = sym;
+  checkAnswer();
+};
+
+function periodicTableSVG(targetSym){
+  const cellW=34, cellH=34, gap=6, left=10, top=10;
+  const cols=18, rows=10;
+  function xy(col,row){ const x=left+(col-1)*(cellW+gap); const y=top+(row-1)*(cellH+gap); return {x,y}; }
+  const cells = PERIODIC.map(e=>{
+    const {x,y} = xy(e.col,e.row);
+    return `
+      <g>
+        <rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="5" ry="5"
+          fill="#f8fafc" stroke="#94a3b8"
+          onclick="__chemPick('${e.sym}')" style="cursor:pointer"/>
+        <text x="${x+cellW/2}" y="${y+cellH/2+4}" text-anchor="middle" font-size="12" fill="#111827">${e.sym}</text>
+      </g>`;
+  }).join('');
+  const W=left+(cellW+gap)*cols, H=top+(cellH+gap)*rows;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Taula periòdica">${cells}</svg>`;
+}
+
+function genMap(){
+  const el = choice(E);
+  return {
+    type:'chem-map',
+    text:`Clica la casella de l’element <b>${el.name}</b> (${el.sym}) a la taula periòdica:`,
+    html: periodicTableSVG(el.sym),
+    answer: el.sym
+  };
+}
 
   // —————————————— 5) CLASSIFICACIÓ RÀPIDA (tria el grup) ——————————————
   const GROUPS = ['metall alcalí','metall alcalinoterri','metall','no metall','gas noble'];
