@@ -229,7 +229,7 @@ function genMap(){
   const el = choice(E);
   return {
     type:'chem-map',
-    text:`Clica la casella de l’element <b>${el.name}</b> (${el.sym}) a la taula periòdica:`,
+    text:`Clica la casella de l’element <b>${el.name}</b> a la taula periòdica:`,
     html: periodicTableSVG(el.sym),
     answer: el.sym
   };
