@@ -199,6 +199,16 @@ button:hover{transform: translateY(-1px)}
 .quiz.sci-mode #keypad {
   display: none !important;
 }
+.quiz > #leftCol,
+.quiz > #rightCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.quiz > #leftCol .card,
+.quiz > #rightCol .card {
+  flex: 1;
+}
 
 /* ===== Results (taula) ===== */
 table{width:100%; border-collapse:collapse}
