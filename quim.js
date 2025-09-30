@@ -153,74 +153,175 @@
     return { type:'chem-comp', text:`Quin compost formen <b>${c.syms.join(' + ')}</b>?`, options:opts, answer:c.name };
   }
 
-  // —————————————— 4) MAPA INTERACTIU (taula periòdica completa) ——————————————
-// Llista simplificada amb tots els 118 elements (només símbol, col, row)
+  // —————————————— TAULA PERIÒDICA COMPLETA (amb colors i noms) ——————————————
 const PERIODIC = [
   // Període 1
-  {sym:'H', col:1,row:1}, {sym:'He',col:18,row:1},
+  {num:1, sym:'H',  name:'Hidrogen',     col:1,  row:1, group:'no-metal'},
+  {num:2, sym:'He', name:'Heli',         col:18, row:1, group:'gas-noble'},
 
   // Període 2
-  {sym:'Li',col:1,row:2},{sym:'Be',col:2,row:2},
-  {sym:'B',col:13,row:2},{sym:'C',col:14,row:2},{sym:'N',col:15,row:2},{sym:'O',col:16,row:2},{sym:'F',col:17,row:2},{sym:'Ne',col:18,row:2},
+  {num:3, sym:'Li', name:'Liti',         col:1,  row:2, group:'alcalí'},
+  {num:4, sym:'Be', name:'Beril·li',     col:2,  row:2, group:'alcalinoterri'},
+  {num:5, sym:'B',  name:'Bor',          col:13, row:2, group:'metaloide'},
+  {num:6, sym:'C',  name:'Carboni',      col:14, row:2, group:'no-metal'},
+  {num:7, sym:'N',  name:'Nitrogen',     col:15, row:2, group:'no-metal'},
+  {num:8, sym:'O',  name:'Oxigen',       col:16, row:2, group:'no-metal'},
+  {num:9, sym:'F',  name:'Fluor',        col:17, row:2, group:'no-metal'},
+  {num:10,sym:'Ne', name:'Neó',          col:18, row:2, group:'gas-noble'},
 
   // Període 3
-  {sym:'Na',col:1,row:3},{sym:'Mg',col:2,row:3},
-  {sym:'Al',col:13,row:3},{sym:'Si',col:14,row:3},{sym:'P',col:15,row:3},{sym:'S',col:16,row:3},{sym:'Cl',col:17,row:3},{sym:'Ar',col:18,row:3},
+  {num:11,sym:'Na', name:'Sodi',         col:1,  row:3, group:'alcalí'},
+  {num:12,sym:'Mg', name:'Magnesi',      col:2,  row:3, group:'alcalinoterri'},
+  {num:13,sym:'Al', name:'Alumini',      col:13, row:3, group:'post-transició'},
+  {num:14,sym:'Si', name:'Silici',       col:14, row:3, group:'metaloide'},
+  {num:15,sym:'P',  name:'Fòsfor',       col:15, row:3, group:'no-metal'},
+  {num:16,sym:'S',  name:'Sofre',        col:16, row:3, group:'no-metal'},
+  {num:17,sym:'Cl', name:'Clor',         col:17, row:3, group:'no-metal'},
+  {num:18,sym:'Ar', name:'Argó',         col:18, row:3, group:'gas-noble'},
 
   // Període 4
-  {sym:'K',col:1,row:4},{sym:'Ca',col:2,row:4},
-  {sym:'Sc',col:3,row:4},{sym:'Ti',col:4,row:4},{sym:'V',col:5,row:4},{sym:'Cr',col:6,row:4},{sym:'Mn',col:7,row:4},{sym:'Fe',col:8,row:4},
-  {sym:'Co',col:9,row:4},{sym:'Ni',col:10,row:4},{sym:'Cu',col:11,row:4},{sym:'Zn',col:12,row:4},
-  {sym:'Ga',col:13,row:4},{sym:'Ge',col:14,row:4},{sym:'As',col:15,row:4},{sym:'Se',col:16,row:4},{sym:'Br',col:17,row:4},{sym:'Kr',col:18,row:4},
+  {num:19,sym:'K',  name:'Potassi',      col:1,  row:4, group:'alcalí'},
+  {num:20,sym:'Ca', name:'Calci',        col:2,  row:4, group:'alcalinoterri'},
+  {num:21,sym:'Sc', name:'Escandi',      col:3,  row:4, group:'metall-transició'},
+  {num:22,sym:'Ti', name:'Titani',       col:4,  row:4, group:'metall-transició'},
+  {num:23,sym:'V',  name:'Vanadi',       col:5,  row:4, group:'metall-transició'},
+  {num:24,sym:'Cr', name:'Crom',         col:6,  row:4, group:'metall-transició'},
+  {num:25,sym:'Mn', name:'Manganès',     col:7,  row:4, group:'metall-transició'},
+  {num:26,sym:'Fe', name:'Ferro',        col:8,  row:4, group:'metall-transició'},
+  {num:27,sym:'Co', name:'Cobalt',       col:9,  row:4, group:'metall-transició'},
+  {num:28,sym:'Ni', name:'Níquel',       col:10, row:4, group:'metall-transició'},
+  {num:29,sym:'Cu', name:'Coure',        col:11, row:4, group:'metall-transició'},
+  {num:30,sym:'Zn', name:'Zinc',         col:12, row:4, group:'metall-transició'},
+  {num:31,sym:'Ga', name:'Gal·li',       col:13, row:4, group:'post-transició'},
+  {num:32,sym:'Ge', name:'Germani',      col:14, row:4, group:'metaloide'},
+  {num:33,sym:'As', name:'Arsènic',      col:15, row:4, group:'metaloide'},
+  {num:34,sym:'Se', name:'Seleni',       col:16, row:4, group:'no-metal'},
+  {num:35,sym:'Br', name:'Brom',         col:17, row:4, group:'no-metal'},
+  {num:36,sym:'Kr', name:'Criptó',       col:18, row:4, group:'gas-noble'},
 
   // Període 5
-  {sym:'Rb',col:1,row:5},{sym:'Sr',col:2,row:5},{sym:'Y',col:3,row:5},{sym:'Zr',col:4,row:5},{sym:'Nb',col:5,row:5},{sym:'Mo',col:6,row:5},{sym:'Tc',col:7,row:5},
-  {sym:'Ru',col:8,row:5},{sym:'Rh',col:9,row:5},{sym:'Pd',col:10,row:5},{sym:'Ag',col:11,row:5},{sym:'Cd',col:12,row:5},
-  {sym:'In',col:13,row:5},{sym:'Sn',col:14,row:5},{sym:'Sb',col:15,row:5},{sym:'Te',col:16,row:5},{sym:'I',col:17,row:5},{sym:'Xe',col:18,row:5},
+  {num:37,sym:'Rb', name:'Rubidi',       col:1,  row:5, group:'alcalí'},
+  {num:38,sym:'Sr', name:'Estronci',     col:2,  row:5, group:'alcalinoterri'},
+  {num:39,sym:'Y',  name:'Itrí',         col:3,  row:5, group:'metall-transició'},
+  {num:40,sym:'Zr', name:'Zirconi',      col:4,  row:5, group:'metall-transició'},
+  {num:41,sym:'Nb', name:'Niobi',        col:5,  row:5, group:'metall-transició'},
+  {num:42,sym:'Mo', name:'Molibdè',      col:6,  row:5, group:'metall-transició'},
+  {num:43,sym:'Tc', name:'Tecneci',      col:7,  row:5, group:'metall-transició'},
+  {num:44,sym:'Ru', name:'Ruteni',       col:8,  row:5, group:'metall-transició'},
+  {num:45,sym:'Rh', name:'Rodi',         col:9,  row:5, group:'metall-transició'},
+  {num:46,sym:'Pd', name:'Pal·ladi',     col:10, row:5, group:'metall-transició'},
+  {num:47,sym:'Ag', name:'Plata',        col:11, row:5, group:'metall-transició'},
+  {num:48,sym:'Cd', name:'Cadmi',        col:12, row:5, group:'metall-transició'},
+  {num:49,sym:'In', name:'Indi',         col:13, row:5, group:'post-transició'},
+  {num:50,sym:'Sn', name:'Estany',       col:14, row:5, group:'post-transició'},
+  {num:51,sym:'Sb', name:'Antimoni',     col:15, row:5, group:'metaloide'},
+  {num:52,sym:'Te', name:'Tel·luri',     col:16, row:5, group:'metaloide'},
+  {num:53,sym:'I',  name:'Iode',         col:17, row:5, group:'no-metal'},
+  {num:54,sym:'Xe', name:'Xenó',         col:18, row:5, group:'gas-noble'},
 
   // Període 6
-  {sym:'Cs',col:1,row:6},{sym:'Ba',col:2,row:6},
-  {sym:'La',col:3,row:9},{sym:'Ce',col:4,row:9},{sym:'Pr',col:5,row:9},{sym:'Nd',col:6,row:9},{sym:'Pm',col:7,row:9},{sym:'Sm',col:8,row:9},
-  {sym:'Eu',col:9,row:9},{sym:'Gd',col:10,row:9},{sym:'Tb',col:11,row:9},{sym:'Dy',col:12,row:9},{sym:'Ho',col:13,row:9},{sym:'Er',col:14,row:9},
-  {sym:'Tm',col:15,row:9},{sym:'Yb',col:16,row:9},{sym:'Lu',col:17,row:9},
-
-  {sym:'Hf',col:4,row:6},{sym:'Ta',col:5,row:6},{sym:'W',col:6,row:6},{sym:'Re',col:7,row:6},{sym:'Os',col:8,row:6},
-  {sym:'Ir',col:9,row:6},{sym:'Pt',col:10,row:6},{sym:'Au',col:11,row:6},{sym:'Hg',col:12,row:6},
-  {sym:'Tl',col:13,row:6},{sym:'Pb',col:14,row:6},{sym:'Bi',col:15,row:6},{sym:'Po',col:16,row:6},{sym:'At',col:17,row:6},{sym:'Rn',col:18,row:6},
+  {num:55,sym:'Cs', name:'Cesi',         col:1,  row:6, group:'alcalí'},
+  {num:56,sym:'Ba', name:'Bari',         col:2,  row:6, group:'alcalinoterri'},
+  {num:57,sym:'La', name:'Lantani',      col:3,  row:9, group:'lantànid'},
+  {num:58,sym:'Ce', name:'Ceri',         col:4,  row:9, group:'lantànid'},
+  {num:59,sym:'Pr', name:'Praseodimi',   col:5,  row:9, group:'lantànid'},
+  {num:60,sym:'Nd', name:'Neodimi',      col:6,  row:9, group:'lantànid'},
+  {num:61,sym:'Pm', name:'Prometi',      col:7,  row:9, group:'lantànid'},
+  {num:62,sym:'Sm', name:'Samari',       col:8,  row:9, group:'lantànid'},
+  {num:63,sym:'Eu', name:'Europi',       col:9,  row:9, group:'lantànid'},
+  {num:64,sym:'Gd', name:'Gadolini',     col:10, row:9, group:'lantànid'},
+  {num:65,sym:'Tb', name:'Terbi',        col:11, row:9, group:'lantànid'},
+  {num:66,sym:'Dy', name:'Disprosi',     col:12, row:9, group:'lantànid'},
+  {num:67,sym:'Ho', name:'Holmi',        col:13, row:9, group:'lantànid'},
+  {num:68,sym:'Er', name:'Erbi',         col:14, row:9, group:'lantànid'},
+  {num:69,sym:'Tm', name:'Tuli',         col:15, row:9, group:'lantànid'},
+  {num:70,sym:'Yb', name:'Iterbi',       col:16, row:9, group:'lantànid'},
+  {num:71,sym:'Lu', name:'Luteci',       col:17, row:9, group:'lantànid'},
+  {num:72,sym:'Hf', name:'Hafni',        col:4,  row:6, group:'metall-transició'},
+  {num:73,sym:'Ta', name:'Tàntal',       col:5,  row:6, group:'metall-transició'},
+  {num:74,sym:'W',  name:'Tungstè',      col:6,  row:6, group:'metall-transició'},
+  {num:75,sym:'Re', name:'Renni',        col:7,  row:6, group:'metall-transició'},
+  {num:76,sym:'Os', name:'Osmi',         col:8,  row:6, group:'metall-transició'},
+  {num:77,sym:'Ir', name:'Iridi',        col:9,  row:6, group:'metall-transició'},
+  {num:78,sym:'Pt', name:'Platí',        col:10, row:6, group:'metall-transició'},
+  {num:79,sym:'Au', name:'Or',           col:11, row:6, group:'metall-transició'},
+  {num:80,sym:'Hg', name:'Mercuri',      col:12, row:6, group:'metall-transició'},
+  {num:81,sym:'Tl', name:'Tal·li',       col:13, row:6, group:'post-transició'},
+  {num:82,sym:'Pb', name:'Plom',         col:14, row:6, group:'post-transició'},
+  {num:83,sym:'Bi', name:'Bismut',       col:15, row:6, group:'post-transició'},
+  {num:84,sym:'Po', name:'Poloni',       col:16, row:6, group:'metaloide'},
+  {num:85,sym:'At', name:'Àstat',        col:17, row:6, group:'no-metal'},
+  {num:86,sym:'Rn', name:'Radó',         col:18, row:6, group:'gas-noble'},
 
   // Període 7
-  {sym:'Fr',col:1,row:7},{sym:'Ra',col:2,row:7},
-  {sym:'Ac',col:3,row:10},{sym:'Th',col:4,row:10},{sym:'Pa',col:5,row:10},{sym:'U',col:6,row:10},{sym:'Np',col:7,row:10},{sym:'Pu',col:8,row:10},
-  {sym:'Am',col:9,row:10},{sym:'Cm',col:10,row:10},{sym:'Bk',col:11,row:10},{sym:'Cf',col:12,row:10},{sym:'Es',col:13,row:10},{sym:'Fm',col:14,row:10},
-  {sym:'Md',col:15,row:10},{sym:'No',col:16,row:10},{sym:'Lr',col:17,row:10},
-
-  {sym:'Rf',col:4,row:7},{sym:'Db',col:5,row:7},{sym:'Sg',col:6,row:7},{sym:'Bh',col:7,row:7},{sym:'Hs',col:8,row:7},
-  {sym:'Mt',col:9,row:7},{sym:'Ds',col:10,row:7},{sym:'Rg',col:11,row:7},{sym:'Cn',col:12,row:7},
-  {sym:'Nh',col:13,row:7},{sym:'Fl',col:14,row:7},{sym:'Mc',col:15,row:7},{sym:'Lv',col:16,row:7},{sym:'Ts',col:17,row:7},{sym:'Og',col:18,row:7},
+  {num:87,sym:'Fr', name:'Franci',       col:1,  row:7, group:'alcalí'},
+  {num:88,sym:'Ra', name:'Radi',         col:2,  row:7, group:'alcalinoterri'},
+  {num:89,sym:'Ac', name:'Actini',       col:3,  row:10,group:'actínid'},
+  {num:90,sym:'Th', name:'Tori',         col:4,  row:10,group:'actínid'},
+  {num:91,sym:'Pa', name:'Protactini',   col:5,  row:10,group:'actínid'},
+  {num:92,sym:'U',  name:'Urani',        col:6,  row:10,group:'actínid'},
+  {num:93,sym:'Np', name:'Neptuni',      col:7,  row:10,group:'actínid'},
+  {num:94,sym:'Pu', name:'Plutoni',      col:8,  row:10,group:'actínid'},
+  {num:95,sym:'Am', name:'Americi',      col:9,  row:10,group:'actínid'},
+  {num:96,sym:'Cm', name:'Curi',         col:10, row:10,group:'actínid'},
+  {num:97,sym:'Bk', name:'Berkeli',      col:11, row:10,group:'actínid'},
+  {num:98,sym:'Cf', name:'Californi',    col:12, row:10,group:'actínid'},
+  {num:99,sym:'Es', name:'Einsteini',    col:13, row:10,group:'actínid'},
+  {num:100,sym:'Fm',name:'Fermi',        col:14, row:10,group:'actínid'},
+  {num:101,sym:'Md',name:'Mendelvi',     col:15, row:10,group:'actínid'},
+  {num:102,sym:'No',name:'Nobeli',       col:16, row:10,group:'actínid'},
+  {num:103,sym:'Lr',name:'Lawrenci',     col:17, row:10,group:'actínid'},
+  {num:104,sym:'Rf',name:'Rutherfordi',  col:4,  row:7, group:'metall-transició'},
+  {num:105,sym:'Db',name:'Dubni',        col:5,  row:7, group:'metall-transició'},
+  {num:106,sym:'Sg',name:'Seaborgi',     col:6,  row:7, group:'metall-transició'},
+  {num:107,sym:'Bh',name:'Bohri',        col:7,  row:7, group:'metall-transició'},
+  {num:108,sym:'Hs',name:'Hassi',        col:8,  row:7, group:'metall-transició'},
+  {num:109,sym:'Mt',name:'Meitneri',     col:9,  row:7, group:'metall-transició'},
+  {num:110,sym:'Ds',name:'Darmstadti',   col:10, row:7, group:'metall-transició'},
+  {num:111,sym:'Rg',name:'Roentgeni',    col:11, row:7, group:'metall-transició'},
+  {num:112,sym:'Cn',name:'Coperni',      col:12, row:7, group:'metall-transició'},
+  {num:113,sym:'Nh',name:'Nihoni',       col:13, row:7, group:'post-transició'},
+  {num:114,sym:'Fl',name:'Flerovi',      col:14, row:7, group:'post-transició'},
+  {num:115,sym:'Mc',name:'Moscovi',      col:15, row:7, group:'post-transició'},
+  {num:116,sym:'Lv',name:'Livermori',    col:16, row:7, group:'post-transició'},
+  {num:117,sym:'Ts',name:'Tenessi',      col:17, row:7, group:'no-metal'},
+  {num:118,sym:'Og',name:'Oganessó',     col:18, row:7, group:'gas-noble'}
 ];
 
-// helper global per clicar dins l’SVG
-window.__chemPick = function(sym){
-  const a=$('#answer');
-  if(!a) return;
-  a.value = sym;
-  checkAnswer();
+// 🎨 Paleta de colors per grups
+const GROUP_COLORS = {
+  'alcalí': '#93c5fd',          // blau clar
+  'alcalinoterri': '#fca5a5',   // vermell clar
+  'metall-transició': '#c4b5fd',// lila
+  'post-transició': '#86efac',  // verd clar
+  'metaloide': '#fde68a',       // groc
+  'no-metal': '#bae6fd',        // blau cel
+  'gas-noble': '#f9a8d4',       // rosa
+  'lantànid': '#fdba74',        // taronja
+  'actínid': '#fcd34d'          // marró groguenc
 };
 
 function periodicTableSVG(targetSym){
-  const cellW=34, cellH=34, gap=6, left=10, top=10;
+  const cellW=60, cellH=60, gap=6, left=10, top=10;
   const cols=18, rows=10;
-  function xy(col,row){ const x=left+(col-1)*(cellW+gap); const y=top+(row-1)*(cellH+gap); return {x,y}; }
+  function xy(col,row){
+    return {x:left+(col-1)*(cellW+gap), y:top+(row-1)*(cellH+gap)};
+  }
+
   const cells = PERIODIC.map(e=>{
     const {x,y} = xy(e.col,e.row);
+    const color = GROUP_COLORS[e.group] || '#f3f4f6';
     return `
-      <g>
-        <rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="5" ry="5"
-          fill="#f8fafc" stroke="#94a3b8"
-          onclick="__chemPick('${e.sym}')" style="cursor:pointer"/>
-        <text x="${x+cellW/2}" y="${y+cellH/2+4}" text-anchor="middle" font-size="12" fill="#111827">${e.sym}</text>
+      <g onclick="__chemPick('${e.sym}')" style="cursor:pointer">
+        <rect x="${x}" y="${y}" width="${cellW}" height="${cellH}" rx="6" ry="6"
+          fill="${color}" stroke="#1e293b"/>
+        <text x="${x+cellW/2}" y="${y+20}" text-anchor="middle"
+          font-size="16" font-weight="bold" fill="#111">${e.sym}</text>
+        <text x="${x+cellW/2}" y="${y+40}" text-anchor="middle"
+          font-size="11" fill="#111">${e.name}</text>
       </g>`;
   }).join('');
+
   const W=left+(cellW+gap)*cols, H=top+(cellH+gap)*rows;
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Taula periòdica">${cells}</svg>`;
 }
@@ -234,6 +335,7 @@ function genMap(){
     answer: el.sym
   };
 }
+
 
   // —————————————— 5) CLASSIFICACIÓ RÀPIDA (tria el grup) ——————————————
   const GROUPS = ['metall alcalí','metall alcalinoterri','metall','no metall','gas noble'];
