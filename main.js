@@ -56,7 +56,7 @@ window.addModules = function(mods){
   }
 };
 
-// 🔹 Registre del mòdul d'anglès (ang.js)
+// 🔹 Registre del mòdul d'anglès (alex.js)
 if (window.addModules) {
   window.addModules([
     { 
@@ -64,7 +64,7 @@ if (window.addModules) {
       name:'Llengua anglesa',
       desc:'Gramàtica, vocabulari i comprensions.',
       badge:'Anglès',
-      gen: genAng,   // <- la funció que tens definida a ang.js
+      gen: (level, opts) => window.ModAng?.get(level, opts), // ✅ segur
       category:'ang'
     }
   ]);
