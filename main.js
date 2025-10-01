@@ -56,6 +56,20 @@ window.addModules = function(mods){
   }
 };
 
+/* 🔹 Registre del mòdul d'anglès (definit a alex.js) */
+if (window.addModules) {
+  window.addModules([
+    { 
+      id:'ang-basic',
+      name:'Anglès bàsic',
+      desc:'Vocabulari, colors, cos humà i escola.',
+      badge:'Lang',
+      gen: (level, opts)=> window.ModAng?.gen(level, opts),
+      category:'ang'
+    }
+  ]);
+}
+
 let pendingModule = null; // mòdul seleccionat per configurar
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
