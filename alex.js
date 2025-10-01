@@ -1,53 +1,76 @@
 /* =======================================================
-   Focus Academy · Anglès (mòdul de vocabulari bàsic)
+   Focus Academy · Anglès (mòdul complet)
    Arxiu: alex.js
    ======================================================= */
 
 (function(){
   const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
 
-  /* ========== BANCS D'EXERCICIS (VOCABULARI BÀSIC) ========== */
-  const BANK_EN = [
-    { text: `Traducció al anglès: "casa"`,       answer: `house` },
-    { text: `Traducció al anglès: "gos"`,        answer: `dog` },
-    { text: `Traducció al anglès: "gat"`,        answer: `cat` },
-    { text: `Traducció al anglès: "llibre"`,     answer: `book` },
-    { text: `Traducció al anglès: "taula"`,      answer: `table` },
-    { text: `Traducció al anglès: "cadira"`,     answer: `chair` },
-    { text: `Traducció al anglès: "cotxe"`,      answer: `car` },
-    { text: `Traducció al anglès: "amic"`,       answer: `friend` },
-    { text: `Traducció al anglès: "aigua"`,      answer: `water` },
-    { text: `Traducció al anglès: "menjar"`,     answer: `food` },
-    { text: `Traducció al anglès: "professor"`,  answer: `teacher` },
-    { text: `Traducció al anglès: "escola"`,     answer: `school` },
-    { text: `Traducció al anglès: "sol"`,        answer: `sun` },
-    { text: `Traducció al anglès: "lluna"`,      answer: `moon` },
-    { text: `Traducció al anglès: "finestra"`,   answer: `window` },
-    { text: `Traducció al anglès: "porta"`,      answer: `door` },
-    { text: `Traducció al anglès: "mà"`,         answer: `hand` },
-    { text: `Traducció al anglès: "peu"`,        answer: `foot` },
-    { text: `Traducció al anglès: "cap"`,        answer: `head` },
-    { text: `Traducció al anglès: "ull"`,        answer: `eye` }
-  ];
-
-  /* ========== EXPORTAR ========== */
-  window.ModAng = {
-    get: ()=> choice(BANK_EN),
-    all: ()=> BANK_EN,
-    gen: (level, opts)=> {
-      const count = opts?.count || 10;
-      return Array.from({ length: count }, ()=> choice(BANK_EN));
-    }
+  /* ========== BANCS DE VOCABULARI ========== */
+  const BANK_VOCAB = {
+    basics: [
+      { ca:"casa", en:"house" }, { ca:"gos", en:"dog" }, { ca:"gat", en:"cat" }, { ca:"llibre", en:"book" },
+      { ca:"taula", en:"table" }, { ca:"cadira", en:"chair" }, { ca:"cotxe", en:"car" }, { ca:"amic", en:"friend" }
+    ],
+    colors: [
+      { ca:"vermell", en:"red" }, { ca:"blau", en:"blue" }, { ca:"groc", en:"yellow" }, { ca:"verd", en:"green" }
+    ],
+    body: [
+      { ca:"mà", en:"hand" }, { ca:"peu", en:"foot" }, { ca:"cap", en:"head" }, { ca:"ull", en:"eye" }
+    ],
+    school: [
+      { ca:"professor", en:"teacher" }, { ca:"escola", en:"school" }, { ca:"finestra", en:"window" }, { ca:"porta", en:"door" }
+    ]
   };
 
-  /* ========== REGISTRE AL SISTEMA ========== */
-  if (window.addModules) {
+  /* ========== GENERADORS DE PREGUNTES ========== */
+  function genVocab(level, opts={}){
+    const count = opts.count || 10;
+    const allWords = Object.values(BANK_VOCAB).flat();
+
+    return Array.from({length:count}, ()=>{
+      const w = choice(allWords);
+
+      if(level===1){
+        // Test multiresposta català → anglès
+        const options = [w.en];
+        while(options.length<4){
+          const rand = choice(allWords).en;
+          if(!options.includes(rand)) options.push(rand);
+        }
+        return {
+          text: `Traducció al anglès: "${w.ca}"`,
+          options: options.sort(()=>Math.random()-0.5),
+          answer: w.en
+        };
+      }
+
+      if(level===2){
+        // Resposta oberta català → anglès
+        return { text:`Traducció al anglès: "${w.ca}"`, answer:w.en };
+      }
+
+      if(level===3){
+        // Resposta oberta anglès → català
+        return { text:`Traducció al català: "${w.en}"`, answer:w.ca };
+      }
+
+      // Nivell 4 → completar paraula
+      const hidden = w.en.replace(/[aeiou]/g,"_");
+      return { text:`Completa la paraula: ${hidden}`, answer:w.en };
+    });
+  }
+
+  /* ========== EXPORTAR I REGISTRAR ========== */
+  window.ModAng = { gen: genVocab };
+
+  if(window.addModules){
     window.addModules([
-      { 
+      {
         id: 'ang-basic',
         name: 'Anglès bàsic',
-        desc: 'Vocabulari essencial català → anglès',
-        badge: 'New',
+        desc: 'Vocabulari, colors, cos humà i escola.',
+        badge: 'Lang',
         gen: (level, opts)=> window.ModAng.gen(level, opts),
         category: 'ang'
       }
