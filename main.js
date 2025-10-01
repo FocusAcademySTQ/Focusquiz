@@ -56,20 +56,6 @@ window.addModules = function(mods){
   }
 };
 
-// 🔹 Registre del mòdul d'anglès (alex.js)
-if (window.addModules) {
-  window.addModules([
-    { 
-      id:'angles',
-      name:'Llengua anglesa',
-      desc:'Gramàtica, vocabulari i comprensions.',
-      badge:'Anglès',
-      gen: (level, opts) => window.ModAng?.get(level, opts), // ✅ segur
-      category:'ang'
-    }
-  ]);
-}
-
 let pendingModule = null; // mòdul seleccionat per configurar
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
