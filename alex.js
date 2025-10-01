@@ -36,4 +36,9 @@
     all: ()=> BANK_EN
   };
 
+  /* ========== REGISTRE AL SISTEMA ========== */
+  if(window.MODULES){
+    window.MODULES["ang"] = window.ModAng;
+  }
+
 })();
