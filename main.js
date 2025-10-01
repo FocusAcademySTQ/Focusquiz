@@ -74,6 +74,11 @@ let pendingModule = null; // mòdul seleccionat per configurar
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
 let timerHandle = null;
+
+let pendingModule = null; // mòdul seleccionat per configurar
+const DEFAULTS = { count: 10, time: 0, level: 1 };
+let session = null;
+let timerHandle = null;
 /* ===================== VIEWS ===================== */
 
 function showView(name){
