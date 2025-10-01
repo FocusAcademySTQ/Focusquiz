@@ -31,23 +31,27 @@
   ];
 
   /* ========== EXPORTAR ========== */
-window.ModAng = {
-  get: ()=> choice(BANK_EN),
-  all: ()=> BANK_EN
-};
-
-/* ========== REGISTRE AL SISTEMA ========== */
-if (window.addModules) {
-  window.addModules([
-    { 
-      id: 'ang-basic',
-      name: 'Anglès bàsic',
-      desc: 'Vocabulari essencial català → anglès',
-      badge: 'New',
-      gen: ()=> window.ModAng.get(),
-      category: 'ang'
+  window.ModAng = {
+    get: ()=> choice(BANK_EN),
+    all: ()=> BANK_EN,
+    gen: (level, opts)=> {
+      const count = opts?.count || 10;
+      return Array.from({ length: count }, ()=> choice(BANK_EN));
     }
-  ]);
-}
+  };
+
+  /* ========== REGISTRE AL SISTEMA ========== */
+  if (window.addModules) {
+    window.addModules([
+      { 
+        id: 'ang-basic',
+        name: 'Anglès bàsic',
+        desc: 'Vocabulari essencial català → anglès',
+        badge: 'New',
+        gen: (level, opts)=> window.ModAng.gen(level, opts),
+        category: 'ang'
+      }
+    ]);
+  }
 
 })();
