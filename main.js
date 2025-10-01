@@ -56,11 +56,24 @@ window.addModules = function(mods){
   }
 };
 
+// 🔹 Registre del mòdul d'anglès (ang.js)
+if (window.addModules) {
+  window.addModules([
+    { 
+      id:'angles',
+      name:'Llengua anglesa',
+      desc:'Gramàtica, vocabulari i comprensions.',
+      badge:'Anglès',
+      gen: genAng,   // <- la funció que tens definida a ang.js
+      category:'ang'
+    }
+  ]);
+}
+
 let pendingModule = null; // mòdul seleccionat per configurar
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
 let timerHandle = null;
-
 /* ===================== VIEWS ===================== */
 
 function showView(name){
