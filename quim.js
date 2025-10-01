@@ -400,4 +400,17 @@ function genMap(){
     category:'sci',
     config: chemConfig
   }]);
+  // Funció global per quan es fa clic a la taula periòdica
+window.__chemPick = function(sym){
+  const a = document.querySelector('#answer');
+  if(!a) return;
+  a.value = sym;
+
+  // Opció A: l’alumne encara ha de prémer "Comprova"
+  // --> amb això ja tens l’input omplert
+
+  // Opció B: que es corregeixi directament al clicar
+  const btn = document.querySelector('#btnCheck');
+  if(btn) btn.click();
+};
 })();
