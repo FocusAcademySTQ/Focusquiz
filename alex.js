@@ -60,21 +60,3 @@
       return { text:`Completa la paraula: ${hidden}`, answer:w.en };
     });
   }
-
-  /* ========== EXPORTAR I REGISTRAR ========== */
-  window.ModAng = { gen: genVocab };
-
-  if(window.addModules){
-    window.addModules([
-      {
-        id: 'ang-basic',
-        name: 'Anglès bàsic',
-        desc: 'Vocabulari, colors, cos humà i escola.',
-        badge: 'Lang',
-        gen: (level, opts)=> window.ModAng.gen(level, opts),
-        category: 'ang'
-      }
-    ]);
-  }
-
-})();
