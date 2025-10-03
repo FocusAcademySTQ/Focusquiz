@@ -525,7 +525,7 @@ window.__chemPick = function(sym){
     }
   };
 
-  // —————————————— REGISTRE DEL MÒDUL ——————————————
+// Registrar els dos mòduls
   window.addModules([{
     id:'chem',
     name:'Taula periòdica',
@@ -534,8 +534,7 @@ window.__chemPick = function(sym){
     gen: genChem,
     category:'sci',
     config: chemConfig
-  }]);
- window.addModules([{
+  },{
     id:'chem-compounds',
     name:'Química – Fórmules i compostos',
     desc:'Valències, fórmules bàsiques i compostos moleculars.',
