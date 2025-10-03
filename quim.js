@@ -403,33 +403,6 @@ window.__chemPick = function(sym){
   if(btn) btn.click();
 };
   
-// mod-chem.js
-(function(){
-  function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]];} return r; }
-
-  // ========================
-  // MÒDUL 1: Taula periòdica
-  // ========================
-
-  const E = [ /* ... la teva llista llarga d’elements ... */ ];
-
-  function genSpeed(level, opts={}){ /* ... tal com ja ho tens ... */ }
-  function genCompounds(){ /* ... tal com ja ho tens ... */ }
-  function genMap(){ /* ... tal com ja ho tens ... */ }
-  function genClassify(){ /* ... tal com ja ho tens ... */ }
-
-  function genChem(level, opts={}){
-    const sub = opts.sub || 'speed';
-    if(sub==='compounds') return genCompounds();
-    if(sub==='map') return genMap();
-    if(sub==='classify') return genClassify();
-    return genSpeed(level, {dir: opts.dir || null});
-  }
-
-  const chemConfig = {
-    render: ()=>{/* ... la UI tal com ja la tens ... */},
-    collect: ()=>{/* ... recull sub i dir ... */}
-  };
 
   // ========================
   // MÒDUL 2: Fórmules i Compostos
