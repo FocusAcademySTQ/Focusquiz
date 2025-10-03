@@ -389,17 +389,6 @@ function genMap(){
       return { sub, dir };
     }
   };
-
-  // —————————————— REGISTRE DEL MÒDUL ——————————————
-  window.addModules([{
-    id:'chem',
-    name:'Química – Jocs taula periòdica',
-    desc:'Quiz ràpid, compostos, mapa interactiu i classificació.',
-    badge:'⚗️',
-    gen: genChem,
-    category:'sci',
-    config: chemConfig
-  }]);
   // Funció global per quan es fa clic a la taula periòdica
 window.__chemPick = function(sym){
   const a = document.querySelector('#answer');
@@ -413,4 +402,16 @@ window.__chemPick = function(sym){
   const btn = document.querySelector('#btnCheck');
   if(btn) btn.click();
 };
+  
+  // —————————————— REGISTRE DEL MÒDUL ——————————————
+  window.addModules([{
+    id:'chem',
+    name:'Química – Jocs taula periòdica',
+    desc:'Quiz ràpid, compostos, mapa interactiu i classificació.',
+    badge:'⚗️',
+    gen: genChem,
+    category:'sci',
+    config: chemConfig
+  }]);
+
 })();
