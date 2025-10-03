@@ -393,7 +393,7 @@ function genMap(){
   // —————————————— REGISTRE DEL MÒDUL ——————————————
   window.addModules([{
     id:'chem',
-    name:'Química – Jocs taula periòdica',
+    name:'Taula periòdica',
     desc:'Quiz ràpid, compostos, mapa interactiu i classificació.',
     badge:'⚗️',
     gen: genChem,
