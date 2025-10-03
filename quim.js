@@ -406,8 +406,6 @@ window.__chemPick = function(sym){
 })();
 
 // mod-chem-compounds.js
-  // utilitat per barrejar opcions
-  function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]];} return r; }
 
   // ===============================
   // 1) Valències i ions
