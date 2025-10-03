@@ -390,17 +390,7 @@ function genMap(){
     }
   };
 
-  // —————————————— REGISTRE DEL MÒDUL ——————————————
-  window.addModules([{
-    id:'chem',
-    name:'Taula periòdica',
-    desc:'Quiz ràpid, compostos, mapa interactiu i classificació.',
-    badge:'⚗️',
-    gen: genChem,
-    category:'sci',
-    config: chemConfig
-  }]);
-  // Funció global per quan es fa clic a la taula periòdica
+    // Funció global per quan es fa clic a la taula periòdica
 window.__chemPick = function(sym){
   const a = document.querySelector('#answer');
   if(!a) return;
@@ -413,4 +403,146 @@ window.__chemPick = function(sym){
   const btn = document.querySelector('#btnCheck');
   if(btn) btn.click();
 };
+})();
+
+// mod-chem-compounds.js
+(function(){
+
+  // utilitat per barrejar opcions
+  function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]];} return r; }
+
+  // ===============================
+  // 1) Valències i ions
+  // ===============================
+  const VALENCES = [
+    { el:"Na", val:"+1" },
+    { el:"K",  val:"+1" },
+    { el:"Ca", val:"+2" },
+    { el:"Mg", val:"+2" },
+    { el:"Al", val:"+3" },
+    { el:"Cl", val:"-1" },
+    { el:"O",  val:"-2" },
+    { el:"S",  val:"-2" },
+    { el:"N",  val:"-3" },
+    { el:"H",  val:"+1" }
+  ];
+  function genValence(){
+    const e = VALENCES[Math.floor(Math.random()*VALENCES.length)];
+    const opts = shuffle([e.val, ...shuffle(VALENCES.filter(x=>x!==e).map(x=>x.val)).slice(0,3)]);
+    return { 
+      type:'chem-valence',
+      text:`Quina valència té l’element <b>${e.el}</b>?`,
+      options: opts,
+      answer: e.val
+    };
+  }
+
+  // ===============================
+  // 2) Fórmules bàsiques
+  // ===============================
+  const FORMULAS = [
+    { name:"Òxid de calci", formula:"CaO" },
+    { name:"Aigua", formula:"H₂O" },
+    { name:"Diòxid de carboni", formula:"CO₂" },
+    { name:"Clorur de sodi", formula:"NaCl" },
+    { name:"Amoníac", formula:"NH₃" },
+    { name:"Metà", formula:"CH₄" },
+    { name:"Àcid clorhídric", formula:"HCl" },
+    { name:"Òxid de ferro (III)", formula:"Fe₂O₃" }
+  ];
+  function genFormulas(){
+    const f = FORMULAS[Math.floor(Math.random()*FORMULAS.length)];
+    const dir = Math.random()<0.5 ? 'name2formula' : 'formula2name';
+    if(dir==='name2formula'){
+      return { 
+        type:'chem-formula',
+        text:`Escriu la fórmula de: <b>${f.name}</b>`,
+        answer: f.formula,
+        input: "text"
+      };
+    }else{
+      return { 
+        type:'chem-formula',
+        text:`Quin és el nom de la fórmula <b>${f.formula}</b>?`,
+        answer: f.name,
+        input: "text"
+      };
+    }
+  }
+
+  // ===============================
+  // 3) Compostos moleculars
+  // ===============================
+  const MOLECULARS = [
+    { formula:"CO", name:"Monòxid de carboni" },
+    { formula:"CO₂", name:"Diòxid de carboni" },
+    { formula:"H₂O", name:"Aigua" },
+    { formula:"NH₃", name:"Amoníac" },
+    { formula:"CH₄", name:"Metà" },
+    { formula:"O₂",  name:"Oxigen" },
+    { formula:"N₂",  name:"Nitrogen" }
+  ];
+  function genMolecular(){
+    const m = MOLECULARS[Math.floor(Math.random()*MOLECULARS.length)];
+    const opts = shuffle([m.name, ...shuffle(MOLECULARS.filter(x=>x!==m).map(x=>x.name)).slice(0,3)]);
+    return { 
+      type:'chem-molecular',
+      text:`A quin compost correspon la fórmula <b>${m.formula}</b>?`,
+      options: opts,
+      answer: m.name
+    };
+  }
+
+  // ===============================
+  // Generador principal
+  // ===============================
+  function genCompounds(level, opts={}){
+    const sub = opts.sub || 'valence'; // valence | formulas | molecular
+    if(sub==='formulas') return genFormulas();
+    if(sub==='molecular') return genMolecular();
+    return genValence();
+  }
+
+  // ===============================
+  // Configuració UI
+  // ===============================
+  const compoundsConfig = {
+    render: ()=>{
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="section-title">Modes de fórmules i compostos</div>
+        <div class="controls">
+          <label class="toggle"><input class="check" type="radio" name="comp-sub" value="valence" checked> Valències i ions</label>
+          <label class="toggle"><input class="check" type="radio" name="comp-sub" value="formulas"> Fórmules bàsiques</label>
+          <label class="toggle"><input class="check" type="radio" name="comp-sub" value="molecular"> Compostos moleculars</label>
+        </div>
+      `;
+      return div;
+    },
+    collect: ()=>{
+      const sub = document.querySelector('input[name="comp-sub"]:checked')?.value || 'valence';
+      return { sub };
+    }
+  };
+
+  // —————————————— REGISTRE DEL MÒDUL ——————————————
+  window.addModules([{
+    id:'chem',
+    name:'Taula periòdica',
+    desc:'Quiz ràpid, compostos, mapa interactiu i classificació.',
+    badge:'⚗️',
+    gen: genChem,
+    category:'sci',
+    config: chemConfig
+  }]);
+ window.addModules([{
+    id:'chem-compounds',
+    name:'Química – Fórmules i compostos',
+    desc:'Valències, fórmules bàsiques i compostos moleculars.',
+    badge:'🧪',
+    gen: genCompounds,
+    category:'sci',
+    config: compoundsConfig
+  }]);
+
 })();
