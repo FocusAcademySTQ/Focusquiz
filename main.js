@@ -42,7 +42,7 @@ const MODULES = [
   { id:'units', name:'Unitats i conversions', desc:'Longitud, massa, volum, superfície i temps.', badge:'Mesures', gen: genUnits, category:'math' },
   { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', badge:'Àlgebra', gen: genEq, category:'math' },
   { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', badge:'Funcions', gen: genFunctions, category:'math' },
-  { id:'focusday',  name:'FocusDay', desc:'Una pregunta de cada mòdul, diferent cada cop.', badge:'Mix', gen: genFocusDay, category:'math' },
+  { id:'focusday',  name:'FocusDay', desc:'Una pregunta de cada mòdul, diferent cada cop.', badge:'Mix', gen: genFocusDay, category:'rep' },
 
 ];
 // Registre de mòduls externs (p.ex. llengua) i refresc de la Home
@@ -98,6 +98,7 @@ function buildHome(){
   renderSection('Mòduls de llengua catalana','cat');
   renderSection('Mòduls de ciències','sci');
   renderSection('Mòduls de llengua anglesa','ang');
+  renderSection('Mòduls de repàs','rep');
 
   // filtre resultats
   const fm = $('#filter-module');
