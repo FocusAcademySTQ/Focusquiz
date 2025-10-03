@@ -1,27 +1,11 @@
+
 /* =======================================================
    Focus Academy · Llengua Catalana (mòduls externs)
    Arxiu: lang-cat.js
    ======================================================= */
 
-// 🔀 Barrejador Fisher-Yates
-function shuffle(array) {
-  let a = [...array];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// 🃏 Gestor de baralla (sense repeticions fins acabar)
-function makeDeck(bank) {
-  let deck = shuffle(bank);
-  return function next() {
-    if (deck.length === 0) deck = shuffle(bank); // quan s’acaba → reinicia
-    return deck.pop();
-  };
-}
-
+(function(){
+  const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
 
   /* ========== BANCS D'EXERCICIS (ORTOGRAFIA) ========== */
 
@@ -132,28 +116,45 @@ function makeDeck(bank) {
    { text: `Corregix: comensar`, answer: `començar` },
    { text: `Corregix: avans`, answer: `abans` },
    { text: `Corregix: istòria`, answer: `història` },
-   { text: `Corregix: esamen`, answer: `examen` },
+   { text: `Corregix: egzamen`, answer: `examen` },
    { text: `Corregix: nesesari`, answer: `necessari` },
    { text: `Corregix: aixo es molt guapo`, answer: `això és molt bonic` },
    { text: `Corregix: no tinc res més ha dir`, answer: `no tinc res més a dir` },
    { text: `Corregix: no se res`, answer: `no sé res` },
+   { text: `Corregix: aquet`, answer: `aquest` },
    { text: `Corregix: selva`, answer: `seva` },
    { text: `Corregix: ase`, answer: `ase` },
    { text: `Corregix: colegi`, answer: `col·legi` },
    { text: `Corregix: dibuixu`, answer: `dibuixo` },
    { text: `Corregix: camvi`, answer: `canvi` },
+   { text: `Corregix: sense cap dubte que si`, answer: `sense cap dubte que sí` },
+   { text: `Corregix: vui`, answer: `vull` },
      { text: `Corregix: avia`, answer: `havia` },
+{ text: `Corregix: selva`, answer: `seva` },
+{ text: `Corregix: cuan`, answer: `quan` },
+{ text: `Corregix: plassa`, answer: `plaça` },
+{ text: `Corregix: colegi`, answer: `col·legi` },
+{ text: `Corregix: dijus`, answer: `dijous` },
+{ text: `Corregix: camvi`, answer: `canvi` },
+{ text: `Corregix: istòria`, answer: `història` },
+{ text: `Corregix: nesesari`, answer: `necessari` },
+{ text: `Corregix: egzamen`, answer: `examen` },
 { text: `Corregix: aquet`, answer: `aquest` },
 { text: `Corregix: vui`, answer: `vull` },
 { text: `Corregix: boi`, answer: `voi` },
 { text: `Corregix: mirala`, answer: `mira-la` },
 { text: `Corregix: nose`, answer: `no sé` },
+{ text: `Corregix: porke`, answer: `perquè` },
 { text: `Corregix: xq`, answer: `perquè` },
+{ text: `Corregix: vorem`, answer: `veurem` },
 { text: `Corregix: ke vols`, answer: `què vols` },
 { text: `Corregix: aixo es`, answer: `això és` },
+{ text: `Corregix: no se res`, answer: `no sé res` },
 { text: `Corregix: tambe`, answer: `també` },
 { text: `Corregix: faborit`, answer: `favorit` },
 { text: `Corregix: istiu`, answer: `estiu` },
+{ text: `Corregix: es molt xulo`, answer: `és molt bonic` },
+{ text: `Corregix: avans`, answer: `abans` },
 { text: `Corregix: aki`, answer: `aquí` },
 { text: `Corregix: akesta`, answer: `aquesta` },
 { text: `Corregix: escrivint-ho mal`, answer: `escrivint-ho malament` },
@@ -195,6 +196,7 @@ function makeDeck(bank) {
 { text: `Corregix: venin`, answer: `venint` },
 { text: `Corregix: vaig naixer`, answer: `vaig néixer` },
 { text: `Corregix: nesiu`, answer: `nascut` },
+{ text: `Corregix: sense cap dubte que si`, answer: `sense cap dubte que sí` },
 { text: `Corregix: ma dit`, answer: `m'ha dit` },
 { text: `Corregix: savia`, answer: `sabia` },
 { text: `Corregix: hi han molts`, answer: `hi ha molts` },
