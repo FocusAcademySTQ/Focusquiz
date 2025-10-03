@@ -3,8 +3,25 @@
    Arxiu: lang-cat.js
    ======================================================= */
 
-(function(){
-  const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
+// 🔀 Barrejador Fisher-Yates
+function shuffle(array) {
+  let a = [...array];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// 🃏 Gestor de baralla (sense repeticions fins acabar)
+function makeDeck(bank) {
+  let deck = shuffle(bank);
+  return function next() {
+    if (deck.length === 0) deck = shuffle(bank); // quan s’acaba → reinicia
+    return deck.pop();
+  };
+}
+
 
   /* ========== BANCS D'EXERCICIS (ORTOGRAFIA) ========== */
 
