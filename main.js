@@ -96,7 +96,7 @@ function buildHome(){
   // Seccions
   renderSection('Mòduls de matemàtiques','math');
   renderSection('Mòduls de llengua catalana','cat');
-  renderSection('Mòduls de ciències','sci');
+  renderSection('Mòduls de ciències (en manteniment, no utilitzar)','sci');
   renderSection('Mòduls de llengua anglesa','ang');
   renderSection('Mòduls de repàs','rep');
 
