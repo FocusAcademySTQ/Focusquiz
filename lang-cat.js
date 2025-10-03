@@ -1521,31 +1521,44 @@ const BANK_MORFO_FUNCIONS = [
 ];
 
   /* ========== GENERADORS ========== */
-  function genCatOrt(level, opts = {}){
+  // 🔹 Crear "decks" per cada subtema
+const decksOrt = {};
+SUBS.forEach(s => {
+  decksOrt[s.key] = makeDeck(s.bank);
+});
+
+const decksMorf = {};
+SUBS_MORF.forEach(s => {
+  decksMorf[s.key] = makeDeck(s.bank);
+});
+
+// 🔹 Generadors amb baralla sense repetició
+function genCatOrt(level, opts = {}) {
   const subKey = opts.sub || 'bv';
-  const sub = SUBS.find(s => s.key === subKey) || SUBS[0];
-  const q = choice(sub.bank);
+  const nextQ = decksOrt[subKey];
+  const q = nextQ();
   return { 
-    type: 'cat-ort', 
-    text: q.text, 
-    answer: q.answer, 
+    type: 'cat-ort',
+    text: q.text,
+    answer: q.answer,
     options: q.options || null,
     input: "text"
   };
 }
 
-function genCatMorf(level, opts = {}){
+function genCatMorf(level, opts = {}) {
   const subKey = opts.sub || 'categories';
-  const sub = SUBS_MORF.find(s => s.key === subKey) || SUBS_MORF[0];
-  const q = choice(sub.bank);
+  const nextQ = decksMorf[subKey];
+  const q = nextQ();
   return { 
     type: 'cat-morf',
     text: q.text,
     answer: q.answer,
     options: q.options || null,
-    input: q.options ? "choice" : "text"   // 👈 si té options → multiple choice
+    input: q.options ? "choice" : "text"
   };
 }
+
 
   /* ========== UI DE CONFIG ========== */
   const OrtografiaConfig = {
