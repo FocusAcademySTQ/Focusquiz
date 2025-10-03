@@ -4,24 +4,33 @@
    Arxiu: lang-cat.js
    ======================================================= */
 
-// 🔀 Barrejador Fisher-Yates
-function shuffle(array) {
-  let a = [...array];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+(function(){
 
-// 🃏 Gestor de baralla (sense repeticions fins acabar)
-function makeDeck(bank) {
-  let deck = shuffle(bank);
-  return function next() {
-    if (deck.length === 0) deck = shuffle(bank); // quan s’acaba → reinicia
-    return deck.pop();
-  };
-}
+  // 🔀 Barrejador Fisher-Yates
+  function shuffle(array) {
+    let a = [...array];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // 🃏 Gestor de baralla (sense repeticions fins acabar)
+  function makeDeck(bank) {
+    let deck = shuffle(bank);
+    return function next() {
+      if (deck.length === 0) deck = shuffle(bank); // quan s’acaba → reinicia
+      return deck.pop();
+    };
+  }
+
+  // 🔹 aquí després ja vénen els teus SUBS, SUBS_MORF, decksOrt, decksMorf, genCatOrt, genCatMorf, etc.
+
+  // 🔹 I al final de tot el fitxer, molt important:
+  window.addModules(CAT_MODULES);
+
+})();
 
 
   /* ========== BANCS D'EXERCICIS (ORTOGRAFIA) ========== */
