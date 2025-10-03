@@ -403,15 +403,120 @@ window.__chemPick = function(sym){
   if(btn) btn.click();
 };
   
-  // —————————————— REGISTRE DEL MÒDUL ——————————————
+// mod-chem.js
+(function(){
+  function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]];} return r; }
+
+  // ========================
+  // MÒDUL 1: Taula periòdica
+  // ========================
+
+  const E = [ /* ... la teva llista llarga d’elements ... */ ];
+
+  function genSpeed(level, opts={}){ /* ... tal com ja ho tens ... */ }
+  function genCompounds(){ /* ... tal com ja ho tens ... */ }
+  function genMap(){ /* ... tal com ja ho tens ... */ }
+  function genClassify(){ /* ... tal com ja ho tens ... */ }
+
+  function genChem(level, opts={}){
+    const sub = opts.sub || 'speed';
+    if(sub==='compounds') return genCompounds();
+    if(sub==='map') return genMap();
+    if(sub==='classify') return genClassify();
+    return genSpeed(level, {dir: opts.dir || null});
+  }
+
+  const chemConfig = {
+    render: ()=>{/* ... la UI tal com ja la tens ... */},
+    collect: ()=>{/* ... recull sub i dir ... */}
+  };
+
+  // ========================
+  // MÒDUL 2: Fórmules i Compostos
+  // ========================
+
+  const VALENCES = [
+    { el:"Na", val:"+1" },{ el:"K",val:"+1" },{ el:"Ca",val:"+2" },{ el:"O",val:"-2" },{ el:"Cl",val:"-1" }
+  ];
+  function genValence(){
+    const e = VALENCES[Math.floor(Math.random()*VALENCES.length)];
+    const opts = shuffle([e.val, ...shuffle(VALENCES.filter(x=>x!==e).map(x=>x.val)).slice(0,3)]);
+    return { type:'chem-valence', text:`Quina valència té <b>${e.el}</b>?`, options: opts, answer: e.val };
+  }
+
+  const FORMULAS = [
+    { name:"Òxid de calci", formula:"CaO" },
+    { name:"Aigua", formula:"H₂O" },
+    { name:"Diòxid de carboni", formula:"CO₂" },
+    { name:"Clorur de sodi", formula:"NaCl" }
+  ];
+  function genFormulas(){
+    const f = FORMULAS[Math.floor(Math.random()*FORMULAS.length)];
+    if(Math.random()<0.5){
+      return { type:'chem-formula', text:`Escriu la fórmula de: <b>${f.name}</b>`, answer: f.formula, input:"text" };
+    }else{
+      return { type:'chem-formula', text:`Quin és el nom de la fórmula <b>${f.formula}</b>?`, answer: f.name, input:"text" };
+    }
+  }
+
+  const MOLECULARS = [
+    { formula:"CO", name:"Monòxid de carboni" },
+    { formula:"CO₂", name:"Diòxid de carboni" },
+    { formula:"H₂O", name:"Aigua" },
+    { formula:"NH₃", name:"Amoníac" }
+  ];
+  function genMolecular(){
+    const m = MOLECULARS[Math.floor(Math.random()*MOLECULARS.length)];
+    const opts = shuffle([m.name, ...shuffle(MOLECULARS.filter(x=>x!==m).map(x=>x.name)).slice(0,3)]);
+    return { type:'chem-molecular', text:`A quin compost correspon la fórmula <b>${m.formula}</b>?`, options: opts, answer: m.name };
+  }
+
+  function genCompoundsExtra(level, opts={}){
+    const sub = opts.sub || 'valence';
+    if(sub==='formulas') return genFormulas();
+    if(sub==='molecular') return genMolecular();
+    return genValence();
+  }
+
+  const compoundsConfig = {
+    render: ()=>{
+      const div=document.createElement('div');
+      div.innerHTML=`
+        <div class="section-title">Modes de fórmules i compostos</div>
+        <label><input type="radio" name="comp-sub" value="valence" checked> Valències i ions</label>
+        <label><input type="radio" name="comp-sub" value="formulas"> Fórmules bàsiques</label>
+        <label><input type="radio" name="comp-sub" value="molecular"> Compostos moleculars</label>
+      `;
+      return div;
+    },
+    collect: ()=>{
+      const sub=document.querySelector('input[name="comp-sub"]:checked')?.value || 'valence';
+      return {sub};
+    }
+  };
+
+  // ========================
+  // REGISTRE DELS DOS MÒDULS
+  // ========================
   window.addModules([{
     id:'chem',
-    name:'Química – Jocs taula periòdica',
+    name:'Taula periòdica',
     desc:'Quiz ràpid, compostos, mapa interactiu i classificació.',
     badge:'⚗️',
     gen: genChem,
     category:'sci',
     config: chemConfig
+  },{
+    id:'chem-compounds',
+    name:'Fórmules i compostos',
+    desc:'Valències, fórmules bàsiques i compostos moleculars.',
+    badge:'🧪',
+    gen: genCompoundsExtra,
+    category:'sci',
+    config: compoundsConfig
   }]);
 
+
+
 })();
+
