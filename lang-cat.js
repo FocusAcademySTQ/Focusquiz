@@ -1,10 +1,10 @@
-
 /* =======================================================
    Focus Academy · Llengua Catalana (mòduls externs)
    Arxiu: lang-cat.js
    ======================================================= */
 
-
+(function(){
+  const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
 
   /* ========== BANCS D'EXERCICIS (ORTOGRAFIA) ========== */
 
@@ -115,28 +115,45 @@
    { text: `Corregix: comensar`, answer: `començar` },
    { text: `Corregix: avans`, answer: `abans` },
    { text: `Corregix: istòria`, answer: `història` },
-   { text: `Corregix: esamen`, answer: `examen` },
+   { text: `Corregix: egzamen`, answer: `examen` },
    { text: `Corregix: nesesari`, answer: `necessari` },
    { text: `Corregix: aixo es molt guapo`, answer: `això és molt bonic` },
    { text: `Corregix: no tinc res més ha dir`, answer: `no tinc res més a dir` },
    { text: `Corregix: no se res`, answer: `no sé res` },
+   { text: `Corregix: aquet`, answer: `aquest` },
    { text: `Corregix: selva`, answer: `seva` },
    { text: `Corregix: ase`, answer: `ase` },
    { text: `Corregix: colegi`, answer: `col·legi` },
    { text: `Corregix: dibuixu`, answer: `dibuixo` },
    { text: `Corregix: camvi`, answer: `canvi` },
+   { text: `Corregix: sense cap dubte que si`, answer: `sense cap dubte que sí` },
+   { text: `Corregix: vui`, answer: `vull` },
      { text: `Corregix: avia`, answer: `havia` },
+{ text: `Corregix: selva`, answer: `seva` },
+{ text: `Corregix: cuan`, answer: `quan` },
+{ text: `Corregix: plassa`, answer: `plaça` },
+{ text: `Corregix: colegi`, answer: `col·legi` },
+{ text: `Corregix: dijus`, answer: `dijous` },
+{ text: `Corregix: camvi`, answer: `canvi` },
+{ text: `Corregix: istòria`, answer: `història` },
+{ text: `Corregix: nesesari`, answer: `necessari` },
+{ text: `Corregix: egzamen`, answer: `examen` },
 { text: `Corregix: aquet`, answer: `aquest` },
 { text: `Corregix: vui`, answer: `vull` },
 { text: `Corregix: boi`, answer: `voi` },
 { text: `Corregix: mirala`, answer: `mira-la` },
 { text: `Corregix: nose`, answer: `no sé` },
+{ text: `Corregix: porke`, answer: `perquè` },
 { text: `Corregix: xq`, answer: `perquè` },
+{ text: `Corregix: vorem`, answer: `veurem` },
 { text: `Corregix: ke vols`, answer: `què vols` },
 { text: `Corregix: aixo es`, answer: `això és` },
+{ text: `Corregix: no se res`, answer: `no sé res` },
 { text: `Corregix: tambe`, answer: `també` },
 { text: `Corregix: faborit`, answer: `favorit` },
 { text: `Corregix: istiu`, answer: `estiu` },
+{ text: `Corregix: es molt xulo`, answer: `és molt bonic` },
+{ text: `Corregix: avans`, answer: `abans` },
 { text: `Corregix: aki`, answer: `aquí` },
 { text: `Corregix: akesta`, answer: `aquesta` },
 { text: `Corregix: escrivint-ho mal`, answer: `escrivint-ho malament` },
@@ -178,6 +195,7 @@
 { text: `Corregix: venin`, answer: `venint` },
 { text: `Corregix: vaig naixer`, answer: `vaig néixer` },
 { text: `Corregix: nesiu`, answer: `nascut` },
+{ text: `Corregix: sense cap dubte que si`, answer: `sense cap dubte que sí` },
 { text: `Corregix: ma dit`, answer: `m'ha dit` },
 { text: `Corregix: savia`, answer: `sabia` },
 { text: `Corregix: hi han molts`, answer: `hi ha molts` },
@@ -1503,44 +1521,31 @@ const BANK_MORFO_FUNCIONS = [
 ];
 
   /* ========== GENERADORS ========== */
-  // 🔹 Crear "decks" per cada subtema
-const decksOrt = {};
-SUBS.forEach(s => {
-  decksOrt[s.key] = makeDeck(s.bank);
-});
-
-const decksMorf = {};
-SUBS_MORF.forEach(s => {
-  decksMorf[s.key] = makeDeck(s.bank);
-});
-
-// 🔹 Generadors amb baralla sense repetició
-function genCatOrt(level, opts = {}) {
+  function genCatOrt(level, opts = {}){
   const subKey = opts.sub || 'bv';
-  const nextQ = decksOrt[subKey];
-  const q = nextQ();
+  const sub = SUBS.find(s => s.key === subKey) || SUBS[0];
+  const q = choice(sub.bank);
   return { 
-    type: 'cat-ort',
-    text: q.text,
-    answer: q.answer,
+    type: 'cat-ort', 
+    text: q.text, 
+    answer: q.answer, 
     options: q.options || null,
     input: "text"
   };
 }
 
-function genCatMorf(level, opts = {}) {
+function genCatMorf(level, opts = {}){
   const subKey = opts.sub || 'categories';
-  const nextQ = decksMorf[subKey];
-  const q = nextQ();
+  const sub = SUBS_MORF.find(s => s.key === subKey) || SUBS_MORF[0];
+  const q = choice(sub.bank);
   return { 
     type: 'cat-morf',
     text: q.text,
     answer: q.answer,
     options: q.options || null,
-    input: q.options ? "choice" : "text"
+    input: q.options ? "choice" : "text"   // 👈 si té options → multiple choice
   };
 }
-
 
   /* ========== UI DE CONFIG ========== */
   const OrtografiaConfig = {
