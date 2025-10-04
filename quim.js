@@ -579,13 +579,22 @@ window.__chemPick = function(sym){
 ];
 
   function genFormulas(){
-    const f = FORMULAS[Math.floor(Math.random()*FORMULAS.length)];
-    if(Math.random()<0.5){
-      return { type:'chem-formula', text:`Escriu la fórmula de: <b>${f.name}</b>`, answer: f.formula, input:"text" };
-    }else{
-      return { type:'chem-formula', text:`Quin és el nom de la fórmula <b>${f.formula}</b>?`, answer: f.name, input:"text" };
-    }
-  }
+  const f = FORMULAS[Math.floor(Math.random()*FORMULAS.length)];
+  const askFormula = Math.random()<0.5;
+
+  // Retornem l’exercici com abans
+  const q = askFormula
+    ? { type:'chem-formula', text:`Escriu la fórmula de: <b>${f.name}</b>`, answer:f.formula, input:"text" }
+    : { type:'chem-formula', text:`Quin és el nom de la fórmula <b>${f.formula}</b>?`, answer:f.name, input:"text" };
+
+  // ⚗️ Quan es mostri la pregunta (només en aquest submode), afegeix el teclat
+  setTimeout(()=>{
+    if(q.input==="text") attachChemKeyboard();
+  },100);
+
+  return q;
+}
+
 
   const MOLECULARS = [
   // 🌬️ Gasos i molècules elementals
@@ -644,6 +653,24 @@ window.__chemPick = function(sym){
     const opts = shuffle([m.name, ...shuffle(MOLECULARS.filter(x=>x!==m).map(x=>x.name)).slice(0,3)]);
     return { type:'chem-molecular', text:`A quin compost correspon la fórmula <b>${m.formula}</b>?`, options: opts, answer: m.name };
   }
+
+  function normalizeFormula(str){
+  if(!str) return '';
+  return str
+    .toUpperCase()
+    .replace(/[₀]/g,'0')
+    .replace(/[₁]/g,'1')
+    .replace(/[₂]/g,'2')
+    .replace(/[₃]/g,'3')
+    .replace(/[₄]/g,'4')
+    .replace(/[₅]/g,'5')
+    .replace(/[₆]/g,'6')
+    .replace(/[₇]/g,'7')
+    .replace(/[₈]/g,'8')
+    .replace(/[₉]/g,'9')
+    .replace(/\s+/g,'');
+}
+
 
   function genCompoundsExtra(level, opts={}){
     const sub = opts.sub || 'valence';
@@ -704,6 +731,51 @@ window.__chemPick = function(sym){
     category:'sci',
     config: compoundsConfig
   }]);
+
+  // 🧮 TECLAT QUÍMIC (només s'activa si el mode és formulas)
+function attachChemKeyboard(){
+  // Evitem duplicats
+  if(document.querySelector('.chem-keyboard')) return;
+
+  const answer = document.querySelector('#answer');
+  if(!answer) return;
+
+  const kb = document.createElement('div');
+  kb.className = 'chem-keyboard';
+  kb.innerHTML = `
+    <button type="button" onclick="insertSub('₁')">₁</button>
+    <button type="button" onclick="insertSub('₂')">₂</button>
+    <button type="button" onclick="insertSub('₃')">₃</button>
+    <button type="button" onclick="insertSub('₄')">₄</button>
+    <button type="button" onclick="insertSub('₅')">₅</button>
+    <button type="button" onclick="insertSub('₆')">₆</button>
+    <button type="button" onclick="insertSub('₇')">₇</button>
+    <button type="button" onclick="insertSub('₈')">₈</button>
+    <button type="button" onclick="insertSub('₉')">₉</button>
+  `;
+  answer.insertAdjacentElement('afterend', kb);
+}
+
+window.insertSub = function(sym){
+  const a = document.querySelector('#answer');
+  if(!a) return;
+  const start = a.selectionStart, end = a.selectionEnd;
+  a.value = a.value.slice(0,start) + sym + a.value.slice(end);
+  a.focus();
+  a.selectionStart = a.selectionEnd = start + sym.length;
+};
+
+// Estils
+const style = document.createElement('style');
+style.textContent = `
+.chem-keyboard { margin-top:6px; display:flex; flex-wrap:wrap; gap:4px; }
+.chem-keyboard button {
+  background:#e0e7ff; border:none; border-radius:4px; padding:4px 6px;
+  font-size:16px; cursor:pointer;
+}
+.chem-keyboard button:hover { background:#c7d2fe; }
+`;
+document.head.appendChild(style);
 
 
 
