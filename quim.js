@@ -140,13 +140,63 @@
 
   // —————————————— 3) CONSTRUIR COMPOSTOS (MCQ) ——————————————
   const COMPOUNDS = [
-    { syms:['Na','Cl'], name:'Clorur de sodi (NaCl)' },
-    { syms:['H','O'],   name:'Aigua (H₂O)' },
-    { syms:['C','O'],   name:'Diòxid de carboni (CO₂)' },
-    { syms:['Fe','O'],  name:'Òxid de ferro(III) (Fe₂O₃)' },
-    { syms:['H','Cl'],  name:'Àcid clorhídric (HCl)' },
-    { syms:['Ca','O'],  name:'Òxid de calci (CaO)' },
-  ];
+     // Òxids bàsics
+  { syms:['Fe','O'],  name:'Òxid de ferro(III) (Fe₂O₃)' },
+  { syms:['Cu','O'],  name:'Òxid de coure(II) (CuO)' },
+  { syms:['Ca','O'],  name:'Òxid de calci (CaO)' },
+  { syms:['Mg','O'],  name:'Òxid de magnesi (MgO)' },
+  { syms:['Al','O'],  name:'Òxid d’alumini (Al₂O₃)' },
+
+  // Òxids no metàl·lics
+  { syms:['C','O'],   name:'Diòxid de carboni (CO₂)' },
+  { syms:['N','O'],   name:'Diòxid de nitrogen (NO₂)' },
+  { syms:['S','O'],   name:'Triòxid de sofre (SO₃)' },
+  { syms:['P','O'],   name:'Pentòxid de difòsfor (P₂O₅)' },
+
+  // Hidràcids
+  { syms:['H','Cl'],  name:'Àcid clorhídric (HCl)' },
+  { syms:['H','S'],   name:'Àcid sulfhídric (H₂S)' },
+  { syms:['H','Br'],  name:'Àcid bromhídric (HBr)' },
+  { syms:['H','I'],   name:'Àcid iodhídric (HI)' },
+  { syms:['H','F'],   name:'Àcid fluorhídric (HF)' },
+
+  // Oxiàcids
+  { syms:['H','N','O'], name:'Àcid nítric (HNO₃)' },
+  { syms:['H','S','O'], name:'Àcid sulfúric (H₂SO₄)' },
+  { syms:['H','C','O'], name:'Àcid carbònic (H₂CO₃)' },
+  { syms:['H','P','O'], name:'Àcid fosfòric (H₃PO₄)' },
+
+  // Hidròxids
+  { syms:['Na','O','H'], name:'Hidròxid de sodi (NaOH)' },
+  { syms:['K','O','H'],  name:'Hidròxid de potassi (KOH)' },
+  { syms:['Ca','O','H'], name:'Hidròxid de calci (Ca(OH)₂)' },
+  { syms:['Fe','O','H'], name:'Hidròxid de ferro(III) (Fe(OH)₃)' },
+  { syms:['Al','O','H'], name:'Hidròxid d’alumini (Al(OH)₃)' },
+
+  // Sals neutres
+  { syms:['Na','Cl'], name:'Clorur de sodi (NaCl)' },
+  { syms:['K','Br'],  name:'Bromur de potassi (KBr)' },
+  { syms:['Ca','Cl'], name:'Clorur de calci (CaCl₂)' },
+  { syms:['Na','NO₃'], name:'Nitrat de sodi (NaNO₃)' },
+  { syms:['K','NO₃'],  name:'Nitrat de potassi (KNO₃)' },
+  { syms:['Ca','CO₃'], name:'Carbonat de calci (CaCO₃)' },
+  { syms:['Na','₂','SO₄'], name:'Sulfat de sodi (Na₂SO₄)' },
+  { syms:['Cu','SO₄'], name:'Sulfat de coure(II) (CuSO₄)' },
+
+  // Compostos moleculars senzills
+  { syms:['H','O'],   name:'Aigua (H₂O)' },
+  { syms:['NH','₃'],  name:'Amoníac (NH₃)' },
+  { syms:['CH','₄'],  name:'Metà (CH₄)' },
+  { syms:['CO','₂'],  name:'Diòxid de carboni (CO₂)' },
+  { syms:['CO'],      name:'Monòxid de carboni (CO)' },
+
+  // Altres compostos interessants
+  { syms:['Na','HCO₃'], name:'Bicarbonat de sodi (NaHCO₃)' },
+  { syms:['Ca','SO₄'],  name:'Sulfat de calci (CaSO₄)' },
+  { syms:['Fe','₂','S','₃'], name:'Sulfur de ferro(III) (Fe₂S₃)' },
+  { syms:['Ag','NO₃'],  name:'Nitrat de plata (AgNO₃)' },
+  { syms:['Zn','Cl₂'],  name:'Clorur de zinc (ZnCl₂)' }
+];
   function genCompounds(){
     const c = choice(COMPOUNDS);
     const opts = shuffle([c.name, ...shuffle(COMPOUNDS.filter(x=>x!==c).map(x=>x.name)).slice(0,3)]);
@@ -409,8 +459,57 @@ window.__chemPick = function(sym){
   // ========================
 
   const VALENCES = [
-    { el:"Na", val:"+1" },{ el:"K",val:"+1" },{ el:"Ca",val:"+2" },{ el:"O",val:"-2" },{ el:"Cl",val:"-1" }
-  ];
+  // 🔹 Alcalins (grup 1)
+  { el:"H",  val:"+1 / -1" },
+  { el:"Li", val:"+1" },
+  { el:"Na", val:"+1" },
+  { el:"K",  val:"+1" },
+  { el:"Rb", val:"+1" },
+  { el:"Cs", val:"+1" },
+  { el:"Fr", val:"+1" },
+
+  // 🔹 Alcalinoterris (grup 2)
+  { el:"Be", val:"+2" },
+  { el:"Mg", val:"+2" },
+  { el:"Ca", val:"+2" },
+  { el:"Sr", val:"+2" },
+  { el:"Ba", val:"+2" },
+  { el:"Ra", val:"+2" },
+
+  // 🔹 Metalls de transició (exemples més comuns)
+  { el:"Fe", val:"+2 / +3" },
+  { el:"Cu", val:"+1 / +2" },
+  { el:"Zn", val:"+2" },
+  { el:"Ag", val:"+1" },
+  { el:"Hg", val:"+1 / +2" },
+  { el:"Pb", val:"+2 / +4" },
+  { el:"Sn", val:"+2 / +4" },
+  { el:"Cr", val:"+2 / +3 / +6" },
+  { el:"Mn", val:"+2 / +4 / +7" },
+  { el:"Co", val:"+2 / +3" },
+  { el:"Ni", val:"+2 / +3" },
+  { el:"Au", val:"+1 / +3" },
+
+  // 🔹 No metalls
+  { el:"O",  val:"-2" },
+  { el:"S",  val:"-2 / +4 / +6" },
+  { el:"N",  val:"-3 / +3 / +5" },
+  { el:"P",  val:"-3 / +3 / +5" },
+  { el:"C",  val:"+2 / +4" },
+  { el:"Cl", val:"-1 / +1 / +3 / +5 / +7" },
+  { el:"Br", val:"-1 / +1 / +3 / +5" },
+  { el:"I",  val:"-1 / +1 / +3 / +5 / +7" },
+  { el:"F",  val:"-1" },
+
+  // 🔹 Altres importants
+  { el:"Al", val:"+3" },
+  { el:"Si", val:"+4" },
+  { el:"B",  val:"+3" },
+  { el:"Zn", val:"+2" },
+  { el:"Hg", val:"+2" },
+  { el:"Ag", val:"+1" }
+];
+
   function genValence(){
     const e = VALENCES[Math.floor(Math.random()*VALENCES.length)];
     const opts = shuffle([e.val, ...shuffle(VALENCES.filter(x=>x!==e).map(x=>x.val)).slice(0,3)]);
@@ -418,11 +517,67 @@ window.__chemPick = function(sym){
   }
 
   const FORMULAS = [
-    { name:"Òxid de calci", formula:"CaO" },
-    { name:"Aigua", formula:"H₂O" },
-    { name:"Diòxid de carboni", formula:"CO₂" },
-    { name:"Clorur de sodi", formula:"NaCl" }
-  ];
+  // 💧 Substàncies comunes
+  { name:"Aigua", formula:"H₂O" },
+  { name:"Amoníac", formula:"NH₃" },
+  { name:"Metà", formula:"CH₄" },
+  { name:"Diòxid de carboni", formula:"CO₂" },
+  { name:"Monòxid de carboni", formula:"CO" },
+  { name:"Ozò", formula:"O₃" },
+
+  // ⚙️ Òxids metàl·lics
+  { name:"Òxid de ferro(III)", formula:"Fe₂O₃" },
+  { name:"Òxid de coure(II)", formula:"CuO" },
+  { name:"Òxid de calci", formula:"CaO" },
+  { name:"Òxid de magnesi", formula:"MgO" },
+  { name:"Òxid d’alumini", formula:"Al₂O₃" },
+  { name:"Òxid de zinc", formula:"ZnO" },
+
+  // 🌫️ Òxids no metàl·lics
+  { name:"Diòxid de sofre", formula:"SO₂" },
+  { name:"Triòxid de sofre", formula:"SO₃" },
+  { name:"Diòxid de nitrogen", formula:"NO₂" },
+  { name:"Pentòxid de difòsfor", formula:"P₂O₅" },
+  { name:"Diòxid de silici", formula:"SiO₂" },
+
+  // ⚗️ Àcids hidrácids
+  { name:"Àcid clorhídric", formula:"HCl" },
+  { name:"Àcid sulfhídric", formula:"H₂S" },
+  { name:"Àcid fluorhídric", formula:"HF" },
+  { name:"Àcid bromhídric", formula:"HBr" },
+  { name:"Àcid iodhídric", formula:"HI" },
+
+  // ⚡ Àcids oxigenats
+  { name:"Àcid nítric", formula:"HNO₃" },
+  { name:"Àcid sulfurós", formula:"H₂SO₃" },
+  { name:"Àcid sulfúric", formula:"H₂SO₄" },
+  { name:"Àcid carbònic", formula:"H₂CO₃" },
+  { name:"Àcid fosfòric", formula:"H₃PO₄" },
+  { name:"Àcid acètic", formula:"CH₃COOH" },
+
+  // 🧪 Hidròxids
+  { name:"Hidròxid de sodi", formula:"NaOH" },
+  { name:"Hidròxid de potassi", formula:"KOH" },
+  { name:"Hidròxid de calci", formula:"Ca(OH)₂" },
+  { name:"Hidròxid de ferro(III)", formula:"Fe(OH)₃" },
+  { name:"Hidròxid d’alumini", formula:"Al(OH)₃" },
+
+  // 🧱 Sals neutres
+  { name:"Clorur de sodi", formula:"NaCl" },
+  { name:"Clorur de calci", formula:"CaCl₂" },
+  { name:"Sulfat de sodi", formula:"Na₂SO₄" },
+  { name:"Sulfat de calci", formula:"CaSO₄" },
+  { name:"Sulfat de coure(II)", formula:"CuSO₄" },
+  { name:"Nitrat de potassi", formula:"KNO₃" },
+  { name:"Carbonat de calci", formula:"CaCO₃" },
+  { name:"Bicarbonat de sodi", formula:"NaHCO₃" },
+  { name:"Fosfat de sodi", formula:"Na₃PO₄" },
+  { name:"Nitrat d’argent", formula:"AgNO₃" },
+  { name:"Clorur de ferro(III)", formula:"FeCl₃" },
+  { name:"Bromur de potassi", formula:"KBr" },
+  { name:"Iodur de sodi", formula:"NaI" }
+];
+
   function genFormulas(){
     const f = FORMULAS[Math.floor(Math.random()*FORMULAS.length)];
     if(Math.random()<0.5){
@@ -433,11 +588,57 @@ window.__chemPick = function(sym){
   }
 
   const MOLECULARS = [
-    { formula:"CO", name:"Monòxid de carboni" },
-    { formula:"CO₂", name:"Diòxid de carboni" },
-    { formula:"H₂O", name:"Aigua" },
-    { formula:"NH₃", name:"Amoníac" }
-  ];
+  // 🌬️ Gasos i molècules elementals
+  { formula:"O₂", name:"Oxigen" },
+  { formula:"N₂", name:"Nitrogen" },
+  { formula:"H₂", name:"Hidrogen" },
+  { formula:"Cl₂", name:"Clor" },
+  { formula:"F₂", name:"Fluor" },
+  { formula:"Br₂", name:"Brom" },
+  { formula:"I₂", name:"Iode" },
+  { formula:"O₃", name:"Ozò" },
+
+  // 💧 Compostos senzills
+  { formula:"H₂O", name:"Aigua" },
+  { formula:"NH₃", name:"Amoníac" },
+  { formula:"CO",  name:"Monòxid de carboni" },
+  { formula:"CO₂", name:"Diòxid de carboni" },
+  { formula:"CH₄", name:"Metà" },
+  { formula:"C₂H₆", name:"Età" },
+  { formula:"C₂H₄", name:"Eten" },
+  { formula:"C₂H₂", name:"Etí" },
+  { formula:"NO",  name:"Monòxid de nitrogen" },
+  { formula:"NO₂", name:"Diòxid de nitrogen" },
+  { formula:"N₂O", name:"Òxid nitrós (gas dels riures)" },
+  { formula:"SO₂", name:"Diòxid de sofre" },
+  { formula:"SO₃", name:"Triòxid de sofre" },
+  { formula:"H₂S", name:"Sulfur d’hidrogen" },
+
+  // ⚗️ Àcids moleculars (covalença)
+  { formula:"HF", name:"Àcid fluorhídric" },
+  { formula:"HCl", name:"Àcid clorhídric" },
+  { formula:"HBr", name:"Àcid bromhídric" },
+  { formula:"HI", name:"Àcid iodhídric" },
+  { formula:"H₂SO₄", name:"Àcid sulfúric" },
+  { formula:"HNO₃", name:"Àcid nítric" },
+  { formula:"H₂CO₃", name:"Àcid carbònic" },
+  { formula:"H₃PO₄", name:"Àcid fosfòric" },
+  { formula:"CH₃COOH", name:"Àcid acètic" },
+
+  // 🍃 Compostos orgànics i derivats
+  { formula:"C₂H₅OH", name:"Etanol (alcohol etílic)" },
+  { formula:"CH₃OH", name:"Metanol (alcohol metílic)" },
+  { formula:"C₆H₁₂O₆", name:"Glucosa" },
+  { formula:"C₁₂H₂₂O₁₁", name:"Sacarosa" },
+  { formula:"C₆H₆", name:"Benzè" },
+
+  // 💨 Altres compostos d’interès quotidià
+  { formula:"H₂O₂", name:"Aigua oxigenada (peròxid d’hidrogen)" },
+  { formula:"NH₄Cl", name:"Clorur d’amoni" },
+  { formula:"SiO₂", name:"Diòxid de silici (quars)" },
+  { formula:"PCl₃", name:"Triclorur de fòsfor" },
+  { formula:"SF₆", name:"Hexafluorur de sofre" }
+];
   function genMolecular(){
     const m = MOLECULARS[Math.floor(Math.random()*MOLECULARS.length)];
     const opts = shuffle([m.name, ...shuffle(MOLECULARS.filter(x=>x!==m).map(x=>x.name)).slice(0,3)]);
