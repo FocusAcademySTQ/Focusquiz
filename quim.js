@@ -451,22 +451,37 @@ window.__chemPick = function(sym){
     return genValence();
   }
 
-  const compoundsConfig = {
-    render: ()=>{
-      const div=document.createElement('div');
-      div.innerHTML=`
-        <div class="section-title">Modes de fórmules i compostos</div>
-        <label><input type="radio" name="comp-sub" value="valence" checked> Valències i ions</label>
-        <label><input type="radio" name="comp-sub" value="formulas"> Fórmules bàsiques</label>
-        <label><input type="radio" name="comp-sub" value="molecular"> Compostos moleculars</label>
-      `;
-      return div;
-    },
-    collect: ()=>{
-      const sub=document.querySelector('input[name="comp-sub"]:checked')?.value || 'valence';
-      return {sub};
-    }
-  };
+ const compoundsConfig = {
+  render: ()=>{
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div class="section-title">Modes de fórmules i compostos</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Mode de treball">
+          <label class="toggle">
+            <input class="check" type="radio" name="comp-sub" value="valence" checked>
+            Valències i ions
+          </label>
+          <label class="toggle">
+            <input class="check" type="radio" name="comp-sub" value="formulas">
+            Fórmules bàsiques
+          </label>
+          <label class="toggle">
+            <input class="check" type="radio" name="comp-sub" value="molecular">
+            Compostos moleculars
+          </label>
+        </div>
+      </div>
+      <div class="subtitle">Consell: combina aquest mòdul amb exercicis visuals de taula periòdica per reforçar la relació entre símbols i fórmules.</div>
+    `;
+    return div;
+  },
+  collect: ()=>{
+    const sub = document.querySelector('input[name="comp-sub"]:checked')?.value || 'valence';
+    return { sub };
+  }
+};
+
 
   // ========================
   // REGISTRE DELS DOS MÒDULS
