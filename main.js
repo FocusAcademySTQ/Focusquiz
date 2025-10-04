@@ -800,12 +800,15 @@ function checkAnswer(){
   }
 
   if(ok){
-    session.correct++;
-    feedback(true, `Correcte!`);
-  }else{
-    session.wrongs.push({ ...q, user: raw });
-    feedback(false, `Incorrecte. Resposta correcta: <b>${fmtAns(q.answer)}</b>`);
-  }
+  session.correct++;
+  feedback(true, `Correcte!`);
+}else{
+  session.wrongs.push({ ...q, user: raw });
+  feedback(false, `Incorrecte. Resposta correcta: <b>${fmtAns(q.answer)}</b>`);
+}
+
+// 🧠 Registra resultat de cada pregunta
+saveResult(session.module, q.text, ok);
 
   session.idx++;
   updateProgress();
