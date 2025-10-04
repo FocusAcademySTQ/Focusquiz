@@ -29,13 +29,25 @@
   <main class="wrap">
     <!-- HOME -->
     <section id="view-home" class="hero">
-      <div class="panel card">
-        <h2 class="title">Benvingut/da! 👋</h2>
-        <p class="subtitle">Tria un mòdul per configurar-lo i començar. Tot queda guardat en aquest dispositiu (sense comptes).</p>
+  <div class="panel card">
+    <h2 class="title">Benvingut/da! 👋</h2>
+    <p class="subtitle">Tria un mòdul per configurar-lo i començar. Tot queda guardat en aquest dispositiu (sense comptes).</p>
 
-        <div id="moduleGrid"></div>
-      </div>
-    </section>
+    <div id="moduleGrid"></div>
+
+    <!-- Recomanació del Tutor Virtual -->
+    <div id="recommendation" class="panel card" style="margin-top:1rem; background:#fffafc;">
+      <h3 class="title" style="margin-top:0;">Consell del teu tutor virtual 🤖</h3>
+      <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', ()=>{
+        showRecommendation('#recommendationText');
+      });
+    </script>
+  </div>
+</section>
 
     <!-- CONFIG -->
     <section id="view-config" class="hidden">
