@@ -154,4 +154,15 @@ window.renderBars=function(){
     wrap.appendChild(div);
   }
 };
+  // 🔁 Actualitza el consell quan es canvia el nom
+document.addEventListener('DOMContentLoaded', ()=>{
+  const input = document.querySelector('#studentName');
+  if(input){
+    input.addEventListener('change', ()=> showRecommendation('#recommendationText'));
+    input.addEventListener('keyup', (e)=> {
+      if(e.key==='Enter') showRecommendation('#recommendationText');
+    });
+  }
+});
+
 })();
