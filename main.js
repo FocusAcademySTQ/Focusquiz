@@ -20,11 +20,34 @@ const gcd = (a,b)=>{ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b] } ret
 const simplifyFrac = (n,d)=>{ const g=gcd(n,d); return [n/g, d/g] };
 
 const store = {
-  get k(){ return 'focus-math-results-v1' },
-  all(){ try{ return JSON.parse(localStorage.getItem(this.k)||'[]') }catch{ return [] } },
-  save(entry){ const all=this.all(); all.push(entry); localStorage.setItem(this.k, JSON.stringify(all)) },
-  clear(){ localStorage.removeItem(this.k) }
+  get k() { return 'focus-math-results-v1'; },
+
+  all() {
+    const user = localStorage.getItem('lastStudent') || 'Anònim';
+    try {
+      const data = JSON.parse(localStorage.getItem(this.k) || '{}');
+      return data[user] || [];
+    } catch {
+      return [];
+    }
+  },
+
+  save(entry) {
+    const user = localStorage.getItem('lastStudent') || 'Anònim';
+    const data = JSON.parse(localStorage.getItem(this.k) || '{}');
+    if (!data[user]) data[user] = [];
+    data[user].push(entry);
+    localStorage.setItem(this.k, JSON.stringify(data));
+  },
+
+  clear() {
+    const user = localStorage.getItem('lastStudent') || 'Anònim';
+    const data = JSON.parse(localStorage.getItem(this.k) || '{}');
+    delete data[user];
+    localStorage.setItem(this.k, JSON.stringify(data));
+  }
 };
+
 
 const fmtTime = (sec)=>{
   const m = Math.floor(sec/60), s = sec%60;
@@ -848,7 +871,8 @@ function finishQuiz(timeUp){
   stopTimer();
   const elapsed = Math.floor((Date.now() - session.startedAt)/1000);
   const score = Math.round((session.correct / session.count) * 100);
-  const name = ($('#studentName').value||'Anònim').trim();
+  const name = localStorage.getItem('lastStudent') || 'Anònim';
+
 
   store.save({
     at: new Date().toISOString(),
