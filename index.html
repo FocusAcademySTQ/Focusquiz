@@ -7,6 +7,40 @@
   <meta name="description" content="Pràctiques de matemàtiques per a estudiants. Single-file, sense dependències." />
   <link rel="stylesheet" href="style.css">
 </head>
+  <!-- LOGIN LOCAL (overlay) -->
+<div id="loginOverlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,10,20,0.45);z-index:9999;">
+  <div style="width:360px;max-width:92%;background:#fff;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.12);text-align:left;">
+    <h2 style="margin:0 0 8px 0;font-size:1.15rem">Accedeix a Focus Academy</h2>
+    <div style="font-size:0.9rem;color:#475569;margin-bottom:12px">Tria un usuari existent o crea'n un de nou. Les dades es queden en aquest dispositiu (local).</div>
+
+    <label style="display:block;margin-bottom:6px;font-weight:600">Usuaris existents</label>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <select id="loginUserList" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8"></select>
+      <button id="btnLoginSelect" class="pill" style="padding:8px 10px">Entrar</button>
+    </div>
+
+    <div style="height:1px;background:#f1f5f9;margin:10px 0;border-radius:2px"></div>
+
+    <label style="display:block;margin-bottom:6px;font-weight:600">Crear nou usuari</label>
+    <input id="newUserName" placeholder="Nom (mínim 2 caràcters)" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e6eef8;margin-bottom:8px" />
+    <div style="display:flex;gap:8px">
+      <button id="btnCreateUser" class="btn" style="flex:1;padding:8px">Crea i entra</button>
+      <button id="btnDeleteUser" class="btn-ghost" style="flex:1;padding:8px">Suprimeix seleccionat</button>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:space-between;align-items:center">
+      <small style="color:#64748b">Tot en localStorage · Sense servidors</small>
+      <button id="btnContinueGuest" class="btn-secondary" style="padding:6px 10px">Anul·la (no disponible)</button>
+    </div>
+
+    <div style="margin-top:10px;font-size:0.85rem;color:#334155">
+      <input id="importFile" type="file" style="display:none" />
+      <button id="btnExport" class="btn-ghost" style="margin-top:8px">Exporta totes dades</button>
+      <button id="btnImport" class="btn-ghost" style="margin-top:8px">Importa dades</button>
+    </div>
+  </div>
+</div>
+
 <body>
   <header>
     <div class="wrap row">
@@ -35,11 +69,11 @@
 
     <div id="moduleGrid"></div>
 
-    <!-- Recomanació de Focus Academy -->
-    <div id="recommendation" class="panel card" style="margin-top:1rem; background:#fffafc;">
-      <h3 class="title" style="margin-top:0;">Consell de Focus Academy 🎓 </h3>
-      <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
-    </div>
+   <!-- 🧠 Consell del tutor -->
+<div id="recommendation" class="panel card" style="margin-top:1rem; background:#fffafc;">
+  <h3 class="title" style="margin-top:0;">Consell del teu tutor virtual 🤖</h3>
+  <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
+</div>
 
     <script>
       document.addEventListener('DOMContentLoaded', ()=>{
