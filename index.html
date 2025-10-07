@@ -236,74 +236,74 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       <img src="https://static.wixstatic.com/media/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png/v1/crop/x_836,y_591,w_1877,h_1328/fill/w_642,h_454,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png"
            alt="Logo Focus Academy" style="height:40px; width:auto; object-fit:contain"
            referrerpolicy="no-referrer" />
-    </footer>
+  </footer>
   </main>
-  <script src="main.js" defer></script>
+
+  <!-- 🔹 Carrega primer els mòduls auxiliars -->
   <script src="lang-cat.js" defer></script>
   <script src="quim.js" defer></script>
   <script src="tutor.js"></script>
 
+  <!-- 🔹 Després el bloc del login local -->
   <script>
-document.addEventListener('DOMContentLoaded', ()=>{
-  const overlay = document.querySelector('#loginOverlay');
-  const userList = document.querySelector('#loginUserList');
-  const btnSelect = document.querySelector('#btnLoginSelect');
-  const btnCreate = document.querySelector('#btnCreateUser');
-  const btnDelete = document.querySelector('#btnDeleteUser');
-  const inputNew = document.querySelector('#newUserName');
+  document.addEventListener('DOMContentLoaded', ()=> {
+    const overlay = document.querySelector('#loginOverlay');
+    const userList = document.querySelector('#loginUserList');
+    const btnSelect = document.querySelector('#btnLoginSelect');
+    const btnCreate = document.querySelector('#btnCreateUser');
+    const btnDelete = document.querySelector('#btnDeleteUser');
+    const inputNew = document.querySelector('#newUserName');
 
-  // 🔹 Carrega usuaris guardats
-  function refreshUsers(){
-    const users = JSON.parse(localStorage.getItem('students') || '[]');
-    userList.innerHTML = users.map(u=>`<option>${u}</option>`).join('');
-  }
+    // 🔹 Carrega usuaris guardats
+    function refreshUsers(){
+      const users = JSON.parse(localStorage.getItem('students') || '[]');
+      userList.innerHTML = users.map(u=>`<option>${u}</option>`).join('');
+    }
 
-  // 🔹 Mostra overlay si no hi ha usuari actiu
-  const current = localStorage.getItem('lastStudent');
-  if(!current){
-    overlay.style.display = 'flex';
-  } else {
-    overlay.style.display = 'none';
-    if(document.querySelector('#studentName')) document.querySelector('#studentName').value = current;
-  }
+    // 🔹 Mostra overlay si no hi ha usuari actiu
+    const current = localStorage.getItem('lastStudent');
+    if(!current){
+      overlay.style.display = 'flex';
+    } else {
+      overlay.style.display = 'none';
+    }
 
-  // 🔹 Botó Entrar
-  btnSelect.addEventListener('click', ()=>{
-    const name = userList.value.trim();
-    if(!name) return alert('Selecciona un usuari.');
-    localStorage.setItem('lastStudent', name);
-    overlay.style.display = 'none';
-    if(document.querySelector('#studentName')) document.querySelector('#studentName').value = name;
-    showRecommendation('#recommendationText');
-  });
+    // 🔹 Entrar amb usuari existent
+    btnSelect.addEventListener('click', ()=>{
+      const name = userList.value.trim();
+      if(!name) return alert('Selecciona un usuari.');
+      localStorage.setItem('lastStudent', name);
+      overlay.style.display = 'none';
+      location.reload(); // 🔸 ara el main.js ja es carregarà amb usuari actiu
+    });
 
-  // 🔹 Crea nou usuari
-  btnCreate.addEventListener('click', ()=>{
-    const name = inputNew.value.trim();
-    if(name.length < 2) return alert('El nom ha de tenir com a mínim 2 caràcters.');
-    const users = JSON.parse(localStorage.getItem('students') || '[]');
-    if(!users.includes(name)) users.push(name);
-    localStorage.setItem('students', JSON.stringify(users));
-    localStorage.setItem('lastStudent', name);
-    overlay.style.display = 'none';
-    if(document.querySelector('#studentName')) document.querySelector('#studentName').value = name;
-    showRecommendation('#recommendationText');
-  });
+    // 🔹 Crear nou usuari
+    btnCreate.addEventListener('click', ()=>{
+      const name = inputNew.value.trim();
+      if(name.length < 2) return alert('Nom massa curt.');
+      const users = JSON.parse(localStorage.getItem('students') || '[]');
+      if(!users.includes(name)) users.push(name);
+      localStorage.setItem('students', JSON.stringify(users));
+      localStorage.setItem('lastStudent', name);
+      overlay.style.display = 'none';
+      location.reload();
+    });
 
-  // 🔹 Suprimeix usuari
-  btnDelete.addEventListener('click', ()=>{
-    const name = userList.value.trim();
-    if(!name) return alert('Selecciona un usuari a eliminar.');
-    const users = JSON.parse(localStorage.getItem('students') || '[]').filter(u=>u!==name);
-    localStorage.setItem('students', JSON.stringify(users));
-    if(localStorage.getItem('lastStudent')===name) localStorage.removeItem('lastStudent');
+    // 🔹 Esborrar usuari
+    btnDelete.addEventListener('click', ()=>{
+      const name = userList.value.trim();
+      if(!name) return alert('Selecciona un usuari.');
+      const users = JSON.parse(localStorage.getItem('students') || '[]').filter(u => u !== name);
+      localStorage.setItem('students', JSON.stringify(users));
+      if(localStorage.getItem('lastStudent') === name) localStorage.removeItem('lastStudent');
+      refreshUsers();
+    });
+
     refreshUsers();
   });
+  </script>
 
-  // 🔹 Carrega llista inicial
-  refreshUsers();
-});
-</script>
-
+  <!-- 🔹 Finalment, el main.js després del login -->
+  <script src="main.js" defer></script>
 </body>
 </html>
