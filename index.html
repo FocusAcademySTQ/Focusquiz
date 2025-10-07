@@ -56,7 +56,7 @@
         <button class="pill" onclick="window.location.href='teoriacatala.html'">à</button>
         <button class="pill" onclick="window.location.href='https://focuscat.onrender.com/'">FE</button>
         <span id="activeUser" class="chip"></span>
-  <button id="switchUserBtn" class="pill">Canvia d'usuari</button>
+        <button id="switchUserBtn" class="pill">Canvia d'usuari</button>
         <button id="logoutBtn" class="pill">Tanca sessió</button>
 
       </nav>
@@ -281,7 +281,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       if(!users.includes(name)) users.push(name);
       localStorage.setItem('students', JSON.stringify(users));
       localStorage.setItem('lastStudent', name);
-       refreshUsers();
+      refreshUsers();
       inputNew.value = '';
       overlay.style.display = 'none';
       document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
