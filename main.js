@@ -2221,31 +2221,25 @@ $('#btnSkip').onclick = skip;
 
 /* ===================== INIT ===================== */
 
-function ensureUser(){
-  const user = localStorage.getItem('lastStudent');
-  if(!user){
-    // Si no hi ha usuari loguejat, redirigeix o mostra un avís
-    alert('Cal iniciar sessió abans de continuar.');
-    location.href = 'index.html'; // o la pàgina de login
-    return false;
-  }
-  console.log('Sessió activa com:', user);
-  return true;
-}
+let initializedUser = null;
 
 function ensureUser(){
   const user = localStorage.getItem('lastStudent');
+  const overlay = document.getElementById('loginOverlay');
   if(!user){
-    alert('Cal iniciar sessió abans de continuar.');
-    location.href = 'index.html'; // torna al login si no hi ha sessió
+    if(overlay) overlay.style.display = 'flex';
     return false;
   }
-  console.log('Sessió activa com:', user);
+  if(overlay) overlay.style.display = 'none';
   return true;
 }
 
 function init(){
   if(!ensureUser()) return; // ✅ comprova sessió abans d’inicialitzar
+
+  const current = localStorage.getItem('lastStudent');
+  if(initializedUser === current) return;
+  initializedUser = current;
 
   buildHome();
   showView('home');
@@ -2257,7 +2251,6 @@ function init(){
   if(fs) fs.addEventListener('input', renderResults);
 
   // 🔹 Mostra el nom de l’usuari actiu
-  const current = localStorage.getItem('lastStudent');
   const chip = document.querySelector('#activeUser');
   if(current && chip) chip.textContent = `👤 ${current}`;
 
@@ -2265,14 +2258,37 @@ function init(){
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-      if (confirm(`Vols tancar la sessió de ${current}?`)) {
-        localStorage.removeItem('lastStudent');
-        alert('Sessió tancada correctament.');
-        location.href = 'index.html';
-      }
+      localStorage.removeItem('lastStudent');
+      initializedUser = null;
+      if (chip) chip.textContent = '';
+      const overlay = document.getElementById('loginOverlay');
+      if (overlay) overlay.style.display = 'flex';
+      showView('home');
+      document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
+    });
+  }
+
+  const switchUserBtn = document.getElementById('switchUserBtn');
+  if (switchUserBtn) {
+    switchUserBtn.addEventListener('click', () => {
+      localStorage.removeItem('lastStudent');
+      initializedUser = null;
+      if (chip) chip.textContent = '';
+      const overlay = document.getElementById('loginOverlay');
+      if (overlay) overlay.style.display = 'flex';
+      showView('home');
+      document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
     });
   }
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+document.addEventListener('focusquiz:user-login', init);
+document.addEventListener('focusquiz:user-logout', () => {
+  initializedUser = null;
+  const chip = document.querySelector('#activeUser');
+  if (chip) chip.textContent = '';
+  ensureUser();
+});
 
