@@ -2221,15 +2221,34 @@ $('#btnSkip').onclick = skip;
 
 /* ===================== INIT ===================== */
 
+function ensureUser(){
+  const user = localStorage.getItem('lastStudent');
+  if(!user){
+    // Si no hi ha usuari loguejat, redirigeix o mostra un avís
+    alert('Cal iniciar sessió abans de continuar.');
+    location.href = 'index.html'; // o la pàgina de login
+    return false;
+  }
+  console.log('Sessió activa com:', user);
+  return true;
+}
+
 function init(){
+  if(!ensureUser()) return; // ✅ comprova sessió abans d’inicialitzar
+
   buildHome();
   showView('home');
   $('#year').textContent = new Date().getFullYear();
 
-  // 🔁 Redibuixa resultats i perfil quan canvien els filtres
   const fm = $('#filter-module');
   const fs = $('#filter-student');
   if(fm) fm.addEventListener('change', renderResults);
   if(fs) fs.addEventListener('input', renderResults);
+
+  // 🔹 Mostra el nom de l’usuari actiu (si vols)
+  const current = localStorage.getItem('lastStudent');
+  const chip = document.querySelector('#activeUser');
+  if(current && chip) chip.textContent = `👤 ${current}`;
 }
+
 init();
