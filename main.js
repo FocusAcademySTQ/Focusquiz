@@ -2233,6 +2233,17 @@ function ensureUser(){
   return true;
 }
 
+function ensureUser(){
+  const user = localStorage.getItem('lastStudent');
+  if(!user){
+    alert('Cal iniciar sessió abans de continuar.');
+    location.href = 'index.html'; // torna al login si no hi ha sessió
+    return false;
+  }
+  console.log('Sessió activa com:', user);
+  return true;
+}
+
 function init(){
   if(!ensureUser()) return; // ✅ comprova sessió abans d’inicialitzar
 
@@ -2245,10 +2256,23 @@ function init(){
   if(fm) fm.addEventListener('change', renderResults);
   if(fs) fs.addEventListener('input', renderResults);
 
-  // 🔹 Mostra el nom de l’usuari actiu (si vols)
+  // 🔹 Mostra el nom de l’usuari actiu
   const current = localStorage.getItem('lastStudent');
   const chip = document.querySelector('#activeUser');
   if(current && chip) chip.textContent = `👤 ${current}`;
+
+  // 🔹 Configura el botó de tancar sessió
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      if (confirm(`Vols tancar la sessió de ${current}?`)) {
+        localStorage.removeItem('lastStudent');
+        alert('Sessió tancada correctament.');
+        location.href = 'index.html';
+      }
+    });
+  }
 }
 
-init();
+document.addEventListener('DOMContentLoaded', init);
+
