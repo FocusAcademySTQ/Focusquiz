@@ -22,29 +22,48 @@ const simplifyFrac = (n,d)=>{ const g=gcd(n,d); return [n/g, d/g] };
 const store = {
   get k() { return 'focus-math-results-v1'; },
 
-  all() {
-    const user = localStorage.getItem('lastStudent') || 'Anònim';
+  load() {
     try {
-      const data = JSON.parse(localStorage.getItem(this.k) || '{}');
-      return data[user] || [];
+      const raw = JSON.parse(localStorage.getItem(this.k) || '{}');
+      if (Array.isArray(raw)) {
+        const user = localStorage.getItem('lastStudent') || 'Anònim';
+        const migrated = { [user]: raw };
+        localStorage.setItem(this.k, JSON.stringify(migrated));
+        return migrated;
+      }
+      if (!raw || typeof raw !== 'object') return {};
+      return raw;
     } catch {
-      return [];
+      return {};
     }
+  },
+
+  all() {
+    const data = this.load();
+    return Object.values(data)
+      .reduce((acc, entries) => acc.concat(entries || []), [])
+      .sort((a, b) => {
+        const timeB = new Date(b.at).getTime() || 0;
+        const timeA = new Date(a.at).getTime() || 0;
+        return timeB - timeA;
+      });
   },
 
   save(entry) {
     const user = localStorage.getItem('lastStudent') || 'Anònim';
-    const data = JSON.parse(localStorage.getItem(this.k) || '{}');
-    if (!data[user]) data[user] = [];
+    const data = this.load();
+    if (!Array.isArray(data[user])) data[user] = [];
     data[user].push(entry);
     localStorage.setItem(this.k, JSON.stringify(data));
   },
 
   clear() {
     const user = localStorage.getItem('lastStudent') || 'Anònim';
-    const data = JSON.parse(localStorage.getItem(this.k) || '{}');
-    delete data[user];
-    localStorage.setItem(this.k, JSON.stringify(data));
+    const data = this.load();
+    if (user in data) delete data[user];
+    const remaining = Object.keys(data).length;
+    if (!remaining) localStorage.removeItem(this.k);
+    else localStorage.setItem(this.k, JSON.stringify(data));
   }
 };
 
@@ -886,6 +905,8 @@ function finishQuiz(timeUp){
     score,
     wrongs: session.wrongs
   });
+
+  renderResults();
 
   session.done = true;
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
@@ -2075,8 +2096,12 @@ function scatterSVG(points){
 // ==== RENDER PRINCIPAL DE RESULTATS + PERFIL ====
 function renderResults(){
   const data = store.all();
-  const modFilter = $('#filter-module').value || '';
-  const nameFilter = ($('#filter-student').value||'').toLowerCase();
+  const modSelect = $('#filter-module');
+  const nameInput = $('#filter-student');
+  const modFilter = modSelect ? modSelect.value : '';
+  const nameFilter = (nameInput && nameInput.value ? nameInput.value : '').toLowerCase();
+  const tableWrap = $('#resultsTable');
+  if(!tableWrap) return;
 
   const filtered = data.filter(r =>
     (!modFilter || r.module===modFilter) &&
@@ -2085,7 +2110,7 @@ function renderResults(){
 
   // Taula
   if(!filtered.length){
-    $('#resultsTable').innerHTML = '<div class="chip">No hi ha dades.</div>';
+    tableWrap.innerHTML = '<div class="chip">No hi ha dades.</div>';
     renderAnalytics([], nameFilter); // neteja i mostra hint si cal
     return;
   }
@@ -2103,7 +2128,7 @@ function renderResults(){
       <td>${fmtTime(r.time_spent)}</td>
     </tr>`;
   }).join('');
-  $('#resultsTable').innerHTML = `
+  tableWrap.innerHTML = `
 <table>
   <thead>
     <tr><th>#</th><th>Data</th><th>Alumne/a</th><th>Mòdul</th><th>Nivell</th><th>Encerts</th><th>Puntuació</th><th>Temps</th></tr>
