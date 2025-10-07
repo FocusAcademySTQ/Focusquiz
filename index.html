@@ -7,41 +7,36 @@
   <meta name="description" content="Pràctiques de matemàtiques per a estudiants. Single-file, sense dependències." />
   <link rel="stylesheet" href="style.css">
 </head>
-  <!-- LOGIN LOCAL (overlay) -->
-<div id="loginOverlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,10,20,0.45);z-index:9999;">
-  <div style="width:360px;max-width:92%;background:#fff;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.12);text-align:left;">
-    <h2 style="margin:0 0 8px 0;font-size:1.15rem">Accedeix a Focus Academy</h2>
-    <div style="font-size:0.9rem;color:#475569;margin-bottom:12px">Tria un usuari existent o crea'n un de nou. Les dades es queden en aquest dispositiu (local).</div>
-
-    <label style="display:block;margin-bottom:6px;font-weight:600">Usuaris existents</label>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <select id="loginUserList" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8"></select>
-      <button id="btnLoginSelect" class="pill" style="padding:8px 10px">Entrar</button>
-    </div>
-
-    <div style="height:1px;background:#f1f5f9;margin:10px 0;border-radius:2px"></div>
-
-    <label style="display:block;margin-bottom:6px;font-weight:600">Crear nou usuari</label>
-    <input id="newUserName" placeholder="Nom (mínim 2 caràcters)" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e6eef8;margin-bottom:8px" />
-    <div style="display:flex;gap:8px">
-      <button id="btnCreateUser" class="btn" style="flex:1;padding:8px">Crea i entra</button>
-      <button id="btnDeleteUser" class="btn-ghost" style="flex:1;padding:8px">Suprimeix seleccionat</button>
-    </div>
-
-    <div style="margin-top:12px;display:flex;gap:8px;justify-content:space-between;align-items:center">
-      <small style="color:#64748b">Tot en localStorage · Sense servidors</small>
-      <button id="btnContinueGuest" class="btn-secondary" style="padding:6px 10px">Anul·la (no disponible)</button>
-    </div>
-
-    <div style="margin-top:10px;font-size:0.85rem;color:#334155">
-      <input id="importFile" type="file" style="display:none" />
-      <button id="btnExport" class="btn-ghost" style="margin-top:8px">Exporta totes dades</button>
-      <button id="btnImport" class="btn-ghost" style="margin-top:8px">Importa dades</button>
-    </div>
-  </div>
-</div>
 
 <body>
+  <!-- 🔹 LOGIN LOCAL (overlay) -->
+  <div id="loginOverlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,10,20,0.45);z-index:9999;">
+    <div style="width:360px;max-width:92%;background:#fff;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.12);text-align:left;">
+      <h2 style="margin:0 0 8px 0;font-size:1.15rem">Accedeix a Focus Academy</h2>
+      <div style="font-size:0.9rem;color:#475569;margin-bottom:12px">Tria un usuari existent o crea'n un de nou. Les dades es queden en aquest dispositiu (local).</div>
+      <label style="display:block;margin-bottom:6px;font-weight:600">Usuaris existents</label>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <select id="loginUserList" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8"></select>
+        <button id="btnLoginSelect" class="pill" style="padding:8px 10px">Entrar</button>
+      </div>
+      <div style="height:1px;background:#f1f5f9;margin:10px 0;border-radius:2px"></div>
+      <label style="display:block;margin-bottom:6px;font-weight:600">Crear nou usuari</label>
+      <input id="newUserName" placeholder="Nom (mínim 2 caràcters)" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e6eef8;margin-bottom:8px" />
+      <div style="display:flex;gap:8px">
+        <button id="btnCreateUser" class="btn" style="flex:1;padding:8px">Crea i entra</button>
+        <button id="btnDeleteUser" class="btn-ghost" style="flex:1;padding:8px">Suprimeix seleccionat</button>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:space-between;align-items:center">
+        <small style="color:#64748b">Tot en localStorage · Sense servidors</small>
+      </div>
+      <div style="margin-top:10px;font-size:0.85rem;color:#334155">
+        <input id="importFile" type="file" style="display:none" />
+        <button id="btnExport" class="btn-ghost" style="margin-top:8px">Exporta totes dades</button>
+        <button id="btnImport" class="btn-ghost" style="margin-top:8px">Importa dades</button>
+      </div>
+    </div>
+  </div>
+
   <header>
     <div class="wrap row">
       <div class="brand">
@@ -55,7 +50,7 @@
         <button class="pill" onclick="window.location.href='teoria.html'">π</button>
         <button class="pill" onclick="window.location.href='teoriacatala.html'">à</button>
         <button class="pill" onclick="window.location.href='https://focuscat.onrender.com/'">FE</button>
-        <input id="studentName" class="input" placeholder="Nom de l'alumne/a" />
+        <input id="studentName" class="input" placeholder="Nom de l'alumne/a" style="display:none;" />
       </nav>
     </div>
   </header>
@@ -63,25 +58,17 @@
   <main class="wrap">
     <!-- HOME -->
     <section id="view-home" class="hero">
-  <div class="panel card">
-    <h2 class="title">Benvingut/da! 👋</h2>
-    <p class="subtitle">Tria un mòdul per configurar-lo i començar. Tot queda guardat en aquest dispositiu (sense comptes).</p>
-
-    <div id="moduleGrid"></div>
-
-   <!-- 🧠 Consell del tutor -->
-<div id="recommendation" class="panel card" style="margin-top:1rem; background:#fffafc;">
-  <h3 class="title" style="margin-top:0;">Consell del teu tutor virtual 🤖</h3>
-  <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
-</div>
-
-    <script>
-      document.addEventListener('DOMContentLoaded', ()=>{
-        showRecommendation('#recommendationText');
-      });
-    </script>
-  </div>
-</section>
+      <div class="panel card">
+        <h2 class="title">Benvingut/da! 👋</h2>
+        <p class="subtitle">Tria un mòdul per configurar-lo i començar. Tot queda guardat en aquest dispositiu (sense comptes).</p>
+        <div id="moduleGrid"></div>
+        <div id="recommendation" class="panel card" style="margin-top:1rem; background:#fffafc;">
+          <h3 class="title" style="margin-top:0;">Consell del teu tutor virtual 🤖</h3>
+          <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
+        </div>
+        <div id="progressBars" style="margin-top:10px;"></div>
+      </div>
+    </section>
 
     <!-- CONFIG -->
     <section id="view-config" class="hidden">
@@ -96,7 +83,6 @@
             <button onclick="startFromConfig()">Comença</button>
           </div>
         </div>
-
         <div class="section-title">Opcions comunes</div>
         <div class="controls">
           <label class="field chip">Preguntes
@@ -113,49 +99,41 @@
             <select id="cfg-level"></select>
           </label>
         </div>
-
         <div id="cfg-specific"></div>
       </div>
     </section>
 
-   <!-- QUIZ -->
-<section id="view-quiz" class="hidden">
-  <div class="quiz" style="display:flex; gap:20px; align-items:stretch">
-
-    <!-- 🔹 Columna esquerra -->
-    <div id="leftCol" style="flex:2; min-width:0">
-      <div class="panel card">
-        <div class="q-header">
-          <div style="display:flex; align-items:center; gap:10px">
-            <span id="qModule" class="chip">—</span>
-            <span id="qLevel" class="chip">Nivell 1</span>
-            <span id="timer" class="chip timer">--:--</span>
+    <!-- QUIZ -->
+    <section id="view-quiz" class="hidden">
+      <div class="quiz" style="display:flex; gap:20px; align-items:stretch">
+        <div id="leftCol" style="flex:2; min-width:0">
+          <div class="panel card">
+            <div class="q-header">
+              <div style="display:flex; align-items:center; gap:10px">
+                <span id="qModule" class="chip">—</span>
+                <span id="qLevel" class="chip">Nivell 1</span>
+                <span id="timer" class="chip timer">--:--</span>
+              </div>
+              <div class="progress" style="flex:1"><i id="bar"></i></div>
+            </div>
+            <div class="q">
+              <div class="meta" id="qMeta">Pregunta 1 de 10</div>
+              <h2 id="qText">—</h2>
+              <div id="qMedia" style="margin:4px 0 2px"></div>
+              <div class="answer-row">
+                <input id="answer" class="input answer" placeholder="Resposta" type="text" />
+                <button id="btnCheck">Comprova (↵)</button>
+                <button class="btn-secondary" id="btnSkip">Omet (→)</button>
+              </div>
+              <div id="feedback"></div>
+            </div>
           </div>
-          <div class="progress" style="flex:1"><i id="bar"></i></div>
         </div>
-
-        <div class="q">
-          <div class="meta" id="qMeta">Pregunta 1 de 10</div>
-          <h2 id="qText">—</h2>
-          <div id="qMedia" style="margin:4px 0 2px"></div>
-          <div class="answer-row">
-            <input id="answer" class="input answer" placeholder="Resposta" type="text" />
-            <button id="btnCheck">Comprova (↵)</button>
-            <button class="btn-secondary" id="btnSkip">Omet (→)</button>
-          </div>
-          <div id="feedback"></div>
+        <div id="rightCol" style="flex:1; min-width:220px">
+          <div class="panel card" id="keypad"></div>
         </div>
       </div>
-    </div>
-
-    <!-- 🔹 Columna dreta (teclat o opcions) -->
-    <div id="rightCol" style="flex:1; min-width:220px">
-      <div class="panel card" id="keypad"></div>
-    </div>
-
-  </div>
-</section>
-
+    </section>
 
     <!-- RESULTS -->
     <section id="view-results" class="hidden">
@@ -173,38 +151,18 @@
         </div>
         <div id="resultsTable">No hi ha dades encara.</div>
       </div>
-
-      <!-- PERFIL / ANALYTICS -->
       <div class="panel card" id="results-analytics">
         <div class="row" style="align-items:center">
           <h3 class="title" style="margin:0">Perfil i gràfiques</h3>
           <div class="subtitle">Es basa en el filtre d'<b>alumne</b> i (opcionalment) el de <b>mòdul</b>.</div>
         </div>
-
-        <!-- KPIs -->
-        <div class="kpi-grid" id="kpiWrap">
-          <!-- S’omple des de JS -->
-        </div>
-
-        <!-- Charts -->
+        <div class="kpi-grid" id="kpiWrap"></div>
         <div class="charts-grid">
-          <div class="chart-card">
-            <div class="chart-title">Evolució de puntuació</div>
-            <div id="chartScoreTrend"></div>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">Mitjana per mòdul</div>
-            <div id="chartByModule"></div>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">Temps vs Puntuació</div>
-            <div id="chartTimeVsScore"></div>
-          </div>
+          <div class="chart-card"><div class="chart-title">Evolució de puntuació</div><div id="chartScoreTrend"></div></div>
+          <div class="chart-card"><div class="chart-title">Mitjana per mòdul</div><div id="chartByModule"></div></div>
+          <div class="chart-card"><div class="chart-title">Temps vs Puntuació</div><div id="chartTimeVsScore"></div></div>
         </div>
-
-        <div id="analyticsHint" class="chip" style="margin-top:10px; display:none">
-          Escriu un nom d’alumne/a al filtre per veure el seu perfil.
-        </div>
+        <div id="analyticsHint" class="chip" style="margin-top:10px; display:none">Escriu un nom d’alumne/a al filtre per veure el seu perfil.</div>
       </div>
     </section>
 
@@ -214,8 +172,7 @@
         <h3 class="title" style="margin-top:0">Sobre aquesta eina</h3>
         <p class="subtitle">Web single-file creada per Focus Academy, sense comptes ni dependències. Dades locals al navegador.</p>
         <ul>
-          <li>Generador de preguntes per a Matemàtiques (aritmètica, fraccions, percentatges, equacions, geometria, estadística, unitats),
-Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Química (elements, fórmules i compostos).</li>
+          <li>Generador de preguntes per a Matemàtiques (aritmètica, fraccions, percentatges, equacions, geometria, estadística, unitats), Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi) i Química (elements, fórmules i compostos).</li>
           <li>Temps opcional, nivell 1–4, i repàs de només les preguntes errònies.</li>
           <li>Historial exportable a CSV i mode offline (funciona sense internet).</li>
         </ul>
@@ -224,14 +181,13 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
 
     <footer class="wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
       <div>Fet per Focus Academy Sant Cugat · © <span id="year"></span></div>
-      <img src="https://static.wixstatic.com/media/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png/v1/crop/x_836,y_591,w_1877,h_1328/fill/w_642,h_454,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png"
-           alt="Logo Focus Academy" style="height:40px; width:auto; object-fit:contain"
-           referrerpolicy="no-referrer" />
+      <img src="https://static.wixstatic.com/media/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png/v1/crop/x_836,y_591,w_1877,h_1328/fill/w_642,h_454,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png" alt="Logo Focus Academy" style="height:40px; width:auto; object-fit:contain" referrerpolicy="no-referrer" />
     </footer>
   </main>
+
   <script src="main.js" defer></script>
   <script src="lang-cat.js" defer></script>
   <script src="quim.js" defer></script>
-  <script src="tutor.js"></script>
+  <script src="tutor.js" defer></script>
 </body>
 </html>
