@@ -42,24 +42,34 @@
 </div>
 
 <body>
-  <header>
-    <div class="wrap row">
-      <div class="brand">
-        <div class="logo" aria-hidden="true">FQ</div>
-        <h1>Focus Academy · Espai de repàs</h1>
-      </div>
-      <nav class="right">
-        <button class="pill" onclick="showView('home')">Inici</button>
-        <button class="pill" onclick="showView('results')">Resultats</button>
-        <button class="pill" onclick="showView('about')">Sobre</button>
-        <button class="pill" onclick="window.location.href='teoria.html'">π</button>
-        <button class="pill" onclick="window.location.href='teoriacatala.html'">à</button>
-        <button class="pill" onclick="window.location.href='https://focuscat.onrender.com/'">FE</button>
-        <span id="activeUser" class="chip"></span>
-<button class="pill" onclick="localStorage.removeItem('lastStudent'); location.reload();">Canvia d'usuari</button>
-        <button id="logoutBtn" class="pill">Tanca sessió</button>
+  <header class="topbar">
+    <div class="wrap row header-bar">
 
+      <!-- 🔹 Marca -->
+      <div class="brand">
+        <div class="logo">FQ</div>
+        <h1>Focus Academy</h1>
+      </div>
+
+      <!-- 🔹 Navegació principal -->
+      <nav class="main-nav" aria-label="Navegació principal">
+        <button class="pill nav-btn" data-view="home" type="button" onclick="showView('home')">🏠 Inici</button>
+        <button class="pill nav-btn" data-view="results" type="button" onclick="showView('results')">📊 Resultats</button>
+        <button class="pill nav-btn" data-view="about" type="button" onclick="showView('about')">ℹ️ Sobre</button>
+        <a class="pill" href="teoria.html" title="Teoria matemàtica">π</a>
+        <a class="pill" href="teoriacatala.html" title="Teoria catalana">à</a>
+        <a class="pill" href="https://focuscat.onrender.com/" target="_blank" rel="noopener" title="Focus Exams">FE</a>
       </nav>
+
+      <!-- 🔹 Usuari actiu -->
+      <div class="user-controls">
+        <span id="activeUser" class="chip user-chip" aria-live="polite">
+          👤 <span class="label">Sessió no iniciada</span>
+        </span>
+        <button id="switchUserBtn" class="pill small" type="button">Canvia</button>
+        <button id="logoutBtn" class="pill small" type="button">Surt</button>
+      </div>
+
     </div>
   </header>
 
@@ -86,7 +96,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // 🔹 Mostra l'usuari actiu (si n'hi ha)
   const current = localStorage.getItem('lastStudent');
   const badge = document.getElementById('activeUser');
-  if (current && badge) badge.textContent = `👤 ${current}`;
+  if (badge) {
+    const label = badge.querySelector('.label');
+    if (label) label.textContent = current || 'Sessió no iniciada';
+    badge.classList.toggle('is-empty', !current);
+  }
 });
 </script>
   </div>
@@ -262,11 +276,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
 
     // 🔹 Mostra overlay si no hi ha usuari actiu
     const current = localStorage.getItem('lastStudent');
-    if(!current){
-      overlay.style.display = 'flex';
-    } else {
-      overlay.style.display = 'none';
-    }
+    overlay.style.display = current ? 'none' : 'flex';
 
     // 🔹 Entrar amb usuari existent
     btnSelect.addEventListener('click', ()=>{
@@ -274,7 +284,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       if(!name) return alert('Selecciona un usuari.');
       localStorage.setItem('lastStudent', name);
       overlay.style.display = 'none';
-      location.reload(); // 🔸 ara el main.js ja es carregarà amb usuari actiu
+      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
     });
 
     // 🔹 Crear nou usuari
@@ -285,8 +295,10 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       if(!users.includes(name)) users.push(name);
       localStorage.setItem('students', JSON.stringify(users));
       localStorage.setItem('lastStudent', name);
+      refreshUsers();
+      inputNew.value = '';
       overlay.style.display = 'none';
-      location.reload();
+      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
     });
 
     // 🔹 Esborrar usuari
@@ -297,7 +309,35 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       localStorage.setItem('students', JSON.stringify(users));
       if(localStorage.getItem('lastStudent') === name) localStorage.removeItem('lastStudent');
       refreshUsers();
+      if(!localStorage.getItem('lastStudent')){
+        overlay.style.display = 'flex';
+        document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
+      }
     });
+
+    // 🔹 Botó "Canvia d'usuari"
+    const switchBtn = document.getElementById('switchUserBtn');
+    if (switchBtn) {
+      switchBtn.addEventListener('click', () => {
+        localStorage.removeItem('lastStudent');
+        overlay.style.display = 'flex';
+        document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
+      });
+    }
+
+    // 🔹 Botó "Tanca sessió"
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        const currentName = localStorage.getItem('lastStudent');
+        if (!currentName || confirm(`Vols tancar la sessió de ${currentName}?`)) {
+          localStorage.removeItem('lastStudent');
+          overlay.style.display = 'flex';
+          if (currentName) alert('Sessió tancada.');
+          document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
+        }
+      });
+    }
 
     refreshUsers();
   });
