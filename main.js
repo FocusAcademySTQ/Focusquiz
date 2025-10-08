@@ -165,6 +165,7 @@ function buildHome(){
   renderSection('Mòduls de llengua catalana','cat');
   renderSection('Mòduls de ciències (en manteniment, no utilitzar)','sci');
   renderSection('Mòduls de llengua anglesa','ang');
+  renderSection('Mòduls de geografia','geo');
   renderSection('Mòduls de repàs','rep');
 
   // filtre resultats
@@ -560,6 +561,26 @@ function renderQuestion(){
 
   if (mod?.category === 'cat') {
     // 🔹 Català → sense teclat numèric; amaguem la columna si no cal
+    quizEl.classList.remove('sci-mode');
+    $('#answer').type = 'text';
+    $('#answer').removeAttribute('inputmode');
+
+    const hasOptions = Array.isArray(q.options) && q.options.length;
+
+    if (hasOptions) {
+      $('#answer').style.display = 'none';
+      const optionsHtml = q.options.map(opt => `
+        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
+      `).join('');
+      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+      toggleRightCol(true);
+    } else {
+      $('#answer').style.display = 'block';
+      toggleRightCol(false);
+    }
+
+  } else if (mod?.category === 'geo') {
+    // 🔹 Geografia → preguntes textuals o d'opció múltiple
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');

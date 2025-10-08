@@ -41,3 +41,9 @@ Si prefereixes fer-ho des del navegador, GitHub ofereix un editor de conflictes 
 - Evita editar directament els fitxers generats automàticament a menys que sigui imprescindible.
 
 Aquests passos t’ajudaran a entendre i solucionar els conflictes abans de completar el teu pull request.
+
+## Nou mòdul: Països d'Europa
+
+La plataforma incorpora ara un apartat de **Mòduls de geografia** amb el paquet *Països d'Europa*. El qüestionari barreja
+reconeixement de capitals, banderes, pistes contextuals i preguntes sobre fronteres o països sense sortida al mar. Els nivells
+1 a 4 desbloquegen progressivament països i dificultats (microestats, península balcànica, etc.).
