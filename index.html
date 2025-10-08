@@ -43,22 +43,42 @@
 
 <body>
   <header>
-    <div class="wrap row">
+    <div class="wrap row header-bar">
       <div class="brand">
         <div class="logo" aria-hidden="true">FQ</div>
         <h1>Focus Academy · Espai de repàs</h1>
       </div>
-      <nav class="right">
-        <button class="pill" onclick="showView('home')">Inici</button>
-        <button class="pill" onclick="showView('results')">Resultats</button>
-        <button class="pill" onclick="showView('about')">Sobre</button>
-        <button class="pill" onclick="window.location.href='teoria.html'">π</button>
-        <button class="pill" onclick="window.location.href='teoriacatala.html'">à</button>
-        <button class="pill" onclick="window.location.href='https://focuscat.onrender.com/'">FE</button>
-        <span id="activeUser" class="chip"></span>
-<button class="pill" onclick="localStorage.removeItem('lastStudent'); location.reload();">Canvia d'usuari</button>
-        <button id="logoutBtn" class="pill">Tanca sessió</button>
-
+      <nav class="toolbar" aria-label="Navegació principal">
+        <div class="nav-group primary">
+          <button class="pill nav-btn" data-view="home" type="button">
+            <span class="icon" aria-hidden="true">🏠</span>
+            <span>Inici</span>
+          </button>
+          <button class="pill nav-btn" data-view="results" type="button">
+            <span class="icon" aria-hidden="true">📊</span>
+            <span>Resultats</span>
+          </button>
+          <button class="pill nav-btn" data-view="about" type="button">
+            <span class="icon" aria-hidden="true">ℹ️</span>
+            <span>Sobre</span>
+          </button>
+        </div>
+        <div class="nav-group secondary">
+          <a class="pill nav-link" href="teoria.html" title="Teoria matemàtica">π</a>
+          <a class="pill nav-link" href="teoriacatala.html" title="Teoria catalana">à</a>
+          <a class="pill nav-link" href="https://focuscat.onrender.com/" target="_blank" rel="noopener" title="Focus Exams">FE</a>
+        </div>
+        <div class="nav-group user">
+          <span id="activeUser" class="chip user-chip" aria-live="polite"><span class="icon" aria-hidden="true">👤</span><span class="label"></span></span>
+          <button id="switchUserBtn" class="pill nav-btn" type="button">
+            <span class="icon" aria-hidden="true">🔄</span>
+            <span>Canvia</span>
+          </button>
+          <button id="logoutBtn" class="pill nav-btn" type="button">
+            <span class="icon" aria-hidden="true">🚪</span>
+            <span>Surt</span>
+          </button>
+        </div>
       </nav>
     </div>
   </header>
@@ -86,7 +106,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // 🔹 Mostra l'usuari actiu (si n'hi ha)
   const current = localStorage.getItem('lastStudent');
   const badge = document.getElementById('activeUser');
-  if (current && badge) badge.textContent = `👤 ${current}`;
+  if (badge) {
+    const label = badge.querySelector('.label');
+    if (label) label.textContent = current || 'Sessió no iniciada';
+    badge.classList.toggle('is-empty', !current);
+  }
 });
 </script>
   </div>
@@ -262,11 +286,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
 
     // 🔹 Mostra overlay si no hi ha usuari actiu
     const current = localStorage.getItem('lastStudent');
-    if(!current){
-      overlay.style.display = 'flex';
-    } else {
-      overlay.style.display = 'none';
-    }
+    overlay.style.display = current ? 'none' : 'flex';
 
     // 🔹 Entrar amb usuari existent
     btnSelect.addEventListener('click', ()=>{
@@ -274,7 +294,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       if(!name) return alert('Selecciona un usuari.');
       localStorage.setItem('lastStudent', name);
       overlay.style.display = 'none';
-      location.reload(); // 🔸 ara el main.js ja es carregarà amb usuari actiu
+      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
     });
 
     // 🔹 Crear nou usuari
@@ -285,8 +305,10 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       if(!users.includes(name)) users.push(name);
       localStorage.setItem('students', JSON.stringify(users));
       localStorage.setItem('lastStudent', name);
+      refreshUsers();
+      inputNew.value = '';
       overlay.style.display = 'none';
-      location.reload();
+      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
     });
 
     // 🔹 Esborrar usuari
@@ -297,6 +319,10 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       localStorage.setItem('students', JSON.stringify(users));
       if(localStorage.getItem('lastStudent') === name) localStorage.removeItem('lastStudent');
       refreshUsers();
+      if(!localStorage.getItem('lastStudent')){
+        overlay.style.display = 'flex';
+        document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
+      }
     });
 
     refreshUsers();
