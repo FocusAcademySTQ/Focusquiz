@@ -1585,7 +1585,6 @@ function genCatMorf(level, opts = {}){
       id: 'cat-ort',
       name: 'Ortografia',
       desc: 'b/v, j/g, s/c/ç/z/x, corregir, r/rr, l/l·l.',
-      badge: 'CAT',
       category: 'cat',
       gen: genCatOrt,
       config: OrtografiaConfig
@@ -1594,7 +1593,6 @@ function genCatMorf(level, opts = {}){
 id: 'cat-morf',
       name: 'Morfologia',
       desc: 'Subjecte, temps verbals, categories, concordança, funcions sintàctiques.',
-      badge: 'CAT',
       category: 'cat',
       gen: genCatMorf,
       config: MorfologiaConfig
