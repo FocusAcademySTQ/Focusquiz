@@ -508,6 +508,46 @@
     }
   ];
 
+  const MAP_COORDS = {
+    'Portugal': { x: 16, y: 62 },
+    'Espanya': { x: 22, y: 58 },
+    'França': { x: 30, y: 50 },
+    'Bèlgica': { x: 30, y: 46 },
+    'Països Baixos': { x: 31, y: 44 },
+    'Luxemburg': { x: 31, y: 48 },
+    'Alemanya': { x: 34, y: 45 },
+    'Itàlia': { x: 38, y: 58 },
+    'Suïssa': { x: 34, y: 52 },
+    'Àustria': { x: 37, y: 48 },
+    'Regne Unit': { x: 24, y: 40 },
+    'Irlanda': { x: 20, y: 43 },
+    'Islàndia': { x: 8, y: 32 },
+    'Noruega': { x: 42, y: 22 },
+    'Suècia': { x: 48, y: 24 },
+    'Finlàndia': { x: 54, y: 22 },
+    'Dinamarca': { x: 36, y: 34 },
+    'Estònia': { x: 50, y: 30 },
+    'Letònia': { x: 52, y: 33 },
+    'Lituània': { x: 50, y: 36 },
+    'Polònia': { x: 43, y: 40 },
+    'Txèquia': { x: 39, y: 44 },
+    'Eslovàquia': { x: 41, y: 46 },
+    'Hongria': { x: 41, y: 50 },
+    'Eslovènia': { x: 39, y: 53 },
+    'Croàcia': { x: 41, y: 55 },
+    'Bòsnia i Hercegovina': { x: 43, y: 56 },
+    'Sèrbia': { x: 45, y: 52 },
+    'Albània': { x: 46, y: 60 },
+    'Grècia': { x: 50, y: 64 },
+    'Bulgària': { x: 48, y: 50 },
+    'Romania': { x: 48, y: 46 },
+    'Andorra': { x: 26, y: 55 },
+    'Liechtenstein': { x: 36, y: 50 },
+    'San Marino': { x: 39, y: 60 }
+  };
+
+  const MAP_COUNTRIES = EUROPE_COUNTRIES.filter(c => MAP_COORDS[c.name]);
+
   const GROUP_LABELS = {
     baltic: 'els Països Bàltics',
     mediterrani: 'els països mediterranis',
@@ -634,48 +674,114 @@
     };
   }
 
-  function genGeoEurope(level) {
+  function renderMap(countryName) {
+    const points = MAP_COUNTRIES.map(c => {
+      const coords = MAP_COORDS[c.name];
+      if (!coords) return '';
+      const flag = c.flag || '•';
+      return `
+        <button type="button" class="geo-map-point" data-country="${c.name}" style="left:${coords.x}%;top:${coords.y}%" aria-label="${c.name}">
+          <span>${flag}</span>
+        </button>
+      `;
+    }).join('');
+
+    return `
+      <div class="geo-map" data-answer="${countryName}">
+        <div class="geo-map-inner">
+          <svg class="geo-map-bg" viewBox="0 0 100 70" aria-hidden="true" focusable="false">
+            <path d="M8 42 L18 35 L30 30 L40 34 L46 30 L54 32 L66 30 L76 36 L86 40 L86 46 L80 54 L68 56 L58 60 L50 58 L40 60 L28 64 L18 60 Z" />
+          </svg>
+          <div class="geo-map-canvas">
+            ${points}
+          </div>
+        </div>
+        <p class="geo-map-help">Clica sobre el país correcte al mapa interactiu.</p>
+      </div>
+    `;
+  }
+
+  function questionMap(country) {
+    if (!country || !MAP_COORDS[country.name]) return null;
+    return {
+      type: 'geo-map',
+      text: `On es troba <strong>${country.name}</strong> al mapa d'Europa?`,
+      answer: country.name,
+      html: renderMap(country.name)
+    };
+  }
+
+  function genGeoEurope(level, opts = {}) {
     const L = clampLevel(level);
     const pool = EUROPE_COUNTRIES.filter(c => c.difficulty <= L);
-    const modes = ['clue', 'country-capital'];
-    if (L >= 1) modes.push('capital-country');
-    if (L >= 2) modes.push('flag');
-    if (L >= 3) modes.push('neighbor');
-    if (L >= 4) modes.push('landlocked', 'group');
+    const mode = opts.mode || 'quiz';
 
-    for (let attempts = 0; attempts < 8; attempts++) {
-      const mode = choice(modes);
-      const country = choice(pool);
-      let q = null;
-      if (!country) continue;
-      switch (mode) {
-        case 'clue':
-          q = questionFromClue(country, pool);
-          break;
-        case 'country-capital':
-          q = questionCapitalFromCountry(country, pool);
-          break;
-        case 'capital-country':
-          q = questionCountryFromCapital(country, pool);
-          break;
-        case 'flag':
-          q = questionFromFlag(country, pool);
-          break;
-        case 'neighbor':
-          q = questionNeighbor(country, pool);
-          break;
-        case 'landlocked':
-          q = questionLandlocked(pool);
-          break;
-        case 'group':
-          q = questionGroup(pool);
-          break;
+    if (mode === 'flag') {
+      for (let attempts = 0; attempts < 6; attempts++) {
+        const country = choice(pool);
+        if (!country) break;
+        const q = questionFromFlag(country, pool);
+        if (q) return q;
       }
-      if (q) return q;
+    } else if (mode === 'map') {
+      const mapPool = pool.filter(c => MAP_COORDS[c.name]);
+      if (mapPool.length) {
+        const country = choice(mapPool);
+        const q = questionMap(country);
+        if (q) return q;
+      }
+    } else {
+      const modes = ['clue', 'country-capital'];
+      if (L >= 1) modes.push('capital-country');
+      if (L >= 3) modes.push('neighbor');
+      if (L >= 4) modes.push('landlocked', 'group');
+
+      for (let attempts = 0; attempts < 8; attempts++) {
+        const modeKey = choice(modes);
+        const country = choice(pool);
+        let q = null;
+        if (!country) continue;
+        switch (modeKey) {
+          case 'clue':
+            q = questionFromClue(country, pool);
+            break;
+          case 'country-capital':
+            q = questionCapitalFromCountry(country, pool);
+            break;
+          case 'capital-country':
+            q = questionCountryFromCapital(country, pool);
+            break;
+          case 'neighbor':
+            q = questionNeighbor(country, pool);
+            break;
+          case 'landlocked':
+            q = questionLandlocked(pool);
+            break;
+          case 'group':
+            q = questionGroup(pool);
+            break;
+        }
+        if (q) return q;
+      }
     }
 
     // Fallback senzill
-    const fallbackCountry = choice(pool.length ? pool : EUROPE_COUNTRIES);
+    const fallbackPool = (mode === 'map') ? MAP_COUNTRIES.filter(c => c.difficulty <= L) : pool;
+    const fallbackCountry = choice(fallbackPool.length ? fallbackPool : EUROPE_COUNTRIES);
+    if (!fallbackCountry) {
+      return {
+        type: 'geo-capital',
+        text: 'Indica la capital d\'un país europeu (mode de reserva).',
+        options: ['París'],
+        answer: 'París'
+      };
+    }
+
+    if (mode === 'map' && MAP_COORDS[fallbackCountry.name]) {
+      const mapQuestion = questionMap(fallbackCountry);
+      if (mapQuestion) return mapQuestion;
+    }
+
     const options = makeOptions(fallbackCountry.capital, allCapitals);
     return {
       type: 'geo-capital',
@@ -685,13 +791,45 @@
     };
   }
 
+  const GeoEuropeConfig = {
+    render() {
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div class="section-title">Mode de pràctica</div>
+        <div class="controls">
+          <div class="group" role="group" aria-label="Modes del mòdul Països d'Europa">
+            <label class="toggle">
+              <input class="check" type="radio" name="geo-mode" value="quiz" checked>
+              Preguntes generals
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="geo-mode" value="flag">
+              Banderes
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="geo-mode" value="map">
+              Mapa interactiu
+            </label>
+          </div>
+        </div>
+        <p class="subtitle">Escull el tipus de pràctica: capital i fronteres, identificació de banderes o localització al mapa.</p>
+      `;
+      return wrap;
+    },
+    collect() {
+      const value = (document.querySelector('input[name="geo-mode"]:checked') || {}).value || 'quiz';
+      return { mode: value };
+    }
+  };
+
   const GEO_MODULES = [
     {
       id: 'geo-europe',
       name: 'Països d\'Europa',
       desc: 'Localitza països, capitals, banderes i fronteres europees.',
       category: 'geo',
-      gen: genGeoEurope
+      gen: genGeoEurope,
+      config: GeoEuropeConfig
     }
   ];
 

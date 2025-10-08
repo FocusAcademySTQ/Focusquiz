@@ -44,6 +44,11 @@ Aquests passos t’ajudaran a entendre i solucionar els conflictes abans de comp
 
 ## Nou mòdul: Països d'Europa
 
-La plataforma incorpora ara un apartat de **Mòduls de geografia** amb el paquet *Països d'Europa*. El qüestionari barreja
-reconeixement de capitals, banderes, pistes contextuals i preguntes sobre fronteres o països sense sortida al mar. Els nivells
-1 a 4 desbloquegen progressivament països i dificultats (microestats, península balcànica, etc.).
+La plataforma incorpora ara un apartat de **Mòduls de geografia** amb el paquet *Països d'Europa*. Pots escollir entre tres
+modalitats diferenciades:
+
+- **Preguntes generals**: capitals, pistes contextuals, fronteres i països sense sortida al mar.
+- **Banderes**: identifica a quin país pertany cada bandera europea.
+- **Mapa interactiu**: localitza el país sobre un mapa d'Europa fent clic al punt corresponent.
+
+Els nivells 1 a 4 desbloquegen progressivament països i dificultats (microestats, península balcànica, etc.).

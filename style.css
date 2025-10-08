@@ -450,6 +450,72 @@ button:hover{transform: translateY(-1px)}
 .quiz.no-right > #rightCol{
   display:none;
 }
+
+/* ===== Geografia ===== */
+.geo-map{
+  border:1px solid #e2e8f0;
+  border-radius:16px;
+  padding:16px;
+  background:#f8fafc;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
+}
+
+.geo-map-inner{
+  position:relative;
+  width:100%;
+  aspect-ratio:4/3;
+  border-radius:14px;
+  overflow:hidden;
+  background:linear-gradient(180deg, #1d4ed8 0%, #3b82f6 100%);
+}
+
+.geo-map-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  fill:#bfdbfe;
+  stroke:rgba(255,255,255,0.45);
+  stroke-width:0.8;
+}
+
+.geo-map-canvas{
+  position:absolute;
+  inset:0;
+}
+
+.geo-map-point{
+  position:absolute;
+  transform:translate(-50%, -50%);
+  width:2.4rem;
+  height:2.4rem;
+  border-radius:999px;
+  border:2px solid rgba(15,23,42,0.25);
+  background:rgba(255,255,255,0.92);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.05rem;
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+.geo-map-point:hover{
+  transform:translate(-50%, -50%) scale(1.08);
+  box-shadow:0 10px 24px rgba(15,23,42,0.18);
+}
+
+.geo-map-point.selected{
+  border-color:var(--primary, #2563eb);
+  box-shadow:0 0 0 4px rgba(37,99,235,0.22);
+}
+
+.geo-map-help{
+  margin-top:12px;
+  text-align:center;
+  color:#475569;
+  font-size:.92rem;
+}
 @media (max-width: 1000px){
   .quiz{grid-template-columns: 1fr}
 }

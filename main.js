@@ -580,23 +580,29 @@ function renderQuestion(){
     }
 
   } else if (mod?.category === 'geo') {
-    // 🔹 Geografia → preguntes textuals o d'opció múltiple
+    // 🔹 Geografia → textual, banderes o mapa
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
-    const hasOptions = Array.isArray(q.options) && q.options.length;
-
-    if (hasOptions) {
+    if (q.type === 'geo-map') {
       $('#answer').style.display = 'none';
-      const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
-      `).join('');
-      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
-      toggleRightCol(true);
-    } else {
-      $('#answer').style.display = 'block';
       toggleRightCol(false);
+      setupGeoMapQuestion();
+    } else {
+      const hasOptions = Array.isArray(q.options) && q.options.length;
+
+      if (hasOptions) {
+        $('#answer').style.display = 'none';
+        const optionsHtml = q.options.map(opt => `
+          <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
+        `).join('');
+        if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+        toggleRightCol(true);
+      } else {
+        $('#answer').style.display = 'block';
+        toggleRightCol(false);
+      }
     }
 
   } else if (mod?.category === 'sci') {
@@ -623,6 +629,22 @@ function renderQuestion(){
     toggleRightCol(true);
     renderKeypad();
   }
+}
+
+function setupGeoMapQuestion(){
+  const map = document.querySelector('.geo-map');
+  const answerInput = $('#answer');
+  if (!map || !answerInput) return;
+  const points = Array.from(map.querySelectorAll('[data-country]'));
+  points.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const value = btn.dataset.country || '';
+      answerInput.value = value;
+      points.forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      setTimeout(() => checkAnswer(), 120);
+    });
+  });
 }
 
 function renderKeypad(){
