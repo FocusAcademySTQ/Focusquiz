@@ -15,6 +15,52 @@
   };
   const clampLevel = (lvl) => Math.max(1, Math.min(4, parseInt(lvl, 10) || 1));
 
+  const FLAG_BASE_URL = 'https://flagcdn.com';
+  const FLAG_CODE_BY_COUNTRY = {
+    'Espanya': 'es',
+    'França': 'fr',
+    'Alemanya': 'de',
+    'Itàlia': 'it',
+    'Regne Unit': 'gb',
+    'Portugal': 'pt',
+    'Bèlgica': 'be',
+    'Països Baixos': 'nl',
+    'Irlanda': 'ie',
+    'Àustria': 'at',
+    'Suïssa': 'ch',
+    'Luxemburg': 'lu',
+    'Polònia': 'pl',
+    'Txèquia': 'cz',
+    'Hongria': 'hu',
+    'Grècia': 'gr',
+    'Suècia': 'se',
+    'Noruega': 'no',
+    'Finlàndia': 'fi',
+    'Dinamarca': 'dk',
+    'Islàndia': 'is',
+    'Estònia': 'ee',
+    'Letònia': 'lv',
+    'Lituània': 'lt',
+    'Eslovènia': 'si',
+    'Croàcia': 'hr',
+    'Eslovàquia': 'sk',
+    'Romania': 'ro',
+    'Bulgària': 'bg',
+    'Sèrbia': 'rs',
+    'Albània': 'al',
+    'Bòsnia i Hercegovina': 'ba',
+    'Andorra': 'ad',
+    'Liechtenstein': 'li',
+    'San Marino': 'sm'
+  };
+
+  const getFlagUrl = (country, size = 'svg') => {
+    const code = FLAG_CODE_BY_COUNTRY[country?.name];
+    if (!code) return null;
+    if (size === 'svg') return `${FLAG_BASE_URL}/${code}.svg`;
+    return `${FLAG_BASE_URL}/${size}/${code}.png`;
+  };
+
   const EUROPE_COUNTRIES = [
     {
       name: 'Espanya',
@@ -609,13 +655,17 @@
   }
 
   function questionFromFlag(country, pool) {
-    if (!country.flag) return null;
+    const flagUrl = getFlagUrl(country);
+    if (!flagUrl && !country.flag) return null;
     const options = makeOptions(country.name, pool.map(c => c.name));
     if (!options) return null;
+    const card = flagUrl
+      ? `<div class="flag-card" role="img" aria-label="Bandera de ${country.name}"><img src="${flagUrl}" alt="Bandera de ${country.name}" loading="lazy" decoding="async"></div>`
+      : `<div class="flag-card" role="img" aria-label="Bandera de ${country.name}">${country.flag}</div>`;
     return {
       type: 'geo-flag',
       text: 'A quin país pertany aquesta bandera?',
-      html: `<div class="flag-card" role="img" aria-label="Bandera de ${country.name}">${country.flag}</div>`,
+      html: card,
       options,
       answer: country.name
     };
@@ -678,10 +728,13 @@
     const points = MAP_COUNTRIES.map(c => {
       const coords = MAP_COORDS[c.name];
       if (!coords) return '';
-      const flag = c.flag || '•';
+      const flagUrl = getFlagUrl(c, 'w80');
+      const icon = flagUrl
+        ? `<img src="${flagUrl}" alt="" loading="lazy" decoding="async">`
+        : `<span class="geo-map-point-fallback">${c.flag || '•'}</span>`;
       return `
         <button type="button" class="geo-map-point" data-country="${c.name}" style="left:${coords.x}%;top:${coords.y}%" aria-label="${c.name}">
-          <span>${flag}</span>
+          ${icon}
         </button>
       `;
     }).join('');
@@ -689,9 +742,7 @@
     return `
       <div class="geo-map" data-answer="${countryName}">
         <div class="geo-map-inner">
-          <svg class="geo-map-bg" viewBox="0 0 100 70" aria-hidden="true" focusable="false">
-            <path d="M8 42 L18 35 L30 30 L40 34 L46 30 L54 32 L66 30 L76 36 L86 40 L86 46 L80 54 L68 56 L58 60 L50 58 L40 60 L28 64 L18 60 Z" />
-          </svg>
+          <img class="geo-map-image" src="assets/europe-map.svg" alt="Mapa polític simplificat d'Europa" loading="lazy" decoding="async">
           <div class="geo-map-canvas">
             ${points}
           </div>
