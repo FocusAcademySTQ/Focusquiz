@@ -8,58 +8,68 @@
   <link rel="stylesheet" href="style.css">
 </head>
   <!-- LOGIN LOCAL (overlay) -->
-<div id="loginOverlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,10,20,0.45);z-index:9999;">
-  <div style="width:360px;max-width:92%;background:#fff;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.12);text-align:left;">
-    <h2 style="margin:0 0 8px 0;font-size:1.15rem">Accedeix a Focus Academy</h2>
-    <div style="font-size:0.9rem;color:#475569;margin-bottom:12px">Tria un usuari existent o crea'n un de nou. Les dades es queden en aquest dispositiu (local).</div>
+<div id="loginOverlay" class="login-overlay" hidden>
+  <div class="login-dialog">
+    <h2 class="login-title">Accedeix a Focus Academy</h2>
+    <p class="login-subtitle">Tria un usuari existent o crea'n un de nou. Les dades es queden en aquest dispositiu (local).</p>
 
-    <label style="display:block;margin-bottom:6px;font-weight:600">Usuaris existents</label>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <select id="loginUserList" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8"></select>
-      <button id="btnLoginSelect" class="pill" style="padding:8px 10px">Entrar</button>
+    <label class="login-label" for="loginUserList">Usuaris existents</label>
+    <div class="login-row">
+      <select id="loginUserList" class="login-select"></select>
+      <button id="btnLoginSelect" class="pill login-small">Entrar</button>
     </div>
 
-    <div style="height:1px;background:#f1f5f9;margin:10px 0;border-radius:2px"></div>
+    <div class="login-divider" role="presentation"></div>
 
-    <label style="display:block;margin-bottom:6px;font-weight:600">Crear nou usuari</label>
-    <input id="newUserName" placeholder="Nom (mínim 2 caràcters)" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e6eef8;margin-bottom:8px" />
-    <div style="display:flex;gap:8px">
-      <button id="btnCreateUser" class="btn" style="flex:1;padding:8px">Crea i entra</button>
-      <button id="btnDeleteUser" class="btn-ghost" style="flex:1;padding:8px">Suprimeix seleccionat</button>
+    <label class="login-label" for="newUserName">Crear nou usuari</label>
+    <input id="newUserName" class="login-input input" placeholder="Nom (mínim 2 caràcters)" />
+    <div class="login-row">
+      <button id="btnCreateUser" class="btn login-primary">Crea i entra</button>
+      <button id="btnDeleteUser" class="btn-ghost login-ghost">Suprimeix seleccionat</button>
     </div>
 
-    <div style="margin-top:12px;display:flex;gap:8px;justify-content:space-between;align-items:center">
-      <small style="color:#64748b">Tot en localStorage · Sense servidors</small>
-      <button id="btnContinueGuest" class="btn-secondary" style="padding:6px 10px">Anul·la (no disponible)</button>
+    <div class="login-footer">
+      <small>Tot en localStorage · Sense servidors</small>
+      <button id="btnContinueGuest" class="btn-secondary login-small">Anul·la (no disponible)</button>
     </div>
 
-    <div style="margin-top:10px;font-size:0.85rem;color:#334155">
-      <input id="importFile" type="file" style="display:none" />
-      <button id="btnExport" class="btn-ghost" style="margin-top:8px">Exporta totes dades</button>
-      <button id="btnImport" class="btn-ghost" style="margin-top:8px">Importa dades</button>
+    <div class="login-imports">
+      <input id="importFile" type="file" hidden />
+      <button id="btnExport" class="btn-ghost">Exporta totes dades</button>
+      <button id="btnImport" class="btn-ghost">Importa dades</button>
     </div>
   </div>
 </div>
 
 <body>
-  <header>
-    <div class="wrap row">
-      <div class="brand">
-        <div class="logo" aria-hidden="true">FQ</div>
-        <h1>Focus Academy · Espai de repàs</h1>
-      </div>
-      <nav class="right">
-        <button class="pill" onclick="showView('home')">Inici</button>
-        <button class="pill" onclick="showView('results')">Resultats</button>
-        <button class="pill" onclick="showView('about')">Sobre</button>
-        <button class="pill" onclick="window.location.href='teoria.html'">π</button>
-        <button class="pill" onclick="window.location.href='teoriacatala.html'">à</button>
-        <button class="pill" onclick="window.location.href='https://focuscat.onrender.com/'">FE</button>
-        <span id="activeUser" class="chip"></span>
-<button class="pill" onclick="localStorage.removeItem('lastStudent'); location.reload();">Canvia d'usuari</button>
-        <button id="logoutBtn" class="pill">Tanca sessió</button>
+  <header class="topbar">
+    <div class="wrap row header-bar">
 
+      <!-- 🔹 Marca -->
+      <div class="brand">
+        <div class="logo">FQ</div>
+        <h1>Focus Academy</h1>
+      </div>
+
+      <!-- 🔹 Navegació principal -->
+      <nav class="main-nav" aria-label="Navegació principal">
+        <button class="pill nav-btn" data-view="home" type="button" onclick="showView('home')">🏠 Inici</button>
+        <button class="pill nav-btn" data-view="results" type="button" onclick="showView('results')">📊 Resultats</button>
+        <button class="pill nav-btn" data-view="about" type="button" onclick="showView('about')">ℹ️ Sobre</button>
+        <a class="pill" href="teoria.html" title="Teoria matemàtica">π</a>
+        <a class="pill" href="teoriacatala.html" title="Teoria catalana">à</a>
+        <a class="pill" href="https://focuscat.onrender.com/" target="_blank" rel="noopener" title="Focus Exams">FE</a>
       </nav>
+
+      <!-- 🔹 Usuari actiu -->
+      <div class="user-controls">
+        <span id="activeUser" class="chip user-chip" aria-live="polite">
+          👤 <span class="label">Sessió no iniciada</span>
+        </span>
+        <button id="switchUserBtn" class="pill small" type="button">Canvia</button>
+        <button id="logoutBtn" class="pill small" type="button">Surt</button>
+      </div>
+
     </div>
   </header>
 
@@ -73,8 +83,8 @@
     <div id="moduleGrid"></div>
 
    <!-- 🧠 Consell del tutor -->
-<div id="recommendation" class="panel card" style="margin-top:1rem; background:#fffafc;">
-  <h3 class="title" style="margin-top:0;">Consell del teu tutor virtual 🤖</h3>
+<div id="recommendation" class="panel card tutor-card">
+  <h3 class="title tutor-title">Consell del teu tutor virtual 🤖</h3>
   <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
 </div>
 
@@ -86,7 +96,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // 🔹 Mostra l'usuari actiu (si n'hi ha)
   const current = localStorage.getItem('lastStudent');
   const badge = document.getElementById('activeUser');
-  if (current && badge) badge.textContent = `👤 ${current}`;
+  if (badge) {
+    const label = badge.querySelector('.label');
+    if (label) label.textContent = current || 'Sessió no iniciada';
+    badge.classList.toggle('is-empty', !current);
+  }
 });
 </script>
   </div>
@@ -254,6 +268,12 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
     const btnDelete = document.querySelector('#btnDeleteUser');
     const inputNew = document.querySelector('#newUserName');
 
+    function setOverlayVisible(open) {
+      if (!overlay) return;
+      overlay.classList.toggle('is-active', open);
+      overlay.toggleAttribute('hidden', !open);
+    }
+
     // 🔹 Carrega usuaris guardats
     function refreshUsers(){
       const users = JSON.parse(localStorage.getItem('students') || '[]');
@@ -262,19 +282,15 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
 
     // 🔹 Mostra overlay si no hi ha usuari actiu
     const current = localStorage.getItem('lastStudent');
-    if(!current){
-      overlay.style.display = 'flex';
-    } else {
-      overlay.style.display = 'none';
-    }
+    setOverlayVisible(!current);
 
     // 🔹 Entrar amb usuari existent
     btnSelect.addEventListener('click', ()=>{
       const name = userList.value.trim();
       if(!name) return alert('Selecciona un usuari.');
       localStorage.setItem('lastStudent', name);
-      overlay.style.display = 'none';
-      location.reload(); // 🔸 ara el main.js ja es carregarà amb usuari actiu
+      setOverlayVisible(false);
+      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
     });
 
     // 🔹 Crear nou usuari
@@ -285,8 +301,10 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       if(!users.includes(name)) users.push(name);
       localStorage.setItem('students', JSON.stringify(users));
       localStorage.setItem('lastStudent', name);
-      overlay.style.display = 'none';
-      location.reload();
+      refreshUsers();
+      inputNew.value = '';
+      setOverlayVisible(false);
+      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
     });
 
     // 🔹 Esborrar usuari
@@ -297,7 +315,35 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       localStorage.setItem('students', JSON.stringify(users));
       if(localStorage.getItem('lastStudent') === name) localStorage.removeItem('lastStudent');
       refreshUsers();
+      if(!localStorage.getItem('lastStudent')){
+        setOverlayVisible(true);
+        document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
+      }
     });
+
+    // 🔹 Botó "Canvia d'usuari"
+    const switchBtn = document.getElementById('switchUserBtn');
+    if (switchBtn) {
+      switchBtn.addEventListener('click', () => {
+        localStorage.removeItem('lastStudent');
+        setOverlayVisible(true);
+        document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
+      });
+    }
+
+    // 🔹 Botó "Tanca sessió"
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        const currentName = localStorage.getItem('lastStudent');
+        if (!currentName || confirm(`Vols tancar la sessió de ${currentName}?`)) {
+          localStorage.removeItem('lastStudent');
+          setOverlayVisible(true);
+          if (currentName) alert('Sessió tancada.');
+          document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
+        }
+      });
+    }
 
     refreshUsers();
   });
