@@ -2286,49 +2286,6 @@ function init(){
     chip.classList.toggle('is-empty', !current);
   }
 
-  $$('.nav-btn[data-view]').forEach(btn => {
-    if (!btn.dataset.bound) {
-      btn.addEventListener('click', () => showView(btn.dataset.view));
-      btn.dataset.bound = 'true';
-    }
-  });
-
-  // 🔹 Configura el botó de tancar sessió
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn && !logoutBtn.dataset.bound) {
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('lastStudent');
-      initializedUser = null;
-      if (chip) {
-        const label = chip.querySelector('.label');
-        if (label) label.textContent = 'Sessió no iniciada';
-        chip.classList.add('is-empty');
-      }
-      const overlay = document.getElementById('loginOverlay');
-      if (overlay) overlay.style.display = 'flex';
-      showView('home');
-      document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
-    });
-    logoutBtn.dataset.bound = 'true';
-  }
-
-  const switchUserBtn = document.getElementById('switchUserBtn');
-  if (switchUserBtn && !switchUserBtn.dataset.bound) {
-    switchUserBtn.addEventListener('click', () => {
-      localStorage.removeItem('lastStudent');
-      initializedUser = null;
-      if (chip) {
-        const label = chip.querySelector('.label');
-        if (label) label.textContent = 'Sessió no iniciada';
-        chip.classList.add('is-empty');
-      }
-      const overlay = document.getElementById('loginOverlay');
-      if (overlay) overlay.style.display = 'flex';
-      showView('home');
-      document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
-    });
-    switchUserBtn.dataset.bound = 'true';
-  }
 }
 
 document.addEventListener('DOMContentLoaded', init);
@@ -2342,6 +2299,7 @@ document.addEventListener('focusquiz:user-logout', () => {
     if (label) label.textContent = 'Sessió no iniciada';
     chip.classList.add('is-empty');
   }
+  showView('home');
   ensureUser();
 });
 
