@@ -412,8 +412,21 @@ button:hover{transform: translateY(-1px)}
 .hidden{display:none}
 
 /* ===== Quiz ===== */
-.quiz{display:grid; grid-template-columns: 1.1fr .9fr; gap:18px}
-@media (max-width: 1000px){ .quiz{grid-template-columns: 1fr} }
+.quiz{
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap:20px;
+  align-items:stretch;
+}
+.quiz.no-right{
+  grid-template-columns: 1fr;
+}
+.quiz.no-right > #rightCol{
+  display:none;
+}
+@media (max-width: 1000px){
+  .quiz{grid-template-columns: 1fr}
+}
 .q-header{display:flex; align-items:center; justify-content:space-between; gap:10px}
 .progress{height: 10px; background: #e5e7eb; border-radius:999px; overflow:hidden}
 .progress > i{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--primary), #93c5fd)}
@@ -449,6 +462,11 @@ button:hover{transform: translateY(-1px)}
 .quiz > #rightCol {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+}
+
+.quiz > #rightCol {
+  min-width: 220px;
 }
 
 .quiz > #leftCol .card,

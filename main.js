@@ -541,25 +541,41 @@ function renderQuestion(){
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value = '';
   $('#feedback').innerHTML = '';
-  $('#keypad').innerHTML = ''; // neteja sempre
+  const rightCol = $('#rightCol');
+  const keypad = $('#keypad');
+  if (keypad) keypad.innerHTML = ''; // neteja sempre
 
   const mod = MODULES.find(m => m.id === session.module);
   const quizEl = document.querySelector('.quiz');
 
+  const toggleRightCol = (show) => {
+    if (rightCol) {
+      rightCol.classList.toggle('hidden', !show);
+    }
+    if (quizEl) {
+      quizEl.classList.toggle('no-right', !show);
+    }
+  };
+  toggleRightCol(true);
+
   if (mod?.category === 'cat') {
-    // 🔹 Català → sense teclat numèric però mantenim la columna dreta
+    // 🔹 Català → sense teclat numèric; amaguem la columna si no cal
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
-    if (q.options && Array.isArray(q.options)) {
+    const hasOptions = Array.isArray(q.options) && q.options.length;
+
+    if (hasOptions) {
       $('#answer').style.display = 'none';
       const optionsHtml = q.options.map(opt => `
         <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
       `).join('');
-      $('#keypad').innerHTML = `<div class="options">${optionsHtml}</div>`;
+      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+      toggleRightCol(true);
     } else {
       $('#answer').style.display = 'block';
+      toggleRightCol(false);
     }
 
   } else if (mod?.category === 'sci') {
@@ -568,6 +584,7 @@ function renderQuestion(){
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
     $('#answer').style.display = q.options ? 'none' : 'block';
+    toggleRightCol(false);
 
     if (q.options && Array.isArray(q.options)) {
       const optionsHtml = q.options.map(opt => `
@@ -582,6 +599,7 @@ function renderQuestion(){
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
+    toggleRightCol(true);
     renderKeypad();
   }
 }
