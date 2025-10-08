@@ -43,11 +43,42 @@
 
 <body>
   <header>
-    <div class="wrap row">
+    <div class="wrap row header-bar">
       <div class="brand">
         <div class="logo" aria-hidden="true">FQ</div>
         <h1>Focus Academy · Espai de repàs</h1>
       </div>
+      <nav class="toolbar" aria-label="Navegació principal">
+        <div class="nav-group primary">
+          <button class="pill nav-btn" data-view="home" type="button">
+            <span class="icon" aria-hidden="true">🏠</span>
+            <span>Inici</span>
+          </button>
+          <button class="pill nav-btn" data-view="results" type="button">
+            <span class="icon" aria-hidden="true">📊</span>
+            <span>Resultats</span>
+          </button>
+          <button class="pill nav-btn" data-view="about" type="button">
+            <span class="icon" aria-hidden="true">ℹ️</span>
+            <span>Sobre</span>
+          </button>
+        </div>
+        <div class="nav-group secondary">
+          <a class="pill nav-link" href="teoria.html" title="Teoria matemàtica">π</a>
+          <a class="pill nav-link" href="teoriacatala.html" title="Teoria catalana">à</a>
+          <a class="pill nav-link" href="https://focuscat.onrender.com/" target="_blank" rel="noopener" title="Focus Exams">FE</a>
+        </div>
+        <div class="nav-group user">
+          <span id="activeUser" class="chip user-chip" aria-live="polite"><span class="icon" aria-hidden="true">👤</span><span class="label"></span></span>
+          <button id="switchUserBtn" class="pill nav-btn" type="button">
+            <span class="icon" aria-hidden="true">🔄</span>
+            <span>Canvia</span>
+          </button>
+          <button id="logoutBtn" class="pill nav-btn" type="button">
+            <span class="icon" aria-hidden="true">🚪</span>
+            <span>Surt</span>
+          </button>
+        </div>
       <nav class="right">
         <button class="pill" onclick="showView('home')">Inici</button>
         <button class="pill" onclick="showView('results')">Resultats</button>
@@ -86,7 +117,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // 🔹 Mostra l'usuari actiu (si n'hi ha)
   const current = localStorage.getItem('lastStudent');
   const badge = document.getElementById('activeUser');
-  if (current && badge) badge.textContent = `👤 ${current}`;
+  if (badge) {
+    const label = badge.querySelector('.label');
+    if (label) label.textContent = current || 'Sessió no iniciada';
+    badge.classList.toggle('is-empty', !current);
+  }
 });
 </script>
   </div>

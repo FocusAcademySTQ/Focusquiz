@@ -107,6 +107,9 @@ let timerHandle = null;
 
 function showView(name){
   ['home','config','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
+  $$('.nav-btn[data-view]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.view === name);
+  });
   if(name==='results') renderResults();
 }
 
@@ -2277,33 +2280,54 @@ function init(){
 
   // 🔹 Mostra el nom de l’usuari actiu
   const chip = document.querySelector('#activeUser');
-  if(current && chip) chip.textContent = `👤 ${current}`;
+  if (chip) {
+    const label = chip.querySelector('.label');
+    if (label) label.textContent = current || 'Sessió no iniciada';
+    chip.classList.toggle('is-empty', !current);
+  }
+
+  $$('.nav-btn[data-view]').forEach(btn => {
+    if (!btn.dataset.bound) {
+      btn.addEventListener('click', () => showView(btn.dataset.view));
+      btn.dataset.bound = 'true';
+    }
+  });
 
   // 🔹 Configura el botó de tancar sessió
   const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
+  if (logoutBtn && !logoutBtn.dataset.bound) {
     logoutBtn.addEventListener('click', () => {
       localStorage.removeItem('lastStudent');
       initializedUser = null;
-      if (chip) chip.textContent = '';
+      if (chip) {
+        const label = chip.querySelector('.label');
+        if (label) label.textContent = 'Sessió no iniciada';
+        chip.classList.add('is-empty');
+      }
       const overlay = document.getElementById('loginOverlay');
       if (overlay) overlay.style.display = 'flex';
       showView('home');
       document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
     });
+    logoutBtn.dataset.bound = 'true';
   }
 
   const switchUserBtn = document.getElementById('switchUserBtn');
-  if (switchUserBtn) {
+  if (switchUserBtn && !switchUserBtn.dataset.bound) {
     switchUserBtn.addEventListener('click', () => {
       localStorage.removeItem('lastStudent');
       initializedUser = null;
-      if (chip) chip.textContent = '';
+      if (chip) {
+        const label = chip.querySelector('.label');
+        if (label) label.textContent = 'Sessió no iniciada';
+        chip.classList.add('is-empty');
+      }
       const overlay = document.getElementById('loginOverlay');
       if (overlay) overlay.style.display = 'flex';
       showView('home');
       document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
     });
+    switchUserBtn.dataset.bound = 'true';
   }
 }
 
@@ -2313,7 +2337,11 @@ document.addEventListener('focusquiz:user-login', init);
 document.addEventListener('focusquiz:user-logout', () => {
   initializedUser = null;
   const chip = document.querySelector('#activeUser');
-  if (chip) chip.textContent = '';
+  if (chip) {
+    const label = chip.querySelector('.label');
+    if (label) label.textContent = 'Sessió no iniciada';
+    chip.classList.add('is-empty');
+  }
   ensureUser();
 });
 
