@@ -261,6 +261,28 @@ button{
   padding:12px 14px; border-radius:14px; font-weight:800; cursor:pointer; box-shadow: var(--shadow); transition:.2s
 }
 button:hover{transform: translateY(-1px)}
+.nav-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 18px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:.9rem;
+  background:rgba(255,255,255,0.86);
+  border:1px solid rgba(148,163,184,0.3);
+  box-shadow:none;
+  color:var(--ink);
+}
+.nav-btn .icon{font-size:1.05rem; line-height:1;}
+.nav-btn:hover{background:#fff; transform:translateY(-1px);}
+.nav-btn.active{
+  color:#0f172a;
+  background:linear-gradient(120deg, #8fb5ff, #c7b5ff);
+  border-color:transparent;
+  box-shadow:0 8px 18px rgba(79,70,229,0.25);
+}
+.nav-btn.active .icon{filter:drop-shadow(0 0 3px rgba(255,255,255,0.5));}
 .btn-secondary{background:linear-gradient(180deg, #eef2ff, #e9efff); border:1px solid var(--hair); color:#0f172a; font-weight:800}
 .btn-ghost{background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700}
 
