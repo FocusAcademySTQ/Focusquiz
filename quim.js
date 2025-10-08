@@ -2,6 +2,9 @@
 (function(){
   // utilitats locals (evitem dependències excepte choice del main)
   function shuffle(a){ const r=[...a]; for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]];} return r; }
+  const pick = typeof window.choice === 'function'
+    ? window.choice
+    : (arr) => arr[Math.floor(Math.random() * arr.length)];
 
   // llista bàsica ESO (pots ampliar), amb grup simplificat per a classificar
   const E = [
@@ -127,7 +130,7 @@
 
   // —————————————— 1) QUIZ RÀPID (símbol ↔ nom) ——————————————
   function genSpeed(level, opts={}){
-    const el = choice(E);
+    const el = pick(E);
     const dir = opts.dir || (Math.random()<0.5?'sym2name':'name2sym'); // simula "ràpid"
     if(dir==='sym2name'){
       const answers = shuffle([el.name, ...shuffle(E.filter(x=>x!==el).map(x=>x.name)).slice(0,3)]);
@@ -198,7 +201,7 @@
   { syms:['Zn','Cl₂'],  name:'Clorur de zinc (ZnCl₂)' }
 ];
   function genCompounds(){
-    const c = choice(COMPOUNDS);
+    const c = pick(COMPOUNDS);
     const opts = shuffle([c.name, ...shuffle(COMPOUNDS.filter(x=>x!==c).map(x=>x.name)).slice(0,3)]);
     return { type:'chem-comp', text:`Quin compost formen <b>${c.syms.join(' + ')}</b>?`, options:opts, answer:c.name };
   }
@@ -377,7 +380,7 @@ function periodicTableSVG(targetSym){
 }
 
 function genMap(){
-  const el = choice(E);
+  const el = pick(E);
   return {
     type:'chem-map',
     text:`Clica la casella de l’element <b>${el.name}</b> a la taula periòdica:`,
@@ -390,7 +393,7 @@ function genMap(){
   // —————————————— 5) CLASSIFICACIÓ RÀPIDA (tria el grup) ——————————————
   const GROUPS = ['metall alcalí','metall alcalinoterri','metall','no metall','gas noble'];
   function genClassify(){
-    const el = choice(E);
+    const el = pick(E);
     const opts = shuffle([el.group, ...shuffle(GROUPS.filter(g=>g!==el.group)).slice(0,3)]);
     return { type:'chem-class', text:`A quin grup pertany <b>${el.name}</b>?`, options:opts, answer: el.group };
   }
@@ -714,7 +717,7 @@ window.__chemPick = function(sym){
   // ========================
   // REGISTRE DELS DOS MÒDULS
   // ========================
-  window.addModules([{
+  const CHEM_MODULES = [{
     id:'chem',
     name:'Taula periòdica',
     desc:'Quiz ràpid, compostos, mapa interactiu i classificació.',
@@ -730,7 +733,19 @@ window.__chemPick = function(sym){
     gen: genCompoundsExtra,
     category:'sci',
     config: compoundsConfig
-  }]);
+  }];
+
+  if (typeof window.addModules === 'function') {
+    window.addModules(CHEM_MODULES);
+  } else {
+    window._PENDING_CHEM_MODULES_ = CHEM_MODULES;
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.addModules === 'function' && window._PENDING_CHEM_MODULES_) {
+        window.addModules(window._PENDING_CHEM_MODULES_);
+        delete window._PENDING_CHEM_MODULES_;
+      }
+    }, { once: true });
+  }
 
   // 🧮 TECLAT QUÍMIC (només s'activa si el mode és formulas)
 function attachChemKeyboard(){
