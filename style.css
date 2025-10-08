@@ -53,6 +53,118 @@ body{
   z-index: 100;
 }
 
+/* ===== Login overlay ===== */
+#loginOverlay.login-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 10, 20, 0.45);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+  padding: 20px;
+}
+
+#loginOverlay[hidden] {
+  display: none !important;
+}
+
+.login-dialog {
+  width: min(360px, 92vw);
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-overlay.is-active .login-dialog {
+  animation: overlay-pop 0.28s ease both;
+}
+
+.login-title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.login-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.login-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.login-row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.login-select {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.login-input {
+  width: 100%;
+}
+
+.login-primary,
+.login-ghost {
+  flex: 1;
+  padding: 10px 12px;
+}
+
+.login-ghost {
+  border-radius: 12px;
+}
+
+.login-small {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.login-divider {
+  height: 1px;
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+
+.login-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.login-footer small {
+  color: #64748b;
+}
+
+.login-imports {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+@keyframes overlay-pop {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
 .wrap { max-width: 1100px; margin: 0 auto; padding: clamp(14px, 2vw, 24px); }
 .row { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
 
@@ -187,17 +299,32 @@ main{padding: 28px 0 60px}
 .card{padding: clamp(16px, 2.2vw, 26px)}
 .title{font-size: clamp(1.5rem, 3vw, 2.2rem); margin:0 0 10px}
 .subtitle{color:var(--muted); margin:0 0 18px}
+.tutor-card{margin-top:1rem; background:#fffafc; border-color:#fce7f3}
+.tutor-title{margin-top:0}
 
-.grid{display:grid; grid-template-columns: repeat(4, 1fr); gap:14px}
-@media (max-width: 1000px){ .grid{grid-template-columns: repeat(2, 1fr)} }
-@media (max-width: 560px){ .grid{grid-template-columns: 1fr} }
+.grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px}
+@media (max-width: 560px){ .grid{grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));} }
 
 /* Targetes mòduls amb accents pastel alterns */
 .option{
-  position:relative; overflow:hidden; padding:16px; border-radius:18px; cursor:pointer;
+  position:relative; overflow:hidden; padding:20px 16px 16px; border-radius:18px; cursor:pointer;
   border:1px solid var(--hair); transition:.2s;
   background:linear-gradient(180deg, #ffffff, #f8fafc);
   box-shadow: var(--shadow);
+}
+.option-badge{
+  position:absolute;
+  top:12px;
+  right:16px;
+  background:#eef2ff;
+  border:1px solid var(--hair);
+  border-radius:999px;
+  padding:4px 10px;
+  font-size:0.72rem;
+  font-weight:700;
+  letter-spacing:0.3px;
+  color:#1e293b;
+  box-shadow:0 4px 12px rgba(148, 163, 184, 0.2);
 }
 .option::after{
   content:""; position:absolute; inset:auto auto 0 0; height:6px; width:100%;
@@ -215,11 +342,7 @@ main{padding: 28px 0 60px}
 .option h3{margin:8px 0 6px; font-size:1.05rem}
 .option p{margin:0; color:var(--muted); font-size:.92rem}
 
-.badge{
-  font-size:.75rem; color:#0f172a; font-weight:800; letter-spacing:.3px;
-  padding:6px 10px; border-radius:999px; display:inline-block;
-  background:#eef2ff; border:1px solid var(--hair);
-}
+
 
 /* Seccions */
 .section-title{margin: 18px 0 8px; font-size:1rem; color:var(--muted); letter-spacing:.3px}

@@ -148,7 +148,9 @@ function buildHome(){
     mods.forEach(m=>{
       const el = document.createElement('div');
       el.className='option';
+      const badge = m.badge ? `<span class="option-badge">${m.badge}</span>` : '';
       el.innerHTML = `
+        ${badge}
         <h3>${m.name}</h3>
         <p>${m.desc}</p>`;
       el.onclick = ()=> openConfig(m.id);

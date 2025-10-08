@@ -8,35 +8,35 @@
   <link rel="stylesheet" href="style.css">
 </head>
   <!-- LOGIN LOCAL (overlay) -->
-<div id="loginOverlay" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(5,10,20,0.45);z-index:9999;">
-  <div style="width:360px;max-width:92%;background:#fff;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(2,6,23,0.12);text-align:left;">
-    <h2 style="margin:0 0 8px 0;font-size:1.15rem">Accedeix a Focus Academy</h2>
-    <div style="font-size:0.9rem;color:#475569;margin-bottom:12px">Tria un usuari existent o crea'n un de nou. Les dades es queden en aquest dispositiu (local).</div>
+<div id="loginOverlay" class="login-overlay" hidden>
+  <div class="login-dialog">
+    <h2 class="login-title">Accedeix a Focus Academy</h2>
+    <p class="login-subtitle">Tria un usuari existent o crea'n un de nou. Les dades es queden en aquest dispositiu (local).</p>
 
-    <label style="display:block;margin-bottom:6px;font-weight:600">Usuaris existents</label>
-    <div style="display:flex;gap:8px;margin-bottom:10px">
-      <select id="loginUserList" style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6eef8"></select>
-      <button id="btnLoginSelect" class="pill" style="padding:8px 10px">Entrar</button>
+    <label class="login-label" for="loginUserList">Usuaris existents</label>
+    <div class="login-row">
+      <select id="loginUserList" class="login-select"></select>
+      <button id="btnLoginSelect" class="pill login-small">Entrar</button>
     </div>
 
-    <div style="height:1px;background:#f1f5f9;margin:10px 0;border-radius:2px"></div>
+    <div class="login-divider" role="presentation"></div>
 
-    <label style="display:block;margin-bottom:6px;font-weight:600">Crear nou usuari</label>
-    <input id="newUserName" placeholder="Nom (mínim 2 caràcters)" style="width:100%;padding:8px;border-radius:8px;border:1px solid #e6eef8;margin-bottom:8px" />
-    <div style="display:flex;gap:8px">
-      <button id="btnCreateUser" class="btn" style="flex:1;padding:8px">Crea i entra</button>
-      <button id="btnDeleteUser" class="btn-ghost" style="flex:1;padding:8px">Suprimeix seleccionat</button>
+    <label class="login-label" for="newUserName">Crear nou usuari</label>
+    <input id="newUserName" class="login-input input" placeholder="Nom (mínim 2 caràcters)" />
+    <div class="login-row">
+      <button id="btnCreateUser" class="btn login-primary">Crea i entra</button>
+      <button id="btnDeleteUser" class="btn-ghost login-ghost">Suprimeix seleccionat</button>
     </div>
 
-    <div style="margin-top:12px;display:flex;gap:8px;justify-content:space-between;align-items:center">
-      <small style="color:#64748b">Tot en localStorage · Sense servidors</small>
-      <button id="btnContinueGuest" class="btn-secondary" style="padding:6px 10px">Anul·la (no disponible)</button>
+    <div class="login-footer">
+      <small>Tot en localStorage · Sense servidors</small>
+      <button id="btnContinueGuest" class="btn-secondary login-small">Anul·la (no disponible)</button>
     </div>
 
-    <div style="margin-top:10px;font-size:0.85rem;color:#334155">
-      <input id="importFile" type="file" style="display:none" />
-      <button id="btnExport" class="btn-ghost" style="margin-top:8px">Exporta totes dades</button>
-      <button id="btnImport" class="btn-ghost" style="margin-top:8px">Importa dades</button>
+    <div class="login-imports">
+      <input id="importFile" type="file" hidden />
+      <button id="btnExport" class="btn-ghost">Exporta totes dades</button>
+      <button id="btnImport" class="btn-ghost">Importa dades</button>
     </div>
   </div>
 </div>
@@ -83,8 +83,8 @@
     <div id="moduleGrid"></div>
 
    <!-- 🧠 Consell del tutor -->
-<div id="recommendation" class="panel card" style="margin-top:1rem; background:#fffafc;">
-  <h3 class="title" style="margin-top:0;">Consell del teu tutor virtual 🤖</h3>
+<div id="recommendation" class="panel card tutor-card">
+  <h3 class="title tutor-title">Consell del teu tutor virtual 🤖</h3>
   <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
 </div>
 
@@ -268,6 +268,12 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
     const btnDelete = document.querySelector('#btnDeleteUser');
     const inputNew = document.querySelector('#newUserName');
 
+    function setOverlayVisible(open) {
+      if (!overlay) return;
+      overlay.classList.toggle('is-active', open);
+      overlay.toggleAttribute('hidden', !open);
+    }
+
     // 🔹 Carrega usuaris guardats
     function refreshUsers(){
       const users = JSON.parse(localStorage.getItem('students') || '[]');
@@ -276,14 +282,14 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
 
     // 🔹 Mostra overlay si no hi ha usuari actiu
     const current = localStorage.getItem('lastStudent');
-    overlay.style.display = current ? 'none' : 'flex';
+    setOverlayVisible(!current);
 
     // 🔹 Entrar amb usuari existent
     btnSelect.addEventListener('click', ()=>{
       const name = userList.value.trim();
       if(!name) return alert('Selecciona un usuari.');
       localStorage.setItem('lastStudent', name);
-      overlay.style.display = 'none';
+      setOverlayVisible(false);
       document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
     });
 
@@ -297,7 +303,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       localStorage.setItem('lastStudent', name);
       refreshUsers();
       inputNew.value = '';
-      overlay.style.display = 'none';
+      setOverlayVisible(false);
       document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
     });
 
@@ -310,7 +316,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       if(localStorage.getItem('lastStudent') === name) localStorage.removeItem('lastStudent');
       refreshUsers();
       if(!localStorage.getItem('lastStudent')){
-        overlay.style.display = 'flex';
+        setOverlayVisible(true);
         document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
       }
     });
@@ -320,7 +326,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
     if (switchBtn) {
       switchBtn.addEventListener('click', () => {
         localStorage.removeItem('lastStudent');
-        overlay.style.display = 'flex';
+        setOverlayVisible(true);
         document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
       });
     }
@@ -332,7 +338,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
         const currentName = localStorage.getItem('lastStudent');
         if (!currentName || confirm(`Vols tancar la sessió de ${currentName}?`)) {
           localStorage.removeItem('lastStudent');
-          overlay.style.display = 'flex';
+          setOverlayVisible(true);
           if (currentName) alert('Sessió tancada.');
           document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
         }
