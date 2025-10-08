@@ -22,11 +22,19 @@ const simplifyFrac = (n,d)=>{ const g=gcd(n,d); return [n/g, d/g] };
 const store = {
   get k() { return 'focus-math-results-v1'; },
 
+  currentUser() {
+    return localStorage.getItem('lastStudent') || null;
+  },
+
+  defaultUser() {
+    return this.currentUser() || 'Anònim';
+  },
+
   load() {
     try {
       const raw = JSON.parse(localStorage.getItem(this.k) || '{}');
       if (Array.isArray(raw)) {
-        const user = localStorage.getItem('lastStudent') || 'Anònim';
+        const user = this.defaultUser();
         const migrated = { [user]: raw };
         localStorage.setItem(this.k, JSON.stringify(migrated));
         return migrated;
@@ -38,19 +46,31 @@ const store = {
     }
   },
 
-  all() {
+  all(options = {}) {
     const data = this.load();
-    return Object.values(data)
-      .reduce((acc, entries) => acc.concat(entries || []), [])
-      .sort((a, b) => {
-        const timeB = new Date(b.at).getTime() || 0;
-        const timeA = new Date(a.at).getTime() || 0;
-        return timeB - timeA;
-      });
+    const scope = options.scope || 'current';
+
+    const sortDesc = (entries) => entries.slice().sort((a, b) => {
+      const timeB = new Date(b.at).getTime() || 0;
+      const timeA = new Date(a.at).getTime() || 0;
+      return timeB - timeA;
+    });
+
+    if (scope === 'all') {
+      const merged = Object.values(data)
+        .reduce((acc, entries) => acc.concat(entries || []), []);
+      return sortDesc(merged);
+    }
+
+    const targetUser = options.user !== undefined ? options.user : this.currentUser();
+    if (!targetUser) return [];
+
+    const entries = Array.isArray(data[targetUser]) ? data[targetUser] : [];
+    return sortDesc(entries);
   },
 
   save(entry) {
-    const user = localStorage.getItem('lastStudent') || 'Anònim';
+    const user = this.defaultUser();
     const data = this.load();
     if (!Array.isArray(data[user])) data[user] = [];
     data[user].push(entry);
@@ -58,7 +78,7 @@ const store = {
   },
 
   clear() {
-    const user = localStorage.getItem('lastStudent') || 'Anònim';
+    const user = this.defaultUser();
     const data = this.load();
     if (user in data) delete data[user];
     const remaining = Object.keys(data).length;
@@ -910,6 +930,9 @@ function finishQuiz(timeUp){
   });
 
   renderResults();
+  if (typeof showRecommendation === 'function') {
+    showRecommendation('#recommendationText');
+  }
 
   session.done = true;
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
@@ -2113,7 +2136,7 @@ function renderResults(){
 
   // Taula
   if(!filtered.length){
-    tableWrap.innerHTML = '<div class="chip">No hi ha dades.</div>';
+    tableWrap.innerHTML = '<div class="chip">No hi ha dades per a aquesta sessió.</div>';
     renderAnalytics([], nameFilter); // neteja i mostra hint si cal
     return;
   }
@@ -2208,7 +2231,7 @@ function renderAnalytics(filtered, nameFilter){
 
 
 function exportCSV(){
-  const data = store.all();
+  const data = store.all({ scope: 'all' });
   if(!data.length){ alert('No hi ha dades per exportar.'); return }
   const header = ['data','alumne','modul','nivell','preguntes','correctes','puntuacio','temps_limit','temps_consumit'];
   const lines = [header.join(',')];
@@ -2286,6 +2309,14 @@ function init(){
     chip.classList.toggle('is-empty', !current);
   }
 
+  if (typeof showRecommendation === 'function') {
+    showRecommendation('#recommendationText');
+  }
+
+  if (typeof renderResults === 'function') {
+    renderResults();
+  }
+
 }
 
 document.addEventListener('DOMContentLoaded', init);
@@ -2298,6 +2329,12 @@ document.addEventListener('focusquiz:user-logout', () => {
     const label = chip.querySelector('.label');
     if (label) label.textContent = 'Sessió no iniciada';
     chip.classList.add('is-empty');
+  }
+  if (typeof showRecommendation === 'function') {
+    showRecommendation('#recommendationText');
+  }
+  if (typeof renderResults === 'function') {
+    renderResults();
   }
   showView('home');
   ensureUser();
