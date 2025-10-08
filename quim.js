@@ -721,7 +721,6 @@ window.__chemPick = function(sym){
     id:'chem',
     name:'Taula periòdica',
     desc:'Quiz ràpid, compostos, mapa interactiu i classificació.',
-    badge:'⚗️',
     gen: genChem,
     category:'sci',
     config: chemConfig
@@ -729,7 +728,6 @@ window.__chemPick = function(sym){
     id:'chem-compounds',
     name:'Fórmules i compostos',
     desc:'Valències, fórmules bàsiques i compostos moleculars.',
-    badge:'🧪',
     gen: genCompoundsExtra,
     category:'sci',
     config: compoundsConfig
