@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" role="img" aria-label="Mapa simplificat d'Europa">
+  <defs>
+    <linearGradient id="sea" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e3a8a"/>
+    </linearGradient>
+    <linearGradient id="land" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#dbeafe"/>
+      <stop offset="1" stop-color="#bfdbfe"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="700" fill="url(#sea)"/>
+  <g fill="url(#land)" stroke="#1d4ed8" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M150 490 L160 450 L185 420 L220 395 L255 370 L300 348 L340 326 L388 304 L428 288 L470 270 L508 258 L550 252 L600 238 L642 216 L676 198 L710 188 L742 196 L776 220 L804 250 L826 282 L838 318 L836 350 L820 382 L794 408 L776 438 L764 470 L756 504 L744 536 L720 562 L690 586 L652 606 L610 622 L562 634 L512 640 L470 636 L430 624 L388 606 L348 586 L304 564 L262 540 L220 516 Z"/>
+    <path d="M744 536 L770 550 L792 576 L804 610 L798 640 L780 660 L756 662 L736 648 L716 620 L690 594 L704 564 L720 552 Z"/>
+    <path d="M820 382 L850 400 L876 426 L892 456 L894 490 L880 520 L854 540 L826 548 L800 544 L786 520 L802 492 Z"/>
+    <path d="M260 320 L236 296 L226 268 L240 240 L266 232 L292 246 L310 272 L304 302 Z"/>
+    <path d="M120 260 L138 236 L168 222 L198 224 L214 246 L204 272 L176 288 L142 288 Z"/>
+  </g>
+  <g fill="#93c5fd" stroke="#1d4ed8" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M612 300 L640 280 L666 276 L688 284 L704 304 L712 330 L704 358 L684 380 L652 392 L620 388 L600 366 L598 334 Z"/>
+    <path d="M670 330 L686 338 L706 360 L714 386 L704 410 L682 420 L660 410 L648 384 Z"/>
+    <path d="M602 252 L620 238 L646 230 L670 236 L692 254 L706 276 L700 300 L678 316 L650 320 L620 310 L604 286 Z"/>
+  </g>
+</svg>
