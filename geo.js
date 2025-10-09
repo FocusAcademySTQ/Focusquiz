@@ -16,7 +16,7 @@
   const clampLevel = (lvl) => Math.max(1, Math.min(4, parseInt(lvl, 10) || 1));
 
   const FLAG_BASE_URL = 'https://flagcdn.com';
-  const EUROPE_MAP_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/b/bd/Blank_map_of_Europe.svg';
+  const EUROPE_MAP_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Blank_map_of_Europe_%28with_disputed_regions%29.svg/1024px-Blank_map_of_Europe_%28with_disputed_regions%29.svg.png';
   const FLAG_CODE_BY_COUNTRY = {
     'Espanya': 'es',
     'França': 'fr',
@@ -767,8 +767,8 @@
   };
 
   const MAP_BOUNDS = {
-    west: -25,
-    east: 45,
+    west: -24.5,
+    east: 34,
     north: 72,
     south: 34
   };

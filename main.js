@@ -671,24 +671,42 @@ function setupGeoMapQuestion(){
   const map = L.map(mapContainer, {
     zoomControl: false,
     attributionControl: true,
-    minZoom: 3,
+    minZoom: 4,
     maxZoom: 7,
     worldCopyJump: false
   });
 
-  const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  mapContainer.dataset.ready = 'true';
+
+  const ensureReadyFlag = () => {
+    if (mapRoot.dataset.mapReady !== 'true') {
+      mapRoot.dataset.mapReady = 'true';
+    }
+  };
+
+  const clearReadyFlag = () => {
+    mapRoot.removeAttribute('data-map-ready');
+  };
+
+  const tileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+    minZoom: 4,
     maxZoom: 7,
-    attribution: '© OpenStreetMap contributors'
+    attribution: '© OpenStreetMap contributors © CARTO'
   }).addTo(map);
 
-  let tileLoaded = false;
-  tileLayer.once('load', () => {
-    tileLoaded = true;
-    mapRoot.dataset.mapReady = 'true';
-  });
+  let tilesReady = false;
+  const flagReady = () => {
+    if (!tilesReady) {
+      tilesReady = true;
+      ensureReadyFlag();
+    }
+  };
+
+  tileLayer.once('load', flagReady);
+  tileLayer.on('tileload', flagReady);
   tileLayer.on('tileerror', () => {
-    if (!tileLoaded) {
-      mapRoot.removeAttribute('data-map-ready');
+    if (!tilesReady) {
+      clearReadyFlag();
     }
   });
 
@@ -696,13 +714,13 @@ function setupGeoMapQuestion(){
     const southWest = L.latLng(bounds.south, bounds.west);
     const northEast = L.latLng(bounds.north, bounds.east);
     const mapBounds = L.latLngBounds(southWest, northEast);
-    map.fitBounds(mapBounds, { padding: [24, 24] });
-    map.setMaxBounds(mapBounds.pad(0.2));
+    map.fitBounds(mapBounds, { padding: [12, 12] });
+    map.setMaxBounds(mapBounds.pad(0.04));
     const center = mapBounds.getCenter();
-    const zoom = Math.min(Math.max(map.getZoom(), 3.2), 5);
+    const zoom = Math.min(Math.max(map.getZoom(), 5.1), 6);
     map.setView(center, zoom);
   } else {
-    map.setView([54, 15], 4.5);
+    map.setView([54, 15], 5.4);
   }
 
   const basePolygonStyle = {
