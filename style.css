@@ -488,7 +488,12 @@ button:hover{transform: translateY(-1px)}
 
 .geo-map-leaflet{
   position:relative;
-  background:#dbeafe;
+  background:#0f172a;
+}
+
+.geo-map-overlay{
+  object-fit:cover;
+  filter:saturate(1.05) contrast(1.05);
 }
 
 .geo-map[data-map-ready="true"] .geo-map-fallback{
@@ -544,37 +549,38 @@ button:hover{transform: translateY(-1px)}
 
 .geo-map-pin,
 .geo-map-marker-content{
-  width:clamp(1.9rem, 2.2vw + 1.3rem, 2.5rem);
-  height:clamp(1.9rem, 2.2vw + 1.3rem, 2.5rem);
+  width:clamp(.7rem, .4vw + .6rem, 1rem);
+  height:clamp(.7rem, .4vw + .6rem, 1rem);
   border-radius:999px;
-  border:2px solid rgba(15,23,42,0.28);
-  background:linear-gradient(180deg, rgba(248,250,252,0.98) 0%, rgba(226,232,240,0.95) 100%);
-  box-shadow:0 10px 24px rgba(15,23,42,0.12);
+  border:1.5px solid rgba(15,23,42,0.35);
+  background:#e2e8f0;
+  box-shadow:0 4px 12px rgba(15,23,42,0.18);
   display:block;
   position:relative;
-  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
 }
 
 .geo-map-pin::after,
 .geo-map-marker-content::after{
   content:"";
   position:absolute;
-  inset:35%;
+  inset:32%;
   border-radius:999px;
-  background:radial-gradient(circle at 32% 32%, rgba(37,99,235,0.8), rgba(37,99,235,0.35));
+  background:radial-gradient(circle at 50% 50%, rgba(37,99,235,0.9), rgba(37,99,235,0.35));
   box-shadow:0 0 0 0 transparent;
 }
 
 .geo-map-point:hover .geo-map-pin,
 .geo-map-marker:hover .geo-map-marker-content{
-  transform:scale(1.08);
-  box-shadow:0 16px 32px rgba(15,23,42,0.18);
+  transform:scale(1.15);
+  box-shadow:0 12px 28px rgba(15,23,42,0.22);
 }
 
 .geo-map-point.selected .geo-map-pin,
 .geo-map-marker.active .geo-map-marker-content{
   border-color:var(--primary, #2563eb);
-  box-shadow:0 0 0 4px rgba(37,99,235,0.18);
+  background:#bfdbfe;
+  box-shadow:0 0 0 4px rgba(37,99,235,0.22);
 }
 
 .geo-map-point.selected .geo-map-pin::after,
@@ -631,11 +637,10 @@ button:hover{transform: translateY(-1px)}
   .geo-map-leaflet{
     border-radius:12px;
   }
-  .geo-map-point{
-    border-radius:10px;
-  }
-  .geo-map-marker-content{
-    border-radius:10px;
+  .geo-map-marker-content,
+  .geo-map-pin{
+    width:.9rem;
+    height:.9rem;
   }
 }
 @media (max-width: 1000px){
