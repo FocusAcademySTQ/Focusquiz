@@ -593,6 +593,179 @@
     'San Marino': { lat: 43.9, lon: 12.5 }
   };
 
+  function poly(outer, holes = []) {
+    return { outer, holes };
+  }
+
+  function rect(north, south, west, east) {
+    return [
+      [north, west],
+      [north, east],
+      [south, east],
+      [south, west]
+    ];
+  }
+
+  const MAP_SHAPES = {
+    'Portugal': poly([
+      [42.3, -9.6],
+      [42.1, -6.1],
+      [39.9, -6.1],
+      [38.4, -7.4],
+      [37.1, -7.6],
+      [37.0, -9.3]
+    ]),
+    'Espanya': poly([
+      [43.8, -9.4],
+      [43.6, -1.5],
+      [42.9, 3.2],
+      [40.8, 3.4],
+      [38.8, 1.6],
+      [36.2, -0.4],
+      [36.0, -5.5],
+      [36.7, -9.3],
+      [40.4, -9.6]
+    ], [
+      [
+        [42.1, -9.1],
+        [41.8, -6.1],
+        [38.5, -6.1],
+        [38.6, -8.9]
+      ]
+    ]),
+    'França': poly([
+      [51.0, -4.9],
+      [50.8, 2.5],
+      [49.9, 8.1],
+      [44.0, 7.6],
+      [42.6, 3.2],
+      [43.0, -1.6],
+      [45.6, -3.8]
+    ]),
+    'Bèlgica': poly(rect(51.5, 49.4, 2.5, 6.5)),
+    'Països Baixos': poly([
+      [53.6, 3.2],
+      [53.5, 7.6],
+      [51.2, 7.6],
+      [51.3, 3.4]
+    ]),
+    'Luxemburg': poly(rect(50.2, 49.3, 5.4, 6.6)),
+    'Alemanya': poly([
+      [55.1, 5.7],
+      [54.9, 15.2],
+      [47.4, 15.0],
+      [47.4, 6.1]
+    ]),
+    'Itàlia': poly([
+      [46.9, 6.6],
+      [47.0, 12.4],
+      [45.2, 18.6],
+      [40.4, 18.9],
+      [36.7, 15.5],
+      [37.5, 12.0],
+      [39.5, 8.8],
+      [43.2, 7.0]
+    ]),
+    'Suïssa': poly(rect(47.9, 45.7, 5.9, 10.7)),
+    'Àustria': poly([
+      [49.0, 9.4],
+      [48.8, 17.2],
+      [46.3, 16.9],
+      [46.2, 10.3]
+    ]),
+    'Regne Unit': poly([
+      [58.8, -8.7],
+      [58.6, 1.8],
+      [50.0, 1.4],
+      [49.9, -5.8]
+    ]),
+    'Irlanda': poly([
+      [55.5, -10.6],
+      [55.1, -6.0],
+      [51.4, -6.0],
+      [51.5, -10.4]
+    ]),
+    'Islàndia': poly(rect(66.7, 63.0, -24.5, -13.0)),
+    'Noruega': poly([
+      [71.2, 5.0],
+      [70.9, 30.5],
+      [65.5, 30.0],
+      [63.2, 14.0],
+      [58.2, 6.0],
+      [58.4, 4.5]
+    ]),
+    'Suècia': poly([
+      [69.4, 11.5],
+      [69.0, 24.5],
+      [55.0, 24.3],
+      [55.2, 12.0],
+      [60.0, 11.5]
+    ]),
+    'Finlàndia': poly([
+      [69.9, 20.0],
+      [69.5, 31.5],
+      [60.2, 31.2],
+      [60.5, 23.0],
+      [65.0, 20.2]
+    ]),
+    'Dinamarca': poly([
+      [57.8, 8.0],
+      [57.7, 12.7],
+      [54.4, 12.7],
+      [54.5, 8.1]
+    ]),
+    'Estònia': poly(rect(59.8, 57.3, 21.5, 28.3)),
+    'Letònia': poly(rect(58.2, 55.6, 20.7, 28.2)),
+    'Lituània': poly(rect(56.5, 54.3, 20.9, 26.8)),
+    'Polònia': poly([
+      [54.9, 14.3],
+      [54.7, 24.0],
+      [49.0, 24.0],
+      [49.2, 15.0]
+    ]),
+    'Txèquia': poly(rect(51.1, 48.4, 12.0, 18.9)),
+    'Eslovàquia': poly(rect(49.6, 47.7, 16.8, 22.6)),
+    'Hongria': poly(rect(48.7, 45.7, 16.0, 22.9)),
+    'Eslovènia': poly(rect(47.1, 45.3, 13.2, 16.6)),
+    'Croàcia': poly([
+      [46.5, 13.5],
+      [46.4, 16.5],
+      [45.5, 18.7],
+      [44.0, 18.9],
+      [42.5, 18.1],
+      [43.5, 14.5]
+    ]),
+    'Bòsnia i Hercegovina': poly([
+      [45.2, 16.0],
+      [45.0, 19.5],
+      [42.7, 19.2],
+      [42.8, 16.2]
+    ]),
+    'Sèrbia': poly([
+      [46.0, 18.7],
+      [45.8, 22.9],
+      [42.2, 22.5],
+      [42.3, 19.3]
+    ]),
+    'Albània': poly(rect(42.7, 39.6, 19.0, 21.1)),
+    'Grècia': poly([
+      [41.5, 19.6],
+      [41.2, 28.3],
+      [35.0, 28.3],
+      [35.2, 20.3]
+    ]),
+    'Bulgària': poly(rect(44.3, 41.1, 22.3, 28.6)),
+    'Romania': poly([
+      [48.3, 20.5],
+      [48.1, 29.7],
+      [43.7, 29.4],
+      [44.2, 22.1]
+    ]),
+    'Andorra': poly(rect(42.7, 42.3, 1.3, 1.8)),
+    'Liechtenstein': poly(rect(47.3, 47.0, 9.4, 9.7)),
+    'San Marino': poly(rect(44.1, 43.9, 12.4, 12.6))
+  };
+
   const MAP_BOUNDS = {
     west: -25,
     east: 45,
@@ -601,6 +774,37 @@
   };
 
   const MAP_COUNTRIES = EUROPE_COUNTRIES.filter(c => MAP_LOCATIONS[c.name]);
+
+  const MAP_POINTS = MAP_COUNTRIES.map(c => {
+    const loc = MAP_LOCATIONS[c.name];
+    return {
+      name: c.name,
+      lat: loc.lat,
+      lon: loc.lon
+    };
+  });
+
+  const MAP_POLYGONS = MAP_COUNTRIES.map(c => {
+    const shape = MAP_SHAPES[c.name];
+    if (!shape) return null;
+    const coords = [shape.outer];
+    if (Array.isArray(shape.holes)) {
+      shape.holes.forEach(hole => coords.push(hole));
+    }
+    return {
+      name: c.name,
+      coords
+    };
+  }).filter(Boolean);
+
+  if (typeof window !== 'undefined') {
+    window.__FOCUS_GEO__ = window.__FOCUS_GEO__ || {};
+    window.__FOCUS_GEO__.europe = {
+      points: MAP_POINTS,
+      polygons: MAP_POLYGONS,
+      bounds: MAP_BOUNDS
+    };
+  }
 
   function projectToPercent(name) {
     const loc = MAP_LOCATIONS[name];
@@ -751,23 +955,23 @@
     const points = MAP_COUNTRIES.map(c => {
       const coords = projectToPercent(c.name);
       if (!coords) return '';
-      const flagUrl = getFlagUrl(c, 'w80');
-      const icon = flagUrl
-        ? `<img src="${flagUrl}" alt="" loading="lazy" decoding="async">`
-        : `<span class="geo-map-point-fallback">${c.flag || '•'}</span>`;
       return `
         <button type="button" class="geo-map-point" data-country="${c.name}" style="left:${coords.x}%;top:${coords.y}%" aria-label="${c.name}">
-          ${icon}
+          <span class="geo-map-pin" aria-hidden="true"></span>
+          <span class="sr-only">${c.name}</span>
         </button>
       `;
     }).join('');
 
     return `
       <div class="geo-map" data-answer="${countryName}">
-        <div class="geo-map-inner">
-          <img class="geo-map-image" src="${EUROPE_MAP_IMAGE}" alt="Mapa polític d'Europa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/europe-map.svg';">
-          <div class="geo-map-canvas">
-            ${points}
+        <div class="geo-map-leaflet" role="application" aria-label="Mapa interactiu d'Europa"></div>
+        <div class="geo-map-fallback">
+          <div class="geo-map-inner">
+            <img class="geo-map-image" src="${EUROPE_MAP_IMAGE}" alt="Mapa polític d'Europa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/europe-map.svg';">
+            <div class="geo-map-canvas">
+              ${points}
+            </div>
           </div>
         </div>
         <p class="geo-map-help">Clica sobre el país correcte al mapa interactiu.</p>

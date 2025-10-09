@@ -632,18 +632,182 @@ function renderQuestion(){
 }
 
 function setupGeoMapQuestion(){
-  const map = document.querySelector('.geo-map');
+  const mapRoot = document.querySelector('.geo-map');
   const answerInput = $('#answer');
-  if (!map || !answerInput) return;
-  const points = Array.from(map.querySelectorAll('[data-country]'));
-  points.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const value = btn.dataset.country || '';
-      answerInput.value = value;
-      points.forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      setTimeout(() => checkAnswer(), 120);
+  if (!mapRoot || !answerInput) return;
+
+  const fallbackPoints = Array.from(mapRoot.querySelectorAll('[data-country]'));
+  if (fallbackPoints.length) {
+    fallbackPoints.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.country || '';
+        answerInput.value = value;
+        fallbackPoints.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        setTimeout(() => checkAnswer(), 120);
+      });
     });
+  }
+
+  const mapContainer = mapRoot.querySelector('.geo-map-leaflet');
+  if (!mapContainer) return;
+
+  if (typeof L === 'undefined') {
+    const retries = parseInt(mapRoot.dataset.mapRetries || '0', 10);
+    if (retries < 5) {
+      mapRoot.dataset.mapRetries = String(retries + 1);
+      setTimeout(setupGeoMapQuestion, 300);
+    }
+    return;
+  }
+
+  if (mapContainer.dataset.ready === 'true') return;
+
+  const store = (window.__FOCUS_GEO__ && window.__FOCUS_GEO__.europe) || {};
+  const pointsData = Array.isArray(store.points) ? store.points : [];
+  const polygonsData = Array.isArray(store.polygons) ? store.polygons : [];
+  const bounds = store.bounds || null;
+
+  const map = L.map(mapContainer, {
+    zoomControl: false,
+    attributionControl: true,
+    minZoom: 3,
+    maxZoom: 7,
+    worldCopyJump: false
+  });
+
+  const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 7,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  let tileLoaded = false;
+  tileLayer.once('load', () => {
+    tileLoaded = true;
+    mapRoot.dataset.mapReady = 'true';
+  });
+  tileLayer.on('tileerror', () => {
+    if (!tileLoaded) {
+      mapRoot.removeAttribute('data-map-ready');
+    }
+  });
+
+  if (bounds && typeof bounds === 'object') {
+    const southWest = L.latLng(bounds.south, bounds.west);
+    const northEast = L.latLng(bounds.north, bounds.east);
+    const mapBounds = L.latLngBounds(southWest, northEast);
+    map.fitBounds(mapBounds, { padding: [24, 24] });
+    map.setMaxBounds(mapBounds.pad(0.2));
+    const center = mapBounds.getCenter();
+    const zoom = Math.min(Math.max(map.getZoom(), 3.2), 5);
+    map.setView(center, zoom);
+  } else {
+    map.setView([54, 15], 4.5);
+  }
+
+  const basePolygonStyle = {
+    color: '#1d4ed8',
+    weight: 1.2,
+    fillColor: '#3b82f6',
+    fillOpacity: 0.18,
+    className: 'geo-map-country'
+  };
+
+  const activePolygonStyle = {
+    color: '#1d4ed8',
+    weight: 2,
+    fillColor: '#2563eb',
+    fillOpacity: 0.5
+  };
+
+  let selectedPolygon = null;
+
+  const resetPolygon = (polygon) => {
+    if (!polygon) return;
+    polygon.setStyle(basePolygonStyle);
+  };
+
+  if (polygonsData.length) {
+    polygonsData.forEach(shape => {
+      if (!Array.isArray(shape.coords) || !shape.coords.length) return;
+      const polygon = L.polygon(shape.coords, {
+        ...basePolygonStyle,
+        interactive: true
+      }).addTo(map);
+
+      polygon.on('mouseover', () => {
+        if (polygon === selectedPolygon) return;
+        polygon.setStyle({ fillOpacity: 0.3 });
+      });
+
+      polygon.on('mouseout', () => {
+        if (polygon === selectedPolygon) return;
+        polygon.setStyle({ fillOpacity: basePolygonStyle.fillOpacity });
+      });
+
+      polygon.on('click', () => {
+        answerInput.value = shape.name;
+        if (selectedPolygon && selectedPolygon !== polygon) {
+          resetPolygon(selectedPolygon);
+        }
+        if (fallbackPoints.length) {
+          fallbackPoints.forEach(b => b.classList.remove('selected'));
+        }
+        polygon.setStyle(activePolygonStyle);
+        polygon.bringToFront();
+        selectedPolygon = polygon;
+        setTimeout(() => checkAnswer(), 160);
+      });
+    });
+  } else if (pointsData.length) {
+    const createIcon = (point, active = false) => {
+      const html = `
+        <span class="geo-map-marker-content" aria-hidden="true"></span>
+        <span class="sr-only">${point.name}</span>
+      `;
+      return L.divIcon({
+        className: `leaflet-div-icon geo-map-marker${active ? ' active' : ''}`,
+        html,
+        iconSize: null,
+        iconAnchor: null
+      });
+    };
+
+    let selectedMarker = null;
+
+    pointsData.forEach(point => {
+      if (typeof point.lat !== 'number' || typeof point.lon !== 'number') return;
+      const defaultIcon = createIcon(point, false);
+      const activeIcon = createIcon(point, true);
+      const marker = L.marker([point.lat, point.lon], {
+        icon: defaultIcon,
+        title: point.name,
+        riseOnHover: true
+      }).addTo(map);
+
+      marker._defaultIcon = defaultIcon;
+      marker._activeIcon = activeIcon;
+
+      marker.on('click', () => {
+        answerInput.value = point.name;
+        if (selectedMarker && selectedMarker !== marker) {
+          selectedMarker.setIcon(selectedMarker._defaultIcon);
+        }
+        if (fallbackPoints.length) {
+          fallbackPoints.forEach(b => b.classList.remove('selected'));
+        }
+        marker.setIcon(marker._activeIcon);
+        selectedMarker = marker;
+        setTimeout(() => checkAnswer(), 150);
+      });
+    });
+  }
+
+  mapContainer.dataset.ready = 'true';
+  mapRoot.dataset.mapRetries = '0';
+
+  requestAnimationFrame(() => {
+    map.invalidateSize();
   });
 }
 
