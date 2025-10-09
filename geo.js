@@ -16,6 +16,7 @@
   const clampLevel = (lvl) => Math.max(1, Math.min(4, parseInt(lvl, 10) || 1));
 
   const FLAG_BASE_URL = 'https://flagcdn.com';
+  const EUROPE_MAP_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/b/bd/Blank_map_of_Europe.svg';
   const FLAG_CODE_BY_COUNTRY = {
     'Espanya': 'es',
     'França': 'fr',
@@ -554,45 +555,67 @@
     }
   ];
 
-  const MAP_COORDS = {
-    'Portugal': { x: 16, y: 62 },
-    'Espanya': { x: 22, y: 58 },
-    'França': { x: 30, y: 50 },
-    'Bèlgica': { x: 30, y: 46 },
-    'Països Baixos': { x: 31, y: 44 },
-    'Luxemburg': { x: 31, y: 48 },
-    'Alemanya': { x: 34, y: 45 },
-    'Itàlia': { x: 38, y: 58 },
-    'Suïssa': { x: 34, y: 52 },
-    'Àustria': { x: 37, y: 48 },
-    'Regne Unit': { x: 24, y: 40 },
-    'Irlanda': { x: 20, y: 43 },
-    'Islàndia': { x: 8, y: 32 },
-    'Noruega': { x: 42, y: 22 },
-    'Suècia': { x: 48, y: 24 },
-    'Finlàndia': { x: 54, y: 22 },
-    'Dinamarca': { x: 36, y: 34 },
-    'Estònia': { x: 50, y: 30 },
-    'Letònia': { x: 52, y: 33 },
-    'Lituània': { x: 50, y: 36 },
-    'Polònia': { x: 43, y: 40 },
-    'Txèquia': { x: 39, y: 44 },
-    'Eslovàquia': { x: 41, y: 46 },
-    'Hongria': { x: 41, y: 50 },
-    'Eslovènia': { x: 39, y: 53 },
-    'Croàcia': { x: 41, y: 55 },
-    'Bòsnia i Hercegovina': { x: 43, y: 56 },
-    'Sèrbia': { x: 45, y: 52 },
-    'Albània': { x: 46, y: 60 },
-    'Grècia': { x: 50, y: 64 },
-    'Bulgària': { x: 48, y: 50 },
-    'Romania': { x: 48, y: 46 },
-    'Andorra': { x: 26, y: 55 },
-    'Liechtenstein': { x: 36, y: 50 },
-    'San Marino': { x: 39, y: 60 }
+  const MAP_LOCATIONS = {
+    'Portugal': { lat: 39.5, lon: -8.0 },
+    'Espanya': { lat: 40.2, lon: -3.7 },
+    'França': { lat: 46.2, lon: 2.2 },
+    'Bèlgica': { lat: 50.5, lon: 4.7 },
+    'Països Baixos': { lat: 52.1, lon: 5.3 },
+    'Luxemburg': { lat: 49.8, lon: 6.1 },
+    'Alemanya': { lat: 51.2, lon: 10.4 },
+    'Itàlia': { lat: 41.9, lon: 12.6 },
+    'Suïssa': { lat: 46.8, lon: 8.3 },
+    'Àustria': { lat: 47.5, lon: 14.5 },
+    'Regne Unit': { lat: 55.4, lon: -3.4 },
+    'Irlanda': { lat: 53.1, lon: -8.0 },
+    'Islàndia': { lat: 64.9, lon: -18.6 },
+    'Noruega': { lat: 62.3, lon: 10.0 },
+    'Suècia': { lat: 61.0, lon: 15.0 },
+    'Finlàndia': { lat: 64.0, lon: 26.0 },
+    'Dinamarca': { lat: 56.0, lon: 9.0 },
+    'Estònia': { lat: 58.6, lon: 25.0 },
+    'Letònia': { lat: 56.9, lon: 24.0 },
+    'Lituània': { lat: 55.2, lon: 24.0 },
+    'Polònia': { lat: 52.1, lon: 19.1 },
+    'Txèquia': { lat: 49.8, lon: 15.3 },
+    'Eslovàquia': { lat: 48.7, lon: 19.7 },
+    'Hongria': { lat: 47.2, lon: 19.1 },
+    'Eslovènia': { lat: 46.1, lon: 14.8 },
+    'Croàcia': { lat: 45.1, lon: 16.4 },
+    'Bòsnia i Hercegovina': { lat: 44.1, lon: 17.8 },
+    'Sèrbia': { lat: 44.0, lon: 20.7 },
+    'Albània': { lat: 41.2, lon: 20.0 },
+    'Grècia': { lat: 39.0, lon: 22.0 },
+    'Bulgària': { lat: 42.7, lon: 25.5 },
+    'Romania': { lat: 45.9, lon: 24.9 },
+    'Andorra': { lat: 42.6, lon: 1.5 },
+    'Liechtenstein': { lat: 47.1, lon: 9.6 },
+    'San Marino': { lat: 43.9, lon: 12.5 }
   };
 
-  const MAP_COUNTRIES = EUROPE_COUNTRIES.filter(c => MAP_COORDS[c.name]);
+  const MAP_BOUNDS = {
+    west: -25,
+    east: 45,
+    north: 72,
+    south: 34
+  };
+
+  const MAP_COUNTRIES = EUROPE_COUNTRIES.filter(c => MAP_LOCATIONS[c.name]);
+
+  function projectToPercent(name) {
+    const loc = MAP_LOCATIONS[name];
+    if (!loc) return null;
+    const { west, east, north, south } = MAP_BOUNDS;
+    const rangeLon = east - west;
+    const rangeLat = north - south;
+    if (rangeLon <= 0 || rangeLat <= 0) return null;
+    const x = ((loc.lon - west) / rangeLon) * 100;
+    const y = ((north - loc.lat) / rangeLat) * 100;
+    return {
+      x: Math.min(96, Math.max(4, x)),
+      y: Math.min(96, Math.max(4, y))
+    };
+  }
 
   const GROUP_LABELS = {
     baltic: 'els Països Bàltics',
@@ -726,7 +749,7 @@
 
   function renderMap(countryName) {
     const points = MAP_COUNTRIES.map(c => {
-      const coords = MAP_COORDS[c.name];
+      const coords = projectToPercent(c.name);
       if (!coords) return '';
       const flagUrl = getFlagUrl(c, 'w80');
       const icon = flagUrl
@@ -742,7 +765,7 @@
     return `
       <div class="geo-map" data-answer="${countryName}">
         <div class="geo-map-inner">
-          <img class="geo-map-image" src="assets/europe-map.svg" alt="Mapa polític simplificat d'Europa" loading="lazy" decoding="async">
+          <img class="geo-map-image" src="${EUROPE_MAP_IMAGE}" alt="Mapa polític d'Europa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/europe-map.svg';">
           <div class="geo-map-canvas">
             ${points}
           </div>
@@ -753,7 +776,7 @@
   }
 
   function questionMap(country) {
-    if (!country || !MAP_COORDS[country.name]) return null;
+    if (!country || !MAP_LOCATIONS[country.name]) return null;
     return {
       type: 'geo-map',
       text: `On es troba <strong>${country.name}</strong> al mapa d'Europa?`,
@@ -775,7 +798,7 @@
         if (q) return q;
       }
     } else if (mode === 'map') {
-      const mapPool = pool.filter(c => MAP_COORDS[c.name]);
+      const mapPool = pool.filter(c => MAP_LOCATIONS[c.name]);
       if (mapPool.length) {
         const country = choice(mapPool);
         const q = questionMap(country);
@@ -828,7 +851,7 @@
       };
     }
 
-    if (mode === 'map' && MAP_COORDS[fallbackCountry.name]) {
+    if (mode === 'map' && MAP_LOCATIONS[fallbackCountry.name]) {
       const mapQuestion = questionMap(fallbackCountry);
       if (mapQuestion) return mapQuestion;
     }
