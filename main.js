@@ -22,29 +22,68 @@ const simplifyFrac = (n,d)=>{ const g=gcd(n,d); return [n/g, d/g] };
 const store = {
   get k() { return 'focus-math-results-v1'; },
 
-  all() {
-    const user = localStorage.getItem('lastStudent') || 'Anònim';
+  currentUser() {
+    return localStorage.getItem('lastStudent') || null;
+  },
+
+  defaultUser() {
+    return this.currentUser() || 'Anònim';
+  },
+
+  load() {
     try {
-      const data = JSON.parse(localStorage.getItem(this.k) || '{}');
-      return data[user] || [];
+      const raw = JSON.parse(localStorage.getItem(this.k) || '{}');
+      if (Array.isArray(raw)) {
+        const user = this.defaultUser();
+        const migrated = { [user]: raw };
+        localStorage.setItem(this.k, JSON.stringify(migrated));
+        return migrated;
+      }
+      if (!raw || typeof raw !== 'object') return {};
+      return raw;
     } catch {
-      return [];
+      return {};
     }
   },
 
+  all(options = {}) {
+    const data = this.load();
+    const scope = options.scope || 'current';
+
+    const sortDesc = (entries) => entries.slice().sort((a, b) => {
+      const timeB = new Date(b.at).getTime() || 0;
+      const timeA = new Date(a.at).getTime() || 0;
+      return timeB - timeA;
+    });
+
+    if (scope === 'all') {
+      const merged = Object.values(data)
+        .reduce((acc, entries) => acc.concat(entries || []), []);
+      return sortDesc(merged);
+    }
+
+    const targetUser = options.user !== undefined ? options.user : this.currentUser();
+    if (!targetUser) return [];
+
+    const entries = Array.isArray(data[targetUser]) ? data[targetUser] : [];
+    return sortDesc(entries);
+  },
+
   save(entry) {
-    const user = localStorage.getItem('lastStudent') || 'Anònim';
-    const data = JSON.parse(localStorage.getItem(this.k) || '{}');
-    if (!data[user]) data[user] = [];
+    const user = this.defaultUser();
+    const data = this.load();
+    if (!Array.isArray(data[user])) data[user] = [];
     data[user].push(entry);
     localStorage.setItem(this.k, JSON.stringify(data));
   },
 
   clear() {
-    const user = localStorage.getItem('lastStudent') || 'Anònim';
-    const data = JSON.parse(localStorage.getItem(this.k) || '{}');
-    delete data[user];
-    localStorage.setItem(this.k, JSON.stringify(data));
+    const user = this.defaultUser();
+    const data = this.load();
+    if (user in data) delete data[user];
+    const remaining = Object.keys(data).length;
+    if (!remaining) localStorage.removeItem(this.k);
+    else localStorage.setItem(this.k, JSON.stringify(data));
   }
 };
 
@@ -57,15 +96,15 @@ const fmtTime = (sec)=>{
 /* ===================== APP STATE ===================== */
 
 const MODULES = [
-  { id:'arith', name:'Aritmètica', desc:'Sumes, restes, multiplicacions i divisions.', badge:'Bàsic', gen: genArith, category:'math' },
-  { id:'frac',  name:'Fraccions',  desc:'Identificar (imatge), aritmètica i simplificar.', badge:'Nou', gen: genFractions, category:'math' },
-  { id:'perc',  name:'Percentatges', desc:'Calcula percentatges i descomptes.', badge:'Pràctic', gen: genPercent, category:'math' },
-  { id:'geom',  name:'Àrees, perímetres i volums', desc:'Figures 2D i cossos 3D.', badge:'Geom', gen: genGeometry, category:'math' },
-  { id:'stats', name:'Estadística bàsica', desc:'Mitjana/mediana/moda, rang/desviació i gràfics.', badge:'Dades', gen: genStats, category:'math' },
-  { id:'units', name:'Unitats i conversions', desc:'Longitud, massa, volum, superfície i temps.', badge:'Mesures', gen: genUnits, category:'math' },
-  { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', badge:'Àlgebra', gen: genEq, category:'math' },
-  { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', badge:'Funcions', gen: genFunctions, category:'math' },
-  { id:'focusday',  name:'FocusDay', desc:'Una pregunta de cada mòdul, diferent cada cop.', badge:'Mix', gen: genFocusDay, category:'rep' },
+  { id:'arith', name:'Aritmètica', desc:'Sumes, restes, multiplicacions i divisions.', gen: genArith, category:'math' },
+  { id:'frac',  name:'Fraccions',  desc:'Identificar (imatge), aritmètica i simplificar.', gen: genFractions, category:'math' },
+  { id:'perc',  name:'Percentatges', desc:'Calcula percentatges i descomptes.', gen: genPercent, category:'math' },
+  { id:'geom',  name:'Àrees, perímetres i volums', desc:'Figures 2D i cossos 3D.', gen: genGeometry, category:'math' },
+  { id:'stats', name:'Estadística bàsica', desc:'Mitjana/mediana/moda, rang/desviació i gràfics.', gen: genStats, category:'math' },
+  { id:'units', name:'Unitats i conversions', desc:'Longitud, massa, volum, superfície i temps.', gen: genUnits, category:'math' },
+  { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', gen: genEq, category:'math' },
+  { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', gen: genFunctions, category:'math' },
+  { id:'focusday',  name:'FocusDay', desc:'Una pregunta de cada mòdul, diferent cada cop.', gen: genFocusDay, category:'rep' },
 
 ];
 // Registre de mòduls externs (p.ex. llengua) i refresc de la Home
@@ -88,6 +127,9 @@ let timerHandle = null;
 
 function showView(name){
   ['home','config','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
+  $$('.nav-btn[data-view]').forEach(btn=>{
+    btn.classList.toggle('active', btn.dataset.view === name);
+  });
   if(name==='results') renderResults();
 }
 
@@ -121,6 +163,7 @@ function buildHome(){
   renderSection('Mòduls de llengua catalana','cat');
   renderSection('Mòduls de ciències (en manteniment, no utilitzar)','sci');
   renderSection('Mòduls de llengua anglesa','ang');
+  renderSection('Mòduls de geografia','geo');
   renderSection('Mòduls de repàs','rep');
 
   // filtre resultats
@@ -497,25 +540,67 @@ function renderQuestion(){
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value = '';
   $('#feedback').innerHTML = '';
-  $('#keypad').innerHTML = ''; // neteja sempre
+  const rightCol = $('#rightCol');
+  const keypad = $('#keypad');
+  if (keypad) keypad.innerHTML = ''; // neteja sempre
 
   const mod = MODULES.find(m => m.id === session.module);
   const quizEl = document.querySelector('.quiz');
 
+  const toggleRightCol = (show) => {
+    if (rightCol) {
+      rightCol.classList.toggle('hidden', !show);
+    }
+    if (quizEl) {
+      quizEl.classList.toggle('no-right', !show);
+    }
+  };
+  toggleRightCol(true);
+
   if (mod?.category === 'cat') {
-    // 🔹 Català → sense teclat numèric però mantenim la columna dreta
+    // 🔹 Català → sense teclat numèric; amaguem la columna si no cal
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
-    if (q.options && Array.isArray(q.options)) {
+    const hasOptions = Array.isArray(q.options) && q.options.length;
+
+    if (hasOptions) {
       $('#answer').style.display = 'none';
       const optionsHtml = q.options.map(opt => `
         <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
       `).join('');
-      $('#keypad').innerHTML = `<div class="options">${optionsHtml}</div>`;
+      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+      toggleRightCol(true);
     } else {
       $('#answer').style.display = 'block';
+      toggleRightCol(false);
+    }
+
+  } else if (mod?.category === 'geo') {
+    // 🔹 Geografia → textual, banderes o mapa
+    quizEl.classList.remove('sci-mode');
+    $('#answer').type = 'text';
+    $('#answer').removeAttribute('inputmode');
+
+    if (q.type === 'geo-map') {
+      $('#answer').style.display = 'none';
+      toggleRightCol(false);
+      setupGeoMapQuestion();
+    } else {
+      const hasOptions = Array.isArray(q.options) && q.options.length;
+
+      if (hasOptions) {
+        $('#answer').style.display = 'none';
+        const optionsHtml = q.options.map(opt => `
+          <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
+        `).join('');
+        if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+        toggleRightCol(true);
+      } else {
+        $('#answer').style.display = 'block';
+        toggleRightCol(false);
+      }
     }
 
   } else if (mod?.category === 'sci') {
@@ -524,6 +609,7 @@ function renderQuestion(){
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
     $('#answer').style.display = q.options ? 'none' : 'block';
+    toggleRightCol(false);
 
     if (q.options && Array.isArray(q.options)) {
       const optionsHtml = q.options.map(opt => `
@@ -538,8 +624,189 @@ function renderQuestion(){
     $('#answer').style.display = 'block';
     $('#answer').type = 'text';
     $('#answer').setAttribute('inputmode','decimal');
+    toggleRightCol(true);
     renderKeypad();
   }
+}
+
+function setupGeoMapQuestion(){
+  const mapRoot = document.querySelector('.geo-map');
+  const answerInput = $('#answer');
+  if (!mapRoot || !answerInput) return;
+
+  const fallbackPoints = Array.from(mapRoot.querySelectorAll('[data-country]'));
+  if (fallbackPoints.length) {
+    fallbackPoints.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const value = btn.dataset.country || '';
+        answerInput.value = value;
+        fallbackPoints.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        setTimeout(() => checkAnswer(), 120);
+      });
+    });
+  }
+
+  const mapContainer = mapRoot.querySelector('.geo-map-leaflet');
+  if (!mapContainer) return;
+
+  if (typeof L === 'undefined') {
+    const retries = parseInt(mapRoot.dataset.mapRetries || '0', 10);
+    if (retries < 5) {
+      mapRoot.dataset.mapRetries = String(retries + 1);
+      setTimeout(setupGeoMapQuestion, 300);
+    }
+    return;
+  }
+
+  if (mapContainer.dataset.ready === 'true') return;
+
+  const store = (window.__FOCUS_GEO__ && window.__FOCUS_GEO__.europe) || {};
+  const pointsData = Array.isArray(store.points) ? store.points : [];
+  const polygonsData = Array.isArray(store.polygons) ? store.polygons : [];
+  const bounds = store.bounds || null;
+
+  const map = L.map(mapContainer, {
+    zoomControl: false,
+    attributionControl: true,
+    minZoom: 3,
+    maxZoom: 7,
+    worldCopyJump: false
+  });
+
+  const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 7,
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  let tileLoaded = false;
+  tileLayer.once('load', () => {
+    tileLoaded = true;
+    mapRoot.dataset.mapReady = 'true';
+  });
+  tileLayer.on('tileerror', () => {
+    if (!tileLoaded) {
+      mapRoot.removeAttribute('data-map-ready');
+    }
+  });
+
+  if (bounds && typeof bounds === 'object') {
+    const southWest = L.latLng(bounds.south, bounds.west);
+    const northEast = L.latLng(bounds.north, bounds.east);
+    const mapBounds = L.latLngBounds(southWest, northEast);
+    map.fitBounds(mapBounds, { padding: [24, 24] });
+    map.setMaxBounds(mapBounds.pad(0.2));
+    const center = mapBounds.getCenter();
+    const zoom = Math.min(Math.max(map.getZoom(), 3.2), 5);
+    map.setView(center, zoom);
+  } else {
+    map.setView([54, 15], 4.5);
+  }
+
+  const basePolygonStyle = {
+    color: '#1d4ed8',
+    weight: 1.2,
+    fillColor: '#3b82f6',
+    fillOpacity: 0.18,
+    className: 'geo-map-country'
+  };
+
+  const activePolygonStyle = {
+    color: '#1d4ed8',
+    weight: 2,
+    fillColor: '#2563eb',
+    fillOpacity: 0.5
+  };
+
+  let selectedPolygon = null;
+
+  const resetPolygon = (polygon) => {
+    if (!polygon) return;
+    polygon.setStyle(basePolygonStyle);
+  };
+
+  if (polygonsData.length) {
+    polygonsData.forEach(shape => {
+      if (!Array.isArray(shape.coords) || !shape.coords.length) return;
+      const polygon = L.polygon(shape.coords, {
+        ...basePolygonStyle,
+        interactive: true
+      }).addTo(map);
+
+      polygon.on('mouseover', () => {
+        if (polygon === selectedPolygon) return;
+        polygon.setStyle({ fillOpacity: 0.3 });
+      });
+
+      polygon.on('mouseout', () => {
+        if (polygon === selectedPolygon) return;
+        polygon.setStyle({ fillOpacity: basePolygonStyle.fillOpacity });
+      });
+
+      polygon.on('click', () => {
+        answerInput.value = shape.name;
+        if (selectedPolygon && selectedPolygon !== polygon) {
+          resetPolygon(selectedPolygon);
+        }
+        if (fallbackPoints.length) {
+          fallbackPoints.forEach(b => b.classList.remove('selected'));
+        }
+        polygon.setStyle(activePolygonStyle);
+        polygon.bringToFront();
+        selectedPolygon = polygon;
+        setTimeout(() => checkAnswer(), 160);
+      });
+    });
+  } else if (pointsData.length) {
+    const createIcon = (point, active = false) => {
+      const html = `
+        <span class="geo-map-marker-content" aria-hidden="true"></span>
+        <span class="sr-only">${point.name}</span>
+      `;
+      return L.divIcon({
+        className: `leaflet-div-icon geo-map-marker${active ? ' active' : ''}`,
+        html,
+        iconSize: null,
+        iconAnchor: null
+      });
+    };
+
+    let selectedMarker = null;
+
+    pointsData.forEach(point => {
+      if (typeof point.lat !== 'number' || typeof point.lon !== 'number') return;
+      const defaultIcon = createIcon(point, false);
+      const activeIcon = createIcon(point, true);
+      const marker = L.marker([point.lat, point.lon], {
+        icon: defaultIcon,
+        title: point.name,
+        riseOnHover: true
+      }).addTo(map);
+
+      marker._defaultIcon = defaultIcon;
+      marker._activeIcon = activeIcon;
+
+      marker.on('click', () => {
+        answerInput.value = point.name;
+        if (selectedMarker && selectedMarker !== marker) {
+          selectedMarker.setIcon(selectedMarker._defaultIcon);
+        }
+        if (fallbackPoints.length) {
+          fallbackPoints.forEach(b => b.classList.remove('selected'));
+        }
+        marker.setIcon(marker._activeIcon);
+        selectedMarker = marker;
+        setTimeout(() => checkAnswer(), 150);
+      });
+    });
+  }
+
+  mapContainer.dataset.ready = 'true';
+  mapRoot.dataset.mapRetries = '0';
+
+  requestAnimationFrame(() => {
+    map.invalidateSize();
+  });
 }
 
 function renderKeypad(){
@@ -886,6 +1153,11 @@ function finishQuiz(timeUp){
     score,
     wrongs: session.wrongs
   });
+
+  renderResults();
+  if (typeof showRecommendation === 'function') {
+    showRecommendation('#recommendationText');
+  }
 
   session.done = true;
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
@@ -2075,8 +2347,12 @@ function scatterSVG(points){
 // ==== RENDER PRINCIPAL DE RESULTATS + PERFIL ====
 function renderResults(){
   const data = store.all();
-  const modFilter = $('#filter-module').value || '';
-  const nameFilter = ($('#filter-student').value||'').toLowerCase();
+  const modSelect = $('#filter-module');
+  const nameInput = $('#filter-student');
+  const modFilter = modSelect ? modSelect.value : '';
+  const nameFilter = (nameInput && nameInput.value ? nameInput.value : '').toLowerCase();
+  const tableWrap = $('#resultsTable');
+  if(!tableWrap) return;
 
   const filtered = data.filter(r =>
     (!modFilter || r.module===modFilter) &&
@@ -2085,7 +2361,7 @@ function renderResults(){
 
   // Taula
   if(!filtered.length){
-    $('#resultsTable').innerHTML = '<div class="chip">No hi ha dades.</div>';
+    tableWrap.innerHTML = '<div class="chip">No hi ha dades per a aquesta sessió.</div>';
     renderAnalytics([], nameFilter); // neteja i mostra hint si cal
     return;
   }
@@ -2103,7 +2379,7 @@ function renderResults(){
       <td>${fmtTime(r.time_spent)}</td>
     </tr>`;
   }).join('');
-  $('#resultsTable').innerHTML = `
+  tableWrap.innerHTML = `
 <table>
   <thead>
     <tr><th>#</th><th>Data</th><th>Alumne/a</th><th>Mòdul</th><th>Nivell</th><th>Encerts</th><th>Puntuació</th><th>Temps</th></tr>
@@ -2180,7 +2456,7 @@ function renderAnalytics(filtered, nameFilter){
 
 
 function exportCSV(){
-  const data = store.all();
+  const data = store.all({ scope: 'all' });
   if(!data.length){ alert('No hi ha dades per exportar.'); return }
   const header = ['data','alumne','modul','nivell','preguntes','correctes','puntuacio','temps_limit','temps_consumit'];
   const lines = [header.join(',')];
@@ -2221,31 +2497,25 @@ $('#btnSkip').onclick = skip;
 
 /* ===================== INIT ===================== */
 
-function ensureUser(){
-  const user = localStorage.getItem('lastStudent');
-  if(!user){
-    // Si no hi ha usuari loguejat, redirigeix o mostra un avís
-    alert('Cal iniciar sessió abans de continuar.');
-    location.href = 'index.html'; // o la pàgina de login
-    return false;
-  }
-  console.log('Sessió activa com:', user);
-  return true;
-}
+let initializedUser = null;
 
 function ensureUser(){
   const user = localStorage.getItem('lastStudent');
+  const overlay = document.getElementById('loginOverlay');
   if(!user){
-    alert('Cal iniciar sessió abans de continuar.');
-    location.href = 'index.html'; // torna al login si no hi ha sessió
+    if(overlay) overlay.style.display = 'flex';
     return false;
   }
-  console.log('Sessió activa com:', user);
+  if(overlay) overlay.style.display = 'none';
   return true;
 }
 
 function init(){
   if(!ensureUser()) return; // ✅ comprova sessió abans d’inicialitzar
+
+  const current = localStorage.getItem('lastStudent');
+  if(initializedUser === current) return;
+  initializedUser = current;
 
   buildHome();
   showView('home');
@@ -2257,22 +2527,41 @@ function init(){
   if(fs) fs.addEventListener('input', renderResults);
 
   // 🔹 Mostra el nom de l’usuari actiu
-  const current = localStorage.getItem('lastStudent');
   const chip = document.querySelector('#activeUser');
-  if(current && chip) chip.textContent = `👤 ${current}`;
-
-  // 🔹 Configura el botó de tancar sessió
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      if (confirm(`Vols tancar la sessió de ${current}?`)) {
-        localStorage.removeItem('lastStudent');
-        alert('Sessió tancada correctament.');
-        location.href = 'index.html';
-      }
-    });
+  if (chip) {
+    const label = chip.querySelector('.label');
+    if (label) label.textContent = current || 'Sessió no iniciada';
+    chip.classList.toggle('is-empty', !current);
   }
+
+  if (typeof showRecommendation === 'function') {
+    showRecommendation('#recommendationText');
+  }
+
+  if (typeof renderResults === 'function') {
+    renderResults();
+  }
+
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+document.addEventListener('focusquiz:user-login', init);
+document.addEventListener('focusquiz:user-logout', () => {
+  initializedUser = null;
+  const chip = document.querySelector('#activeUser');
+  if (chip) {
+    const label = chip.querySelector('.label');
+    if (label) label.textContent = 'Sessió no iniciada';
+    chip.classList.add('is-empty');
+  }
+  if (typeof showRecommendation === 'function') {
+    showRecommendation('#recommendationText');
+  }
+  if (typeof renderResults === 'function') {
+    renderResults();
+  }
+  showView('home');
+  ensureUser();
+});
 
