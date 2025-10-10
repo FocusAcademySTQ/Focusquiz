@@ -580,29 +580,23 @@ function renderQuestion(){
     }
 
   } else if (mod?.category === 'geo') {
-    // 🔹 Geografia → textual, banderes o mapa
+    // 🔹 Geografia → textual o banderes
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
-    if (q.type === 'geo-map') {
-      $('#answer').style.display = 'none';
-      toggleRightCol(false);
-      setupGeoMapQuestion();
-    } else {
-      const hasOptions = Array.isArray(q.options) && q.options.length;
+    const hasOptions = Array.isArray(q.options) && q.options.length;
 
-      if (hasOptions) {
-        $('#answer').style.display = 'none';
-        const optionsHtml = q.options.map(opt => `
-          <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
-        `).join('');
-        if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
-        toggleRightCol(true);
-      } else {
-        $('#answer').style.display = 'block';
-        toggleRightCol(false);
-      }
+    if (hasOptions) {
+      $('#answer').style.display = 'none';
+      const optionsHtml = q.options.map(opt => `
+        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
+      `).join('');
+      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+      toggleRightCol(true);
+    } else {
+      $('#answer').style.display = 'block';
+      toggleRightCol(false);
     }
 
   } else if (mod?.category === 'sci') {
@@ -629,245 +623,6 @@ function renderQuestion(){
     toggleRightCol(true);
     renderKeypad();
   }
-}
-
-function setupGeoMapQuestion(){
-  const mapRoot = document.querySelector('.geo-map');
-  const answerInput = $('#answer');
-  if (!mapRoot || !answerInput) return;
-
-  const fallbackPoints = Array.from(mapRoot.querySelectorAll('[data-country]'));
-  if (fallbackPoints.length) {
-    fallbackPoints.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const value = btn.dataset.country || '';
-        answerInput.value = value;
-        fallbackPoints.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        setTimeout(() => checkAnswer(), 120);
-      });
-    });
-  }
-
-  const mapContainer = mapRoot.querySelector('.geo-map-leaflet');
-  if (!mapContainer) return;
-
-  if (typeof L === 'undefined') {
-    const retries = parseInt(mapRoot.dataset.mapRetries || '0', 10);
-    if (retries < 5) {
-      mapRoot.dataset.mapRetries = String(retries + 1);
-      setTimeout(setupGeoMapQuestion, 300);
-    }
-    return;
-  }
-
-  if (mapContainer.dataset.ready === 'true') return;
-
-  const store = (window.__FOCUS_GEO__ && window.__FOCUS_GEO__.europe) || {};
-  const pointsData = Array.isArray(store.points) ? store.points : [];
-  const polygonsData = Array.isArray(store.polygons) ? store.polygons : [];
-  const bounds = store.bounds || null;
-
-  const map = L.map(mapContainer, {
-    zoomControl: false,
-    attributionControl: false,
-    scrollWheelZoom: false,
-    doubleClickZoom: false,
-    boxZoom: false,
-    touchZoom: false,
-    keyboard: false,
-    dragging: false,
-    worldCopyJump: false
-  });
-
-  mapContainer.dataset.ready = 'true';
-  mapContainer.classList.add('geo-map-illustrated');
-
-  const lockToBounds = (targetBounds, padding = [32, 32]) => {
-    if (!targetBounds) return;
-    map.fitBounds(targetBounds, { padding, animate: false });
-    const lockedZoom = map.getZoom();
-    map.setView(targetBounds.getCenter(), lockedZoom, { animate: false });
-    map.setMinZoom(lockedZoom);
-    map.setMaxZoom(lockedZoom);
-    map.setMaxBounds(targetBounds);
-  };
-
-  const ensureReadyFlag = () => {
-    if (mapRoot.dataset.mapReady !== 'true') {
-      mapRoot.dataset.mapReady = 'true';
-    }
-  };
-
-  const clearReadyFlag = () => {
-    mapRoot.removeAttribute('data-map-ready');
-  };
-
-  const mapImageUrl = typeof store.image === 'string'
-    ? store.image
-    : 'https://proyectomapamundi.com/wp-content/uploads/2018/10/mapa-mudo-europa-02.png';
-  let overlayReady = false;
-  let overlay = null;
-
-  if (bounds && typeof bounds === 'object') {
-    const southWest = L.latLng(bounds.south, bounds.west);
-    const northEast = L.latLng(bounds.north, bounds.east);
-    const mapBounds = L.latLngBounds(southWest, northEast);
-    overlay = L.imageOverlay(mapImageUrl, mapBounds, {
-      className: 'geo-map-overlay',
-      interactive: false
-    }).addTo(map);
-    lockToBounds(mapBounds, [40, 40]);
-  } else {
-    const fallbackBounds = L.latLngBounds(
-      L.latLng(34, -25),
-      L.latLng(72, 40)
-    );
-    overlay = L.imageOverlay(mapImageUrl, fallbackBounds, {
-      className: 'geo-map-overlay',
-      interactive: false
-    }).addTo(map);
-    lockToBounds(fallbackBounds, [40, 40]);
-  }
-
-  map.whenReady(() => {
-    if (!overlay || overlayReady) {
-      ensureReadyFlag();
-    }
-  });
-
-  if (overlay) {
-    const markOverlayReady = () => {
-      if (!overlayReady) {
-        overlayReady = true;
-        ensureReadyFlag();
-      }
-    };
-
-    overlay.once('load', markOverlayReady);
-    overlay.once('error', () => {
-      overlayReady = false;
-      clearReadyFlag();
-    });
-
-    const overlayElement = overlay.getElement();
-    if (overlayElement && overlayElement.complete) {
-      markOverlayReady();
-    } else if (overlayElement) {
-      overlayElement.addEventListener('load', markOverlayReady, { once: true });
-      overlayElement.addEventListener('error', () => {
-        overlayReady = false;
-        clearReadyFlag();
-      }, { once: true });
-    }
-  }
-
-  const basePolygonStyle = {
-    color: '#00000000',
-    weight: 0,
-    dashArray: null,
-    fillColor: '#86efac',
-    fillOpacity: 0.12,
-    className: 'geo-map-country'
-  };
-
-  const activePolygonStyle = {
-    color: '#00000000',
-    weight: 0,
-    dashArray: null,
-    fillColor: '#4ade80',
-    fillOpacity: 0.55
-  };
-
-  let selectedPolygon = null;
-
-  const resetPolygon = (polygon) => {
-    if (!polygon) return;
-    polygon.setStyle(basePolygonStyle);
-  };
-
-  if (polygonsData.length) {
-    polygonsData.forEach(shape => {
-      if (!Array.isArray(shape.coords) || !shape.coords.length) return;
-      const polygon = L.polygon(shape.coords, {
-        ...basePolygonStyle,
-        interactive: true
-      }).addTo(map);
-
-      polygon.on('mouseover', () => {
-        if (polygon === selectedPolygon) return;
-        polygon.setStyle({ fillOpacity: 0.3 });
-      });
-
-      polygon.on('mouseout', () => {
-        if (polygon === selectedPolygon) return;
-        polygon.setStyle({ fillOpacity: basePolygonStyle.fillOpacity });
-      });
-
-      polygon.on('click', () => {
-        answerInput.value = shape.name;
-        if (selectedPolygon && selectedPolygon !== polygon) {
-          resetPolygon(selectedPolygon);
-        }
-        if (fallbackPoints.length) {
-          fallbackPoints.forEach(b => b.classList.remove('selected'));
-        }
-        polygon.setStyle(activePolygonStyle);
-        polygon.bringToFront();
-        selectedPolygon = polygon;
-        setTimeout(() => checkAnswer(), 160);
-      });
-    });
-  } else if (pointsData.length) {
-    const createIcon = (point, active = false) => {
-      const html = `
-        <span class="geo-map-marker-content" aria-hidden="true"></span>
-        <span class="sr-only">${point.name}</span>
-      `;
-      return L.divIcon({
-        className: `leaflet-div-icon geo-map-marker${active ? ' active' : ''}`,
-        html,
-        iconSize: null,
-        iconAnchor: null
-      });
-    };
-
-    let selectedMarker = null;
-
-    pointsData.forEach(point => {
-      if (typeof point.lat !== 'number' || typeof point.lon !== 'number') return;
-      const defaultIcon = createIcon(point, false);
-      const activeIcon = createIcon(point, true);
-      const marker = L.marker([point.lat, point.lon], {
-        icon: defaultIcon,
-        title: point.name,
-        riseOnHover: true
-      }).addTo(map);
-
-      marker._defaultIcon = defaultIcon;
-      marker._activeIcon = activeIcon;
-
-      marker.on('click', () => {
-        answerInput.value = point.name;
-        if (selectedMarker && selectedMarker !== marker) {
-          selectedMarker.setIcon(selectedMarker._defaultIcon);
-        }
-        if (fallbackPoints.length) {
-          fallbackPoints.forEach(b => b.classList.remove('selected'));
-        }
-        marker.setIcon(marker._activeIcon);
-        selectedMarker = marker;
-        setTimeout(() => checkAnswer(), 150);
-      });
-    });
-  }
-
-  mapContainer.dataset.ready = 'true';
-  mapRoot.dataset.mapRetries = '0';
-
-  requestAnimationFrame(() => {
-    map.invalidateSize();
-  });
 }
 
 function renderKeypad(){
