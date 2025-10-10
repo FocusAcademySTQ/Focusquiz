@@ -16,7 +16,7 @@
   const clampLevel = (lvl) => Math.max(1, Math.min(4, parseInt(lvl, 10) || 1));
 
   const FLAG_BASE_URL = 'https://flagcdn.com';
-  const EUROPE_MAP_IMAGE = 'assets/europe-map.svg';
+  const EUROPE_MAP_IMAGE = 'https://proyectomapamundi.com/wp-content/uploads/2018/10/mapa-mudo-europa-02.png';
   const FLAG_CODE_BY_COUNTRY = {
     'Espanya': 'es',
     'França': 'fr',
@@ -969,7 +969,7 @@
         <div class="geo-map-leaflet" role="application" aria-label="Mapa interactiu d'Europa"></div>
         <div class="geo-map-fallback">
           <div class="geo-map-inner">
-            <img class="geo-map-image" src="${EUROPE_MAP_IMAGE}" alt="Mapa acolorit d'Europa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/europe-map.svg';">
+            <img class="geo-map-image" src="${EUROPE_MAP_IMAGE}" alt="Mapa mut d'Europa" loading="lazy" decoding="async">
             <div class="geo-map-canvas">
               ${points}
             </div>

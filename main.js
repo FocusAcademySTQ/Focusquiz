@@ -694,7 +694,9 @@ function setupGeoMapQuestion(){
     mapRoot.removeAttribute('data-map-ready');
   };
 
-  const mapImageUrl = typeof store.image === 'string' ? store.image : 'assets/europe-map.svg';
+  const mapImageUrl = typeof store.image === 'string'
+    ? store.image
+    : 'https://proyectomapamundi.com/wp-content/uploads/2018/10/mapa-mudo-europa-02.png';
   let overlayReady = false;
   let overlay = null;
 
