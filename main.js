@@ -669,20 +669,29 @@ function setupGeoMapQuestion(){
   const bounds = store.bounds || null;
 
   const map = L.map(mapContainer, {
-    zoomControl: true,
+    zoomControl: false,
     attributionControl: false,
-    minZoom: 4,
-    maxZoom: 7,
-    zoomSnap: 0.25,
-    zoomDelta: 0.5,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    touchZoom: false,
+    keyboard: false,
+    dragging: false,
     worldCopyJump: false
   });
 
   mapContainer.dataset.ready = 'true';
   mapContainer.classList.add('geo-map-illustrated');
-  if (map.zoomControl) {
-    map.zoomControl.setPosition('topright');
-  }
+
+  const lockToBounds = (targetBounds, padding = [32, 32]) => {
+    if (!targetBounds) return;
+    map.fitBounds(targetBounds, { padding, animate: false });
+    const lockedZoom = map.getZoom();
+    map.setView(targetBounds.getCenter(), lockedZoom, { animate: false });
+    map.setMinZoom(lockedZoom);
+    map.setMaxZoom(lockedZoom);
+    map.setMaxBounds(targetBounds);
+  };
 
   const ensureReadyFlag = () => {
     if (mapRoot.dataset.mapReady !== 'true') {
@@ -708,13 +717,8 @@ function setupGeoMapQuestion(){
       className: 'geo-map-overlay',
       interactive: false
     }).addTo(map);
-    map.fitBounds(mapBounds, { padding: [16, 16], maxZoom: 6.2 });
-    map.setMaxBounds(mapBounds.pad(0.08));
-    const center = mapBounds.getCenter();
-    const zoom = clamp(map.getZoom(), 5.2, 6.2);
-    map.setView(center, zoom);
+    lockToBounds(mapBounds, [40, 40]);
   } else {
-    map.setView([54, 15], 5.3);
     const fallbackBounds = L.latLngBounds(
       L.latLng(34, -25),
       L.latLng(72, 40)
@@ -723,6 +727,7 @@ function setupGeoMapQuestion(){
       className: 'geo-map-overlay',
       interactive: false
     }).addTo(map);
+    lockToBounds(fallbackBounds, [40, 40]);
   }
 
   map.whenReady(() => {

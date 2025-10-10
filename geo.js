@@ -817,8 +817,8 @@
     const x = ((loc.lon - west) / rangeLon) * 100;
     const y = ((north - loc.lat) / rangeLat) * 100;
     return {
-      x: Math.min(96, Math.max(4, x)),
-      y: Math.min(96, Math.max(4, y))
+      x: Math.min(98, Math.max(2, x)),
+      y: Math.min(98, Math.max(2, y))
     };
   }
 
