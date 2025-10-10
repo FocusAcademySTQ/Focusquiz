@@ -1,30 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" role="img" aria-label="Mapa simplificat d'Europa amb colors verds i mar blau">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Mapa acolorit d'Europa amb països en diferents colors càlids">
   <defs>
-    <linearGradient id="sea" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0" stop-color="#60a5fa"/>
-      <stop offset="1" stop-color="#2563eb"/>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7cc6ff" />
+      <stop offset="0.65" stop-color="#5dc1ae" />
+      <stop offset="1" stop-color="#4cad74" />
     </linearGradient>
-    <linearGradient id="land" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#bbf7d0"/>
-      <stop offset="1" stop-color="#4ade80"/>
-    </linearGradient>
-    <linearGradient id="highlight" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#fef3c7"/>
-      <stop offset="1" stop-color="#facc15"/>
-    </linearGradient>
+    <radialGradient id="sun" cx="0.12" cy="0.32" r="0.32">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.9" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+    <clipPath id="europe-outline">
+      <path d="M170 540 L182 506 L214 470 L260 430 L320 392 L370 364 L430 338 L490 314 L552 296 L612 282 L670 274 L724 272 L774 278 L818 294 L858 320 L892 354 L912 392 L920 430 L908 466 L882 506 L854 544 L832 582 L812 616 L786 650 L746 682 L696 708 L636 728 L568 736 L500 732 L436 716 L378 690 L324 656 L276 618 L232 572 L198 530 Z" />
+    </clipPath>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#1f2937" flood-opacity="0.35" />
+    </filter>
   </defs>
-  <rect width="1000" height="700" fill="url(#sea)"/>
-  <g fill="url(#land)" stroke="none">
-    <path d="M150 492 L162 450 L190 420 L228 394 L266 368 L312 344 L352 324 L398 302 L444 282 L490 266 L534 256 L580 248 L626 238 L670 222 L706 210 L742 204 L780 214 L814 236 L842 266 L862 304 L870 340 L862 374 L842 406 L820 434 L804 468 L792 504 L780 536 L754 566 L720 594 L680 618 L630 636 L576 646 L522 648 L470 640 L418 622 L368 598 L320 572 L274 544 L230 516 Z"/>
-    <path d="M752 540 L782 560 L806 592 L814 626 L802 656 L776 672 L750 668 L724 646 L700 612 L716 578 Z"/>
-    <path d="M828 394 L860 414 L888 444 L902 478 L898 512 L874 538 L840 552 L808 548 L792 520 Z"/>
-    <path d="M258 320 L236 292 L226 262 L240 236 L268 228 L298 244 L316 272 L308 302 Z"/>
-    <path d="M118 262 L138 236 L170 220 L204 222 L220 248 L206 276 L176 292 L140 292 Z"/>
+
+  <rect width="1200" height="800" fill="url(#sky)" />
+  <rect width="1200" height="800" fill="url(#sun)" opacity="0.35" />
+
+  <g clip-path="url(#europe-outline)" filter="url(#shadow)">
+    <rect x="0" y="0" width="1200" height="800" fill="#356e36" />
+
+    <path d="M210 520 L250 488 L310 462 L340 436 L332 404 L302 380 L252 396 L210 430 L186 474 Z" fill="#f3782b" stroke="#401c0c" stroke-width="6" />
+    <path d="M342 434 L392 402 L440 378 L512 356 L566 352 L594 380 L608 416 L588 450 L528 466 L456 476 L402 486 Z" fill="#d4411e" stroke="#401c0c" stroke-width="6" />
+    <path d="M610 418 L666 398 L714 394 L756 410 L782 440 L782 480 L750 520 L698 534 L644 520 L606 488 Z" fill="#dd9325" stroke="#401c0c" stroke-width="6" />
+    <path d="M526 352 L560 320 L608 298 L666 286 L724 290 L768 310 L782 344 L766 368 L716 382 L660 388 L602 380 Z" fill="#c44639" stroke="#401c0c" stroke-width="6" />
+    <path d="M414 320 L454 304 L520 290 L564 284 L600 260 L586 224 L538 210 L474 220 L430 244 L398 274 Z" fill="#f4a73b" stroke="#401c0c" stroke-width="6" />
+    <path d="M674 284 L726 268 L772 262 L822 274 L860 302 L886 342 L874 382 L842 420 L804 438 L776 394 L736 350 Z" fill="#7f511d" stroke="#401c0c" stroke-width="6" />
+    <path d="M262 394 L240 362 L238 326 L270 300 L312 300 L332 332 L328 366 Z" fill="#c1691f" stroke="#401c0c" stroke-width="6" />
+    <path d="M202 350 L228 322 L262 308 L276 270 L250 234 L210 232 L176 252 L164 292 L172 328 Z" fill="#b24928" stroke="#401c0c" stroke-width="6" />
+    <path d="M460 480 L508 486 L548 508 L566 542 L552 580 L518 602 L470 600 L430 576 L416 536 L436 502 Z" fill="#467c2f" stroke="#401c0c" stroke-width="6" />
+    <path d="M310 520 L356 518 L396 534 L422 568 L420 610 L388 636 L338 634 L300 606 L288 562 Z" fill="#98582a" stroke="#401c0c" stroke-width="6" />
+    <path d="M650 534 L694 548 L732 584 L744 626 L726 660 L690 676 L648 662 L612 624 L612 576 Z" fill="#bb4422" stroke="#401c0c" stroke-width="6" />
+    <path d="M770 442 L814 450 L852 478 L868 516 L854 550 L818 568 L784 556 L758 518 Z" fill="#f3be3f" stroke="#401c0c" stroke-width="6" />
+    <path d="M332 272 L324 242 L340 212 L372 198 L404 210 L414 242 L398 272 Z" fill="#d25430" stroke="#401c0c" stroke-width="6" />
+    <path d="M160 262 L184 230 L220 214 L256 224 L270 254 L246 284 L204 294 L170 288 Z" fill="#f07d2a" stroke="#401c0c" stroke-width="6" />
+    <path d="M720 256 L760 230 L804 222 L844 238 L870 264 L878 302 L854 328 L812 324 L770 298 Z" fill="#a8433f" stroke="#401c0c" stroke-width="6" />
+    <path d="M800 320 L836 310 L864 320 L892 350 L904 388 L896 422 L872 438 L842 426 L816 394 Z" fill="#58893a" stroke="#401c0c" stroke-width="6" />
+    <path d="M620 212 L648 188 L692 172 L738 176 L768 200 L768 232 L720 248 L668 252 L632 238 Z" fill="#ecb33d" stroke="#401c0c" stroke-width="6" />
+    <path d="M702 184 L736 156 L782 142 L820 154 L844 184 L838 214 L800 220 L758 206 Z" fill="#d76f1f" stroke="#401c0c" stroke-width="6" />
+    <path d="M452 564 L476 590 L482 626 L462 656 L428 664 L400 644 L398 610 L416 586 Z" fill="#c78331" stroke="#401c0c" stroke-width="6" />
+    <path d="M852 360 L880 374 L910 404 L928 440 L924 476 L900 506 L870 520 L846 500 L830 466 Z" fill="#de5a24" stroke="#401c0c" stroke-width="6" />
+    <path d="M284 256 L272 230 L290 206 L322 198 L340 216 L340 244 L318 260 Z" fill="#ed9d38" stroke="#401c0c" stroke-width="6" />
+    <path d="M122 266 L150 236 L188 218 L224 222 L238 248 L222 278 L186 298 L144 294 Z" fill="#74a037" stroke="#401c0c" stroke-width="6" />
+    <path d="M752 516 L788 504 L818 512 L840 538 L836 570 L808 588 L774 580 L750 552 Z" fill="#8c5526" stroke="#401c0c" stroke-width="6" />
   </g>
-  <g fill="url(#highlight)" stroke="none">
-    <path d="M614 300 L646 276 L676 270 L704 280 L726 304 L736 334 L726 362 L702 382 L668 392 L632 388 L610 364 L606 332 Z"/>
-    <path d="M676 332 L694 340 L712 362 L720 390 L710 412 L688 420 L662 410 L650 384 Z"/>
-    <path d="M604 254 L626 238 L654 230 L682 236 L706 252 L720 276 L714 302 L688 320 L656 324 L626 312 L610 286 Z"/>
+
+  <g fill="#ffffff" opacity="0.7" transform="translate(120,520) scale(0.9)">
+    <circle r="70" stroke="#ffffff" stroke-width="4" fill="none" />
+    <g stroke="#ffffff" stroke-width="3" stroke-linecap="round">
+      <line x1="0" y1="-60" x2="0" y2="-90" />
+      <line x1="0" y1="60" x2="0" y2="90" />
+      <line x1="60" y1="0" x2="90" y2="0" />
+      <line x1="-60" y1="0" x2="-90" y2="0" />
+      <line x1="42" y1="42" x2="64" y2="64" />
+      <line x1="-42" y1="42" x2="-64" y2="64" />
+      <line x1="42" y1="-42" x2="64" y2="-64" />
+      <line x1="-42" y1="-42" x2="-64" y2="-64" />
+    </g>
+  </g>
+
+  <g font-family="'Nunito', 'Segoe UI', sans-serif" font-weight="700" fill="#ffffff">
+    <text x="84" y="120" font-size="70" letter-spacing="1.5">Països d'Europa</text>
+    <text x="84" y="170" font-size="28" font-weight="500" fill="#f5f9ff">Haz clic en el mapa para empezar.</text>
+  </g>
+
+  <g transform="translate(900 120)">
+    <rect x="0" y="0" width="220" height="120" rx="22" fill="#2c7037" opacity="0.85" />
+    <text x="34" y="62" font-size="44" font-family="'Nunito', 'Segoe UI', sans-serif" font-weight="700" fill="#d4f7d0">Puntuació</text>
+    <circle cx="192" cy="36" r="18" fill="#d4f7d0" />
+    <text x="186" y="44" text-anchor="middle" font-size="26" font-family="'Nunito', 'Segoe UI', sans-serif" font-weight="700" fill="#2c7037">?</text>
   </g>
 </svg>
