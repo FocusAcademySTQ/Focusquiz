@@ -480,7 +480,7 @@ button:hover{transform: translateY(-1px)}
 .geo-map-leaflet,
 .geo-map-inner{
   width:100%;
-  aspect-ratio:959/802;
+  aspect-ratio:1181/842;
   border-radius:14px;
   overflow:hidden;
   box-shadow:inset 0 0 0 1px rgba(15,23,42,0.12);
@@ -514,7 +514,8 @@ button:hover{transform: translateY(-1px)}
   inset:0;
   width:100%;
   height:100%;
-  object-fit:cover;
+  object-fit:contain;
+  object-position:center;
   filter:contrast(1.05) saturate(1.1);
 }
 

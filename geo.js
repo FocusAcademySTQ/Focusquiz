@@ -817,8 +817,8 @@
     const x = ((loc.lon - west) / rangeLon) * 100;
     const y = ((north - loc.lat) / rangeLat) * 100;
     return {
-      x: Math.min(96, Math.max(4, x)),
-      y: Math.min(96, Math.max(4, y))
+      x: Math.min(98, Math.max(2, x)),
+      y: Math.min(98, Math.max(2, y))
     };
   }
 
@@ -969,7 +969,7 @@
         <div class="geo-map-leaflet" role="application" aria-label="Mapa interactiu d'Europa"></div>
         <div class="geo-map-fallback">
           <div class="geo-map-inner">
-           <img class="geo-map-image" src="${EUROPE_MAP_IMAGE}" alt="Mapa mut d'Europa" loading="lazy" decoding="async">
+            <img class="geo-map-image" src="${EUROPE_MAP_IMAGE}" alt="Mapa mut d'Europa" loading="lazy" decoding="async">
             <div class="geo-map-canvas">
               ${points}
             </div>
