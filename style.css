@@ -420,6 +420,7 @@ button:hover{transform: translateY(-1px)}
 .nav-btn.active .icon{filter:drop-shadow(0 0 3px rgba(255,255,255,0.5));}
 .btn-secondary{background:linear-gradient(180deg, #eef2ff, #e9efff); border:1px solid var(--hair); color:#0f172a; font-weight:800}
 .btn-ghost{background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700}
+.btn-ghost:disabled{opacity:.5; cursor:not-allowed}
 
 .hidden{display:none}
 
@@ -540,6 +541,29 @@ th, td{padding:10px 12px; border-bottom:1px solid var(--hair); text-align:left}
 th{color:var(--muted); font-weight:800}
 tr:hover td{background: #f9fafb}
 .tbl-actions{display:flex; gap:8px}
+
+/* ===== Fitxes imprimibles ===== */
+#printablesPanel .tbl-actions{align-self:flex-start}
+.printables-list{display:flex; flex-direction:column; gap:12px; margin-top:16px}
+.printable-item{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:space-between;
+  align-items:flex-start;
+  border:1px solid var(--hair);
+  border-radius:16px;
+  padding:14px 16px;
+  background:#ffffff;
+  box-shadow: var(--shadow);
+}
+.printable-info{flex:1; min-width:220px}
+.printable-title{font-weight:700; font-size:1.05rem}
+.printable-meta{color:var(--muted); font-size:.9rem; margin-top:4px; line-height:1.4}
+.printable-code{display:inline-flex; align-items:center; gap:6px; margin-top:8px; font-size:.85rem; font-weight:600; color:#4338ca; background:#eef2ff; border-radius:999px; padding:4px 10px}
+.printable-actions{display:flex; flex-wrap:wrap; gap:8px}
+.printable-empty{display:inline-flex; align-items:center; gap:8px}
+.printable-empty svg{width:28px; height:28px; color:#818cf8}
 
 /* ===== Analytics/Perfil (aïllat a #view-results) ===== */
 #view-results .kpi-grid{

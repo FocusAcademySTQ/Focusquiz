@@ -87,6 +87,51 @@ const store = {
   }
 };
 
+const printableStore = {
+  get k() { return 'focus-printable-sets-v1'; },
+
+  load() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(this.k) || '[]');
+      return Array.isArray(raw) ? raw : [];
+    } catch {
+      return [];
+    }
+  },
+
+  save(list) {
+    if (!list || !list.length) {
+      localStorage.removeItem(this.k);
+      return;
+    }
+    localStorage.setItem(this.k, JSON.stringify(list));
+  },
+
+  list() {
+    return this.load();
+  },
+
+  add(entry) {
+    const list = this.load();
+    list.push(entry);
+    this.save(list);
+    return entry;
+  },
+
+  get(id) {
+    return this.load().find(item => item.id === id);
+  },
+
+  remove(id) {
+    const next = this.load().filter(item => item.id !== id);
+    this.save(next);
+  },
+
+  clear() {
+    localStorage.removeItem(this.k);
+  }
+};
+
 
 const fmtTime = (sec)=>{
   const m = Math.floor(sec/60), s = sec%60;
@@ -389,11 +434,22 @@ function openConfig(moduleId){
     holder.appendChild(box);
   }
 
+  const printBtn = $('#btnPrintSet');
+  if (printBtn) {
+    const isMath = pendingModule?.category === 'math';
+    printBtn.classList.toggle('hidden', !isMath);
+    printBtn.disabled = !isMath;
+    printBtn.tabIndex = isMath ? 0 : -1;
+    if (isMath) {
+      printBtn.title = `Genera una fitxa imprimible de ${pendingModule.name}`;
+    }
+  }
+
   showView('config');
 }
 
-function startFromConfig(){
-  if(!pendingModule) return;
+function collectConfigValues(){
+  if(!pendingModule) return null;
   const count = parseInt($('#cfg-count').value||DEFAULTS.count);
   const time = parseInt($('#cfg-time').value||0);
   const level = parseInt($('#cfg-level').value||1);
@@ -405,7 +461,7 @@ function startFromConfig(){
     if($('#op-minus').checked) ops.push('-');
     if($('#op-times').checked) ops.push('×');
     if($('#op-div').checked) ops.push('÷');
-    if(!ops.length){ alert('Selecciona almenys una operació.'); return; }
+    if(!ops.length){ alert('Selecciona almenys una operació.'); return null; }
     options.ops = ops;
     options.allowNeg = !!$('#allow-neg').checked;
     options.tri = !!$('#tri-numbers').checked;
@@ -465,13 +521,28 @@ function startFromConfig(){
     options.difficulty = parseInt($('#func-diff').value || '1');
   }
 
-  // 🔌 Recull opcions personalitzades d'un mòdul extern (si n'hi ha)
   if (pendingModule && pendingModule.config && typeof pendingModule.config.collect === 'function') {
     const ext = pendingModule.config.collect();
     if (ext && typeof ext === 'object') Object.assign(options, ext);
   }
 
-  startQuiz(pendingModule.id, {count, time, level, options});
+  return { count, time, level, options };
+}
+
+function startFromConfig(){
+  const cfg = collectConfigValues();
+  if(!cfg) return;
+  startQuiz(pendingModule.id, cfg);
+}
+
+function printActivitiesFromConfig(){
+  const cfg = collectConfigValues();
+  if(!cfg) return;
+  if(!pendingModule || pendingModule.category !== 'math'){
+    alert('Aquest mòdul no admet fitxes imprimibles.');
+    return;
+  }
+  generatePrintableSet(pendingModule, cfg);
 }
 
 /* ===================== QUIZ ENGINE ===================== */
@@ -491,13 +562,15 @@ function startQuiz(moduleId, cfg){
     startedAt: Date.now(),
     secondsLeft: time>0 ? time*60 : 0,
     questions: [],
-    options: cfg.options || {}
+    options: cfg.options || {},
+    printableId: null,
+    levelLabel: `Nivell ${level}`
   };
 
   for(let i=0;i<count;i++) session.questions.push(module.gen(level, session.options));
 
   $('#qModule').textContent = module.name;
-  $('#qLevel').textContent = `Nivell ${level}`;
+  $('#qLevel').textContent = session.levelLabel;
   $('#feedback').innerHTML='';
   $('#answer').value='';
   updateProgress();
@@ -509,29 +582,56 @@ function startQuiz(moduleId, cfg){
 }
 
 // Nova: començar amb preguntes existents (repàs d'errors)
-function startQuizFromExisting(moduleId, options, questions){
+function startQuizFromExisting(moduleId, options, questions, meta={}){
   const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
+  const normalized = Array.isArray(questions) ? questions.map(q => ({
+    type: q.type,
+    text: q.text,
+    title: q.title,
+    html: q.html,
+    answer: q.answer,
+    meta: q.meta,
+    numeric: q.numeric,
+    piCoef: q.piCoef,
+    sol: q.sol,
+    sols: q.sols
+  })) : [];
+  const opts = options ? JSON.parse(JSON.stringify(options)) : {};
+  const level = meta.level !== undefined ? meta.level : 0;
+  const timeLimit = meta.time ? Math.max(0, parseInt(meta.time)) : 0;
+
   session = {
     module: moduleId,
-    count: questions.length,
-    time: 0,
-    level: 0,
+    count: normalized.length,
+    time: timeLimit,
+    level,
     idx: 0,
     correct: 0,
     wrongs: [],
     startedAt: Date.now(),
-    secondsLeft: 0,
-    questions: questions.map(q=>({ type:q.type, text:q.text, title:q.title, html:q.html, answer:q.answer, meta:q.meta, numeric:q.numeric, piCoef:q.piCoef, sol:q.sol, sols:q.sols })),
-    options: options || {}
+    secondsLeft: timeLimit>0 ? timeLimit*60 : 0,
+    questions: normalized,
+    options: opts,
+    printableId: meta.printableId || null,
+    levelLabel: meta.levelLabel || (level>0 ? `Nivell ${level}` : 'Personalitzat')
   };
-  $('#qModule').textContent = module.name + ' (repàs d\'errors)';
-  $('#qLevel').textContent = 'Personalitzat';
+
+  const moduleName = module?.name || moduleId;
+  const label = meta.label === undefined ? "Repàs d'errors" : meta.label;
+  const title = meta.title || (label ? `${moduleName} (${label})` : moduleName);
+  $('#qModule').textContent = title;
+  $('#qLevel').textContent = session.levelLabel;
   $('#feedback').innerHTML='';
   $('#answer').value='';
   updateProgress();
   showView('quiz');
   renderQuestion();
-  $('#timer').textContent='Sense límit';
+  stopTimer();
+  if(timeLimit>0){
+    startTimer();
+  } else {
+    $('#timer').textContent='Sense límit';
+  }
   $('#answer').focus();
 }
 
@@ -955,6 +1055,9 @@ function finishQuiz(timeUp){
   const elapsed = Math.floor((Date.now() - session.startedAt)/1000);
   const score = Math.round((session.correct / session.count) * 100);
   const name = localStorage.getItem('lastStudent') || 'Anònim';
+  const moduleObj = MODULES.find(m=>m.id===session.module);
+  const moduleName = moduleObj?.name || session.module;
+  const levelLabel = session.levelLabel || (session.level > 0 ? `Nivell ${session.level}` : 'Personalitzat');
 
 
   store.save({
@@ -970,6 +1073,11 @@ function finishQuiz(timeUp){
     wrongs: session.wrongs
   });
 
+  if(session.printableId){
+    printableStore.remove(session.printableId);
+    renderPrintableSets();
+  }
+
   renderResults();
   if (typeof showRecommendation === 'function') {
     showRecommendation('#recommendationText');
@@ -979,7 +1087,7 @@ function finishQuiz(timeUp){
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
   const html = `
 <h3 style="margin-top:0">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
-<p class="subtitle">${name} · ${MODULES.find(m=>m.id===session.module).name} · Nivell ${session.level}</p>
+<p class="subtitle">${name} · ${moduleName} · ${levelLabel}</p>
 <div class="row" style="align-items:flex-end; gap:16px">
   <div>
     <div class="section-title">Resultat</div>
@@ -1006,13 +1114,368 @@ function redoWrongs(){
   }
   const qs = session.wrongs.map(w=>({type:w.type, text:w.text, title:w.title, html:w.html, answer:w.answer, meta:w.meta, numeric:w.numeric, piCoef:w.piCoef, sol:w.sol, sols:w.sols}));
   closeModal();
-  startQuizFromExisting(session.module, session.options, qs);
+  const meta = {
+    label: "Repàs d'errors",
+    level: session.level,
+    levelLabel: session.level > 0 ? `Nivell ${session.level}` : 'Repàs personalitzat'
+  };
+  startQuizFromExisting(session.module, session.options, qs, meta);
 }
 
 function renderWrongs(wr){
   return `<table><thead><tr><th>#</th><th>Pregunta</th><th>La teva</th><th>Correcta</th></tr></thead><tbody>`+
   wr.map((w,i)=>`<tr><td>${i+1}</td><td>${w.text}</td><td>${w.user}</td><td>${fmtAns(w.answer)}</td></tr>`).join('')+
   `</tbody></table>`;
+}
+
+/* ===================== FITXES IMPRIMIBLES ===================== */
+
+function cloneQuestionData(q){
+  return {
+    type: q.type,
+    text: q.text,
+    title: q.title,
+    html: q.html,
+    answer: q.answer,
+    meta: q.meta,
+    numeric: q.numeric,
+    piCoef: q.piCoef,
+    sol: q.sol,
+    sols: q.sols
+  };
+}
+
+function createPrintableId(){
+  const stamp = Date.now().toString(36).toUpperCase();
+  const suffix = Math.floor(Math.random()*1296).toString(36).toUpperCase().padStart(2,'0');
+  return `FQ-${stamp.slice(-4)}${suffix}`;
+}
+
+function printableLineCount(q){
+  if(!q || !q.type) return 2;
+  if(q.type.startsWith('eq')) return 4;
+  if(q.type.startsWith('geom')) return 4;
+  if(q.type.startsWith('frac')) return 3;
+  if(q.type.startsWith('stats')) return 3;
+  if(q.type.startsWith('func')) return 3;
+  return 2;
+}
+
+function printableAnswer(q){
+  if(q.answer !== undefined && q.answer !== null) return fmtAns(q.answer);
+  if(Array.isArray(q.sols) && q.sols.length) return q.sols.map(fmtAns).join(', ');
+  if(q.sol !== undefined && q.sol !== null) return fmtAns(q.sol);
+  if(q.numeric !== undefined && q.numeric !== null){
+    const num = q.numeric;
+    if(typeof num === 'number'){
+      return Number.isInteger(num) ? String(num) : num.toLocaleString('ca-ES', { maximumFractionDigits: 4 });
+    }
+    if(Array.isArray(num)) return num.join(', ');
+    return String(num);
+  }
+  return '—';
+}
+
+function formatPrintableOptions(moduleId, options){
+  if(!options || !Object.keys(options).length) return 'Opcions per defecte';
+  switch(moduleId){
+    case 'arith': {
+      const map = { '+':'suma', '-':'resta', '×':'multiplicació', '÷':'divisió' };
+      const ops = Array.isArray(options.ops) && options.ops.length ? options.ops.map(op => map[op] || op) : ['totes'];
+      const parts = [`Operacions: ${ops.join(', ')}`];
+      if(options.allowNeg) parts.push('Permet negatius');
+      if(options.tri) parts.push('Operacions amb 3 nombres');
+      return parts.join(' · ');
+    }
+    case 'frac': {
+      const mode = { identify: 'Identificar', arith: 'Aritmètica', simplify: 'Simplificar' }[options.sub] || 'Barreja';
+      const parts = [`Subtema: ${mode}`];
+      if(options.mixedGrids === false) parts.push('Grills uniformes');
+      if(options.forceSimplest) parts.push('Exigeix forma simplificada');
+      return parts.join(' · ');
+    }
+    case 'geom': {
+      const scopes = { area: 'Àrea', perim: 'Perímetre', both: 'Àrea + perímetre', vol: 'Volum' };
+      const figuresMap = {
+        rect: 'Rectangles/quadrats',
+        tri: 'Triangles',
+        circ: 'Cercles',
+        poly: 'Polígons regulars',
+        grid: 'Graella',
+        comp: 'Figures compostes',
+        cube: 'Cubs/prismes',
+        cylinder: 'Cilindres'
+      };
+      const active = Object.entries(options.fig || {}).filter(([,v])=>v).map(([k])=>figuresMap[k]).filter(Boolean);
+      const parts = [`Abast: ${scopes[options.scope] || 'General'}`];
+      if(active.length) parts.push(`Figures: ${active.join(', ')}`);
+      parts.push(`Unitats: ${options.units || 'cm'}`);
+      parts.push(`Decimals: ${options.round ?? 2}`);
+      parts.push(options.circleMode === 'pi-exacte' ? 'Mode cercles: exacte amb π' : 'Mode cercles: resultat numèric');
+      if(options.requireUnits) parts.push('Cal escriure la unitat');
+      return parts.join(' · ');
+    }
+    case 'stats': {
+      const map = { mmm: 'Mitjana/mediana/moda', 'range-dev': 'Rang i desviació', graphs: 'Gràfics' };
+      return `Subtema: ${map[options.sub] || 'General'} · Decimals: ${options.round ?? 2}`;
+    }
+    case 'units': {
+      const map = { length:'Longitud', mass:'Massa', volume:'Volum', area:'Superfície', time:'Temps' };
+      return `Conversió: ${map[options.sub] || 'General'} · Decimals: ${options.round ?? 2}`;
+    }
+    case 'eq': {
+      const formatMap = { normal:'Equacions normals', frac:'Amb fraccions', par:'Amb parèntesis', sys:'Sistemes' };
+      const degreeMap = { '1':'1r grau', '2':'2n grau', mixed:'Barrejats' };
+      const rangeMap = { small:'Coeficients petits (−9…9)', med:'Coeficients mitjans (−20…20)', big:'Coeficients grans (−60…60)' };
+      const parts = [formatMap[options.format] || 'Formats variats'];
+      parts.push(degreeMap[options.degree] || 'Graus variats');
+      parts.push(rangeMap[options.range] || 'Rang estàndard');
+      if(options.forceInt) parts.push('Solucions enteres');
+      if(options.allowIncomplete) parts.push('Inclou equacions incompletes');
+      if(options.hints) parts.push('Mostra pistes');
+      return parts.join(' · ');
+    }
+    case 'func': {
+      const typeMap = { lin:'Lineals', quad:'Quadràtiques', poly:'Polinòmiques', rac:'Racionals', rad:'Radicals', exp:'Exponencials', log:'Logarítmiques' };
+      const aspectMap = { type:'Tipus', domain:'Domini/recorregut', intercepts:'Punts de tall', symmetry:'Simetria', limits:'Límits', extrema:'Extrems', monotony:'Monotonia' };
+      const types = Object.entries(options.types || {}).filter(([,v])=>v).map(([k])=>typeMap[k]).filter(Boolean);
+      const aspects = Object.entries(options.aspects || {}).filter(([,v])=>v).map(([k])=>aspectMap[k]).filter(Boolean);
+      const diffMap = { 1:'Bàsic', 2:'Intermedi', 3:'Avançat', 4:'Expert' };
+      const parts = [];
+      if(types.length) parts.push(`Tipus: ${types.join(', ')}`);
+      if(aspects.length) parts.push(`Aspectes: ${aspects.join(', ')}`);
+      parts.push(`Dificultat: ${diffMap[options.difficulty] || 'Personalitzada'}`);
+      return parts.join(' · ');
+    }
+    default: {
+      return Object.entries(options).map(([k,v]) => {
+        if(v && typeof v === 'object') return `${k}: ${JSON.stringify(v)}`;
+        return `${k}: ${v}`;
+      }).join(' · ');
+    }
+  }
+}
+
+function generatePrintableSet(module, cfg){
+  const level = clamp(parseInt(cfg.level)||1, 1, 4);
+  const count = clamp(parseInt(cfg.count)||10, 1, 200);
+  const timeLimit = clamp(parseInt(cfg.time)||0, 0, 180);
+  const optionsForGen = cfg.options ? JSON.parse(JSON.stringify(cfg.options)) : {};
+  const optionsForStore = cfg.options ? JSON.parse(JSON.stringify(cfg.options)) : {};
+  const questions = [];
+  for(let i=0;i<count;i++){
+    const q = module.gen(level, optionsForGen);
+    questions.push(cloneQuestionData(q));
+  }
+  const entry = {
+    id: createPrintableId(),
+    module: module.id,
+    moduleName: module.name,
+    level,
+    count,
+    createdAt: new Date().toISOString(),
+    options: optionsForStore,
+    timeLimit,
+    questions
+  };
+  printableStore.add(entry);
+  renderPrintableSets();
+  openPrintableWindow(entry);
+}
+
+function openPrintableWindow(entry){
+  const win = window.open('', '_blank', 'noopener');
+  if(!win){
+    alert('No s\'ha pogut obrir la finestra d\'impressió. Permet finestres emergents per poder imprimir.');
+    return;
+  }
+  const createdLabel = entry.createdAt ? new Date(entry.createdAt).toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' }) : '';
+  const levelLabel = entry.level ? `Nivell ${entry.level}` : 'Personalitzat';
+  const timeLabel = entry.timeLimit ? `${entry.timeLimit} min` : 'sense límit';
+  const optionSummary = formatPrintableOptions(entry.module, entry.options);
+  const optionLine = optionSummary ? optionSummary : 'Opcions per defecte';
+  const questionBlocks = (entry.questions||[]).map((q, idx)=>{
+    const prompt = q.title || q.text || '';
+    const media = q.html ? `<div class="print-q-media">${q.html}</div>` : '';
+    const lines = '<div class="print-lines">' + '<div class="line"></div>'.repeat(printableLineCount(q)) + '</div>';
+    return `<div class="print-question"><div class="print-q-num">${idx+1}.</div><div class="print-q-body"><div class="print-q-text">${prompt}</div>${media}${lines}</div></div>`;
+  }).join('');
+  const answersList = (entry.questions||[]).map((q, idx)=>`<li><strong>${idx+1}.</strong> ${printableAnswer(q)}</li>`).join('');
+
+  const doc = `<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <title>Focus Academy · Fitxa imprimible</title>
+  <style>
+    body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#f8fafc;margin:0;color:#0f172a;}
+    .sheet{max-width:840px;margin:32px auto;padding:32px;background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 18px 40px rgba(15,23,42,.12);border-radius:24px;}
+    h1{font-size:1.6rem;margin:0 0 6px;}
+    .meta-row{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 18px;font-size:.95rem;}
+    .meta-row span{min-width:180px;}
+    .note{background:#eef2ff;border:1px solid #c7d2fe;padding:12px 16px;border-radius:16px;font-size:.95rem;margin-bottom:18px;}
+    .printable-code{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#3730a3;margin-bottom:22px;}
+    .print-question{display:flex;gap:12px;page-break-inside:avoid;margin-bottom:18px;}
+    .print-q-num{font-weight:700;font-size:1.05rem;width:32px;}
+    .print-q-body{flex:1;}
+    .print-q-text{font-size:1.05rem;margin-bottom:8px;}
+    .print-q-media{margin-bottom:10px;}
+    .print-lines{display:grid;gap:6px;margin-top:10px;}
+    .print-lines .line{border-bottom:1px dashed #cbd5f5;height:24px;}
+    .answers{margin-top:42px;padding-top:24px;border-top:2px solid #e2e8f0;}
+    .answers h2{font-size:1.3rem;margin-top:0;}
+    .answers ol{padding-left:20px;}
+    .answers li{margin-bottom:6px;font-size:1rem;}
+    @media print{body{background:#ffffff;margin:0;} .sheet{box-shadow:none;border:none;margin:0;padding:28px;} .note{background:#ffffff;border-color:#e2e8f0;} .answers{page-break-before:always;}}
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <header>
+      <h1>${entry.moduleName || entry.module} · Fitxa imprimible</h1>
+      <div class="meta-row">
+        <span><strong>Nombre de preguntes:</strong> ${entry.count}</span>
+        <span><strong>Nivell:</strong> ${levelLabel}</span>
+        <span><strong>Temps orientatiu:</strong> ${timeLabel}</span>
+      </div>
+      <div class="meta-row">
+        <span><strong>Alumne/a:</strong> ____________________________</span>
+        <span><strong>Data:</strong> ____ / ____ / ______</span>
+        <span><strong>Generada:</strong> ${createdLabel}</span>
+      </div>
+      <div class="note">Resol les preguntes en paper i, quan acabis, introdueix les respostes a l'aplicació per corregir-les. Configuració: ${optionLine}.</div>
+      <div class="printable-code">Codi de fitxa: ${entry.id}</div>
+    </header>
+    <section class="questions">
+      ${questionBlocks}
+    </section>
+    <section class="answers">
+      <h2>Solucions</h2>
+      <p style="margin:0 0 12px;font-size:.95rem;color:#475569;">Per al professorat o per comprovar ràpidament el resultat.</p>
+      <ol>
+        ${answersList}
+      </ol>
+    </section>
+  </div>
+  <script>window.addEventListener('load',()=>setTimeout(()=>window.print(),400));</script>
+</body>
+</html>`;
+
+  win.document.write(doc);
+  win.document.close();
+}
+
+function renderPrintableSets(){
+  const listEl = $('#printablesList');
+  if(!listEl) return;
+  const sets = printableStore.list().slice().sort((a,b)=> new Date(b.createdAt||0) - new Date(a.createdAt||0));
+  const clearBtn = $('#btnClearPrintables');
+  if(clearBtn) clearBtn.disabled = !sets.length;
+  if(!sets.length){
+    listEl.innerHTML = '<div class="chip">Encara no hi ha fitxes guardades.</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  sets.forEach(entry => {
+    const item = document.createElement('div');
+    item.className = 'printable-item';
+
+    const info = document.createElement('div');
+    info.className = 'printable-info';
+
+    const title = document.createElement('div');
+    title.className = 'printable-title';
+    title.textContent = `${entry.moduleName || entry.module} · ${entry.count} preguntes`;
+    info.appendChild(title);
+
+    const levelMeta = document.createElement('div');
+    levelMeta.className = 'printable-meta';
+    const levelLabel = entry.level ? `Nivell ${entry.level}` : 'Personalitzat';
+    const timeLabel = entry.timeLimit ? `${entry.timeLimit} min` : 'sense límit';
+    levelMeta.textContent = `${levelLabel} · Temps orientatiu: ${timeLabel}`;
+    info.appendChild(levelMeta);
+
+    if(entry.createdAt){
+      const createdMeta = document.createElement('div');
+      createdMeta.className = 'printable-meta';
+      createdMeta.textContent = `Generada: ${new Date(entry.createdAt).toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' })}`;
+      info.appendChild(createdMeta);
+    }
+
+    const optionMeta = document.createElement('div');
+    optionMeta.className = 'printable-meta';
+    optionMeta.textContent = `Opcions: ${formatPrintableOptions(entry.module, entry.options)}`;
+    info.appendChild(optionMeta);
+
+    const code = document.createElement('div');
+    code.className = 'printable-code';
+    code.textContent = `Codi: ${entry.id}`;
+    info.appendChild(code);
+
+    const actions = document.createElement('div');
+    actions.className = 'printable-actions';
+
+    const btnReview = document.createElement('button');
+    btnReview.type = 'button';
+    btnReview.className = 'btn-secondary';
+    btnReview.textContent = 'Corregeix';
+    btnReview.addEventListener('click', ()=> startPrintableCorrection(entry.id));
+
+    const btnDelete = document.createElement('button');
+    btnDelete.type = 'button';
+    btnDelete.className = 'btn-ghost';
+    btnDelete.textContent = 'Elimina';
+    btnDelete.addEventListener('click', ()=> removePrintableSet(entry.id));
+
+    actions.appendChild(btnReview);
+    actions.appendChild(btnDelete);
+
+    item.appendChild(info);
+    item.appendChild(actions);
+    listEl.appendChild(item);
+  });
+}
+
+function startPrintableCorrection(id){
+  const entry = printableStore.get(id);
+  if(!entry){
+    renderPrintableSets();
+    alert('No s\'ha trobat aquesta fitxa.');
+    return;
+  }
+  const module = MODULES.find(m=>m.id===entry.module) || { name: entry.module };
+  const questions = (entry.questions||[]).map(cloneQuestionData);
+  const options = entry.options ? JSON.parse(JSON.stringify(entry.options)) : {};
+  const meta = {
+    label: 'Fitxa impresa',
+    title: `${module.name} (fitxa impresa)`,
+    level: entry.level || 0,
+    levelLabel: entry.level ? `Nivell ${entry.level}` : 'Fitxa impresa',
+    printableId: entry.id,
+    time: entry.timeLimit || 0
+  };
+  startQuizFromExisting(entry.module, options, questions, meta);
+}
+
+function removePrintableSet(id){
+  const entry = printableStore.get(id);
+  if(!entry){ renderPrintableSets(); return; }
+  const label = entry.moduleName || entry.module;
+  if(!confirm(`Vols eliminar la fitxa ${id} (${label})?`)) return;
+  printableStore.remove(id);
+  renderPrintableSets();
+}
+
+function clearPrintableSets(){
+  const sets = printableStore.list();
+  if(!sets.length){
+    alert('No hi ha fitxes guardades.');
+    return;
+  }
+  if(confirm('Segur que vols eliminar totes les fitxes guardades?')){
+    printableStore.clear();
+    renderPrintableSets();
+  }
 }
 
 /* ===================== GENERADORS ===================== */
@@ -2162,6 +2625,7 @@ function scatterSVG(points){
 
 // ==== RENDER PRINCIPAL DE RESULTATS + PERFIL ====
 function renderResults(){
+  renderPrintableSets();
   const data = store.all();
   const modSelect = $('#filter-module');
   const nameInput = $('#filter-student');
@@ -2360,7 +2824,13 @@ function init(){
 
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  const btnPrint = document.querySelector('#btnPrintSet');
+  if (btnPrint) btnPrint.addEventListener('click', printActivitiesFromConfig);
+  const btnClearPrintables = document.querySelector('#btnClearPrintables');
+  if (btnClearPrintables) btnClearPrintables.addEventListener('click', clearPrintableSets);
+  init();
+});
 
 document.addEventListener('focusquiz:user-login', init);
 document.addEventListener('focusquiz:user-logout', () => {

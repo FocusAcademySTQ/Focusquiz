@@ -116,6 +116,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           </div>
           <div class="controls">
             <button class="btn-secondary" onclick="showView('home')">← Torna</button>
+            <button id="btnPrintSet" class="btn-ghost hidden" type="button">🖨️ Imprimeix fitxa</button>
             <button onclick="startFromConfig()">Comença</button>
           </div>
         </div>
@@ -195,6 +196,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
           <label class="chip">Alumne/a: <input id="filter-student" class="input" placeholder="Tots" style="width:160px"></label>
         </div>
         <div id="resultsTable">No hi ha dades encara.</div>
+      </div>
+
+      <div class="panel card" id="printablesPanel">
+        <div class="row" style="align-items:center">
+          <div>
+            <h3 class="title" style="margin:0">Fitxes impreses pendents</h3>
+            <p class="subtitle" style="margin:4px 0 0">Genera fitxes des d'un mòdul de matemàtiques i imprimeix-les o desa-les en PDF. Quan les tinguis corregides, inicia la correcció des d'aquí.</p>
+          </div>
+          <div class="tbl-actions">
+            <button class="btn-ghost" id="btnClearPrintables" type="button" disabled>Neteja llista</button>
+          </div>
+        </div>
+        <div id="printablesList" class="printables-list">
+          <div class="chip">Encara no hi ha fitxes guardades.</div>
+        </div>
       </div>
 
       <!-- PERFIL / ANALYTICS -->
