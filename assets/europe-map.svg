@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" role="img" aria-label="Mapa simplificat d'Europa">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" role="img" aria-label="Mapa simplificat d'Europa amb colors verds i mar blau">
   <defs>
     <linearGradient id="sea" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0" stop-color="#0f172a"/>
-      <stop offset="1" stop-color="#1e3a8a"/>
+      <stop offset="0" stop-color="#60a5fa"/>
+      <stop offset="1" stop-color="#2563eb"/>
     </linearGradient>
     <linearGradient id="land" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#dbeafe"/>
-      <stop offset="1" stop-color="#bfdbfe"/>
+      <stop offset="0" stop-color="#bbf7d0"/>
+      <stop offset="1" stop-color="#4ade80"/>
+    </linearGradient>
+    <linearGradient id="highlight" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fef3c7"/>
+      <stop offset="1" stop-color="#facc15"/>
     </linearGradient>
   </defs>
   <rect width="1000" height="700" fill="url(#sea)"/>
-  <g fill="url(#land)" stroke="#1d4ed8" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M150 490 L160 450 L185 420 L220 395 L255 370 L300 348 L340 326 L388 304 L428 288 L470 270 L508 258 L550 252 L600 238 L642 216 L676 198 L710 188 L742 196 L776 220 L804 250 L826 282 L838 318 L836 350 L820 382 L794 408 L776 438 L764 470 L756 504 L744 536 L720 562 L690 586 L652 606 L610 622 L562 634 L512 640 L470 636 L430 624 L388 606 L348 586 L304 564 L262 540 L220 516 Z"/>
-    <path d="M744 536 L770 550 L792 576 L804 610 L798 640 L780 660 L756 662 L736 648 L716 620 L690 594 L704 564 L720 552 Z"/>
-    <path d="M820 382 L850 400 L876 426 L892 456 L894 490 L880 520 L854 540 L826 548 L800 544 L786 520 L802 492 Z"/>
-    <path d="M260 320 L236 296 L226 268 L240 240 L266 232 L292 246 L310 272 L304 302 Z"/>
-    <path d="M120 260 L138 236 L168 222 L198 224 L214 246 L204 272 L176 288 L142 288 Z"/>
+  <g fill="url(#land)" stroke="none">
+    <path d="M150 492 L162 450 L190 420 L228 394 L266 368 L312 344 L352 324 L398 302 L444 282 L490 266 L534 256 L580 248 L626 238 L670 222 L706 210 L742 204 L780 214 L814 236 L842 266 L862 304 L870 340 L862 374 L842 406 L820 434 L804 468 L792 504 L780 536 L754 566 L720 594 L680 618 L630 636 L576 646 L522 648 L470 640 L418 622 L368 598 L320 572 L274 544 L230 516 Z"/>
+    <path d="M752 540 L782 560 L806 592 L814 626 L802 656 L776 672 L750 668 L724 646 L700 612 L716 578 Z"/>
+    <path d="M828 394 L860 414 L888 444 L902 478 L898 512 L874 538 L840 552 L808 548 L792 520 Z"/>
+    <path d="M258 320 L236 292 L226 262 L240 236 L268 228 L298 244 L316 272 L308 302 Z"/>
+    <path d="M118 262 L138 236 L170 220 L204 222 L220 248 L206 276 L176 292 L140 292 Z"/>
   </g>
-  <g fill="#93c5fd" stroke="#1d4ed8" stroke-width="5" stroke-linejoin="round" stroke-linecap="round">
-    <path d="M612 300 L640 280 L666 276 L688 284 L704 304 L712 330 L704 358 L684 380 L652 392 L620 388 L600 366 L598 334 Z"/>
-    <path d="M670 330 L686 338 L706 360 L714 386 L704 410 L682 420 L660 410 L648 384 Z"/>
-    <path d="M602 252 L620 238 L646 230 L670 236 L692 254 L706 276 L700 300 L678 316 L650 320 L620 310 L604 286 Z"/>
+  <g fill="url(#highlight)" stroke="none">
+    <path d="M614 300 L646 276 L676 270 L704 280 L726 304 L736 334 L726 362 L702 382 L668 392 L632 388 L610 364 L606 332 Z"/>
+    <path d="M676 332 L694 340 L712 362 L720 390 L710 412 L688 420 L662 410 L650 384 Z"/>
+    <path d="M604 254 L626 238 L654 230 L682 236 L706 252 L720 276 L714 302 L688 320 L656 324 L626 312 L610 286 Z"/>
   </g>
 </svg>

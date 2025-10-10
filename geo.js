@@ -16,7 +16,7 @@
   const clampLevel = (lvl) => Math.max(1, Math.min(4, parseInt(lvl, 10) || 1));
 
   const FLAG_BASE_URL = 'https://flagcdn.com';
-  const EUROPE_MAP_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/b/bd/Blank_map_of_Europe.svg';
+  const EUROPE_MAP_IMAGE = 'assets/europe-map.svg';
   const FLAG_CODE_BY_COUNTRY = {
     'Espanya': 'es',
     'França': 'fr',
@@ -767,8 +767,8 @@
   };
 
   const MAP_BOUNDS = {
-    west: -25,
-    east: 45,
+    west: -24.5,
+    east: 34,
     north: 72,
     south: 34
   };
@@ -802,7 +802,8 @@
     window.__FOCUS_GEO__.europe = {
       points: MAP_POINTS,
       polygons: MAP_POLYGONS,
-      bounds: MAP_BOUNDS
+      bounds: MAP_BOUNDS,
+      image: EUROPE_MAP_IMAGE
     };
   }
 
@@ -968,7 +969,7 @@
         <div class="geo-map-leaflet" role="application" aria-label="Mapa interactiu d'Europa"></div>
         <div class="geo-map-fallback">
           <div class="geo-map-inner">
-            <img class="geo-map-image" src="${EUROPE_MAP_IMAGE}" alt="Mapa polític d'Europa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/europe-map.svg';">
+            <img class="geo-map-image" src="${EUROPE_MAP_IMAGE}" alt="Mapa acolorit d'Europa" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='assets/europe-map.svg';">
             <div class="geo-map-canvas">
               ${points}
             </div>

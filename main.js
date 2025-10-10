@@ -669,55 +669,107 @@ function setupGeoMapQuestion(){
   const bounds = store.bounds || null;
 
   const map = L.map(mapContainer, {
-    zoomControl: false,
-    attributionControl: true,
-    minZoom: 3,
+    zoomControl: true,
+    attributionControl: false,
+    minZoom: 4,
     maxZoom: 7,
+    zoomSnap: 0.25,
+    zoomDelta: 0.5,
     worldCopyJump: false
   });
 
-  const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 7,
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
+  mapContainer.dataset.ready = 'true';
+  mapContainer.classList.add('geo-map-illustrated');
+  if (map.zoomControl) {
+    map.zoomControl.setPosition('topright');
+  }
 
-  let tileLoaded = false;
-  tileLayer.once('load', () => {
-    tileLoaded = true;
-    mapRoot.dataset.mapReady = 'true';
-  });
-  tileLayer.on('tileerror', () => {
-    if (!tileLoaded) {
-      mapRoot.removeAttribute('data-map-ready');
+  const ensureReadyFlag = () => {
+    if (mapRoot.dataset.mapReady !== 'true') {
+      mapRoot.dataset.mapReady = 'true';
     }
-  });
+  };
+
+  const clearReadyFlag = () => {
+    mapRoot.removeAttribute('data-map-ready');
+  };
+
+  const mapImageUrl = typeof store.image === 'string' ? store.image : 'assets/europe-map.svg';
+  let overlayReady = false;
+  let overlay = null;
 
   if (bounds && typeof bounds === 'object') {
     const southWest = L.latLng(bounds.south, bounds.west);
     const northEast = L.latLng(bounds.north, bounds.east);
     const mapBounds = L.latLngBounds(southWest, northEast);
-    map.fitBounds(mapBounds, { padding: [24, 24] });
-    map.setMaxBounds(mapBounds.pad(0.2));
+    overlay = L.imageOverlay(mapImageUrl, mapBounds, {
+      className: 'geo-map-overlay',
+      interactive: false
+    }).addTo(map);
+    map.fitBounds(mapBounds, { padding: [16, 16], maxZoom: 6.2 });
+    map.setMaxBounds(mapBounds.pad(0.08));
     const center = mapBounds.getCenter();
-    const zoom = Math.min(Math.max(map.getZoom(), 3.2), 5);
+    const zoom = clamp(map.getZoom(), 5.2, 6.2);
     map.setView(center, zoom);
   } else {
-    map.setView([54, 15], 4.5);
+    map.setView([54, 15], 5.3);
+    const fallbackBounds = L.latLngBounds(
+      L.latLng(34, -25),
+      L.latLng(72, 40)
+    );
+    overlay = L.imageOverlay(mapImageUrl, fallbackBounds, {
+      className: 'geo-map-overlay',
+      interactive: false
+    }).addTo(map);
+  }
+
+  map.whenReady(() => {
+    if (!overlay || overlayReady) {
+      ensureReadyFlag();
+    }
+  });
+
+  if (overlay) {
+    const markOverlayReady = () => {
+      if (!overlayReady) {
+        overlayReady = true;
+        ensureReadyFlag();
+      }
+    };
+
+    overlay.once('load', markOverlayReady);
+    overlay.once('error', () => {
+      overlayReady = false;
+      clearReadyFlag();
+    });
+
+    const overlayElement = overlay.getElement();
+    if (overlayElement && overlayElement.complete) {
+      markOverlayReady();
+    } else if (overlayElement) {
+      overlayElement.addEventListener('load', markOverlayReady, { once: true });
+      overlayElement.addEventListener('error', () => {
+        overlayReady = false;
+        clearReadyFlag();
+      }, { once: true });
+    }
   }
 
   const basePolygonStyle = {
-    color: '#1d4ed8',
-    weight: 1.2,
-    fillColor: '#3b82f6',
-    fillOpacity: 0.18,
+    color: '#00000000',
+    weight: 0,
+    dashArray: null,
+    fillColor: '#86efac',
+    fillOpacity: 0.12,
     className: 'geo-map-country'
   };
 
   const activePolygonStyle = {
-    color: '#1d4ed8',
-    weight: 2,
-    fillColor: '#2563eb',
-    fillOpacity: 0.5
+    color: '#00000000',
+    weight: 0,
+    dashArray: null,
+    fillColor: '#4ade80',
+    fillOpacity: 0.55
   };
 
   let selectedPolygon = null;
