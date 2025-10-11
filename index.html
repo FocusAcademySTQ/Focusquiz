@@ -55,7 +55,7 @@
       <nav class="main-nav" aria-label="Navegació principal">
         <button class="pill nav-btn" data-view="home" type="button" onclick="showView('home')">🏠 Inici</button>
         <button class="pill nav-btn" data-view="results" type="button" onclick="showView('results')">📊 Resultats</button>
-        <button class="pill nav-btn" data-view="about" type="button" onclick="showView('about')">ℹ️ Sobre</button>
+        <button class="pill nav-btn" data-view="about" type="button" onclick="showView('about')">ℹ️ Qui som?</button>
         <a class="pill" href="teoria.html" title="Teoria matemàtica">π</a>
         <a class="pill" href="teoriacatala.html" title="Teoria catalana">à</a>
         <a class="pill" href="https://focuscat.onrender.com/" target="_blank" rel="noopener" title="Focus Exams">FE</a>
@@ -232,18 +232,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
     </section>
 
     <!-- ABOUT -->
-    <section id="view-about" class="hidden">
-      <div class="panel card">
-        <h3 class="title" style="margin-top:0">Sobre aquesta eina</h3>
-        <p class="subtitle">Web single-file creada per Focus Academy, sense comptes ni dependències. Dades locals al navegador.</p>
-        <ul>
-          <li>Generador de preguntes per a Matemàtiques (aritmètica, fraccions, percentatges, equacions, geometria, estadística, unitats),
-Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Química (elements, fórmules i compostos).</li>
-          <li>Temps opcional, nivell 1–4, i repàs de només les preguntes errònies.</li>
-          <li>Historial exportable a CSV i mode offline (funciona sense internet).</li>
-        </ul>
-      </div>
-    </section>
+<section id="view-about" class="hidden">
+  <div class="panel card">
+    <h3 class="title" style="margin-top:0">Sobre aquesta eina</h3>
+    <p class="subtitle">
+      Web single-file creada per <strong>Focus Academy</strong>, sense comptes ni dependències.  
+      Dades locals al navegador.
+    </p>
+    <ul>
+      <li>• <strong>Generador de preguntes</strong> per a Matemàtiques (aritmètica, fraccions, percentatges, equacions, geometria, estadística, unitats), Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), Química (elements, fórmules i compostos) i Geografia (països i banderes).</li>
+      <li>• <strong>Temps opcional</strong>, nivell 1–4, i repàs de només les preguntes errònies.</li>
+      <li>• <strong>Historial exportable</strong> a CSV i <strong>mode offline</strong> (funciona sense internet).</li>
+      <li>• <strong>Tutor personalitzat</strong> que t’acompanya pas a pas en l’aprenentatge.</li>
+    </ul>
+  </div>
+</section>
 
     <footer class="wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
       <div>Fet per Focus Academy Sant Cugat · © <span id="year"></span></div>
