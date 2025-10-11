@@ -6,7 +6,6 @@
   <title>Focus Academy · Espai de repàs</title>
   <meta name="description" content="Pràctiques de matemàtiques per a estudiants. Single-file, sense dependències." />
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
   <!-- LOGIN LOCAL (overlay) -->
 <div id="loginOverlay" class="login-overlay" hidden>
@@ -117,6 +116,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
           </div>
           <div class="controls">
             <button class="btn-secondary" onclick="showView('home')">← Torna</button>
+            <button id="btnPrintSet" class="btn-ghost hidden" type="button">🖨️ Imprimeix fitxa</button>
             <button onclick="startFromConfig()">Comença</button>
           </div>
         </div>
@@ -242,6 +242,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
 Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Química (elements, fórmules i compostos).</li>
           <li>Temps opcional, nivell 1–4, i repàs de només les preguntes errònies.</li>
           <li>Historial exportable a CSV i mode offline (funciona sense internet).</li>
+          <li><strong>Compartició d’activitats:</strong> Imprimeix o exporta en PDF un conjunt d’exercicis perquè l’alumne els faci en paper i els corregeixi després a l’aplicació. Ideal per a entorns sense dispositius electrònics constants.</li>
         </ul>
       </div>
     </section>
@@ -255,7 +256,6 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
   </main>
 
   <!-- 🔹 Carrega primer els mòduls auxiliars -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
   <script src="lang-cat.js" defer></script>
   <script src="quim.js" defer></script>
   <script src="geo.js" defer></script>
