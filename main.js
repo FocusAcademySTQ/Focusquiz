@@ -1219,7 +1219,7 @@ function openPrintableEditor(module, cfg){
   const timeLimit = clamp(parseInt(cfg.time)||0, 0, 180);
   const baseOptions = cfg.options ? JSON.parse(JSON.stringify(cfg.options)) : {};
 
-  printableEditorState = {
+  const state = {
     module,
     level,
     levelLabel: level > 0 ? `Nivell ${level}` : 'Personalitzat',
@@ -1231,7 +1231,7 @@ function openPrintableEditor(module, cfg){
   };
 
   for(let i=0;i<count;i++){
-    printableEditorState.questions.push(printableEditorGenerateQuestion());
+    state.questions.push(printableEditorGenerateQuestion(state));
   }
 
   const html = `
@@ -1255,6 +1255,7 @@ function openPrintableEditor(module, cfg){
     </div>`;
 
   showModal(html);
+  printableEditorState = state;
   const modal = document.querySelector('.modal .print-editor');
   if(!modal) return;
 
@@ -1267,11 +1268,11 @@ function openPrintableEditor(module, cfg){
   renderPrintableEditorList();
 }
 
-function printableEditorGenerateQuestion(){
-  if(!printableEditorState) return { raw:{}, prompt:'', answerText:'', html:'' };
-  const module = printableEditorState.module;
-  const level = printableEditorState.level;
-  const opts = printableEditorState.options ? JSON.parse(JSON.stringify(printableEditorState.options)) : {};
+function printableEditorGenerateQuestion(state = printableEditorState){
+  if(!state) return { raw:{}, prompt:'', answerText:'', html:'' };
+  const module = state.module;
+  const level = state.level;
+  const opts = state.options ? JSON.parse(JSON.stringify(state.options)) : {};
   const raw = cloneQuestionData(module.gen(level, opts));
   const defaultAnswer = printableAnswer(raw);
   return {
