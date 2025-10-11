@@ -652,3 +652,117 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
 .options-grid .option:hover {
   background: #c7d2fe;
 }
+
+/* ===== Responsive adjustments ===== */
+@media (max-width: 860px) {
+  .wrap { padding: clamp(14px, 4vw, 22px); }
+  main { padding: 22px 0 48px; }
+  .header-bar { align-items: stretch; gap: 0.75rem; }
+  .brand { width: 100%; justify-content: space-between; }
+  .brand h1 { font-size: 1rem; }
+  .main-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin: 0 -10px;
+    padding-inline: 10px;
+    scrollbar-width: none;
+  }
+  .main-nav::-webkit-scrollbar { display: none; }
+  .user-controls {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .user-controls .pill.small { flex: 1 1 120px; }
+}
+
+@media (max-width: 720px) {
+  .hero { gap: 16px; }
+  #view-config .row {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 1rem;
+  }
+  #view-config .row .controls {
+    width: 100%;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  #view-config .row .controls button { width: 100%; }
+  #view-config .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #view-config .controls .field {
+    width: 100%;
+    justify-content: space-between;
+  }
+  #view-config .controls select,
+  #view-config .controls .input,
+  #view-config .controls input,
+  #view-config .controls .field select {
+    flex: 1;
+  }
+  .quiz {
+    grid-template-columns: 1fr;
+  }
+  .quiz > #rightCol { min-width: 0; }
+  .answer-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .answer-row .answer,
+  .answer-row button { width: 100%; }
+  .q-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .q-header > div:first-child {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  #view-results .row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .tbl-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  #resultsTable {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  #resultsTable table { min-width: 640px; }
+  .print-editor-toolbar {
+    width: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  main { padding: 18px 0 40px; }
+  .wrap { padding: 16px; }
+  .main-nav .pill { padding: 0.35rem 0.65rem; font-size: 0.85rem; }
+  .controls .field { gap: 6px; }
+  #view-config .controls .field {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  #view-config .controls .field select,
+  #view-config .controls .field input {
+    width: 100%;
+  }
+  .user-controls .pill.small {
+    flex: 1 1 48%;
+  }
+  .user-controls {
+    gap: 0.5rem;
+  }
+  .quiz .options { grid-template-columns: 1fr; }
+}
