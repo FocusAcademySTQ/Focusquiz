@@ -1607,45 +1607,52 @@ async function downloadEditorSheet(){
     const blob = new Blob([payload], { type: 'application/pdf' });
     const moduleName = printableEditorState.module?.name || printableEditorState.module?.id || 'focusquiz';
     const safeName = moduleName.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'fitxa';
-    const blobUrl = URL.createObjectURL(blob);
 
-    const downloadFile = (url) => {
+    const triggerBlobDownload = () => {
+      if(window.navigator && typeof window.navigator.msSaveOrOpenBlob === 'function'){
+        window.navigator.msSaveOrOpenBlob(blob, `${safeName}-focusquiz.pdf`);
+        return;
+      }
+
+      const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.href = url;
+      link.href = blobUrl;
       link.rel = 'noopener';
-      link.style.position = 'fixed';
-      link.style.left = '-9999px';
       link.download = `${safeName}-focusquiz.pdf`;
+      link.target = '_blank';
+      link.style.position = 'fixed';
+      link.style.top = '-100px';
       document.body.appendChild(link);
-      const trigger = () => {
+
+      const supportsDownload = typeof HTMLAnchorElement !== 'undefined' && 'download' in HTMLAnchorElement.prototype;
+      const click = () => {
         try {
-          if(typeof HTMLAnchorElement !== 'undefined' && 'download' in HTMLAnchorElement.prototype){
-            link.click();
-          } else {
-            window.open(url, '_blank', 'noopener');
+          if(supportsDownload){
+            const ev = new MouseEvent('click', { view: window, bubbles: true, cancelable: true });
+            link.dispatchEvent(ev);
+            if(typeof link.click === 'function'){ link.click(); }
+          }
+          if(!supportsDownload){
+            window.open(blobUrl, '_blank', 'noopener');
           }
         } catch {
-          window.open(url, '_blank', 'noopener');
+          window.open(blobUrl, '_blank', 'noopener');
         }
-        setTimeout(() => {
-          URL.revokeObjectURL(url);
-          link.remove();
-        }, 1200);
       };
+
       if('requestAnimationFrame' in window){
-        requestAnimationFrame(trigger);
+        requestAnimationFrame(click);
       } else {
-        setTimeout(trigger, 0);
+        setTimeout(click, 0);
       }
+
+      setTimeout(() => {
+        link.remove();
+        URL.revokeObjectURL(blobUrl);
+      }, 1500);
     };
 
-    if(window.navigator && typeof window.navigator.msSaveOrOpenBlob === 'function'){
-      window.navigator.msSaveOrOpenBlob(blob, `${safeName}-focusquiz.pdf`);
-      URL.revokeObjectURL(blobUrl);
-      return;
-    }
-
-    downloadFile(blobUrl);
+    triggerBlobDownload();
   } catch(err){
     console.error('Error generant el PDF imprimible', err);
     alert('No s\'ha pogut preparar el PDF. Torna-ho a intentar.');
