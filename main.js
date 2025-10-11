@@ -2464,6 +2464,8 @@ function genFractions(level, opts={}){
 
 const labelText = (x,y,text)=> `<text class="svg-label" x="${x}" y="${y}">${text}</text>`;
 
+let circleFigId = 0;
+
 function dimLineOutside(x1,y1,x2,y2,text,offset=16, orient='h'){
   if(orient==='h'){
     const yy = Math.max(y1,y2)+offset;
@@ -2512,17 +2514,67 @@ function svgTriFig(b,h,units){
   </svg>`;
 }
 
-function svgCircleFig(labelTextStr){
-  const size=220, pad=12, cx=size/2, cy=size/2, R=size/2 - pad - 8;
+function svgCircleFig(measureText){
+  const size = 260;
+  const pad = 20;
+  const cx = size / 2;
+  const cy = size / 2 + 4;
+  const R = size / 2 - pad - 18;
+  const id = `circ${++circleFigId}`;
+  const isDiameter = /diàmetre/i.test(measureText);
+  const angle = -Math.PI / 3.2;
+  const tipX = cx + R * Math.cos(angle);
+  const tipY = cy + R * Math.sin(angle);
+  const labelWidth = Math.max(130, Math.min(220, measureText.length * 7));
+  const labelHeight = 34;
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  const pointerX = isDiameter ? cx : (cx + tipX) / 2;
+  const pointerY = isDiameter ? cy : (cy + tipY) / 2;
+  const bubbleX = clamp(pointerX - labelWidth / 2, 16, size - labelWidth - 16);
+  const bubbleY = clamp((isDiameter ? cy - R - labelHeight - 18 : pointerY - labelHeight - 18), 16, size - labelHeight - 16);
+  const pointerTargetX = clamp(pointerX, bubbleX + 14, bubbleX + labelWidth - 14);
+  const pointer = `<line x1="${pointerX}" y1="${pointerY}" x2="${pointerTargetX}" y2="${bubbleY + labelHeight}" stroke="#c7d2fe" stroke-width="1.4" stroke-dasharray="4 4"/>`;
+  const formulaText = isDiameter ? 'Perímetre = π · d' : 'Àrea = π · r²';
+  const measurementElements = isDiameter
+    ? `
+      <line x1="${cx - R}" y1="${cy}" x2="${cx + R}" y2="${cy}" stroke="url(#circStroke${id})" stroke-width="3.2" marker-start="url(#circArrowStart${id})" marker-end="url(#circArrowEnd${id})"/>
+      <circle cx="${cx}" cy="${cy}" r="4.5" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
+      ${pointer}
+    `
+    : `
+      <line x1="${cx}" y1="${cy}" x2="${tipX}" y2="${tipY}" stroke="url(#circStroke${id})" stroke-width="3.2" marker-end="url(#circArrowEnd${id})"/>
+      <circle cx="${cx}" cy="${cy}" r="4.5" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
+      ${pointer}
+    `;
   return `
     <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Cercle" style="display:block;margin:auto"><defs>
-    <radialGradient id="circGrad"><stop offset="0" stop-color="#e9d5ff"/><stop offset="1" stop-color="#93c5fd"/></radialGradient>
-  </defs>
-  <rect x="0" y="0" width="${size}" height="${size}" fill="#f8fafc" rx="18" ry="18" />
-  <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#circGrad)" stroke="#64748b">
-    <animate attributeName="r" from="${R*0.6}" to="${R}" dur=".35s" fill="freeze"/>
-  </circle>
-  ${labelText(cx, size-10, labelTextStr)}
+      <radialGradient id="circGrad${id}">
+        <stop offset="0" stop-color="#ede9fe"/>
+        <stop offset="1" stop-color="#93c5fd"/>
+      </radialGradient>
+      <linearGradient id="circStroke${id}" x1="0" x2="1">
+        <stop offset="0" stop-color="#6366f1"/>
+        <stop offset="1" stop-color="#22d3ee"/>
+      </linearGradient>
+      <marker id="circArrowEnd${id}" orient="auto" markerWidth="10" markerHeight="10" refX="8" refY="5">
+        <path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/>
+      </marker>
+      <marker id="circArrowStart${id}" orient="auto" markerWidth="10" markerHeight="10" refX="2" refY="5">
+        <path d="M10,0 L0,5 L10,10 Z" fill="#2563eb"/>
+      </marker>
+    </defs>
+    <rect x="0" y="0" width="${size}" height="${size}" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2" rx="26" ry="26" />
+    <circle cx="${cx}" cy="${cy}" r="${R + 8}" fill="none" stroke="#e0e7ff" stroke-width="2.4" stroke-dasharray="6 8" />
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#circGrad${id})" stroke="#64748b" stroke-width="1.4">
+      <animate attributeName="r" from="${R * 0.65}" to="${R}" dur=".35s" fill="freeze"/>
+    </circle>
+    <circle cx="${cx}" cy="${cy}" r="${R - 18}" fill="rgba(255,255,255,.35)" stroke="none"/>
+    ${measurementElements}
+    <g transform="translate(${bubbleX}, ${bubbleY})">
+      <rect width="${labelWidth}" height="${labelHeight}" rx="14" ry="14" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.2"/>
+      <text class="svg-label" x="${labelWidth / 2}" y="${labelHeight / 2 + 4}" text-anchor="middle">${measureText}</text>
+    </g>
+    ${labelText(cx, size - 12, formulaText)}
   </svg>`;
 }
 
