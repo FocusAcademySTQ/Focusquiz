@@ -198,6 +198,21 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <div id="resultsTable">No hi ha dades encara.</div>
       </div>
 
+      <div class="panel card" id="printablesPanel">
+        <div class="row" style="align-items:center">
+          <div>
+            <h3 class="title" style="margin:0">Fitxes impreses pendents</h3>
+            <p class="subtitle" style="margin:4px 0 0">Genera fitxes des d'un mòdul de matemàtiques i imprimeix-les o desa-les en PDF. Quan les tinguis corregides, inicia la correcció des d'aquí.</p>
+          </div>
+          <div class="tbl-actions">
+            <button class="btn-ghost" id="btnClearPrintables" type="button" disabled>Neteja llista</button>
+          </div>
+        </div>
+        <div id="printablesList" class="printables-list">
+          <div class="chip">Encara no hi ha fitxes guardades.</div>
+        </div>
+      </div>
+
       <!-- PERFIL / ANALYTICS -->
       <div class="panel card" id="results-analytics">
         <div class="row" style="align-items:center">
