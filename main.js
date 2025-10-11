@@ -9,7 +9,11 @@ function showModal(contentHTML){
   overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
 }
 
-function closeModal(){ const m = document.querySelector('.modal'); if(m) m.remove(); }
+function closeModal(){
+  const m = document.querySelector('.modal');
+  if(m) m.remove();
+  printableEditorState = null;
+}
 
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => Array.from(document.querySelectorAll(q));
@@ -18,6 +22,12 @@ const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
 const clamp = (x,a,b)=> Math.max(a, Math.min(b,x));
 const gcd = (a,b)=>{ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b] } return a||1 };
 const simplifyFrac = (n,d)=>{ const g=gcd(n,d); return [n/g, d/g] };
+const escapeHTML = (str = '') => String(str)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
 
 const store = {
   get k() { return 'focus-math-results-v1'; },
@@ -87,7 +97,6 @@ const store = {
   }
 };
 
-
 const fmtTime = (sec)=>{
   const m = Math.floor(sec/60), s = sec%60;
   return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
@@ -122,6 +131,7 @@ let pendingModule = null; // mòdul seleccionat per configurar
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
 let timerHandle = null;
+let printableEditorState = null;
 
 /* ===================== VIEWS ===================== */
 
@@ -389,11 +399,22 @@ function openConfig(moduleId){
     holder.appendChild(box);
   }
 
+  const printBtn = $('#btnPrintSet');
+  if (printBtn) {
+    const isMath = pendingModule?.category === 'math';
+    printBtn.classList.toggle('hidden', !isMath);
+    printBtn.disabled = !isMath;
+    printBtn.tabIndex = isMath ? 0 : -1;
+    if (isMath) {
+      printBtn.title = `Descarrega una fitxa en PDF de ${pendingModule.name}`;
+    }
+  }
+
   showView('config');
 }
 
-function startFromConfig(){
-  if(!pendingModule) return;
+function collectConfigValues(){
+  if(!pendingModule) return null;
   const count = parseInt($('#cfg-count').value||DEFAULTS.count);
   const time = parseInt($('#cfg-time').value||0);
   const level = parseInt($('#cfg-level').value||1);
@@ -405,7 +426,7 @@ function startFromConfig(){
     if($('#op-minus').checked) ops.push('-');
     if($('#op-times').checked) ops.push('×');
     if($('#op-div').checked) ops.push('÷');
-    if(!ops.length){ alert('Selecciona almenys una operació.'); return; }
+    if(!ops.length){ alert('Selecciona almenys una operació.'); return null; }
     options.ops = ops;
     options.allowNeg = !!$('#allow-neg').checked;
     options.tri = !!$('#tri-numbers').checked;
@@ -465,13 +486,28 @@ function startFromConfig(){
     options.difficulty = parseInt($('#func-diff').value || '1');
   }
 
-  // 🔌 Recull opcions personalitzades d'un mòdul extern (si n'hi ha)
   if (pendingModule && pendingModule.config && typeof pendingModule.config.collect === 'function') {
     const ext = pendingModule.config.collect();
     if (ext && typeof ext === 'object') Object.assign(options, ext);
   }
 
-  startQuiz(pendingModule.id, {count, time, level, options});
+  return { count, time, level, options };
+}
+
+function startFromConfig(){
+  const cfg = collectConfigValues();
+  if(!cfg) return;
+  startQuiz(pendingModule.id, cfg);
+}
+
+function downloadActivitiesFromConfig(){
+  const cfg = collectConfigValues();
+  if(!cfg) return;
+  if(!pendingModule || pendingModule.category !== 'math'){
+    alert('Aquest mòdul no admet fitxes imprimibles.');
+    return;
+  }
+  openPrintableEditor(pendingModule, cfg);
 }
 
 /* ===================== QUIZ ENGINE ===================== */
@@ -491,13 +527,14 @@ function startQuiz(moduleId, cfg){
     startedAt: Date.now(),
     secondsLeft: time>0 ? time*60 : 0,
     questions: [],
-    options: cfg.options || {}
+    options: cfg.options || {},
+    levelLabel: `Nivell ${level}`
   };
 
   for(let i=0;i<count;i++) session.questions.push(module.gen(level, session.options));
 
   $('#qModule').textContent = module.name;
-  $('#qLevel').textContent = `Nivell ${level}`;
+  $('#qLevel').textContent = session.levelLabel;
   $('#feedback').innerHTML='';
   $('#answer').value='';
   updateProgress();
@@ -509,29 +546,55 @@ function startQuiz(moduleId, cfg){
 }
 
 // Nova: començar amb preguntes existents (repàs d'errors)
-function startQuizFromExisting(moduleId, options, questions){
+function startQuizFromExisting(moduleId, options, questions, meta={}){
   const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
+  const normalized = Array.isArray(questions) ? questions.map(q => ({
+    type: q.type,
+    text: q.text,
+    title: q.title,
+    html: q.html,
+    answer: q.answer,
+    meta: q.meta,
+    numeric: q.numeric,
+    piCoef: q.piCoef,
+    sol: q.sol,
+    sols: q.sols
+  })) : [];
+  const opts = options ? JSON.parse(JSON.stringify(options)) : {};
+  const level = meta.level !== undefined ? meta.level : 0;
+  const timeLimit = meta.time ? Math.max(0, parseInt(meta.time)) : 0;
+
   session = {
     module: moduleId,
-    count: questions.length,
-    time: 0,
-    level: 0,
+    count: normalized.length,
+    time: timeLimit,
+    level,
     idx: 0,
     correct: 0,
     wrongs: [],
     startedAt: Date.now(),
-    secondsLeft: 0,
-    questions: questions.map(q=>({ type:q.type, text:q.text, title:q.title, html:q.html, answer:q.answer, meta:q.meta, numeric:q.numeric, piCoef:q.piCoef, sol:q.sol, sols:q.sols })),
-    options: options || {}
+    secondsLeft: timeLimit>0 ? timeLimit*60 : 0,
+    questions: normalized,
+    options: opts,
+    levelLabel: meta.levelLabel || (level>0 ? `Nivell ${level}` : 'Personalitzat')
   };
-  $('#qModule').textContent = module.name + ' (repàs d\'errors)';
-  $('#qLevel').textContent = 'Personalitzat';
+
+  const moduleName = module?.name || moduleId;
+  const label = meta.label === undefined ? "Repàs d'errors" : meta.label;
+  const title = meta.title || (label ? `${moduleName} (${label})` : moduleName);
+  $('#qModule').textContent = title;
+  $('#qLevel').textContent = session.levelLabel;
   $('#feedback').innerHTML='';
   $('#answer').value='';
   updateProgress();
   showView('quiz');
   renderQuestion();
-  $('#timer').textContent='Sense límit';
+  stopTimer();
+  if(timeLimit>0){
+    startTimer();
+  } else {
+    $('#timer').textContent='Sense límit';
+  }
   $('#answer').focus();
 }
 
@@ -580,29 +643,23 @@ function renderQuestion(){
     }
 
   } else if (mod?.category === 'geo') {
-    // 🔹 Geografia → textual, banderes o mapa
+    // 🔹 Geografia → textual o banderes
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
     $('#answer').removeAttribute('inputmode');
 
-    if (q.type === 'geo-map') {
-      $('#answer').style.display = 'none';
-      toggleRightCol(false);
-      setupGeoMapQuestion();
-    } else {
-      const hasOptions = Array.isArray(q.options) && q.options.length;
+    const hasOptions = Array.isArray(q.options) && q.options.length;
 
-      if (hasOptions) {
-        $('#answer').style.display = 'none';
-        const optionsHtml = q.options.map(opt => `
-          <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
-        `).join('');
-        if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
-        toggleRightCol(true);
-      } else {
-        $('#answer').style.display = 'block';
-        toggleRightCol(false);
-      }
+    if (hasOptions) {
+      $('#answer').style.display = 'none';
+      const optionsHtml = q.options.map(opt => `
+        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
+      `).join('');
+      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+      toggleRightCol(true);
+    } else {
+      $('#answer').style.display = 'block';
+      toggleRightCol(false);
     }
 
   } else if (mod?.category === 'sci') {
@@ -629,238 +686,6 @@ function renderQuestion(){
     toggleRightCol(true);
     renderKeypad();
   }
-}
-
-function setupGeoMapQuestion(){
-  const mapRoot = document.querySelector('.geo-map');
-  const answerInput = $('#answer');
-  if (!mapRoot || !answerInput) return;
-
-  const fallbackPoints = Array.from(mapRoot.querySelectorAll('[data-country]'));
-  if (fallbackPoints.length) {
-    fallbackPoints.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const value = btn.dataset.country || '';
-        answerInput.value = value;
-        fallbackPoints.forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        setTimeout(() => checkAnswer(), 120);
-      });
-    });
-  }
-
-  const mapContainer = mapRoot.querySelector('.geo-map-leaflet');
-  if (!mapContainer) return;
-
-  if (typeof L === 'undefined') {
-    const retries = parseInt(mapRoot.dataset.mapRetries || '0', 10);
-    if (retries < 5) {
-      mapRoot.dataset.mapRetries = String(retries + 1);
-      setTimeout(setupGeoMapQuestion, 300);
-    }
-    return;
-  }
-
-  if (mapContainer.dataset.ready === 'true') return;
-
-  const store = (window.__FOCUS_GEO__ && window.__FOCUS_GEO__.europe) || {};
-  const pointsData = Array.isArray(store.points) ? store.points : [];
-  const polygonsData = Array.isArray(store.polygons) ? store.polygons : [];
-  const bounds = store.bounds || null;
-
-  const map = L.map(mapContainer, {
-    zoomControl: true,
-    attributionControl: false,
-    minZoom: 4,
-    maxZoom: 7,
-    zoomSnap: 0.25,
-    zoomDelta: 0.5,
-    worldCopyJump: false
-  });
-
-  mapContainer.dataset.ready = 'true';
-  mapContainer.classList.add('geo-map-illustrated');
-  if (map.zoomControl) {
-    map.zoomControl.setPosition('topright');
-  }
-
-  const ensureReadyFlag = () => {
-    if (mapRoot.dataset.mapReady !== 'true') {
-      mapRoot.dataset.mapReady = 'true';
-    }
-  };
-
-  const clearReadyFlag = () => {
-    mapRoot.removeAttribute('data-map-ready');
-  };
-
-  const mapImageUrl = typeof store.image === 'string' ? store.image : 'assets/europe-map.svg';
-  let overlayReady = false;
-  let overlay = null;
-
-  if (bounds && typeof bounds === 'object') {
-    const southWest = L.latLng(bounds.south, bounds.west);
-    const northEast = L.latLng(bounds.north, bounds.east);
-    const mapBounds = L.latLngBounds(southWest, northEast);
-    overlay = L.imageOverlay(mapImageUrl, mapBounds, {
-      className: 'geo-map-overlay',
-      interactive: false
-    }).addTo(map);
-    map.fitBounds(mapBounds, { padding: [16, 16], maxZoom: 6.2 });
-    map.setMaxBounds(mapBounds.pad(0.08));
-    const center = mapBounds.getCenter();
-    const zoom = clamp(map.getZoom(), 5.2, 6.2);
-    map.setView(center, zoom);
-  } else {
-    map.setView([54, 15], 5.3);
-    const fallbackBounds = L.latLngBounds(
-      L.latLng(34, -25),
-      L.latLng(72, 40)
-    );
-    overlay = L.imageOverlay(mapImageUrl, fallbackBounds, {
-      className: 'geo-map-overlay',
-      interactive: false
-    }).addTo(map);
-  }
-
-  map.whenReady(() => {
-    if (!overlay || overlayReady) {
-      ensureReadyFlag();
-    }
-  });
-
-  if (overlay) {
-    const markOverlayReady = () => {
-      if (!overlayReady) {
-        overlayReady = true;
-        ensureReadyFlag();
-      }
-    };
-
-    overlay.once('load', markOverlayReady);
-    overlay.once('error', () => {
-      overlayReady = false;
-      clearReadyFlag();
-    });
-
-    const overlayElement = overlay.getElement();
-    if (overlayElement && overlayElement.complete) {
-      markOverlayReady();
-    } else if (overlayElement) {
-      overlayElement.addEventListener('load', markOverlayReady, { once: true });
-      overlayElement.addEventListener('error', () => {
-        overlayReady = false;
-        clearReadyFlag();
-      }, { once: true });
-    }
-  }
-
-  const basePolygonStyle = {
-    color: '#00000000',
-    weight: 0,
-    dashArray: null,
-    fillColor: '#86efac',
-    fillOpacity: 0.12,
-    className: 'geo-map-country'
-  };
-
-  const activePolygonStyle = {
-    color: '#00000000',
-    weight: 0,
-    dashArray: null,
-    fillColor: '#4ade80',
-    fillOpacity: 0.55
-  };
-
-  let selectedPolygon = null;
-
-  const resetPolygon = (polygon) => {
-    if (!polygon) return;
-    polygon.setStyle(basePolygonStyle);
-  };
-
-  if (polygonsData.length) {
-    polygonsData.forEach(shape => {
-      if (!Array.isArray(shape.coords) || !shape.coords.length) return;
-      const polygon = L.polygon(shape.coords, {
-        ...basePolygonStyle,
-        interactive: true
-      }).addTo(map);
-
-      polygon.on('mouseover', () => {
-        if (polygon === selectedPolygon) return;
-        polygon.setStyle({ fillOpacity: 0.3 });
-      });
-
-      polygon.on('mouseout', () => {
-        if (polygon === selectedPolygon) return;
-        polygon.setStyle({ fillOpacity: basePolygonStyle.fillOpacity });
-      });
-
-      polygon.on('click', () => {
-        answerInput.value = shape.name;
-        if (selectedPolygon && selectedPolygon !== polygon) {
-          resetPolygon(selectedPolygon);
-        }
-        if (fallbackPoints.length) {
-          fallbackPoints.forEach(b => b.classList.remove('selected'));
-        }
-        polygon.setStyle(activePolygonStyle);
-        polygon.bringToFront();
-        selectedPolygon = polygon;
-        setTimeout(() => checkAnswer(), 160);
-      });
-    });
-  } else if (pointsData.length) {
-    const createIcon = (point, active = false) => {
-      const html = `
-        <span class="geo-map-marker-content" aria-hidden="true"></span>
-        <span class="sr-only">${point.name}</span>
-      `;
-      return L.divIcon({
-        className: `leaflet-div-icon geo-map-marker${active ? ' active' : ''}`,
-        html,
-        iconSize: null,
-        iconAnchor: null
-      });
-    };
-
-    let selectedMarker = null;
-
-    pointsData.forEach(point => {
-      if (typeof point.lat !== 'number' || typeof point.lon !== 'number') return;
-      const defaultIcon = createIcon(point, false);
-      const activeIcon = createIcon(point, true);
-      const marker = L.marker([point.lat, point.lon], {
-        icon: defaultIcon,
-        title: point.name,
-        riseOnHover: true
-      }).addTo(map);
-
-      marker._defaultIcon = defaultIcon;
-      marker._activeIcon = activeIcon;
-
-      marker.on('click', () => {
-        answerInput.value = point.name;
-        if (selectedMarker && selectedMarker !== marker) {
-          selectedMarker.setIcon(selectedMarker._defaultIcon);
-        }
-        if (fallbackPoints.length) {
-          fallbackPoints.forEach(b => b.classList.remove('selected'));
-        }
-        marker.setIcon(marker._activeIcon);
-        selectedMarker = marker;
-        setTimeout(() => checkAnswer(), 150);
-      });
-    });
-  }
-
-  mapContainer.dataset.ready = 'true';
-  mapRoot.dataset.mapRetries = '0';
-
-  requestAnimationFrame(() => {
-    map.invalidateSize();
-  });
 }
 
 function renderKeypad(){
@@ -1193,6 +1018,9 @@ function finishQuiz(timeUp){
   const elapsed = Math.floor((Date.now() - session.startedAt)/1000);
   const score = Math.round((session.correct / session.count) * 100);
   const name = localStorage.getItem('lastStudent') || 'Anònim';
+  const moduleObj = MODULES.find(m=>m.id===session.module);
+  const moduleName = moduleObj?.name || session.module;
+  const levelLabel = session.levelLabel || (session.level > 0 ? `Nivell ${session.level}` : 'Personalitzat');
 
 
   store.save({
@@ -1217,7 +1045,7 @@ function finishQuiz(timeUp){
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
   const html = `
 <h3 style="margin-top:0">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
-<p class="subtitle">${name} · ${MODULES.find(m=>m.id===session.module).name} · Nivell ${session.level}</p>
+<p class="subtitle">${name} · ${moduleName} · ${levelLabel}</p>
 <div class="row" style="align-items:flex-end; gap:16px">
   <div>
     <div class="section-title">Resultat</div>
@@ -1244,13 +1072,786 @@ function redoWrongs(){
   }
   const qs = session.wrongs.map(w=>({type:w.type, text:w.text, title:w.title, html:w.html, answer:w.answer, meta:w.meta, numeric:w.numeric, piCoef:w.piCoef, sol:w.sol, sols:w.sols}));
   closeModal();
-  startQuizFromExisting(session.module, session.options, qs);
+  const meta = {
+    label: "Repàs d'errors",
+    level: session.level,
+    levelLabel: session.level > 0 ? `Nivell ${session.level}` : 'Repàs personalitzat'
+  };
+  startQuizFromExisting(session.module, session.options, qs, meta);
 }
 
 function renderWrongs(wr){
   return `<table><thead><tr><th>#</th><th>Pregunta</th><th>La teva</th><th>Correcta</th></tr></thead><tbody>`+
   wr.map((w,i)=>`<tr><td>${i+1}</td><td>${w.text}</td><td>${w.user}</td><td>${fmtAns(w.answer)}</td></tr>`).join('')+
   `</tbody></table>`;
+}
+
+/* ===================== FITXES IMPRIMIBLES ===================== */
+
+function cloneQuestionData(q){
+  if(!q || typeof q !== 'object'){
+    return {
+      type: '',
+      text: '',
+      title: '',
+      html: '',
+      answer: null,
+      meta: null,
+      numeric: null,
+      piCoef: null,
+      sol: null,
+      sols: null
+    };
+  }
+  return {
+    type: q.type,
+    text: q.text,
+    title: q.title,
+    html: q.html,
+    answer: q.answer,
+    meta: q.meta,
+    numeric: q.numeric,
+    piCoef: q.piCoef,
+    sol: q.sol,
+    sols: q.sols
+  };
+}
+
+function printableLineCount(q){
+  if(!q || !q.type) return 2;
+  if(q.type?.startsWith('eq')) return 4;
+  if(q.type?.startsWith('geom')) return 4;
+  if(q.type?.startsWith('frac')) return 3;
+  if(q.type?.startsWith('stats')) return 3;
+  if(q.type?.startsWith('func')) return 3;
+  return 2;
+}
+
+function printableAnswer(q){
+  if(q.answer !== undefined && q.answer !== null) return fmtAns(q.answer);
+  if(Array.isArray(q.sols) && q.sols.length) return q.sols.map(fmtAns).join(', ');
+  if(q.sol !== undefined && q.sol !== null) return fmtAns(q.sol);
+  if(q.numeric !== undefined && q.numeric !== null){
+    const num = q.numeric;
+    if(typeof num === 'number'){
+      return Number.isInteger(num) ? String(num) : num.toLocaleString('ca-ES', { maximumFractionDigits: 4 });
+    }
+    if(Array.isArray(num)) return num.join(', ');
+    return String(num);
+  }
+  return '—';
+}
+
+function formatPrintableOptions(moduleId, options){
+  if(!options || !Object.keys(options).length) return 'Opcions per defecte';
+  switch(moduleId){
+    case 'arith': {
+      const map = { '+':'suma', '-':'resta', '×':'multiplicació', '÷':'divisió' };
+      const ops = Array.isArray(options.ops) && options.ops.length ? options.ops.map(op => map[op] || op) : ['totes'];
+      const parts = [`Operacions: ${ops.join(', ')}`];
+      if(options.allowNeg) parts.push('Permet negatius');
+      if(options.tri) parts.push('Operacions amb 3 nombres');
+      return parts.join(' · ');
+    }
+    case 'frac': {
+      const mode = { identify: 'Identificar', arith: 'Aritmètica', simplify: 'Simplificar' }[options.sub] || 'Barreja';
+      const parts = [`Subtema: ${mode}`];
+      if(options.mixedGrids === false) parts.push('Grills uniformes');
+      if(options.forceSimplest) parts.push('Exigeix forma simplificada');
+      return parts.join(' · ');
+    }
+    case 'geom': {
+      const scopes = { area: 'Àrea', perim: 'Perímetre', both: 'Àrea + perímetre', vol: 'Volum' };
+      const figuresMap = {
+        rect: 'Rectangles/quadrats',
+        tri: 'Triangles',
+        circ: 'Cercles',
+        poly: 'Polígons regulars',
+        grid: 'Graella',
+        comp: 'Figures compostes',
+        cube: 'Cubs/prismes',
+        cylinder: 'Cilindres'
+      };
+      const active = Object.entries(options.fig || {}).filter(([,v])=>v).map(([k])=>figuresMap[k]).filter(Boolean);
+      const parts = [`Abast: ${scopes[options.scope] || 'General'}`];
+      if(active.length) parts.push(`Figures: ${active.join(', ')}`);
+      parts.push(`Unitats: ${options.units || 'cm'}`);
+      parts.push(`Decimals: ${options.round ?? 2}`);
+      parts.push(options.circleMode === 'pi-exacte' ? 'Mode cercles: exacte amb π' : 'Mode cercles: resultat numèric');
+      if(options.requireUnits) parts.push('Cal escriure la unitat');
+      return parts.join(' · ');
+    }
+    case 'stats': {
+      const map = { mmm: 'Mitjana/mediana/moda', 'range-dev': 'Rang i desviació', graphs: 'Gràfics' };
+      return `Subtema: ${map[options.sub] || 'General'} · Decimals: ${options.round ?? 2}`;
+    }
+    case 'units': {
+      const map = { length:'Longitud', mass:'Massa', volume:'Volum', area:'Superfície', time:'Temps' };
+      return `Conversió: ${map[options.sub] || 'General'} · Decimals: ${options.round ?? 2}`;
+    }
+    case 'eq': {
+      const formatMap = { normal:'Equacions normals', frac:'Amb fraccions', par:'Amb parèntesis', sys:'Sistemes' };
+      const degreeMap = { '1':'1r grau', '2':'2n grau', mixed:'Barrejats' };
+      const rangeMap = { small:'Coeficients petits (−9…9)', med:'Coeficients mitjans (−20…20)', big:'Coeficients grans (−60…60)' };
+      const parts = [formatMap[options.format] || 'Formats variats'];
+      parts.push(degreeMap[options.degree] || 'Graus variats');
+      parts.push(rangeMap[options.range] || 'Rang estàndard');
+      if(options.forceInt) parts.push('Solucions enteres');
+      if(options.allowIncomplete) parts.push('Inclou equacions incompletes');
+      if(options.hints) parts.push('Mostra pistes');
+      return parts.join(' · ');
+    }
+    case 'func': {
+      const typeMap = { lin:'Lineals', quad:'Quadràtiques', poly:'Polinòmiques', rac:'Racionals', rad:'Radicals', exp:'Exponencials', log:'Logarítmiques' };
+      const aspectMap = { type:'Tipus', domain:'Domini/recorregut', intercepts:'Punts de tall', symmetry:'Simetria', limits:'Límits', extrema:'Extrems', monotony:'Monotonia' };
+      const types = Object.entries(options.types || {}).filter(([,v])=>v).map(([k])=>typeMap[k]).filter(Boolean);
+      const aspects = Object.entries(options.aspects || {}).filter(([,v])=>v).map(([k])=>aspectMap[k]).filter(Boolean);
+      const diffMap = { 1:'Bàsic', 2:'Intermedi', 3:'Avançat', 4:'Expert' };
+      const parts = [];
+      if(types.length) parts.push(`Tipus: ${types.join(', ')}`);
+      if(aspects.length) parts.push(`Aspectes: ${aspects.join(', ')}`);
+      parts.push(`Dificultat: ${diffMap[options.difficulty] || 'Personalitzada'}`);
+      return parts.join(' · ');
+    }
+    default: {
+      return Object.entries(options).map(([k,v]) => {
+        if(v && typeof v === 'object') return `${k}: ${JSON.stringify(v)}`;
+        return `${k}: ${v}`;
+      }).join(' · ');
+    }
+  }
+}
+
+function openPrintableEditor(module, cfg){
+  const level = clamp(parseInt(cfg.level)||1, 1, 4);
+  const count = clamp(parseInt(cfg.count)||10, 1, 200);
+  const timeLimit = clamp(parseInt(cfg.time)||0, 0, 180);
+  const baseOptions = cfg.options ? JSON.parse(JSON.stringify(cfg.options)) : {};
+
+  const state = {
+    module,
+    level,
+    levelLabel: level > 0 ? `Nivell ${level}` : 'Personalitzat',
+    timeLimit,
+    options: baseOptions,
+    includeAnswers: true,
+    questions: [],
+    generatedAt: new Date().toISOString()
+  };
+
+  for(let i=0;i<count;i++){
+    state.questions.push(printableEditorGenerateQuestion(state));
+  }
+
+  const html = `
+    <div class="print-editor" role="document">
+      <div class="print-editor-header">
+        <div>
+          <h3 class="title" style="margin:0">${module.name} · Fitxa en PDF</h3>
+          <p class="subtitle" style="margin:6px 0 0">Has generat <strong>${state.questions.length}</strong> preguntes. Revisa les operacions, edita qualsevol enunciat o resposta, o regenera-les abans de descarregar el PDF.</p>
+        </div>
+        <button type="button" class="btn-ghost" data-action="close">Tanca</button>
+      </div>
+      <div class="print-editor-toolbar">
+        <button type="button" class="btn-secondary" data-action="regen-all">↻ Regenera totes</button>
+        <label class="toggle"><input type="checkbox" id="printEditorIncludeAnswers" checked> Inclou solucions al final</label>
+      </div>
+      <div id="printEditorList" class="print-editor-list"></div>
+      <div class="print-editor-footer">
+        <button type="button" class="btn-secondary" data-action="close">Cancel·la</button>
+        <button type="button" class="btn" data-action="download">Descarrega PDF</button>
+      </div>
+    </div>`;
+
+  showModal(html);
+  printableEditorState = state;
+  const modal = document.querySelector('.modal .print-editor');
+  if(!modal) return;
+
+  const regenAll = modal.querySelector('[data-action="regen-all"]');
+  if(regenAll) regenAll.addEventListener('click', regenerateAllPrintableEditorQuestions);
+  modal.querySelectorAll('[data-action="close"]').forEach(btn=> btn.addEventListener('click', closePrintableEditor));
+  const downloadBtn = modal.querySelector('[data-action="download"]');
+  if(downloadBtn) downloadBtn.addEventListener('click', downloadEditorSheet);
+
+  renderPrintableEditorList();
+}
+
+function printableEditorGenerateQuestion(state = printableEditorState){
+  if(!state) return { raw:{}, prompt:'', answerText:'', html:'' };
+  const module = state.module;
+  const level = state.level;
+  const opts = state.options ? JSON.parse(JSON.stringify(state.options)) : {};
+  let raw = null;
+  let attempts = 0;
+  while(attempts < 4){
+    try {
+      raw = cloneQuestionData(module.gen(level, opts));
+    } catch {
+      raw = cloneQuestionData(null);
+    }
+    const hasContent = raw.text || raw.title || raw.html;
+    if(hasContent) break;
+    attempts++;
+  }
+  if(!raw) raw = cloneQuestionData(null);
+  const defaultAnswer = printableAnswer(raw);
+  return {
+    raw,
+    prompt: raw.title || raw.text || '',
+    answerText: defaultAnswer === '—' ? '' : defaultAnswer,
+    html: raw.html || ''
+  };
+}
+
+function renderPrintableEditorList(){
+  if(!printableEditorState) return;
+  const list = document.querySelector('#printEditorList');
+  if(!list) return;
+  list.innerHTML = '';
+  printableEditorState.questions.forEach((entry, idx)=>{
+    list.appendChild(createPrintableEditorItem(entry, idx));
+  });
+}
+
+function createPrintableEditorItem(entry, idx){
+  const item = document.createElement('div');
+  item.className = 'print-editor-item';
+  item.dataset.index = String(idx);
+  item.innerHTML = `
+    <div class="print-editor-head">
+      <span class="print-editor-label">Pregunta ${idx+1}</span>
+      <button type="button" class="btn-secondary print-editor-regen">↻ Regenera</button>
+    </div>
+    <textarea class="input print-editor-text" rows="2"></textarea>
+    ${entry.html ? `<div class="print-editor-preview">${entry.html}</div>` : ''}
+    <label class="chip print-editor-answer-label">Resposta
+      <input type="text" class="input print-editor-answer" />
+    </label>
+  `;
+
+  const textarea = item.querySelector('.print-editor-text');
+  if(textarea){
+    textarea.value = entry.prompt || '';
+    textarea.addEventListener('input', ev => { entry.prompt = ev.target.value; });
+  }
+
+  const answerInput = item.querySelector('.print-editor-answer');
+  if(answerInput){
+    answerInput.value = entry.answerText || '';
+    answerInput.addEventListener('input', ev => { entry.answerText = ev.target.value; });
+  }
+
+  const regenBtn = item.querySelector('.print-editor-regen');
+  if(regenBtn){
+    regenBtn.addEventListener('click', () => regeneratePrintableEditorQuestion(idx));
+  }
+
+  return item;
+}
+
+function regeneratePrintableEditorQuestion(idx){
+  if(!printableEditorState) return;
+  const entry = printableEditorGenerateQuestion();
+  printableEditorState.questions[idx] = entry;
+  const list = document.querySelector('#printEditorList');
+  if(!list) return;
+  const current = list.querySelector(`.print-editor-item[data-index="${idx}"]`);
+  if(current){
+    const replacement = createPrintableEditorItem(entry, idx);
+    current.replaceWith(replacement);
+  }
+}
+
+function regenerateAllPrintableEditorQuestions(){
+  if(!printableEditorState) return;
+  printableEditorState.questions = printableEditorState.questions.map(() => printableEditorGenerateQuestion());
+  renderPrintableEditorList();
+}
+
+function downloadEditorSheet(){
+  if(!printableEditorState) return;
+  const modal = document.querySelector('.modal .print-editor');
+  if(modal){
+    const include = modal.querySelector('#printEditorIncludeAnswers');
+    printableEditorState.includeAnswers = include ? include.checked : true;
+  }
+
+  const entries = printableEditorState.questions.map((entry, idx)=>{
+    const prompt = (entry.prompt || '').trim() || `Pregunta ${idx+1}`;
+    const fallback = printableAnswer(entry.raw || {});
+    const trimmedAnswer = (entry.answerText || '').trim();
+    const answer = trimmedAnswer || (fallback !== '—' ? fallback : '');
+    return {
+      prompt,
+      answer,
+      html: entry.html || '',
+      raw: entry.raw || {}
+    };
+  });
+
+  const pdfBytes = buildPrintablePdf(printableEditorState, entries, printableEditorState.includeAnswers);
+  if(!pdfBytes || (pdfBytes.length !== undefined && pdfBytes.length === 0)){
+    alert('No s\'ha pogut preparar el PDF. Torna-ho a intentar.');
+    return;
+  }
+
+  const buffer = pdfBytes instanceof Uint8Array
+    ? pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength)
+    : pdfBytes;
+  const blob = new Blob([buffer], { type: 'application/pdf' });
+  const moduleName = printableEditorState.module?.name || printableEditorState.module?.id || 'focusquiz';
+  const safeName = moduleName.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'fitxa';
+  const blobUrl = URL.createObjectURL(blob);
+
+  const downloadFile = (url) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.rel = 'noopener';
+    link.style.position = 'fixed';
+    link.style.left = '-9999px';
+    link.download = `${safeName}-focusquiz.pdf`;
+    document.body.appendChild(link);
+    const trigger = () => {
+      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        link.remove();
+      }, 2000);
+    };
+    if('requestAnimationFrame' in window){
+      requestAnimationFrame(trigger);
+    } else {
+      setTimeout(trigger, 0);
+    }
+  };
+
+  if(window.navigator && typeof window.navigator.msSaveOrOpenBlob === 'function'){
+    window.navigator.msSaveOrOpenBlob(blob, `${safeName}-focusquiz.pdf`);
+    URL.revokeObjectURL(blobUrl);
+    return;
+  }
+
+  downloadFile(blobUrl);
+}
+
+function buildPrintablePdf(state, entries, includeAnswers){
+  const moduleName = state.module?.name || state.module?.id || 'Fitxa Focus Academy';
+  const levelLabel = state.levelLabel || (state.level ? `Nivell ${state.level}` : 'Personalitzat');
+  const timeLabel = state.timeLimit ? `${state.timeLimit} min` : 'sense límit';
+  const generatedAt = state.generatedAt ? new Date(state.generatedAt).toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' }) : new Date().toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' });
+  const optionSummary = formatPrintableOptions(state.module?.id || state.module?.module || state.module, state.options);
+  const noteForMedia = 'Inclou representació visual a la versió digital.';
+
+  const pageWidth = 595.28;
+  const pageHeight = 841.89;
+  const margin = 48;
+
+  const palette = {
+    pageBg: '#f7f7fb',
+    pageTop: '#eaf2ff',
+    pageHighlight: '#eafaf5',
+    headerAccent: '#7aa2ff',
+    headerGlow: '#bfd3ff',
+    cardBase: '#ffffff',
+    cardBorder: '#dbeafe',
+    text: '#0f172a',
+    muted: '#475569',
+    label: '#64748b',
+    line: '#cbd5f5',
+    note: '#475569',
+    answersBg: '#eef2ff',
+    answersBorder: '#c7d2fe',
+    answersAccent: '#1e3a8a',
+    answersText: '#0f172a',
+    accent: '#7aa2ff'
+  };
+
+  const accentRamp = [
+    { bar: '#8fb5ff', wash: '#edf2ff' },
+    { bar: '#c7b5ff', wash: '#f4edff' },
+    { bar: '#7fe7c9', wash: '#e6fcf2' },
+    { bar: '#ffc9a9', wash: '#fff3ea' },
+    { bar: '#ffb3c1', wash: '#ffe8ef' },
+    { bar: '#ffe08a', wash: '#fff8db' }
+  ];
+
+  function normalizeHex(value, fallback = '000000'){
+    if(typeof value === 'string'){
+      const trimmed = value.trim().replace(/^#/, '');
+      if(/^[0-9a-f]{6}$/i.test(trimmed)) return trimmed.toLowerCase();
+      if(/^[0-9a-f]{3}$/i.test(trimmed)) return trimmed.split('').map(ch => ch + ch).join('').toLowerCase();
+    }
+    if(typeof fallback === 'string'){
+      const fb = fallback.trim().replace(/^#/, '');
+      if(/^[0-9a-f]{6}$/i.test(fb)) return fb.toLowerCase();
+      if(/^[0-9a-f]{3}$/i.test(fb)) return fb.split('').map(ch => ch + ch).join('').toLowerCase();
+    }
+    return '000000';
+  }
+
+  function parseColor(hex, fallback = '#000000'){
+    const norm = normalizeHex(hex, fallback);
+    const r = parseInt(norm.slice(0, 2), 16) / 255;
+    const g = parseInt(norm.slice(2, 4), 16) / 255;
+    const b = parseInt(norm.slice(4, 6), 16) / 255;
+    return {
+      r: Math.round(r * 1000) / 1000,
+      g: Math.round(g * 1000) / 1000,
+      b: Math.round(b * 1000) / 1000
+    };
+  }
+
+  function colorStr(hex, fallback = '#000000'){
+    const { r, g, b } = parseColor(hex, fallback);
+    return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)}`;
+  }
+
+  function mixColor(hexA, hexB, weight = 0.5){
+    const t = clamp(typeof weight === 'number' ? weight : 0.5, 0, 1);
+    const a = parseColor(hexA);
+    const b = parseColor(hexB, hexA);
+    return {
+      r: Math.round(((a.r * (1 - t)) + (b.r * t)) * 1000) / 1000,
+      g: Math.round(((a.g * (1 - t)) + (b.g * t)) * 1000) / 1000,
+      b: Math.round(((a.b * (1 - t)) + (b.b * t)) * 1000) / 1000
+    };
+  }
+
+  function colorTuple(rgb){
+    if(!rgb || typeof rgb !== 'object') return colorStr('#000000');
+    const r = Number(rgb.r ?? 0);
+    const g = Number(rgb.g ?? 0);
+    const b = Number(rgb.b ?? 0);
+    return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)}`;
+  }
+
+  const pages = [];
+  let currentPage = null;
+  let cursorY = 0;
+
+  function fillRect(color, x, y, w, h){
+    if(!currentPage) return;
+    const colorValue = typeof color === 'string' ? colorStr(color) : colorTuple(color);
+    currentPage.commands.push(`q ${colorValue} rg ${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f Q`);
+  }
+
+  function strokeRect(color, width, x, y, w, h){
+    if(!currentPage) return;
+    const colorValue = typeof color === 'string' ? colorStr(color) : colorTuple(color);
+    currentPage.commands.push(`q ${width.toFixed(2)} w ${colorValue} RG ${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S Q`);
+  }
+
+  function newPage(){
+    currentPage = { commands: [] };
+    pages.push(currentPage);
+    cursorY = pageHeight - margin;
+    fillRect(palette.pageBg, 0, 0, pageWidth, pageHeight);
+    fillRect(palette.pageTop, 0, pageHeight - 190, pageWidth, 190);
+    fillRect(palette.pageHighlight, -40, pageHeight - 140, 220, 140);
+    fillRect(mixColor(palette.headerAccent, '#ffffff', 0.65), pageWidth - 200, pageHeight - 150, 200, 150);
+    currentPage.commands.push('0.5 w');
+  }
+
+  function ensurePageSpace(height){
+    if(cursorY - height < margin){
+      newPage();
+    }
+  }
+
+  function escapePdfText(str){
+    return String(str)
+      .replace(/\\/g, '\\\\')
+      .replace(/\(/g, '\\(')
+      .replace(/\)/g, '\\)');
+  }
+
+  function wrapText(text, size, indent, indentRight = 0){
+    const paragraphs = String(text || '').split(/\n+/);
+    const maxWidth = pageWidth - margin * 2 - indent - indentRight;
+    const charWidth = size * 0.55;
+    const lines = [];
+    paragraphs.forEach((para, idx)=>{
+      const words = para.trim().split(/\s+/).filter(Boolean);
+      let current = '';
+      if(idx > 0) lines.push('');
+      words.forEach(word => {
+        const candidate = current ? `${current} ${word}` : word;
+        if(candidate.length * charWidth <= maxWidth){
+          current = candidate;
+        } else {
+          if(current) lines.push(current);
+          if(word.length * charWidth > maxWidth){
+            let chunk = '';
+            word.split('').forEach(ch => {
+              const test = chunk + ch;
+              if(test.length * charWidth > maxWidth && chunk){
+                lines.push(chunk);
+                chunk = ch;
+              } else {
+                chunk = test;
+              }
+            });
+            current = chunk;
+          } else {
+            current = word;
+          }
+        }
+      });
+      if(current) lines.push(current);
+      if(!words.length) lines.push('');
+    });
+    if(!lines.length) lines.push('');
+    return lines;
+  }
+
+  function addText(text, size = 12, opts = {}){
+    if(text === null || text === undefined) return;
+    if(!currentPage) newPage();
+    const indent = opts.indent || 0;
+    const indentRight = opts.indentRight || 0;
+    const bold = !!opts.bold;
+    const after = opts.after ?? 6;
+    const lineHeight = size * (opts.lineHeight || 1.35);
+    const lines = Array.isArray(opts.lines) ? opts.lines : wrapText(text, size, indent, indentRight);
+    const blockHeight = lineHeight * lines.length + after;
+    ensurePageSpace(blockHeight);
+    const { r, g, b } = parseColor(opts.color || palette.text);
+    currentPage.commands.push(`${r} ${g} ${b} rg`);
+    lines.forEach(line => {
+      cursorY -= lineHeight;
+      const font = bold ? 'F2' : 'F1';
+      const x = margin + indent;
+      currentPage.commands.push(`BT /${font} ${size.toFixed(2)} Tf 1 0 0 1 ${x.toFixed(2)} ${cursorY.toFixed(2)} Tm (${escapePdfText(line)}) Tj ET`);
+    });
+    cursorY -= after;
+  }
+
+  function addAnswerLines(count, opts = {}){
+    if(!currentPage) newPage();
+    const indent = opts.indent || 18;
+    const indentRight = opts.indentRight || 0;
+    const lineGap = opts.lineGap ?? 10;
+    const lineHeight = opts.lineHeight ?? 12;
+    const stroke = typeof opts.color === 'string' ? colorStr(opts.color) : colorTuple(opts.color || parseColor(palette.line));
+    for(let i=0;i<count;i++){
+      ensurePageSpace(lineHeight + lineGap);
+      cursorY -= lineHeight;
+      const x1 = margin + indent;
+      const x2 = pageWidth - margin - indentRight;
+      currentPage.commands.push(`q ${stroke} RG ${x1.toFixed(2)} ${cursorY.toFixed(2)} m ${x2.toFixed(2)} ${cursorY.toFixed(2)} l S Q`);
+      cursorY -= lineGap;
+    }
+  }
+
+  function addHeaderCard(entries){
+    const infoLines = [
+      `• Nivell: ${levelLabel}`,
+      `• Temps: ${timeLabel}`,
+      `• Preguntes: ${entries.length}`
+    ];
+    if(optionSummary && optionSummary !== 'Opcions per defecte'){
+      infoLines.push(`• Configuració: ${optionSummary}`);
+    }
+    infoLines.push(`• Generat: ${generatedAt}`);
+
+    const topPad = 34;
+    const bottomPad = 24;
+    const titleSize = 18;
+    const titleLineHeight = titleSize * 1.2;
+    const titleAfter = 6;
+    const subtitleSize = 12;
+    const subtitleLineHeight = subtitleSize * 1.4;
+    const subtitleAfter = 10;
+    const metaSize = 11;
+    const metaLineHeight = metaSize * 1.45;
+    const metaBlock = infoLines.length * metaLineHeight;
+    const cardHeight = topPad + titleLineHeight + titleAfter + subtitleLineHeight + subtitleAfter + metaBlock + bottomPad;
+
+    ensurePageSpace(cardHeight + 12);
+    const top = cursorY;
+    const bottom = top - cardHeight;
+    const left = margin;
+    const width = pageWidth - margin * 2;
+
+    fillRect(palette.cardBase, left, bottom, width, cardHeight);
+    strokeRect(palette.cardBorder, 0.8, left, bottom, width, cardHeight);
+    fillRect(mixColor(palette.headerAccent, '#ffffff', 0.55), left, bottom + cardHeight - 8, width, 8);
+    fillRect(mixColor(palette.headerGlow, '#ffffff', 0.3), left + width - 160, bottom + cardHeight - 60, 140, 60);
+
+    cursorY = top - topPad;
+    addText(moduleName, titleSize, { bold: true, indent: 26, indentRight: 26, lineHeight: 1.2, after: titleAfter });
+    addText('Fitxa en PDF personalitzada', subtitleSize, { indent: 26, indentRight: 26, color: palette.muted, lineHeight: 1.4, after: subtitleAfter });
+    addText(infoLines.join('\n'), metaSize, { indent: 26, indentRight: 26, color: palette.label, lineHeight: 1.45, after: 0 });
+    cursorY -= bottomPad;
+  }
+
+  function addQuestionCard(entry, idx){
+    const accent = accentRamp[idx % accentRamp.length];
+    const accentWidth = 6;
+    const textIndent = accentWidth + 22;
+    const rightPad = 26;
+    const topPad = 24;
+    const bottomPad = 18;
+    const labelSize = 10;
+    const labelLineHeight = labelSize * 1.45;
+    const labelAfter = 4;
+    const questionSize = 12;
+    const questionLineHeight = questionSize * 1.45;
+    const questionAfter = entry.html ? 4 : 10;
+    const noteSize = 11;
+    const noteLineHeight = noteSize * 1.35;
+    const noteAfter = entry.html ? 8 : 0;
+    const answerCount = Math.max(2, printableLineCount(entry.raw));
+    const answerUnit = (12 + 10);
+
+    const promptText = entry.prompt || `Pregunta ${idx + 1}`;
+    const labelLines = wrapText(`Pregunta ${idx + 1}`, labelSize, textIndent, rightPad);
+    const questionLines = wrapText(promptText, questionSize, textIndent, rightPad);
+    const cardHeight = topPad + (labelLines.length * labelLineHeight) + labelAfter + (questionLines.length * questionLineHeight) + questionAfter + (entry.html ? (noteLineHeight + noteAfter) : 0) + (answerCount * answerUnit) + bottomPad;
+
+    ensurePageSpace(cardHeight + 10);
+    const top = cursorY;
+    const bottom = top - cardHeight;
+    const left = margin;
+    const width = pageWidth - margin * 2;
+
+    fillRect(accent.wash, left, bottom, width, cardHeight);
+    strokeRect(mixColor(accent.bar, '#ffffff', 0.35), 0.8, left, bottom, width, cardHeight);
+    fillRect(accent.bar, left, bottom, accentWidth, cardHeight);
+
+    cursorY = top - topPad;
+    addText(`Pregunta ${idx + 1}`, labelSize, { indent: textIndent, indentRight: rightPad, color: palette.label, lineHeight: 1.45, after: labelAfter, lines: labelLines });
+    addText(promptText, questionSize, { indent: textIndent, indentRight: rightPad, color: palette.text, lineHeight: 1.45, after: questionAfter, lines: questionLines, bold: true });
+    if(entry.html){
+      addText(noteForMedia, noteSize, { indent: textIndent + 4, indentRight: rightPad, color: palette.note, lineHeight: 1.35, after: noteAfter });
+    }
+    addAnswerLines(answerCount, { indent: textIndent, indentRight: rightPad, lineHeight: 12, lineGap: 10, color: mixColor(accent.bar, '#000000', 0.2) });
+    cursorY -= bottomPad;
+  }
+
+  function addAnswersSection(entries){
+    const topPad = 24;
+    const bottomPad = 20;
+    const headerSize = 13;
+    const headerLineHeight = headerSize * 1.3;
+    const headerAfter = 8;
+    const rowSize = 11;
+    const rowLineHeight = rowSize * 1.4;
+    const rowAfter = 4;
+    const totalHeight = topPad + headerLineHeight + headerAfter + (entries.length * (rowLineHeight + rowAfter)) + bottomPad;
+
+    ensurePageSpace(totalHeight + 10);
+    const top = cursorY;
+    const bottom = top - totalHeight;
+    const left = margin;
+    const width = pageWidth - margin * 2;
+
+    fillRect(palette.answersBg, left, bottom, width, totalHeight);
+    strokeRect(palette.answersBorder, 0.8, left, bottom, width, totalHeight);
+    fillRect(mixColor(palette.accent, '#ffffff', 0.5), left, bottom + totalHeight - 6, width, 6);
+
+    cursorY = top - topPad;
+    addText('Solucions', headerSize, { bold: true, indent: 22, indentRight: 22, color: palette.answersAccent, lineHeight: 1.3, after: headerAfter });
+    entries.forEach((entry, idx) => {
+      let answerValue = entry.answer;
+      if(answerValue === undefined || answerValue === null){
+        answerValue = '—';
+      } else if(typeof answerValue === 'number'){ 
+        answerValue = Number.isFinite(answerValue) ? String(answerValue) : '—';
+      } else {
+        const trimmed = String(answerValue).trim();
+        answerValue = trimmed ? trimmed : '—';
+      }
+      addText(`${idx + 1}. ${answerValue}`, rowSize, { indent: 32, indentRight: 22, color: palette.answersText, lineHeight: 1.4, after: rowAfter });
+    });
+    cursorY -= bottomPad;
+  }
+
+  newPage();
+  addHeaderCard(entries);
+
+  entries.forEach((entry, idx) => {
+    addQuestionCard(entry, idx);
+    if(idx !== entries.length - 1){
+      cursorY -= 6;
+    }
+  });
+
+  if(includeAnswers){
+    addAnswersSection(entries);
+  }
+
+  const objects = [];
+  function addObject(body = ''){
+    const id = objects.length + 1;
+    objects.push({ body });
+    return id;
+  }
+  function setObject(id, body){
+    objects[id - 1].body = body;
+  }
+
+  const catalogId = addObject();
+  const pagesId = addObject();
+  const fontRegularId = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+  const fontBoldId = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
+
+  const pageObjectIds = [];
+  const encoder = new TextEncoder();
+
+  pages.forEach(page => {
+    const stream = page.commands.join('\n');
+    const length = encoder.encode(stream).length;
+    const contentId = addObject(`<< /Length ${length} >>\nstream\n${stream}\nendstream`);
+    const pageId = addObject();
+    pageObjectIds.push(pageId);
+    setObject(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth.toFixed(2)} ${pageHeight.toFixed(2)}] /Contents ${contentId} 0 R /Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R >> >> >>`);
+  });
+
+  setObject(pagesId, `<< /Type /Pages /Kids [${pageObjectIds.map(id => `${id} 0 R`).join(' ')}] /Count ${pageObjectIds.length} >>`);
+  setObject(catalogId, `<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+
+  const parts = [];
+  const offsets = [0];
+  let offset = 0;
+
+  function push(str){
+    const chunk = encoder.encode(str);
+    parts.push(chunk);
+    offset += chunk.length;
+  }
+
+  push('%PDF-1.4\n');
+
+  objects.forEach((obj, idx) => {
+    offsets[idx + 1] = offset;
+    push(`${idx + 1} 0 obj\n`);
+    push(`${obj.body}\n`);
+    push('endobj\n');
+  });
+
+  const xrefOffset = offset;
+  push(`xref\n0 ${objects.length + 1}\n`);
+  push('0000000000 65535 f \n');
+  for(let i=1;i<=objects.length;i++){
+    push(`${String(offsets[i]).padStart(10, '0')} 00000 n \n`);
+  }
+  push(`trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+
+  let totalLength = 0;
+  parts.forEach(chunk => { totalLength += chunk.length; });
+  const pdfBytes = new Uint8Array(totalLength);
+  let position = 0;
+  parts.forEach(chunk => {
+    pdfBytes.set(chunk, position);
+    position += chunk.length;
+  });
+  return pdfBytes;
+}
+
+function closePrintableEditor(){
+  closeModal();
 }
 
 /* ===================== GENERADORS ===================== */
@@ -2598,7 +3199,11 @@ function init(){
 
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  const btnPrint = document.querySelector('#btnPrintSet');
+  if (btnPrint) btnPrint.addEventListener('click', downloadActivitiesFromConfig);
+  init();
+});
 
 document.addEventListener('focusquiz:user-login', init);
 document.addEventListener('focusquiz:user-logout', () => {
