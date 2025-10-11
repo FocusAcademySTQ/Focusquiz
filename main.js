@@ -30,6 +30,51 @@ const escapeHTML = (str = '') => String(str)
   .replace(/'/g, '&#39;');
 
 const MAX_RESULTS_PER_USER = 250;
+const LEGACY_RESULT_KEYS = [
+  'focus-results',
+  'focus-results-v1',
+  'focusResults',
+  'focus-academy-results',
+  'focus-math-results'
+];
+
+function sanitizeResultEntry(entry = {}, fallbackName = 'Anònim') {
+  const safeNumber = (value, fallback = 0) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : fallback;
+  };
+
+  const safeString = (value, fallback = '') => {
+    if (value === null || value === undefined) return fallback;
+    return String(value);
+  };
+
+  const wrongs = Array.isArray(entry.wrongs) ? entry.wrongs : [];
+  const cleanedWrongs = wrongs.map((w = {}) => {
+    const expected = 'answer' in w ? w.answer : null;
+    return {
+      text: safeString(w.text),
+      user: safeString(w.user),
+      correct: safeString(expected !== null ? fmtAns(expected) : ''),
+      answer: expected,
+      expected
+    };
+  });
+
+  return {
+    at: safeString(entry.at, new Date().toISOString()),
+    name: safeString(entry.name, fallbackName),
+    module: safeString(entry.module, 'desconegut'),
+    level: safeNumber(entry.level, 0),
+    levelLabel: safeString(entry.levelLabel, ''),
+    count: safeNumber(entry.count, 0),
+    correct: safeNumber(entry.correct, 0),
+    time_limit: safeNumber(entry.time_limit, 0),
+    time_spent: safeNumber(entry.time_spent, 0),
+    score: safeNumber(entry.score, 0),
+    wrongs: cleanedWrongs
+  };
+}
 
 function isQuotaError(err){
   return !!err && (
@@ -67,8 +112,34 @@ const store = {
     }
   },
 
-  all(options = {}) {
+  loadWithLegacy() {
     const data = this.load();
+    if (Object.keys(data).length) return data;
+
+    const merged = {};
+    LEGACY_RESULT_KEYS.forEach((key) => {
+      try {
+        const legacyRaw = localStorage.getItem(key);
+        if (!legacyRaw) return;
+        const parsed = JSON.parse(legacyRaw);
+        const entries = Array.isArray(parsed) ? parsed : [];
+        if (!entries.length) return;
+        const user = this.defaultUser();
+        merged[user] = (merged[user] || []).concat(entries.map(e => sanitizeResultEntry(e, user)));
+        localStorage.removeItem(key);
+      } catch {
+        // ignore legacy errors and move on
+      }
+    });
+
+    if (Object.keys(merged).length) {
+      localStorage.setItem(this.k, JSON.stringify(merged));
+    }
+    return Object.keys(merged).length ? merged : data;
+  },
+
+  all(options = {}) {
+    const data = this.loadWithLegacy();
     const scope = options.scope || 'current';
 
     const sortDesc = (entries) => entries.slice().sort((a, b) => {
@@ -84,15 +155,23 @@ const store = {
     }
 
     const targetUser = options.user !== undefined ? options.user : this.currentUser();
-    if (!targetUser) return [];
+    if (targetUser && Array.isArray(data[targetUser])) {
+      return sortDesc(data[targetUser]);
+    }
 
-    const entries = Array.isArray(data[targetUser]) ? data[targetUser] : [];
-    return sortDesc(entries);
+    const fallbackUser = 'Anònim';
+    if (!targetUser && Array.isArray(data[fallbackUser])) {
+      return sortDesc(data[fallbackUser]);
+    }
+
+    const firstAvailable = Object.values(data).find(Array.isArray);
+    return firstAvailable ? sortDesc(firstAvailable) : [];
   },
 
   save(entry) {
-    const user = this.defaultUser();
-    const data = this.load();
+    const current = this.currentUser();
+    const user = current && current.trim() ? current.trim() : 'Anònim';
+    const data = this.loadWithLegacy();
     if (!Array.isArray(data[user])) data[user] = [];
     const bucket = data[user];
 
@@ -100,7 +179,8 @@ const store = {
       bucket.splice(0, bucket.length - (MAX_RESULTS_PER_USER - 1));
     }
 
-    bucket.push(entry);
+    const sanitized = sanitizeResultEntry({ ...entry, name: user }, user);
+    bucket.push(sanitized);
 
     const persist = () => localStorage.setItem(this.k, JSON.stringify(data));
 
@@ -155,7 +235,7 @@ const store = {
 
   clear() {
     const user = this.defaultUser();
-    const data = this.load();
+    const data = this.loadWithLegacy();
     if (user in data) delete data[user];
     const remaining = Object.keys(data).length;
     if (!remaining) localStorage.removeItem(this.k);
