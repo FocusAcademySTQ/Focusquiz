@@ -290,6 +290,7 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
       if (!overlay) return;
       overlay.classList.toggle('is-active', open);
       overlay.toggleAttribute('hidden', !open);
+      overlay.style.display = open ? 'flex' : 'none';
     }
 
     // 🔹 Carrega usuaris guardats

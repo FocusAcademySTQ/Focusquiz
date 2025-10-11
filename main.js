@@ -3380,10 +3380,18 @@ function ensureUser(){
   const user = localStorage.getItem('lastStudent');
   const overlay = document.getElementById('loginOverlay');
   if(!user){
-    if(overlay) overlay.style.display = 'flex';
+    if(overlay){
+      overlay.style.display = 'flex';
+      overlay.classList.add('is-active');
+      overlay.removeAttribute('hidden');
+    }
     return false;
   }
-  if(overlay) overlay.style.display = 'none';
+  if(overlay){
+    overlay.style.display = 'none';
+    overlay.classList.remove('is-active');
+    overlay.setAttribute('hidden', '');
+  }
   return true;
 }
 
