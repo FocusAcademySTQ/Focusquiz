@@ -406,7 +406,7 @@ function openConfig(moduleId){
     printBtn.disabled = !isMath;
     printBtn.tabIndex = isMath ? 0 : -1;
     if (isMath) {
-      printBtn.title = `Genera una fitxa imprimible de ${pendingModule.name}`;
+      printBtn.title = `Descarrega una fitxa en PDF de ${pendingModule.name}`;
     }
   }
 
@@ -500,7 +500,7 @@ function startFromConfig(){
   startQuiz(pendingModule.id, cfg);
 }
 
-function printActivitiesFromConfig(){
+function downloadActivitiesFromConfig(){
   const cfg = collectConfigValues();
   if(!cfg) return;
   if(!pendingModule || pendingModule.category !== 'math'){
@@ -1238,8 +1238,8 @@ function openPrintableEditor(module, cfg){
     <div class="print-editor" role="document">
       <div class="print-editor-header">
         <div>
-          <h3 class="title" style="margin:0">${module.name} · Fitxa imprimible</h3>
-          <p class="subtitle" style="margin:6px 0 0">Revisa les operacions generades. Pots editar qualsevol enunciat o resposta, o regenera-les abans d'imprimir.</p>
+          <h3 class="title" style="margin:0">${module.name} · Fitxa en PDF</h3>
+          <p class="subtitle" style="margin:6px 0 0">Has generat <strong>${state.questions.length}</strong> preguntes. Revisa les operacions, edita qualsevol enunciat o resposta, o regenera-les abans de descarregar el PDF.</p>
         </div>
         <button type="button" class="btn-ghost" data-action="close">Tanca</button>
       </div>
@@ -1250,7 +1250,7 @@ function openPrintableEditor(module, cfg){
       <div id="printEditorList" class="print-editor-list"></div>
       <div class="print-editor-footer">
         <button type="button" class="btn-secondary" data-action="close">Cancel·la</button>
-        <button type="button" class="btn" data-action="print">Imprimeix</button>
+        <button type="button" class="btn" data-action="download">Descarrega PDF</button>
       </div>
     </div>`;
 
@@ -1262,8 +1262,8 @@ function openPrintableEditor(module, cfg){
   const regenAll = modal.querySelector('[data-action="regen-all"]');
   if(regenAll) regenAll.addEventListener('click', regenerateAllPrintableEditorQuestions);
   modal.querySelectorAll('[data-action="close"]').forEach(btn=> btn.addEventListener('click', closePrintableEditor));
-  const printBtn = modal.querySelector('[data-action="print"]');
-  if(printBtn) printBtn.addEventListener('click', printEditorSheet);
+  const downloadBtn = modal.querySelector('[data-action="download"]');
+  if(downloadBtn) downloadBtn.addEventListener('click', downloadEditorSheet);
 
   renderPrintableEditorList();
 }
@@ -1348,7 +1348,7 @@ function regenerateAllPrintableEditorQuestions(){
   renderPrintableEditorList();
 }
 
-function printEditorSheet(){
+function downloadEditorSheet(){
   if(!printableEditorState) return;
   const modal = document.querySelector('.modal .print-editor');
   if(modal){
@@ -1363,83 +1363,218 @@ function printEditorSheet(){
     raw: entry.raw || {}
   }));
 
-  const doc = buildPrintableDocument(printableEditorState, entries, printableEditorState.includeAnswers);
-  const win = window.open('', '_blank', 'noopener');
-  if(!win){
-    alert('No s\'ha pogut obrir la vista d\'impressió. Permet finestres emergents.');
-    return;
-  }
-  win.document.write(doc);
-  win.document.close();
-  win.focus();
-  setTimeout(()=>{ try{ win.print(); }catch{} }, 200);
+  const pdfBytes = buildPrintablePdf(printableEditorState, entries, printableEditorState.includeAnswers);
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const link = document.createElement('a');
+  const moduleName = printableEditorState.module?.name || printableEditorState.module?.id || 'focusquiz';
+  const safeName = moduleName.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'fitxa';
+  link.href = URL.createObjectURL(blob);
+  link.download = `${safeName}-focusquiz.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  setTimeout(()=>{
+    URL.revokeObjectURL(link.href);
+    link.remove();
+  }, 0);
 }
 
-function buildPrintableDocument(state, entries, includeAnswers){
+function buildPrintablePdf(state, entries, includeAnswers){
   const moduleName = state.module?.name || state.module?.id || 'Fitxa Focus Academy';
   const levelLabel = state.levelLabel || (state.level ? `Nivell ${state.level}` : 'Personalitzat');
   const timeLabel = state.timeLimit ? `${state.timeLimit} min` : 'sense límit';
   const generatedAt = state.generatedAt ? new Date(state.generatedAt).toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' }) : new Date().toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' });
   const optionSummary = formatPrintableOptions(state.module?.id || state.module?.module || state.module, state.options);
-  const optionLine = escapeHTML(optionSummary || 'Opcions per defecte');
+  const noteForMedia = 'Inclou representació visual a la versió digital.';
 
-  const questionBlocks = entries.map((entry, idx)=>{
-    const promptHtml = escapeHTML(entry.prompt).replace(/\n/g, '<br>');
-    const media = entry.html ? `<div class="print-q-media">${entry.html}</div>` : '';
-    const lineCount = Math.max(2, printableLineCount(entry.raw));
-    const lines = '<div class="print-lines">' + '<div class="line"></div>'.repeat(lineCount) + '</div>';
-    return `<div class="print-question"><div class="print-q-num">${idx+1}.</div><div class="print-q-body"><div class="print-q-text">${promptHtml}</div>${media}${lines}</div></div>`;
-  }).join('');
+  const pageWidth = 595.28;
+  const pageHeight = 841.89;
+  const margin = 48;
 
-  const answersSection = includeAnswers ? `<div class="print-answers"><h2>Solucions</h2><ol>${entries.map((entry, idx)=>`<li><strong>${idx+1}.</strong> ${escapeHTML(entry.answer || '—')}</li>`).join('')}</ol></div>` : '';
+  const pages = [];
+  let currentPage = null;
+  let cursorY = 0;
 
-  return `<!DOCTYPE html>
-<html lang="ca">
-<head>
-  <meta charset="utf-8">
-  <title>Fitxa imprimible · ${escapeHTML(moduleName)}</title>
-  <style>
-    body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#f8fafc;margin:0;color:#0f172a;}
-    .sheet{max-width:840px;margin:32px auto;padding:32px;background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 18px 40px rgba(15,23,42,.12);border-radius:24px;}
-    h1{font-size:1.6rem;margin:0;}
-    .meta-row{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 18px;font-size:.95rem;color:#334155;}
-    .meta-row span{min-width:180px;}
-    .note{background:#eef2ff;border:1px solid #c7d2fe;padding:12px 16px;border-radius:16px;font-size:.95rem;margin-bottom:18px;}
-    .print-questions{display:flex;flex-direction:column;gap:18px;}
-    .print-question{display:flex;gap:12px;}
-    .print-q-num{font-weight:700;font-size:1.1rem;width:32px;}
-    .print-q-body{flex:1;}
-    .print-q-text{font-size:1.05rem;line-height:1.5;}
-    .print-q-media{margin:10px 0;}
-    .print-lines{margin-top:14px;display:grid;gap:14px;}
-    .print-lines .line{height:1px;background:#cbd5f5;}
-    .print-answers{margin-top:32px;padding-top:24px;border-top:2px solid #e2e8f0;}
-    .print-answers h2{margin:0 0 12px;font-size:1.25rem;}
-    .print-answers ol{margin:0;padding-left:20px;display:grid;gap:6px;}
-    @media print{body{background:#fff;} .sheet{box-shadow:none;border:none;margin:0 auto;padding:24px;} .note{display:none;}}
-  </style>
-</head>
-<body>
-  <div class="sheet">
-    <h1>${escapeHTML(moduleName)}</h1>
-    <div class="meta-row">
-      <span><strong>Nivell:</strong> ${escapeHTML(levelLabel)}</span>
-      <span><strong>Preguntes:</strong> ${entries.length}</span>
-      <span><strong>Temps orientatiu:</strong> ${escapeHTML(timeLabel)}</span>
-      <span><strong>Generat:</strong> ${escapeHTML(generatedAt)}</span>
-    </div>
-    <div class="meta-row">
-      <span><strong>Alumne/a:</strong> ____________________</span>
-      <span><strong>Data:</strong> ____________________</span>
-    </div>
-    <div class="note">Opcions configurades: ${optionLine}</div>
-    <div class="print-questions">
-      ${questionBlocks}
-    </div>
-    ${answersSection}
-  </div>
-</body>
-</html>`;
+  function newPage(){
+    currentPage = { commands: [] };
+    pages.push(currentPage);
+    cursorY = pageHeight - margin;
+    currentPage.commands.push('0.5 w');
+  }
+
+  function ensurePageSpace(height){
+    if(cursorY - height < margin){
+      newPage();
+    }
+  }
+
+  function escapePdfText(str){
+    return String(str)
+      .replace(/\\/g, '\\\\')
+      .replace(/\(/g, '\\(')
+      .replace(/\)/g, '\\)');
+  }
+
+  function wrapText(text, size, indent){
+    const paragraphs = String(text || '').split(/\n+/);
+    const maxWidth = pageWidth - margin * 2 - indent;
+    const charWidth = size * 0.55;
+    const lines = [];
+    paragraphs.forEach((para, idx)=>{
+      const words = para.trim().split(/\s+/).filter(Boolean);
+      let current = '';
+      if(idx > 0) lines.push('');
+      words.forEach(word => {
+        const candidate = current ? `${current} ${word}` : word;
+        if(candidate.length * charWidth <= maxWidth){
+          current = candidate;
+        } else {
+          if(current) lines.push(current);
+          if(word.length * charWidth > maxWidth){
+            let chunk = '';
+            word.split('').forEach(ch => {
+              const test = chunk + ch;
+              if(test.length * charWidth > maxWidth && chunk){
+                lines.push(chunk);
+                chunk = ch;
+              } else {
+                chunk = test;
+              }
+            });
+            current = chunk;
+          } else {
+            current = word;
+          }
+        }
+      });
+      if(current) lines.push(current);
+      if(!words.length) lines.push('');
+    });
+    if(!lines.length) lines.push('');
+    return lines;
+  }
+
+  function addText(text, size = 12, opts = {}){
+    if(text === null || text === undefined) return;
+    if(!currentPage) newPage();
+    const indent = opts.indent || 0;
+    const bold = !!opts.bold;
+    const after = opts.after ?? 6;
+    const lineHeight = size * (opts.lineHeight || 1.35);
+    const lines = wrapText(text, size, indent);
+    const blockHeight = lineHeight * lines.length + after;
+    ensurePageSpace(blockHeight);
+    lines.forEach(line => {
+      cursorY -= lineHeight;
+      const font = bold ? 'F2' : 'F1';
+      const x = margin + indent;
+      currentPage.commands.push(`BT /${font} ${size.toFixed(2)} Tf 1 0 0 1 ${x.toFixed(2)} ${cursorY.toFixed(2)} Tm (${escapePdfText(line)}) Tj ET`);
+    });
+    cursorY -= after;
+  }
+
+  function addAnswerLines(count){
+    if(!currentPage) newPage();
+    for(let i=0;i<count;i++){
+      ensurePageSpace(22);
+      cursorY -= 12;
+      const x1 = margin + 18;
+      const x2 = pageWidth - margin;
+      currentPage.commands.push(`${x1.toFixed(2)} ${cursorY.toFixed(2)} m ${x2.toFixed(2)} ${cursorY.toFixed(2)} l S`);
+      cursorY -= 10;
+    }
+  }
+
+  newPage();
+  addText(`Fitxa en PDF · ${moduleName}`, 18, { bold: true, lineHeight: 1.2, after: 10 });
+  addText(`Nivell: ${levelLabel}`, 12, { after: 2 });
+  addText(`Temps: ${timeLabel}`, 12, { after: 2 });
+  addText(`Preguntes: ${entries.length}`, 12, { after: 2 });
+  addText(`Opcions: ${optionSummary || 'Opcions per defecte'}`, 12, { after: 2 });
+  addText(`Generat: ${generatedAt}`, 12, { after: 12 });
+
+  entries.forEach((entry, idx) => {
+    addText(`${idx + 1}. ${entry.prompt}`, 12, { bold: true, after: 6 });
+    if(entry.html){
+      addText(noteForMedia, 11, { indent: 18, after: 6 });
+    }
+    addAnswerLines(Math.max(2, printableLineCount(entry.raw)));
+    cursorY -= 8;
+  });
+
+  if(includeAnswers){
+    addText('Solucions', 14, { bold: true, after: 8 });
+    entries.forEach((entry, idx) => {
+      const ans = entry.answer || '—';
+      addText(`${idx + 1}. ${ans}`, 11, { indent: 12, after: 4 });
+    });
+  }
+
+  const objects = [];
+  function addObject(body = ''){
+    const id = objects.length + 1;
+    objects.push({ body });
+    return id;
+  }
+  function setObject(id, body){
+    objects[id - 1].body = body;
+  }
+
+  const catalogId = addObject();
+  const pagesId = addObject();
+  const fontRegularId = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+  const fontBoldId = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
+
+  const pageObjectIds = [];
+  const encoder = new TextEncoder();
+
+  pages.forEach(page => {
+    const stream = page.commands.join('\n');
+    const length = encoder.encode(stream).length;
+    const contentId = addObject(`<< /Length ${length} >>\nstream\n${stream}\nendstream`);
+    const pageId = addObject();
+    pageObjectIds.push(pageId);
+    setObject(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth.toFixed(2)} ${pageHeight.toFixed(2)}] /Contents ${contentId} 0 R /Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R >> >> >>`);
+  });
+
+  setObject(pagesId, `<< /Type /Pages /Kids [${pageObjectIds.map(id => `${id} 0 R`).join(' ')}] /Count ${pageObjectIds.length} >>`);
+  setObject(catalogId, `<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+
+  const parts = [];
+  const offsets = [0];
+  let offset = 0;
+
+  function push(str){
+    const chunk = encoder.encode(str);
+    parts.push(chunk);
+    offset += chunk.length;
+  }
+
+  push('%PDF-1.4\n');
+
+  objects.forEach((obj, idx) => {
+    offsets[idx + 1] = offset;
+    push(`${idx + 1} 0 obj\n`);
+    push(`${obj.body}\n`);
+    push('endobj\n');
+  });
+
+  const xrefOffset = offset;
+  push(`xref\n0 ${objects.length + 1}\n`);
+  push('0000000000 65535 f \n');
+  for(let i=1;i<=objects.length;i++){
+    push(`${String(offsets[i]).padStart(10, '0')} 00000 n \n`);
+  }
+  push(`trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
+
+  let totalLength = 0;
+  parts.forEach(chunk => { totalLength += chunk.length; });
+  const pdfBytes = new Uint8Array(totalLength);
+  let position = 0;
+  parts.forEach(chunk => {
+    pdfBytes.set(chunk, position);
+    position += chunk.length;
+  });
+  return pdfBytes;
 }
 
 function closePrintableEditor(){
@@ -2794,7 +2929,7 @@ function init(){
 
 document.addEventListener('DOMContentLoaded', () => {
   const btnPrint = document.querySelector('#btnPrintSet');
-  if (btnPrint) btnPrint.addEventListener('click', printActivitiesFromConfig);
+  if (btnPrint) btnPrint.addEventListener('click', downloadActivitiesFromConfig);
   init();
 });
 
