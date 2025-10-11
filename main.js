@@ -196,7 +196,17 @@ function openConfig(moduleId){
   // valors per defecte
   $('#cfg-count').value = DEFAULTS.count;
   $('#cfg-time').value = DEFAULTS.time;
-  $('#cfg-level').value = DEFAULTS.level;
+  const levelSelect = $('#cfg-level');
+  const levelWrap = $('#cfg-level-wrap');
+  const usesLevels = pendingModule?.usesLevels !== false;
+  if (levelSelect) {
+    levelSelect.value = String(usesLevels ? DEFAULTS.level : 4);
+    levelSelect.disabled = !usesLevels;
+    levelSelect.tabIndex = usesLevels ? 0 : -1;
+  }
+  if (levelWrap) {
+    levelWrap.classList.toggle('hidden', !usesLevels);
+  }
 
   // Opcions específiques
   const box = document.createElement('div');
@@ -417,7 +427,10 @@ function collectConfigValues(){
   if(!pendingModule) return null;
   const count = parseInt($('#cfg-count').value||DEFAULTS.count);
   const time = parseInt($('#cfg-time').value||0);
-  const level = parseInt($('#cfg-level').value||1);
+  const levelSelect = $('#cfg-level');
+  const usesLevels = pendingModule?.usesLevels !== false;
+  const rawLevel = parseInt(levelSelect?.value || (usesLevels ? DEFAULTS.level : 4));
+  const level = usesLevels ? clamp(rawLevel, 1, 4) : clamp(rawLevel || 4, 1, 4);
   const options = {};
 
   if(pendingModule.id==='arith'){
@@ -516,11 +529,15 @@ function startQuiz(moduleId, cfg){
   const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
   const count = clamp(parseInt(cfg.count)||10, 1, 200);
   const time = clamp(parseInt(cfg.time)||0, 0, 180);
-  const level = clamp(parseInt(cfg.level)||1, 1, 4);
+  const usesLevels = module?.usesLevels !== false;
+  const rawLevel = parseInt(cfg.level);
+  const genLevel = usesLevels ? clamp(rawLevel||1, 1, 4) : clamp(rawLevel||4, 1, 4);
+  const levelLabel = usesLevels ? `Nivell ${genLevel}` : (module?.levelLabel || 'Mode lliure');
+  const storedLevel = usesLevels ? genLevel : 0;
 
   session = {
     module: moduleId,
-    count, time, level,
+    count, time, level: storedLevel,
     idx: 0,
     correct: 0,
     wrongs: [],
@@ -528,10 +545,10 @@ function startQuiz(moduleId, cfg){
     secondsLeft: time>0 ? time*60 : 0,
     questions: [],
     options: cfg.options || {},
-    levelLabel: `Nivell ${level}`
+    levelLabel
   };
 
-  for(let i=0;i<count;i++) session.questions.push(module.gen(level, session.options));
+  for(let i=0;i<count;i++) session.questions.push(module.gen(genLevel, session.options));
 
   $('#qModule').textContent = module.name;
   $('#qLevel').textContent = session.levelLabel;
@@ -1028,6 +1045,7 @@ function finishQuiz(timeUp){
     name,
     module: session.module,
     level: session.level,
+    levelLabel,
     count: session.count,
     correct: session.correct,
     time_limit: session.time,
@@ -3225,12 +3243,13 @@ function renderResults(){
   const rows = filtered.map((r,i)=>{
     const m = MODULES.find(m=>m.id===r.module)?.name || r.module;
     const d = new Date(r.at);
+    const levelCell = r.levelLabel || (r.level > 0 ? `Nivell ${r.level}` : 'Mode lliure');
     return `<tr>
       <td>${i+1}</td>
       <td>${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
       <td>${r.name||''}</td>
       <td>${m}</td>
-      <td>Nivell ${r.level}</td>
+      <td>${levelCell}</td>
       <td>${r.correct}/${r.count}</td>
       <td>${r.score}%</td>
       <td>${fmtTime(r.time_spent)}</td>
@@ -3318,7 +3337,8 @@ function exportCSV(){
   const header = ['data','alumne','modul','nivell','preguntes','correctes','puntuacio','temps_limit','temps_consumit'];
   const lines = [header.join(',')];
   data.forEach(r=>{
-    lines.push([r.at, r.name, r.module, r.level, r.count, r.correct, r.score, r.time_limit, r.time_spent].join(','))
+    const levelValue = r.levelLabel || (r.level > 0 ? `Nivell ${r.level}` : 'Mode lliure');
+    lines.push([r.at, r.name, r.module, levelValue, r.count, r.correct, r.score, r.time_limit, r.time_spent].join(','))
   })
   const blob = new Blob([lines.join('\n')], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
