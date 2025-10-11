@@ -116,7 +116,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
           </div>
           <div class="controls">
             <button class="btn-secondary" onclick="showView('home')">← Torna</button>
-            <button id="btnPrintSet" class="btn-ghost hidden" type="button">💾 Descarrega PDF</button>
             <button onclick="startFromConfig()">Comença</button>
           </div>
         </div>
@@ -198,21 +197,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
         <div id="resultsTable">No hi ha dades encara.</div>
       </div>
 
-      <div class="panel card" id="printablesPanel">
-        <div class="row" style="align-items:center">
-          <div>
-            <h3 class="title" style="margin:0">Fitxes impreses pendents</h3>
-            <p class="subtitle" style="margin:4px 0 0">Genera fitxes des d'un mòdul de matemàtiques i imprimeix-les o desa-les en PDF. Quan les tinguis corregides, inicia la correcció des d'aquí.</p>
-          </div>
-          <div class="tbl-actions">
-            <button class="btn-ghost" id="btnClearPrintables" type="button" disabled>Neteja llista</button>
-          </div>
-        </div>
-        <div id="printablesList" class="printables-list">
-          <div class="chip">Encara no hi ha fitxes guardades.</div>
-        </div>
-      </div>
-
       <!-- PERFIL / ANALYTICS -->
       <div class="panel card" id="results-analytics">
         <div class="row" style="align-items:center">
@@ -257,7 +241,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
 Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Química (elements, fórmules i compostos).</li>
           <li>Temps opcional, nivell 1–4, i repàs de només les preguntes errònies.</li>
           <li>Historial exportable a CSV i mode offline (funciona sense internet).</li>
-          <li><strong>Compartició d’activitats:</strong> Imprimeix o exporta en PDF un conjunt d’exercicis perquè l’alumne els faci en paper i els corregeixi després a l’aplicació. Ideal per a entorns sense dispositius electrònics constants.</li>
         </ul>
       </div>
     </section>
@@ -368,7 +351,8 @@ Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), i Q
   });
   </script>
 
-  <!-- 🔹 Finalment, el main.js després del login -->
+  <!-- 🔹 Lògica principal i generadors de matemàtiques -->
   <script src="main.js" defer></script>
+  <script src="math.js" defer></script>
 </body>
 </html>
