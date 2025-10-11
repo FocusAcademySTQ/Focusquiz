@@ -1374,12 +1374,21 @@ function regenerateAllPrintableEditorQuestions(){
   renderPrintableEditorList();
 }
 
-function downloadEditorSheet(){
+async function downloadEditorSheet(){
   if(!printableEditorState) return;
   const modal = document.querySelector('.modal .print-editor');
   if(modal){
     const include = modal.querySelector('#printEditorIncludeAnswers');
     printableEditorState.includeAnswers = include ? include.checked : true;
+  }
+
+  const downloadBtn = modal ? modal.querySelector('[data-action="download"]') : null;
+  let previousLabel = '';
+  if(downloadBtn){
+    previousLabel = downloadBtn.textContent;
+    downloadBtn.textContent = 'Preparant PDF…';
+    downloadBtn.disabled = true;
+    downloadBtn.classList.add('is-loading');
   }
 
   const entries = printableEditorState.questions.map((entry, idx)=>{
@@ -1395,62 +1404,81 @@ function downloadEditorSheet(){
     };
   });
 
-  const pdfBytes = buildPrintablePdf(printableEditorState, entries, printableEditorState.includeAnswers);
-  if(!pdfBytes || (pdfBytes.length !== undefined && pdfBytes.length === 0)){
-    alert('No s\'ha pogut preparar el PDF. Torna-ho a intentar.');
-    return;
-  }
-
-  const buffer = pdfBytes instanceof Uint8Array
-    ? pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength)
-    : pdfBytes;
-  const blob = new Blob([buffer], { type: 'application/pdf' });
-  const moduleName = printableEditorState.module?.name || printableEditorState.module?.id || 'focusquiz';
-  const safeName = moduleName.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'fitxa';
-  const blobUrl = URL.createObjectURL(blob);
-
-  const downloadFile = (url) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.rel = 'noopener';
-    link.style.position = 'fixed';
-    link.style.left = '-9999px';
-    link.download = `${safeName}-focusquiz.pdf`;
-    document.body.appendChild(link);
-    const trigger = () => {
-      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-        link.remove();
-      }, 2000);
-    };
-    if('requestAnimationFrame' in window){
-      requestAnimationFrame(trigger);
-    } else {
-      setTimeout(trigger, 0);
+  try {
+    const pdfBytes = await buildPrintablePdf(printableEditorState, entries, printableEditorState.includeAnswers);
+    if(!pdfBytes || (pdfBytes.length !== undefined && pdfBytes.length === 0)){
+      throw new Error('empty-pdf');
     }
-  };
 
-  if(window.navigator && typeof window.navigator.msSaveOrOpenBlob === 'function'){
-    window.navigator.msSaveOrOpenBlob(blob, `${safeName}-focusquiz.pdf`);
-    URL.revokeObjectURL(blobUrl);
-    return;
+    const buffer = pdfBytes instanceof Uint8Array
+      ? pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength)
+      : pdfBytes;
+    const blob = new Blob([buffer], { type: 'application/pdf' });
+    const moduleName = printableEditorState.module?.name || printableEditorState.module?.id || 'focusquiz';
+    const safeName = moduleName.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'fitxa';
+    const blobUrl = URL.createObjectURL(blob);
+
+    const downloadFile = (url) => {
+      const link = document.createElement('a');
+      link.href = url;
+      link.rel = 'noopener';
+      link.style.position = 'fixed';
+      link.style.left = '-9999px';
+      link.download = `${safeName}-focusquiz.pdf`;
+      document.body.appendChild(link);
+      const trigger = () => {
+        link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        setTimeout(() => {
+          URL.revokeObjectURL(url);
+          link.remove();
+        }, 2000);
+      };
+      if('requestAnimationFrame' in window){
+        requestAnimationFrame(trigger);
+      } else {
+        setTimeout(trigger, 0);
+      }
+    };
+
+    if(window.navigator && typeof window.navigator.msSaveOrOpenBlob === 'function'){
+      window.navigator.msSaveOrOpenBlob(blob, `${safeName}-focusquiz.pdf`);
+      URL.revokeObjectURL(blobUrl);
+      return;
+    }
+
+    downloadFile(blobUrl);
+  } catch(err){
+    console.error('Error generant el PDF imprimible', err);
+    alert('No s\'ha pogut preparar el PDF. Torna-ho a intentar.');
+  } finally {
+    if(downloadBtn){
+      downloadBtn.disabled = false;
+      downloadBtn.classList.remove('is-loading');
+      if(previousLabel) downloadBtn.textContent = previousLabel;
+    }
   }
-
-  downloadFile(blobUrl);
 }
 
-function buildPrintablePdf(state, entries, includeAnswers){
+async function buildPrintablePdf(state, entries, includeAnswers){
   const moduleName = state.module?.name || state.module?.id || 'Fitxa Focus Academy';
   const levelLabel = state.levelLabel || (state.level ? `Nivell ${state.level}` : 'Personalitzat');
   const timeLabel = state.timeLimit ? `${state.timeLimit} min` : 'sense límit';
   const generatedAt = state.generatedAt ? new Date(state.generatedAt).toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' }) : new Date().toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' });
   const optionSummary = formatPrintableOptions(state.module?.id || state.module?.module || state.module, state.options);
-  const noteForMedia = 'Inclou representació visual a la versió digital.';
+
+  const processedEntries = await Promise.all(entries.map(async entry => {
+    const visuals = await extractPrintableVisuals(entry.html);
+    return {
+      ...entry,
+      media: visuals.media,
+      mediaNotes: visuals.textNotes
+    };
+  }));
 
   const pageWidth = 595.28;
   const pageHeight = 841.89;
   const margin = 48;
+  const PX_TO_PT = 72 / 96;
 
   const palette = {
     pageBg: '#f7f7fb',
@@ -1547,8 +1575,15 @@ function buildPrintablePdf(state, entries, includeAnswers){
     currentPage.commands.push(`q ${width.toFixed(2)} w ${colorValue} RG ${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S Q`);
   }
 
+  function drawImage(media, x, y, w, h){
+    if(!currentPage || !media || !media.resourceName || !media.objectId) return;
+    if(!currentPage.xObjects) currentPage.xObjects = {};
+    currentPage.xObjects[media.resourceName] = media.objectId;
+    currentPage.commands.push(`q ${w.toFixed(2)} 0 0 ${h.toFixed(2)} ${x.toFixed(2)} ${y.toFixed(2)} cm /${media.resourceName} Do Q`);
+  }
+
   function newPage(){
-    currentPage = { commands: [] };
+    currentPage = { commands: [], xObjects: {} };
     pages.push(currentPage);
     cursorY = pageHeight - margin;
     fillRect(palette.pageBg, 0, 0, pageWidth, pageHeight);
@@ -1566,7 +1601,7 @@ function buildPrintablePdf(state, entries, includeAnswers){
 
   function escapePdfText(str){
     return String(str)
-      .replace(/\\/g, '\\\\')
+      .replace(/\\/g, '\\')
       .replace(/\(/g, '\\(')
       .replace(/\)/g, '\\)');
   }
@@ -1604,9 +1639,7 @@ function buildPrintablePdf(state, entries, includeAnswers){
         }
       });
       if(current) lines.push(current);
-      if(!words.length) lines.push('');
     });
-    if(!lines.length) lines.push('');
     return lines;
   }
 
@@ -1649,11 +1682,11 @@ function buildPrintablePdf(state, entries, includeAnswers){
     }
   }
 
-  function addHeaderCard(entries){
+  function addHeaderCard(entriesWithContent){
     const infoLines = [
       `• Nivell: ${levelLabel}`,
       `• Temps: ${timeLabel}`,
-      `• Preguntes: ${entries.length}`
+      `• Preguntes: ${entriesWithContent.length}`
     ];
     if(optionSummary && optionSummary !== 'Opcions per defecte'){
       infoLines.push(`• Configuració: ${optionSummary}`);
@@ -1703,17 +1736,40 @@ function buildPrintablePdf(state, entries, includeAnswers){
     const labelAfter = 4;
     const questionSize = 12;
     const questionLineHeight = questionSize * 1.45;
-    const questionAfter = entry.html ? 4 : 10;
+    const media = Array.isArray(entry.media) ? entry.media.filter(m => m && m.bytes && m.bytes.length) : [];
+    const hasMedia = media.length > 0;
+    const mediaNotesText = Array.isArray(entry.mediaNotes) && entry.mediaNotes.length ? entry.mediaNotes.join('\n') : '';
+    const hasNotes = !!mediaNotesText;
     const noteSize = 11;
     const noteLineHeight = noteSize * 1.35;
-    const noteAfter = entry.html ? 8 : 0;
+    const noteLines = hasNotes ? wrapText(mediaNotesText, noteSize, textIndent + 4, rightPad + 6) : [];
+    const noteAfter = hasNotes ? 8 : 0;
+    const questionAfter = hasMedia || hasNotes ? 6 : 10;
     const answerCount = Math.max(2, printableLineCount(entry.raw));
     const answerUnit = (12 + 10);
+    const mediaGap = 10;
+    const mediaTopGap = hasMedia ? 12 : 0;
 
     const promptText = entry.prompt || `Pregunta ${idx + 1}`;
     const labelLines = wrapText(`Pregunta ${idx + 1}`, labelSize, textIndent, rightPad);
     const questionLines = wrapText(promptText, questionSize, textIndent, rightPad);
-    const cardHeight = topPad + (labelLines.length * labelLineHeight) + labelAfter + (questionLines.length * questionLineHeight) + questionAfter + (entry.html ? (noteLineHeight + noteAfter) : 0) + (answerCount * answerUnit) + bottomPad;
+
+    const availableWidth = pageWidth - margin * 2 - textIndent - rightPad;
+    let mediaBlockHeight = 0;
+    media.forEach(m => {
+      const widthPt = m.widthPt || (Math.max(1, Math.round(m.pixelWidth || m.widthPx || 1)) * PX_TO_PT);
+      const heightPt = m.heightPt || (Math.max(1, Math.round(m.pixelHeight || m.heightPx || 1)) * PX_TO_PT);
+      const scale = widthPt > availableWidth ? availableWidth / widthPt : 1;
+      m.layoutWidth = widthPt * scale;
+      m.layoutHeight = heightPt * scale;
+      m.layoutX = margin + textIndent + (availableWidth - m.layoutWidth) / 2;
+      mediaBlockHeight += m.layoutHeight;
+    });
+    if(hasMedia && media.length > 1) mediaBlockHeight += mediaGap * (media.length - 1);
+    if(hasMedia) mediaBlockHeight += mediaTopGap;
+
+    const notesHeight = hasNotes ? (noteLines.length * noteLineHeight) + noteAfter : 0;
+    const cardHeight = topPad + (labelLines.length * labelLineHeight) + labelAfter + (questionLines.length * questionLineHeight) + questionAfter + mediaBlockHeight + notesHeight + (answerCount * answerUnit) + bottomPad;
 
     ensurePageSpace(cardHeight + 10);
     const top = cursorY;
@@ -1728,14 +1784,31 @@ function buildPrintablePdf(state, entries, includeAnswers){
     cursorY = top - topPad;
     addText(`Pregunta ${idx + 1}`, labelSize, { indent: textIndent, indentRight: rightPad, color: palette.label, lineHeight: 1.45, after: labelAfter, lines: labelLines });
     addText(promptText, questionSize, { indent: textIndent, indentRight: rightPad, color: palette.text, lineHeight: 1.45, after: questionAfter, lines: questionLines, bold: true });
-    if(entry.html){
-      addText(noteForMedia, noteSize, { indent: textIndent + 4, indentRight: rightPad, color: palette.note, lineHeight: 1.35, after: noteAfter });
+
+    if(hasMedia){
+      cursorY -= mediaTopGap;
+      media.forEach((m, mediaIdx) => {
+        const drawHeight = m.layoutHeight || 0;
+        const drawWidth = m.layoutWidth || 0;
+        const drawX = m.layoutX ?? (margin + textIndent);
+        const bottomY = cursorY - drawHeight;
+        drawImage(m, drawX, bottomY, drawWidth, drawHeight);
+        cursorY -= drawHeight;
+        if(mediaIdx !== media.length - 1){
+          cursorY -= mediaGap;
+        }
+      });
     }
+
+    if(hasNotes){
+      addText(mediaNotesText, noteSize, { indent: textIndent + 4, indentRight: rightPad, color: palette.note, lineHeight: 1.35, after: noteAfter, lines: noteLines });
+    }
+
     addAnswerLines(answerCount, { indent: textIndent, indentRight: rightPad, lineHeight: 12, lineGap: 10, color: mixColor(accent.bar, '#000000', 0.2) });
     cursorY -= bottomPad;
   }
 
-  function addAnswersSection(entries){
+  function addAnswersSection(entriesWithContent){
     const topPad = 24;
     const bottomPad = 20;
     const headerSize = 13;
@@ -1744,7 +1817,7 @@ function buildPrintablePdf(state, entries, includeAnswers){
     const rowSize = 11;
     const rowLineHeight = rowSize * 1.4;
     const rowAfter = 4;
-    const totalHeight = topPad + headerLineHeight + headerAfter + (entries.length * (rowLineHeight + rowAfter)) + bottomPad;
+    const totalHeight = topPad + headerLineHeight + headerAfter + (entriesWithContent.length * (rowLineHeight + rowAfter)) + bottomPad;
 
     ensurePageSpace(totalHeight + 10);
     const top = cursorY;
@@ -1758,11 +1831,11 @@ function buildPrintablePdf(state, entries, includeAnswers){
 
     cursorY = top - topPad;
     addText('Solucions', headerSize, { bold: true, indent: 22, indentRight: 22, color: palette.answersAccent, lineHeight: 1.3, after: headerAfter });
-    entries.forEach((entry, idx) => {
+    entriesWithContent.forEach((entry, idx) => {
       let answerValue = entry.answer;
       if(answerValue === undefined || answerValue === null){
         answerValue = '—';
-      } else if(typeof answerValue === 'number'){ 
+      } else if(typeof answerValue === 'number'){
         answerValue = Number.isFinite(answerValue) ? String(answerValue) : '—';
       } else {
         const trimmed = String(answerValue).trim();
@@ -1774,17 +1847,17 @@ function buildPrintablePdf(state, entries, includeAnswers){
   }
 
   newPage();
-  addHeaderCard(entries);
+  addHeaderCard(processedEntries);
 
-  entries.forEach((entry, idx) => {
+  processedEntries.forEach((entry, idx) => {
     addQuestionCard(entry, idx);
-    if(idx !== entries.length - 1){
+    if(idx !== processedEntries.length - 1){
       cursorY -= 6;
     }
   });
 
   if(includeAnswers){
-    addAnswersSection(entries);
+    addAnswersSection(processedEntries);
   }
 
   const objects = [];
@@ -1802,6 +1875,20 @@ function buildPrintablePdf(state, entries, includeAnswers){
   const fontRegularId = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
   const fontBoldId = addObject('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>');
 
+  let imageCounter = 0;
+  processedEntries.forEach(entry => {
+    (entry.media || []).forEach(media => {
+      if(!media.bytes || !media.bytes.length) return;
+      if(media.objectId) return;
+      imageCounter += 1;
+      media.resourceName = `Im${imageCounter}`;
+      const widthPx = Math.max(1, Math.round(media.pixelWidth || media.widthPx || 1));
+      const heightPx = Math.max(1, Math.round(media.pixelHeight || media.heightPx || 1));
+      const dict = `<< /Type /XObject /Subtype /Image /Width ${widthPx} /Height ${heightPx} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode >>`;
+      media.objectId = addObject({ stream: true, dict, bytes: media.bytes });
+    });
+  });
+
   const pageObjectIds = [];
   const encoder = new TextEncoder();
 
@@ -1811,7 +1898,9 @@ function buildPrintablePdf(state, entries, includeAnswers){
     const contentId = addObject(`<< /Length ${length} >>\nstream\n${stream}\nendstream`);
     const pageId = addObject();
     pageObjectIds.push(pageId);
-    setObject(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth.toFixed(2)} ${pageHeight.toFixed(2)}] /Contents ${contentId} 0 R /Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R >> >> >>`);
+    const xObjectEntries = Object.entries(page.xObjects || {});
+    const xObjectDict = xObjectEntries.length ? ` /XObject << ${xObjectEntries.map(([name, id]) => `/${name} ${id} 0 R`).join(' ')} >>` : '';
+    setObject(pageId, `<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${pageWidth.toFixed(2)} ${pageHeight.toFixed(2)}] /Contents ${contentId} 0 R /Resources << /Font << /F1 ${fontRegularId} 0 R /F2 ${fontBoldId} 0 R >>${xObjectDict} >> >>`);
   });
 
   setObject(pagesId, `<< /Type /Pages /Kids [${pageObjectIds.map(id => `${id} 0 R`).join(' ')}] /Count ${pageObjectIds.length} >>`);
@@ -1827,12 +1916,31 @@ function buildPrintablePdf(state, entries, includeAnswers){
     offset += chunk.length;
   }
 
+  function pushBinary(data){
+    const chunk = data instanceof Uint8Array ? data : new Uint8Array(data);
+    parts.push(chunk);
+    offset += chunk.length;
+  }
+
   push('%PDF-1.4\n');
 
   objects.forEach((obj, idx) => {
     offsets[idx + 1] = offset;
     push(`${idx + 1} 0 obj\n`);
-    push(`${obj.body}\n`);
+    if(obj.body && typeof obj.body === 'object' && obj.body.stream){
+      const bytes = obj.body.bytes instanceof Uint8Array ? obj.body.bytes : new Uint8Array(obj.body.bytes || []);
+      let dict = obj.body.dict || '<< >>';
+      if(/\/Length\b/.test(dict)){
+        dict = dict.replace(/\/Length\s+\d+/, `/Length ${bytes.length}`);
+      } else {
+        dict = dict.replace('>>', ` /Length ${bytes.length} >>`);
+      }
+      push(`${dict}\nstream\n`);
+      pushBinary(bytes);
+      push('\nendstream\n');
+    } else {
+      push(`${obj.body}\n`);
+    }
     push('endobj\n');
   });
 
@@ -1855,6 +1963,94 @@ function buildPrintablePdf(state, entries, includeAnswers){
   return pdfBytes;
 }
 
+async function extractPrintableVisuals(html){
+  const result = { media: [], textNotes: [] };
+  if(!html) return result;
+
+  const scratch = document.createElement('div');
+  scratch.innerHTML = html;
+  const svgNodes = Array.from(scratch.querySelectorAll('svg'));
+
+  for(const svg of svgNodes){
+    try {
+      const serialized = serializeSvgForPdf(svg);
+      const rendered = await rasterizeSvgForPdf(serialized);
+      if(rendered && rendered.bytes && rendered.bytes.length){
+        result.media.push(rendered);
+      }
+    } catch(err){
+      console.warn('No s\'ha pogut convertir un SVG de la fitxa', err);
+    }
+    svg.remove();
+  }
+
+  const text = scratch.innerText.split(/\n+/)
+    .map(line => line.replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
+  result.textNotes = text;
+  return result;
+}
+
+function serializeSvgForPdf(svg){
+  const clone = svg.cloneNode(true);
+  if(!clone.getAttribute('xmlns')){
+    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  }
+  if(!clone.getAttribute('xmlns:xlink')){
+    clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+  }
+  const serializer = new XMLSerializer();
+  return serializer.serializeToString(clone);
+}
+
+function dataUrlToUint8Array(dataUrl){
+  const base64 = String(dataUrl).split(',')[1] || '';
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for(let i=0;i<binary.length;i++){
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+async function rasterizeSvgForPdf(svgMarkup){
+  const blob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  try {
+    const img = new Image();
+    img.decoding = 'async';
+    const loadPromise = new Promise((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = (err) => reject(err || new Error('Error carregant SVG'));
+    });
+    img.src = url;
+    await loadPromise;
+    if(typeof img.decode === 'function'){
+      try { await img.decode(); } catch {}
+    }
+    const naturalWidth = Math.max(1, Math.round(img.naturalWidth || img.width || 600));
+    const naturalHeight = Math.max(1, Math.round(img.naturalHeight || img.height || 400));
+    const canvas = document.createElement('canvas');
+    const scale = Math.max(1, Math.min(3, 1200 / Math.max(naturalWidth, naturalHeight)));
+    canvas.width = Math.max(1, Math.round(naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(naturalHeight * scale));
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    const bytes = dataUrlToUint8Array(dataUrl);
+    return {
+      bytes,
+      pixelWidth: canvas.width,
+      pixelHeight: canvas.height,
+      widthPt: canvas.width * (72 / 96),
+      heightPt: canvas.height * (72 / 96)
+    };
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
 function closePrintableEditor(){
   closeModal();
 }
