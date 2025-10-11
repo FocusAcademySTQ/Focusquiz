@@ -38,6 +38,14 @@ const LEGACY_RESULT_KEYS = [
   'focus-math-results'
 ];
 
+const PRINTABLE_STORAGE_KEYS = [
+  'focus-printable-sets-v1',
+  'focus-printable-sets',
+  'focus-printables',
+  'focusPrintables'
+];
+let activePrintableStorageKey = PRINTABLE_STORAGE_KEYS[0];
+
 function sanitizeResultEntry(entry = {}, fallbackName = 'Anònim') {
   const safeNumber = (value, fallback = 0) => {
     const num = Number(value);
@@ -2456,6 +2464,10 @@ function genFractions(level, opts={}){
 
 const labelText = (x,y,text)=> `<text class="svg-label" x="${x}" y="${y}">${text}</text>`;
 
+let circleFigId = 0;
+let polyFigId = 0;
+let compositeFigId = 0;
+
 function dimLineOutside(x1,y1,x2,y2,text,offset=16, orient='h'){
   if(orient==='h'){
     const yy = Math.max(y1,y2)+offset;
@@ -2504,25 +2516,230 @@ function svgTriFig(b,h,units){
   </svg>`;
 }
 
-function svgCircleFig(labelTextStr){
-  const size=220, pad=12, cx=size/2, cy=size/2, R=size/2 - pad - 8;
+function svgCircleFig(measureText){
+  const size = 320;
+  const pad = 28;
+  const cx = size / 2;
+  const cy = size / 2 + 6;
+  const R = size / 2 - pad - 14;
+  const id = `circ${++circleFigId}`;
+  const isDiameter = /diàmetre/i.test(measureText);
+  const angle = -Math.PI / 3.5;
+  const tipX = cx + R * Math.cos(angle);
+  const tipY = cy + R * Math.sin(angle);
+  const pointerX = isDiameter ? cx + R * 0.45 : (cx + tipX) / 2;
+  const pointerY = isDiameter ? cy : (cy + tipY) / 2;
+  const labelWidth = Math.max(128, Math.min(220, measureText.length * 6.4));
+  const labelHeight = 32;
+  const bubbleX = clamp(pointerX - labelWidth / 2, 18, size - labelWidth - 18);
+  const bubbleY = clamp(cy - R - labelHeight - 18, 14, size - labelHeight - 18);
+  const pointerTargetX = clamp(pointerX, bubbleX + 16, bubbleX + labelWidth - 16);
+  const pointer = `<line x1="${pointerX}" y1="${pointerY}" x2="${pointerTargetX}" y2="${bubbleY + labelHeight}" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 4"/>`;
+  const formulaText = isDiameter ? 'Perímetre = π · d' : 'Àrea = π · r²';
+
+  const measurementElements = isDiameter
+    ? `
+      <line x1="${cx - R}" y1="${cy}" x2="${cx + R}" y2="${cy}" stroke="url(#circStroke${id})" stroke-width="3" marker-start="url(#circArrowStart${id})" marker-end="url(#circArrowEnd${id})"/>
+      <circle cx="${cx}" cy="${cy}" r="4" fill="#1e293b" stroke="#ffffff" stroke-width="1.6"/>
+    `
+    : `
+      <line x1="${cx}" y1="${cy}" x2="${tipX}" y2="${tipY}" stroke="url(#circStroke${id})" stroke-width="3" marker-end="url(#circArrowEnd${id})"/>
+      <circle cx="${cx}" cy="${cy}" r="4" fill="#1e293b" stroke="#ffffff" stroke-width="1.6"/>
+      <path d="M${cx + 16},${cy} A16,16 0 0 1 ${cx},${cy - 16}" fill="none" stroke="#94a3b8" stroke-width="1.2" stroke-dasharray="3 3"/>
+    `;
+
   return `
     <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Cercle" style="display:block;margin:auto"><defs>
-    <radialGradient id="circGrad"><stop offset="0" stop-color="#e9d5ff"/><stop offset="1" stop-color="#93c5fd"/></radialGradient>
-  </defs>
-  <rect x="0" y="0" width="${size}" height="${size}" fill="#f8fafc" rx="18" ry="18" />
-  <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#circGrad)" stroke="#64748b">
-    <animate attributeName="r" from="${R*0.6}" to="${R}" dur=".35s" fill="freeze"/>
-  </circle>
-  ${labelText(cx, size-10, labelTextStr)}
+      <radialGradient id="circGrad${id}" cx="40%" cy="35%" r="70%">
+        <stop offset="0" stop-color="#f8fafc"/>
+        <stop offset="1" stop-color="#c7d2fe"/>
+      </radialGradient>
+      <linearGradient id="circStroke${id}" x1="0" x2="1">
+        <stop offset="0" stop-color="#6366f1"/>
+        <stop offset="1" stop-color="#0ea5e9"/>
+      </linearGradient>
+      <marker id="circArrowEnd${id}" orient="auto" markerWidth="10" markerHeight="10" refX="8" refY="5">
+        <path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/>
+      </marker>
+      <marker id="circArrowStart${id}" orient="auto" markerWidth="10" markerHeight="10" refX="2" refY="5">
+        <path d="M10,0 L0,5 L10,10 Z" fill="#2563eb"/>
+      </marker>
+    </defs>
+    <rect x="0" y="0" width="${size}" height="${size}" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2" rx="26" ry="26" />
+    <circle cx="${cx}" cy="${cy}" r="${R + 10}" fill="none" stroke="#e0e7ff" stroke-width="2.2" stroke-dasharray="6 8" />
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#circGrad${id})" stroke="#475569" stroke-width="1.4" />
+    <circle cx="${cx}" cy="${cy}" r="${R - 18}" fill="rgba(255,255,255,.35)" stroke="none"/>
+    ${measurementElements}
+    ${pointer}
+    <g transform="translate(${bubbleX}, ${bubbleY})">
+      <rect width="${labelWidth}" height="${labelHeight}" rx="14" ry="14" fill="#ffffff" stroke="#cbd5f5" stroke-width="1.2"/>
+      <text class="svg-label" x="${labelWidth / 2}" y="${labelHeight / 2 + 4}" text-anchor="middle">${measureText}</text>
+    </g>
+    <text class="svg-label" x="${cx}" y="${size - 14}" text-anchor="middle">${formulaText}</text>
   </svg>`;
 }
 
 function svgPolyFig(n, c, units){
+  const size = 340;
+  const cx = size / 2;
+  const cy = size / 2 + 8;
+  const R = size / 2 - 46;
+  const id = `poly${++polyFigId}`;
+  const pts = Array.from({length:n}, (_,i)=>{
+    const ang = -Math.PI / 2 + i * (2 * Math.PI / n);
+    const x = cx + R * Math.cos(ang);
+    const y = cy + R * Math.sin(ang);
+    return [x, y];
+  });
+  const pointStr = pts.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+  const [p1, p2] = [pts[0], pts[1]];
+  const midX = (p1[0] + p2[0]) / 2;
+  const midY = (p1[1] + p2[1]) / 2;
+  const measureText = `costat = ${c} ${units}`;
+  const labelWidth = Math.max(140, Math.min(220, measureText.length * 6.1));
+  const labelHeight = 30;
+  const bubbleX = clamp(midX - labelWidth / 2, 18, size - labelWidth - 18);
+  const bubbleY = Math.max(18, midY - labelHeight - 18);
+  const pointerTargetX = clamp(midX, bubbleX + 18, bubbleX + labelWidth - 18);
+  const pointer = `<line x1="${midX}" y1="${midY}" x2="${pointerTargetX}" y2="${bubbleY + labelHeight}" stroke="#94a3b8" stroke-width="1.3" stroke-dasharray="4 3"/>`;
+
+  const tickMarks = pts.map((pt, idx)=>{
+    const next = pts[(idx+1)%n];
+    const mx = (pt[0]+next[0])/2;
+    const my = (pt[1]+next[1])/2;
+    const vx = next[0]-pt[0];
+    const vy = next[1]-pt[1];
+    const len = Math.hypot(vx, vy);
+    const nx = -vy/len;
+    const ny = vx/len;
+    const inner = 6;
+    return `<line x1="${mx - nx*inner}" y1="${my - ny*inner}" x2="${mx + nx*inner}" y2="${my + ny*inner}" stroke="#334155" stroke-width="1"/>`;
+  }).join('');
+
   return `
-  <div style="text-align:center"><div class="chip">Polígon regular de ${n} costats</div>
-  <div class="subtitle" style="margin-top:6px">costat = ${c} ${units}</div>
-  </div>`;
+    <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Polígon regular" style="display:block;margin:auto"><defs>
+      <linearGradient id="polyGrad${id}" x1="0" x2="1" y1="0" y2="1">
+        <stop offset="0" stop-color="#bfdbfe"/>
+        <stop offset="1" stop-color="#a5f3fc"/>
+      </linearGradient>
+      <linearGradient id="polyStroke${id}" x1="0" x2="1">
+        <stop offset="0" stop-color="#2563eb"/>
+        <stop offset="1" stop-color="#0ea5e9"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="${size}" height="${size}" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2" rx="26" ry="26" />
+    <circle cx="${cx}" cy="${cy}" r="${R + 12}" fill="none" stroke="#e2e8f0" stroke-width="1.6" stroke-dasharray="5 6" />
+    <polygon points="${pointStr}" fill="url(#polyGrad${id})" stroke="url(#polyStroke${id})" stroke-width="2.6" stroke-linejoin="round"/>
+    ${tickMarks}
+    ${pointer}
+    <g transform="translate(${bubbleX}, ${bubbleY})">
+      <rect width="${labelWidth}" height="${labelHeight}" rx="12" ry="12" fill="#ffffff" stroke="#cbd5f5" stroke-width="1.2"/>
+      <text class="svg-label" x="${labelWidth/2}" y="${labelHeight/2 + 4}" text-anchor="middle">${measureText}</text>
+    </g>
+    <text class="svg-label" x="${cx}" y="34" text-anchor="middle">Polígon regular de ${n} costats</text>
+  </svg>`;
+}
+
+function svgCompositeFig(units='u'){
+  const W = 360, H = 230, p = 14;
+  const id = `comp${++compositeFigId}`;
+  const originX = 80;
+  const originY = 36;
+  const scale = 18;
+  const variant = Math.random() < 0.5 ? 'notch' : 'step';
+  let points = [];
+  let area = 0;
+  const overlays = [];
+  const dims = [];
+
+  if(variant === 'notch'){
+    const baseW = rng(8, 12);
+    const baseH = rng(6, 10);
+    const cutW = rng(2, baseW - 3);
+    const cutH = rng(2, baseH - 3);
+    const px = (v)=> originX + v * scale;
+    const py = (v)=> originY + v * scale;
+    points = [
+      [px(0), py(0)],
+      [px(baseW), py(0)],
+      [px(baseW), py(baseH - cutH)],
+      [px(baseW - cutW), py(baseH - cutH)],
+      [px(baseW - cutW), py(baseH)],
+      [px(0), py(baseH)]
+    ];
+    area = baseW * baseH - cutW * cutH;
+
+    const cutY = py(baseH - cutH);
+    const cutStartX = px(baseW - cutW);
+    const cutEndX = px(baseW);
+    const cutBottomY = py(baseH);
+
+    dims.push(dimLineOutside(points[0][0], cutBottomY, points[1][0], cutBottomY, `amplada = ${baseW} ${units}`, 28, 'h'));
+    dims.push(dimLineOutside(points[0][0], points[0][1], points[0][0], cutBottomY, `alçada = ${baseH} ${units}`, 32, 'v'));
+    overlays.push(`
+      <line x1="${cutStartX}" y1="${cutY - 12}" x2="${cutEndX}" y2="${cutY - 12}" stroke="#94a3b8" stroke-dasharray="4 3"/>
+      <text class="svg-label" x="${(cutStartX + cutEndX)/2}" y="${cutY - 16}" text-anchor="middle">${cutW} ${units}</text>
+      <line x1="${cutEndX + 14}" y1="${cutY}" x2="${cutEndX + 14}" y2="${cutBottomY}" stroke="#94a3b8" stroke-dasharray="4 3"/>
+      <text class="svg-label" x="${cutEndX + 18}" y="${(cutY + cutBottomY)/2}" text-anchor="start">${cutH} ${units}</text>
+    `);
+    overlays.push(`<text class="svg-label" x="${cutStartX + 10}" y="${cutY + 22}" text-anchor="start">Retall = ${cutW} × ${cutH} ${units}</text>`);
+  } else {
+    const lowerW = rng(8, 12);
+    const lowerH = rng(3, 5);
+    const upperW = rng(3, lowerW - 2);
+    const upperH = rng(3, 6);
+    const px = (v)=> originX + v * scale;
+    const py = (v)=> originY + v * scale;
+    points = [
+      [px(0), py(0)],
+      [px(lowerW), py(0)],
+      [px(lowerW), py(lowerH)],
+      [px(upperW), py(lowerH)],
+      [px(upperW), py(lowerH + upperH)],
+      [px(0), py(lowerH + upperH)]
+    ];
+    area = lowerW * lowerH + upperW * upperH;
+
+    const baseY = py(lowerH + upperH);
+    dims.push(dimLineOutside(points[0][0], baseY, points[1][0], baseY, `base = ${lowerW} ${units}`, 28, 'h'));
+    dims.push(dimLineOutside(points[0][0], points[0][1], points[0][0], baseY, `alçada total = ${lowerH + upperH} ${units}`, 32, 'v'));
+
+    const stepX = points[3][0];
+    const stepY = points[3][1];
+    overlays.push(`
+      <line x1="${points[2][0]}" y1="${stepY - 12}" x2="${points[3][0]}" y2="${stepY - 12}" stroke="#94a3b8" stroke-dasharray="4 3"/>
+      <text class="svg-label" x="${(points[2][0] + points[3][0])/2}" y="${stepY - 16}" text-anchor="middle">${lowerW - upperW} ${units}</text>
+      <line x1="${stepX + 14}" y1="${stepY}" x2="${stepX + 14}" y2="${points[4][1]}" stroke="#94a3b8" stroke-dasharray="4 3"/>
+      <text class="svg-label" x="${stepX + 18}" y="${(stepY + points[4][1])/2}" text-anchor="start">${upperH} ${units}</text>
+      <line x1="${points[2][0] - 14}" y1="${points[2][1]}" x2="${points[2][0] - 14}" y2="${points[3][1]}" stroke="#94a3b8" stroke-dasharray="4 3"/>
+      <text class="svg-label" x="${points[2][0] - 18}" y="${(points[2][1] + points[3][1])/2}" text-anchor="end">${lowerH} ${units}</text>
+    `);
+    overlays.push(`<text class="svg-label" x="${points[3][0] - 4}" y="${points[3][1] + 20}" text-anchor="end">Escaló = ${upperW} × ${upperH} ${units}</text>`);
+  }
+
+  const polyPoints = points.map(([x,y])=>`${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+
+  return {
+    svg: `
+      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Figura composta" style="display:block;margin:auto"><defs>
+        <pattern id="compGrid${id}" width="12" height="12" patternUnits="userSpaceOnUse">
+          <path d="M12 0 H0 V12" fill="none" stroke="#e2e8f0" stroke-width="0.6"/>
+        </pattern>
+        <linearGradient id="compGrad${id}" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#bae6fd"/>
+          <stop offset="1" stop-color="#c7d2fe"/>
+        </linearGradient>
+      </defs>
+      <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="18" ry="18" fill="#f8fafc" />
+      <rect x="${p+18}" y="${p+16}" width="${W-2*p-36}" height="${H-2*p-34}" fill="url(#compGrid${id})" rx="14" ry="14" opacity="0.55"/>
+      <polygon points="${polyPoints}" fill="url(#compGrad${id})" stroke="#475569" stroke-width="2.2" stroke-linejoin="round"/>
+      ${dims.join('')}
+      ${overlays.join('')}
+      <text class="svg-label" x="${W/2}" y="${H-18}" text-anchor="middle">Figura composta de rectangles</text>
+    </svg>
+    `,
+    area
+  };
 }
 
 function svgGridMask(cols, rows, maskSet){
@@ -2714,17 +2931,8 @@ function genGeometry(level, opts={}){
     return packNum({ text:`Àrea de la figura ombrejada (unitats²)`, html, value: k, pow: 2 });
   }
 
-  // comp – figura composta a graella
-  const cols = rng(6, 10), rows = rng(6, 10);
-  const mask = new Set();
-  function fillRect(x,y,w,h){ for(let r=y;r<y+h;r++){ for(let c=x;c<x+w;c++){ mask.add(r*cols + c); } } }
-  const ax = rng(0, Math.floor(cols/2)-1), ay = rng(0, Math.floor(rows/2)-1);
-  const aw = rng(2, Math.floor(cols/2)), ah = rng(2, Math.floor(rows/2));
-  const bx = rng(Math.floor(cols/2), cols-2), by = rng(Math.floor(rows/2), rows-2);
-  const bw = rng(2, Math.min(aw, cols-bx)), bh = rng(2, Math.min(ah, rows-by));
-  fillRect(ax, ay, aw, ah); fillRect(bx, by, bw, bh);
-  const html = svgGridMask(cols, rows, mask);
-  return { type:'geom-num', text:`Àrea de la figura composta (unitats²)`, html, numeric: mask.size, meta:{requireUnits:false, units:'u', pow:2, round:0}, answer: String(mask.size) };
+  const composite = svgCompositeFig('u');
+  return { type:'geom-num', text:`Àrea de la figura composta (unitats²)`, html: composite.svg, numeric: composite.area, meta:{requireUnits:false, units:'u', pow:2, round:0}, answer: String(composite.area) };
 }
 
 /* ===== Percentatges ===== */
@@ -3387,6 +3595,149 @@ function scatterSVG(points){
 }
 
 // ==== RENDER PRINCIPAL DE RESULTATS + PERFIL ====
+function loadPrintableSets(){
+  let entries = [];
+  let chosenKey = PRINTABLE_STORAGE_KEYS[0];
+
+  for (const key of PRINTABLE_STORAGE_KEYS) {
+    const raw = localStorage.getItem(key);
+    if (!raw) continue;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        entries = parsed;
+        chosenKey = key;
+        break;
+      }
+
+      if (parsed && typeof parsed === 'object') {
+        const values = Object.values(parsed).filter(Array.isArray);
+        if (values.length) {
+          entries = [].concat(...values);
+          chosenKey = key;
+          break;
+        }
+      }
+    } catch (err) {
+      console.warn('No s\'ha pogut llegir la llista de fitxes guardades.', err);
+      chosenKey = key;
+      entries = [];
+      break;
+    }
+  }
+
+  activePrintableStorageKey = chosenKey;
+  return Array.isArray(entries) ? entries : [];
+}
+
+function normalizePrintableEntry(entry = {}) {
+  const safeString = (value, fallback = '') => {
+    if (value === null || value === undefined) return fallback;
+    return String(value);
+  };
+  const safeNumber = (value, fallback = 0) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : fallback;
+  };
+
+  const rawStamp = entry.generatedAt || entry.createdAt || entry.created || entry.date || entry.at || entry.timestamp || entry.time || '';
+  const stamp = rawStamp ? new Date(rawStamp) : null;
+  const stampValue = stamp && Number.isFinite(stamp.getTime()) ? stamp.getTime() : 0;
+  const stampLabel = stampValue
+    ? new Date(stampValue).toLocaleString('ca-ES', { dateStyle: 'short', timeStyle: 'short' })
+    : 'Data desconeguda';
+
+  const moduleLabel = safeString(entry.moduleName || entry.moduleLabel || entry.module || entry.moduleId || 'Fitxa Focus Academy');
+  const levelLabel = safeString(entry.levelLabel || entry.levelName || (entry.level ? `Nivell ${entry.level}` : ''), '');
+  const count = safeNumber(entry.count ?? entry.questions ?? entry.questionCount ?? entry.totalQuestions, 0);
+  const student = safeString(entry.student || entry.name || entry.user || '', '');
+  const notes = safeString(entry.notes || entry.note || entry.comment || '', '');
+  const status = safeString(entry.status || entry.state || '', '');
+
+  return {
+    moduleLabel,
+    levelLabel,
+    count,
+    student,
+    notes,
+    status,
+    stampValue,
+    stampLabel
+  };
+}
+
+function clearPrintableSets(){
+  try {
+    if (activePrintableStorageKey) {
+      localStorage.removeItem(activePrintableStorageKey);
+    }
+  } catch (err) {
+    console.warn('No s\'ha pogut esborrar la llista de fitxes guardades.', err);
+  }
+  renderPrintableSets();
+}
+
+function renderPrintableSets(){
+  const list = document.querySelector('#printablesList');
+  const clearBtn = document.querySelector('#btnClearPrintables');
+  if (!list) return;
+
+  let entries = [];
+  try {
+    entries = loadPrintableSets();
+  } catch (err) {
+    console.warn('No s\'han pogut carregar les fitxes guardades.', err);
+    entries = [];
+  }
+
+  if (!entries.length) {
+    list.innerHTML = '<div class="chip">Encara no hi ha fitxes guardades.</div>';
+    if (clearBtn) {
+      clearBtn.disabled = true;
+      clearBtn.onclick = null;
+    }
+    return;
+  }
+
+  const normalized = entries
+    .map(normalizePrintableEntry)
+    .sort((a, b) => (b.stampValue || 0) - (a.stampValue || 0));
+
+  const markup = normalized.map(entry => {
+    const tags = [];
+    if (entry.levelLabel) tags.push(`<span class="chip">${escapeHTML(entry.levelLabel)}</span>`);
+    if (entry.count) tags.push(`<span class="chip">${entry.count} preguntes</span>`);
+    if (entry.student) tags.push(`<span class="chip">Alumne: ${escapeHTML(entry.student)}</span>`);
+    if (entry.status) tags.push(`<span class="chip">${escapeHTML(entry.status)}</span>`);
+
+    const notesBlock = entry.notes
+      ? `<div class="printable-item-notes">${escapeHTML(entry.notes)}</div>`
+      : '';
+
+    return `
+      <div class="printable-item">
+        <div class="printable-item-head">
+          <div class="printable-item-title">${escapeHTML(entry.moduleLabel)}</div>
+          <div class="printable-item-meta">${escapeHTML(entry.stampLabel)}</div>
+        </div>
+        ${tags.length ? `<div class="printable-item-tags">${tags.join('')}</div>` : ''}
+        ${notesBlock}
+      </div>
+    `;
+  }).join('');
+
+  list.innerHTML = markup;
+  if (clearBtn) {
+    clearBtn.disabled = false;
+    clearBtn.onclick = () => {
+      if (confirm('Vols esborrar totes les fitxes guardades?')) {
+        clearPrintableSets();
+      }
+    };
+  }
+}
+
 function renderResults(){
   renderPrintableSets();
   const data = store.all();
