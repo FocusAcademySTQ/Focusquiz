@@ -1094,6 +1094,20 @@ function renderWrongs(wr){
 /* ===================== FITXES IMPRIMIBLES ===================== */
 
 function cloneQuestionData(q){
+  if(!q || typeof q !== 'object'){
+    return {
+      type: '',
+      text: '',
+      title: '',
+      html: '',
+      answer: null,
+      meta: null,
+      numeric: null,
+      piCoef: null,
+      sol: null,
+      sols: null
+    };
+  }
   return {
     type: q.type,
     text: q.text,
@@ -1273,7 +1287,19 @@ function printableEditorGenerateQuestion(state = printableEditorState){
   const module = state.module;
   const level = state.level;
   const opts = state.options ? JSON.parse(JSON.stringify(state.options)) : {};
-  const raw = cloneQuestionData(module.gen(level, opts));
+  let raw = null;
+  let attempts = 0;
+  while(attempts < 4){
+    try {
+      raw = cloneQuestionData(module.gen(level, opts));
+    } catch {
+      raw = cloneQuestionData(null);
+    }
+    const hasContent = raw.text || raw.title || raw.html;
+    if(hasContent) break;
+    attempts++;
+  }
+  if(!raw) raw = cloneQuestionData(null);
   const defaultAnswer = printableAnswer(raw);
   return {
     raw,
@@ -1356,12 +1382,18 @@ function downloadEditorSheet(){
     printableEditorState.includeAnswers = include ? include.checked : true;
   }
 
-  const entries = printableEditorState.questions.map((entry, idx)=>({
-    prompt: (entry.prompt || '').trim() || `Pregunta ${idx+1}`,
-    answer: (entry.answerText || '').trim(),
-    html: entry.html || '',
-    raw: entry.raw || {}
-  }));
+  const entries = printableEditorState.questions.map((entry, idx)=>{
+    const prompt = (entry.prompt || '').trim() || `Pregunta ${idx+1}`;
+    const fallback = printableAnswer(entry.raw || {});
+    const trimmedAnswer = (entry.answerText || '').trim();
+    const answer = trimmedAnswer || (fallback !== '—' ? fallback : '');
+    return {
+      prompt,
+      answer,
+      html: entry.html || '',
+      raw: entry.raw || {}
+    };
+  });
 
   const pdfBytes = buildPrintablePdf(printableEditorState, entries, printableEditorState.includeAnswers);
   if(!pdfBytes || (pdfBytes.length !== undefined && pdfBytes.length === 0)){
@@ -1420,14 +1452,109 @@ function buildPrintablePdf(state, entries, includeAnswers){
   const pageHeight = 841.89;
   const margin = 48;
 
+  const palette = {
+    pageBg: '#f7f7fb',
+    pageTop: '#eaf2ff',
+    pageHighlight: '#eafaf5',
+    headerAccent: '#7aa2ff',
+    headerGlow: '#bfd3ff',
+    cardBase: '#ffffff',
+    cardBorder: '#dbeafe',
+    text: '#0f172a',
+    muted: '#475569',
+    label: '#64748b',
+    line: '#cbd5f5',
+    note: '#475569',
+    answersBg: '#eef2ff',
+    answersBorder: '#c7d2fe',
+    answersAccent: '#1e3a8a',
+    answersText: '#0f172a',
+    accent: '#7aa2ff'
+  };
+
+  const accentRamp = [
+    { bar: '#8fb5ff', wash: '#edf2ff' },
+    { bar: '#c7b5ff', wash: '#f4edff' },
+    { bar: '#7fe7c9', wash: '#e6fcf2' },
+    { bar: '#ffc9a9', wash: '#fff3ea' },
+    { bar: '#ffb3c1', wash: '#ffe8ef' },
+    { bar: '#ffe08a', wash: '#fff8db' }
+  ];
+
+  function normalizeHex(value, fallback = '000000'){
+    if(typeof value === 'string'){
+      const trimmed = value.trim().replace(/^#/, '');
+      if(/^[0-9a-f]{6}$/i.test(trimmed)) return trimmed.toLowerCase();
+      if(/^[0-9a-f]{3}$/i.test(trimmed)) return trimmed.split('').map(ch => ch + ch).join('').toLowerCase();
+    }
+    if(typeof fallback === 'string'){
+      const fb = fallback.trim().replace(/^#/, '');
+      if(/^[0-9a-f]{6}$/i.test(fb)) return fb.toLowerCase();
+      if(/^[0-9a-f]{3}$/i.test(fb)) return fb.split('').map(ch => ch + ch).join('').toLowerCase();
+    }
+    return '000000';
+  }
+
+  function parseColor(hex, fallback = '#000000'){
+    const norm = normalizeHex(hex, fallback);
+    const r = parseInt(norm.slice(0, 2), 16) / 255;
+    const g = parseInt(norm.slice(2, 4), 16) / 255;
+    const b = parseInt(norm.slice(4, 6), 16) / 255;
+    return {
+      r: Math.round(r * 1000) / 1000,
+      g: Math.round(g * 1000) / 1000,
+      b: Math.round(b * 1000) / 1000
+    };
+  }
+
+  function colorStr(hex, fallback = '#000000'){
+    const { r, g, b } = parseColor(hex, fallback);
+    return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)}`;
+  }
+
+  function mixColor(hexA, hexB, weight = 0.5){
+    const t = clamp(typeof weight === 'number' ? weight : 0.5, 0, 1);
+    const a = parseColor(hexA);
+    const b = parseColor(hexB, hexA);
+    return {
+      r: Math.round(((a.r * (1 - t)) + (b.r * t)) * 1000) / 1000,
+      g: Math.round(((a.g * (1 - t)) + (b.g * t)) * 1000) / 1000,
+      b: Math.round(((a.b * (1 - t)) + (b.b * t)) * 1000) / 1000
+    };
+  }
+
+  function colorTuple(rgb){
+    if(!rgb || typeof rgb !== 'object') return colorStr('#000000');
+    const r = Number(rgb.r ?? 0);
+    const g = Number(rgb.g ?? 0);
+    const b = Number(rgb.b ?? 0);
+    return `${r.toFixed(3)} ${g.toFixed(3)} ${b.toFixed(3)}`;
+  }
+
   const pages = [];
   let currentPage = null;
   let cursorY = 0;
+
+  function fillRect(color, x, y, w, h){
+    if(!currentPage) return;
+    const colorValue = typeof color === 'string' ? colorStr(color) : colorTuple(color);
+    currentPage.commands.push(`q ${colorValue} rg ${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re f Q`);
+  }
+
+  function strokeRect(color, width, x, y, w, h){
+    if(!currentPage) return;
+    const colorValue = typeof color === 'string' ? colorStr(color) : colorTuple(color);
+    currentPage.commands.push(`q ${width.toFixed(2)} w ${colorValue} RG ${x.toFixed(2)} ${y.toFixed(2)} ${w.toFixed(2)} ${h.toFixed(2)} re S Q`);
+  }
 
   function newPage(){
     currentPage = { commands: [] };
     pages.push(currentPage);
     cursorY = pageHeight - margin;
+    fillRect(palette.pageBg, 0, 0, pageWidth, pageHeight);
+    fillRect(palette.pageTop, 0, pageHeight - 190, pageWidth, 190);
+    fillRect(palette.pageHighlight, -40, pageHeight - 140, 220, 140);
+    fillRect(mixColor(palette.headerAccent, '#ffffff', 0.65), pageWidth - 200, pageHeight - 150, 200, 150);
     currentPage.commands.push('0.5 w');
   }
 
@@ -1444,9 +1571,9 @@ function buildPrintablePdf(state, entries, includeAnswers){
       .replace(/\)/g, '\\)');
   }
 
-  function wrapText(text, size, indent){
+  function wrapText(text, size, indent, indentRight = 0){
     const paragraphs = String(text || '').split(/\n+/);
-    const maxWidth = pageWidth - margin * 2 - indent;
+    const maxWidth = pageWidth - margin * 2 - indent - indentRight;
     const charWidth = size * 0.55;
     const lines = [];
     paragraphs.forEach((para, idx)=>{
@@ -1487,12 +1614,15 @@ function buildPrintablePdf(state, entries, includeAnswers){
     if(text === null || text === undefined) return;
     if(!currentPage) newPage();
     const indent = opts.indent || 0;
+    const indentRight = opts.indentRight || 0;
     const bold = !!opts.bold;
     const after = opts.after ?? 6;
     const lineHeight = size * (opts.lineHeight || 1.35);
-    const lines = wrapText(text, size, indent);
+    const lines = Array.isArray(opts.lines) ? opts.lines : wrapText(text, size, indent, indentRight);
     const blockHeight = lineHeight * lines.length + after;
     ensurePageSpace(blockHeight);
+    const { r, g, b } = parseColor(opts.color || palette.text);
+    currentPage.commands.push(`${r} ${g} ${b} rg`);
     lines.forEach(line => {
       cursorY -= lineHeight;
       const font = bold ? 'F2' : 'F1';
@@ -1502,41 +1632,159 @@ function buildPrintablePdf(state, entries, includeAnswers){
     cursorY -= after;
   }
 
-  function addAnswerLines(count){
+  function addAnswerLines(count, opts = {}){
     if(!currentPage) newPage();
+    const indent = opts.indent || 18;
+    const indentRight = opts.indentRight || 0;
+    const lineGap = opts.lineGap ?? 10;
+    const lineHeight = opts.lineHeight ?? 12;
+    const stroke = typeof opts.color === 'string' ? colorStr(opts.color) : colorTuple(opts.color || parseColor(palette.line));
     for(let i=0;i<count;i++){
-      ensurePageSpace(22);
-      cursorY -= 12;
-      const x1 = margin + 18;
-      const x2 = pageWidth - margin;
-      currentPage.commands.push(`${x1.toFixed(2)} ${cursorY.toFixed(2)} m ${x2.toFixed(2)} ${cursorY.toFixed(2)} l S`);
-      cursorY -= 10;
+      ensurePageSpace(lineHeight + lineGap);
+      cursorY -= lineHeight;
+      const x1 = margin + indent;
+      const x2 = pageWidth - margin - indentRight;
+      currentPage.commands.push(`q ${stroke} RG ${x1.toFixed(2)} ${cursorY.toFixed(2)} m ${x2.toFixed(2)} ${cursorY.toFixed(2)} l S Q`);
+      cursorY -= lineGap;
     }
   }
 
+  function addHeaderCard(entries){
+    const infoLines = [
+      `• Nivell: ${levelLabel}`,
+      `• Temps: ${timeLabel}`,
+      `• Preguntes: ${entries.length}`
+    ];
+    if(optionSummary && optionSummary !== 'Opcions per defecte'){
+      infoLines.push(`• Configuració: ${optionSummary}`);
+    }
+    infoLines.push(`• Generat: ${generatedAt}`);
+
+    const topPad = 34;
+    const bottomPad = 24;
+    const titleSize = 18;
+    const titleLineHeight = titleSize * 1.2;
+    const titleAfter = 6;
+    const subtitleSize = 12;
+    const subtitleLineHeight = subtitleSize * 1.4;
+    const subtitleAfter = 10;
+    const metaSize = 11;
+    const metaLineHeight = metaSize * 1.45;
+    const metaBlock = infoLines.length * metaLineHeight;
+    const cardHeight = topPad + titleLineHeight + titleAfter + subtitleLineHeight + subtitleAfter + metaBlock + bottomPad;
+
+    ensurePageSpace(cardHeight + 12);
+    const top = cursorY;
+    const bottom = top - cardHeight;
+    const left = margin;
+    const width = pageWidth - margin * 2;
+
+    fillRect(palette.cardBase, left, bottom, width, cardHeight);
+    strokeRect(palette.cardBorder, 0.8, left, bottom, width, cardHeight);
+    fillRect(mixColor(palette.headerAccent, '#ffffff', 0.55), left, bottom + cardHeight - 8, width, 8);
+    fillRect(mixColor(palette.headerGlow, '#ffffff', 0.3), left + width - 160, bottom + cardHeight - 60, 140, 60);
+
+    cursorY = top - topPad;
+    addText(moduleName, titleSize, { bold: true, indent: 26, indentRight: 26, lineHeight: 1.2, after: titleAfter });
+    addText('Fitxa en PDF personalitzada', subtitleSize, { indent: 26, indentRight: 26, color: palette.muted, lineHeight: 1.4, after: subtitleAfter });
+    addText(infoLines.join('\n'), metaSize, { indent: 26, indentRight: 26, color: palette.label, lineHeight: 1.45, after: 0 });
+    cursorY -= bottomPad;
+  }
+
+  function addQuestionCard(entry, idx){
+    const accent = accentRamp[idx % accentRamp.length];
+    const accentWidth = 6;
+    const textIndent = accentWidth + 22;
+    const rightPad = 26;
+    const topPad = 24;
+    const bottomPad = 18;
+    const labelSize = 10;
+    const labelLineHeight = labelSize * 1.45;
+    const labelAfter = 4;
+    const questionSize = 12;
+    const questionLineHeight = questionSize * 1.45;
+    const questionAfter = entry.html ? 4 : 10;
+    const noteSize = 11;
+    const noteLineHeight = noteSize * 1.35;
+    const noteAfter = entry.html ? 8 : 0;
+    const answerCount = Math.max(2, printableLineCount(entry.raw));
+    const answerUnit = (12 + 10);
+
+    const promptText = entry.prompt || `Pregunta ${idx + 1}`;
+    const labelLines = wrapText(`Pregunta ${idx + 1}`, labelSize, textIndent, rightPad);
+    const questionLines = wrapText(promptText, questionSize, textIndent, rightPad);
+    const cardHeight = topPad + (labelLines.length * labelLineHeight) + labelAfter + (questionLines.length * questionLineHeight) + questionAfter + (entry.html ? (noteLineHeight + noteAfter) : 0) + (answerCount * answerUnit) + bottomPad;
+
+    ensurePageSpace(cardHeight + 10);
+    const top = cursorY;
+    const bottom = top - cardHeight;
+    const left = margin;
+    const width = pageWidth - margin * 2;
+
+    fillRect(accent.wash, left, bottom, width, cardHeight);
+    strokeRect(mixColor(accent.bar, '#ffffff', 0.35), 0.8, left, bottom, width, cardHeight);
+    fillRect(accent.bar, left, bottom, accentWidth, cardHeight);
+
+    cursorY = top - topPad;
+    addText(`Pregunta ${idx + 1}`, labelSize, { indent: textIndent, indentRight: rightPad, color: palette.label, lineHeight: 1.45, after: labelAfter, lines: labelLines });
+    addText(promptText, questionSize, { indent: textIndent, indentRight: rightPad, color: palette.text, lineHeight: 1.45, after: questionAfter, lines: questionLines, bold: true });
+    if(entry.html){
+      addText(noteForMedia, noteSize, { indent: textIndent + 4, indentRight: rightPad, color: palette.note, lineHeight: 1.35, after: noteAfter });
+    }
+    addAnswerLines(answerCount, { indent: textIndent, indentRight: rightPad, lineHeight: 12, lineGap: 10, color: mixColor(accent.bar, '#000000', 0.2) });
+    cursorY -= bottomPad;
+  }
+
+  function addAnswersSection(entries){
+    const topPad = 24;
+    const bottomPad = 20;
+    const headerSize = 13;
+    const headerLineHeight = headerSize * 1.3;
+    const headerAfter = 8;
+    const rowSize = 11;
+    const rowLineHeight = rowSize * 1.4;
+    const rowAfter = 4;
+    const totalHeight = topPad + headerLineHeight + headerAfter + (entries.length * (rowLineHeight + rowAfter)) + bottomPad;
+
+    ensurePageSpace(totalHeight + 10);
+    const top = cursorY;
+    const bottom = top - totalHeight;
+    const left = margin;
+    const width = pageWidth - margin * 2;
+
+    fillRect(palette.answersBg, left, bottom, width, totalHeight);
+    strokeRect(palette.answersBorder, 0.8, left, bottom, width, totalHeight);
+    fillRect(mixColor(palette.accent, '#ffffff', 0.5), left, bottom + totalHeight - 6, width, 6);
+
+    cursorY = top - topPad;
+    addText('Solucions', headerSize, { bold: true, indent: 22, indentRight: 22, color: palette.answersAccent, lineHeight: 1.3, after: headerAfter });
+    entries.forEach((entry, idx) => {
+      let answerValue = entry.answer;
+      if(answerValue === undefined || answerValue === null){
+        answerValue = '—';
+      } else if(typeof answerValue === 'number'){ 
+        answerValue = Number.isFinite(answerValue) ? String(answerValue) : '—';
+      } else {
+        const trimmed = String(answerValue).trim();
+        answerValue = trimmed ? trimmed : '—';
+      }
+      addText(`${idx + 1}. ${answerValue}`, rowSize, { indent: 32, indentRight: 22, color: palette.answersText, lineHeight: 1.4, after: rowAfter });
+    });
+    cursorY -= bottomPad;
+  }
+
   newPage();
-  addText(`Fitxa en PDF · ${moduleName}`, 18, { bold: true, lineHeight: 1.2, after: 10 });
-  addText(`Nivell: ${levelLabel}`, 12, { after: 2 });
-  addText(`Temps: ${timeLabel}`, 12, { after: 2 });
-  addText(`Preguntes: ${entries.length}`, 12, { after: 2 });
-  addText(`Opcions: ${optionSummary || 'Opcions per defecte'}`, 12, { after: 2 });
-  addText(`Generat: ${generatedAt}`, 12, { after: 12 });
+  addHeaderCard(entries);
 
   entries.forEach((entry, idx) => {
-    addText(`${idx + 1}. ${entry.prompt}`, 12, { bold: true, after: 6 });
-    if(entry.html){
-      addText(noteForMedia, 11, { indent: 18, after: 6 });
+    addQuestionCard(entry, idx);
+    if(idx !== entries.length - 1){
+      cursorY -= 6;
     }
-    addAnswerLines(Math.max(2, printableLineCount(entry.raw)));
-    cursorY -= 8;
   });
 
   if(includeAnswers){
-    addText('Solucions', 14, { bold: true, after: 8 });
-    entries.forEach((entry, idx) => {
-      const ans = entry.answer || '—';
-      addText(`${idx + 1}. ${ans}`, 11, { indent: 12, after: 4 });
-    });
+    addAnswersSection(entries);
   }
 
   const objects = [];
