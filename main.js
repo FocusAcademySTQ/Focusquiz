@@ -3241,6 +3241,7 @@ function scatterSVG(points){
 
 // ==== RENDER PRINCIPAL DE RESULTATS + PERFIL ====
 function renderResults(){
+  renderPrintableSets();
   const data = store.all();
   const modSelect = $('#filter-module');
   const nameInput = $('#filter-student');
