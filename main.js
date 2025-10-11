@@ -849,6 +849,10 @@ function normalizeChemFormula(str) {
 
 function checkAnswer(){
   if(!session || session.done){ flashFeedback('Prova finalitzada. Torna a Inici.'); return }
+  if(session.idx >= session.questions.length){
+    finishQuiz(false);
+    return;
+  }
   const q = session.questions[session.idx];
   const raw = $('#answer').value.trim();
   if(raw==='') { flashFeedback('Escriu una resposta o prem Omet.', 'warn'); return; }
@@ -1004,6 +1008,10 @@ saveResult(session.module, q.text, ok);
 
 function skip(){
   if(!session || session.done){ flashFeedback('Prova finalitzada. Torna a Inici.'); return }
+  if(session.idx >= session.questions.length){
+    finishQuiz(false);
+    return;
+  }
   const q = session.questions[session.idx];
   session.wrongs.push({ ...q, user: '— (omet)' });
   session.idx++;
@@ -1031,40 +1039,53 @@ function fmtAns(a){
 }
 
 function finishQuiz(timeUp){
+  if(!session || session.done){ return; }
+  session.done = true;
   stopTimer();
   const elapsed = Math.floor((Date.now() - session.startedAt)/1000);
-  const score = Math.round((session.correct / session.count) * 100);
+  const totalQuestions = session.questions && session.questions.length ? session.questions.length : session.count;
+  if(totalQuestions && totalQuestions !== session.count){
+    session.count = totalQuestions;
+  }
+  const score = totalQuestions ? Math.round((session.correct / totalQuestions) * 100) : 0;
   const name = localStorage.getItem('lastStudent') || 'Anònim';
   const moduleObj = MODULES.find(m=>m.id===session.module);
   const moduleName = moduleObj?.name || session.module;
   const levelLabel = session.levelLabel || (session.level > 0 ? `Nivell ${session.level}` : 'Personalitzat');
 
-
-  store.save({
+  const entry = {
     at: new Date().toISOString(),
     name,
     module: session.module,
     level: session.level,
     levelLabel,
-    count: session.count,
+    count: totalQuestions,
     correct: session.correct,
     time_limit: session.time,
     time_spent: elapsed,
     score,
     wrongs: session.wrongs
-  });
+  };
 
-  if(session.printableId){
-    printableStore.remove(session.printableId);
-    renderPrintableSets();
+  try {
+    store.save(entry);
+  } catch (err) {
+    console.error('No s\'ha pogut guardar el resultat al magatzem local.', err);
   }
 
-  renderResults();
-  if (typeof showRecommendation === 'function') {
-    showRecommendation('#recommendationText');
+  try {
+    renderResults();
+  } catch (err) {
+    console.error('No s\'han pogut refrescar els resultats guardats.', err);
+  }
+  try {
+    if (typeof showRecommendation === 'function') {
+      showRecommendation('#recommendationText');
+    }
+  } catch (err) {
+    console.error('No s\'ha pogut actualitzar la recomanació del tutor.', err);
   }
 
-  session.done = true;
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
   const html = `
 <h3 style="margin-top:0">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
