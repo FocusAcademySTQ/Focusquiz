@@ -270,6 +270,16 @@ window.addModules = function(mods){
   }
 };
 
+// Si altres scripts han registrat mòduls abans que addModules existís, afegeix-los ara.
+['_PENDING_MATH_MODULES_', '_PENDING_CAT_MODULES_', '_PENDING_GEO_MODULES_', '_PENDING_CHEM_MODULES_']
+  .forEach((key)=>{
+    const pending = window[key];
+    if(Array.isArray(pending)){
+      window.addModules(pending);
+      delete window[key];
+    }
+  });
+
 let pendingModule = null; // mòdul seleccionat per configurar
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
@@ -2275,6 +2285,36 @@ function by(arr, key){
 }
 function fmtPct(x){ return Math.round(x); }
 
+// Gràfic de barres simple per a comparar mòduls o valors agregats
+function barChartSVG(values, labels){
+  const w = 360, h = 200, p = 28;
+  const max = Math.max(...values, 0);
+  const barWidth = values.length ? (w - p * 2) / values.length : 0;
+
+  const bars = values.map((val, idx) => {
+    const height = max ? (val / max) * (h - p * 2) : 0;
+    const x = p + idx * barWidth;
+    const y = h - p - height;
+    return `
+      <g>
+        <rect x="${(x + 6).toFixed(2)}" y="${y.toFixed(2)}" width="${Math.max(barWidth - 12, 0).toFixed(2)}" height="${height.toFixed(2)}" fill="#93c5fd" stroke="#64748b">
+          <animate attributeName="height" from="0" to="${height.toFixed(2)}" dur=".4s" fill="freeze"/>
+          <animate attributeName="y" from="${(h - p).toFixed(2)}" to="${y.toFixed(2)}" dur=".4s" fill="freeze"/>
+        </rect>
+        <text x="${(x + barWidth / 2).toFixed(2)}" y="${h - 6}" text-anchor="middle" class="svg-label">${labels[idx] ?? ''}</text>
+      </g>`;
+  }).join('');
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gràfic de barres">
+      <rect x="0" y="0" width="${w}" height="${h}" rx="16" ry="16" fill="#f8fafc"/>
+      ${bars}
+    </svg>`;
+}
+if (typeof window !== 'undefined') {
+  window.barChartSVG = barChartSVG;
+}
+
 // Gràfic de línies simple (puntuació vs temps)
 function lineChartSVG(values, labels){
   const w=360, h=200, p=28;
@@ -2304,7 +2344,7 @@ function scatterSVG(points){
   const mapY = v => h - p - (v/maxY)*(h-2*p);
   const dots = points.map(pt=>`<circle cx="${mapX(pt.x)}" cy="${mapY(pt.y)}" r="4" fill="#a7f3d0" stroke="#64748b"/>`).join('');
   return `<svg viewBox="0 0 ${w} ${h}">
-    <rect x="0" y="0" width="${w} ${h}" rx="16" ry="16" fill="#f8fafc"/>
+    <rect x="0" y="0" width="${w}" height="${h}" rx="16" ry="16" fill="#f8fafc"/>
     ${dots}
     <text class="svg-label" x="${p}" y="${p+4}">Temps (min)</text>
     <text class="svg-label" x="${w-p-40}" y="${p+4}">Punts (%)</text>

@@ -3,8 +3,31 @@
    Arxiu: math.js
    ======================================================= */
 
-(function(){
+(function(root){
   'use strict';
+
+  const clamp = root.clamp || ((x, a, b) => Math.max(a, Math.min(b, x)));
+  const rng = root.rng || ((a, b) => Math.floor(Math.random() * (b - a + 1)) + a);
+  const choice = root.choice || ((arr) => arr[Math.floor(Math.random() * arr.length)]);
+  const gcd = root.gcd || ((a, b) => {
+    let x = Math.abs(a);
+    let y = Math.abs(b);
+    while (y) {
+      const temp = y;
+      y = x % y;
+      x = temp;
+    }
+    return x || 1;
+  });
+  const normFrac = root.normFrac || ((n, d) => {
+    if (d === 0) return [NaN, 0];
+    if (d < 0) {
+      n = -n;
+      d = -d;
+    }
+    const g = gcd(n, d);
+    return [n / g, d / g];
+  });
 
 /* ===================== GENERADORS ===================== */
 
@@ -879,26 +902,31 @@ function arrMode(a){
   return best;
 }
 
-function barChartSVG(data, labels){
-  const w=360,h=200,p=28;
-  const max = Math.max(...data);
-  const bw = (w - p*2)/data.length;
-  const bars = data.map((v,i)=>{
-    const barH = max? (v/max)*(h-p*2) : 0;
-    const x = p + i*bw, y = h-p - barH;
-    return `<g>
-      <rect x="${x+6}" y="${y}" width="${bw-12}" height="${barH}" fill="#93c5fd" stroke="#64748b">
-        <animate attributeName="height" from="0" to="${barH}" dur=".4s" fill="freeze"/>
-        <animate attributeName="y" from="${h-p}" to="${y}" dur=".4s" fill="freeze"/>
-      </rect>
-      <text x="${x+bw/2}" y="${h-6}" text-anchor="middle" class="svg-label">${labels[i]}</text>
-    </g>`;
-  }).join('');
-  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gràfic de barres">
-  <rect x="0" y="0" width="${w}" height="${h}" rx="16" ry="16" fill="#f8fafc"/>
-  ${bars}
-  </svg>`;
-}
+  const sharedBarChartSVG = typeof root.barChartSVG === 'function' ? root.barChartSVG : null;
+  function barChartSVG(data, labels){
+    if (sharedBarChartSVG) return sharedBarChartSVG(data, labels);
+    const w=360,h=200,p=28;
+    const max = Math.max(...data, 0);
+    const bw = data.length ? (w - p*2)/data.length : 0;
+    const bars = data.map((v,i)=>{
+      const barH = max? (v/max)*(h-p*2) : 0;
+      const x = p + i*bw, y = h-p - barH;
+      return `<g>
+        <rect x="${x+6}" y="${y}" width="${Math.max(bw-12,0)}" height="${barH}" fill="#93c5fd" stroke="#64748b">
+          <animate attributeName="height" from="0" to="${barH}" dur=".4s" fill="freeze"/>
+          <animate attributeName="y" from="${h-p}" to="${y}" dur=".4s" fill="freeze"/>
+        </rect>
+        <text x="${x+bw/2}" y="${h-6}" text-anchor="middle" class="svg-label">${labels[i] ?? ''}</text>
+      </g>`;
+    }).join('');
+    return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gràfic de barres">
+    <rect x="0" y="0" width="${w}" height="${h}" rx="16" ry="16" fill="#f8fafc"/>
+    ${bars}
+    </svg>`;
+  }
+  if (!sharedBarChartSVG) {
+    root.barChartSVG = barChartSVG;
+  }
 
 function pieChartSVG(values, labels){
   const size=220, pad=8, cx=size/2, cy=size/2, R=size/2-pad;
@@ -1303,15 +1331,17 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
     { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', gen: genFunctions, category:'math' }
   ];
 
-  if (typeof window.addModules === 'function') {
-    window.addModules(MATH_MODULES);
+  if (typeof root.addModules === 'function') {
+    root.addModules(MATH_MODULES);
   } else {
-    window._PENDING_MATH_MODULES_ = MATH_MODULES;
-    window.addEventListener('DOMContentLoaded', () => {
-      if (typeof window.addModules === 'function' && window._PENDING_MATH_MODULES_) {
-        window.addModules(window._PENDING_MATH_MODULES_);
-        delete window._PENDING_MATH_MODULES_;
-      }
-    });
+    root._PENDING_MATH_MODULES_ = MATH_MODULES;
+    if (typeof root.addEventListener === 'function') {
+      root.addEventListener('DOMContentLoaded', () => {
+        if (typeof root.addModules === 'function' && root._PENDING_MATH_MODULES_) {
+          root.addModules(root._PENDING_MATH_MODULES_);
+          delete root._PENDING_MATH_MODULES_;
+        }
+      });
+    }
   }
-})();
+})(typeof window !== 'undefined' ? window : globalThis);
