@@ -8,6 +8,7 @@
   /* ======== UTILITATS ======== */
   const $ = (q) => document.querySelector(q);
   const STORAGE_KEY = 'progress';
+  const MAX_PROGRESS_PER_MODULE = 400;
   const MS_DAY = 86400000;
   const THEORY_LINKS = {
     arith: { href: 'teoria.html#aritmetica', title: 'Aritmètica' },
@@ -53,11 +54,90 @@
     }
   };
 
+  const isQuotaError = (err) => !!err && (
+    err.name === 'QuotaExceededError' ||
+    err.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+    err.code === 22 ||
+    err.code === 1014
+  );
+
+  const enforceProgressCaps = (data) => {
+    for (const bucket of Object.values(data)) {
+      if (!bucket || typeof bucket !== 'object') continue;
+      for (const [mod, entries] of Object.entries(bucket)) {
+        if (!Array.isArray(entries)) continue;
+        if (entries.length > MAX_PROGRESS_PER_MODULE) {
+          bucket[mod] = entries.slice(-MAX_PROGRESS_PER_MODULE);
+        }
+      }
+    }
+  };
+
+  const pruneOldestProgress = (data) => {
+    let oldestUser = null;
+    let oldestModule = null;
+    let oldestIndex = -1;
+    let oldestTime = Infinity;
+
+    for (const [user, bucket] of Object.entries(data)) {
+      if (!bucket || typeof bucket !== 'object') continue;
+      for (const [mod, entries] of Object.entries(bucket)) {
+        if (!Array.isArray(entries)) continue;
+        entries.forEach((item, idx) => {
+          const stamp = new Date(item && item.time ? item.time : 0).getTime();
+          const time = Number.isFinite(stamp) ? stamp : 0;
+          if (time < oldestTime) {
+            oldestTime = time;
+            oldestUser = user;
+            oldestModule = mod;
+            oldestIndex = idx;
+          }
+        });
+      }
+    }
+
+    if (oldestUser === null || oldestModule === null || oldestIndex < 0) return false;
+
+    const bucket = data[oldestUser];
+    if (!bucket || !Array.isArray(bucket[oldestModule])) return false;
+
+    bucket[oldestModule].splice(oldestIndex, 1);
+    if (!bucket[oldestModule].length) delete bucket[oldestModule];
+    if (!Object.keys(bucket).length) delete data[oldestUser];
+    return true;
+  };
+
   const saveProgress = (data) => {
+    enforceProgressCaps(data);
+    const persist = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      persist();
+      return;
     } catch (err) {
-      console.error('No s\'ha pogut actualitzar el progrés del tutor virtual.', err);
+      if (!isQuotaError(err)) {
+        console.error('No s\'ha pogut actualitzar el progrés del tutor virtual.', err);
+        return;
+      }
+
+      let trimmed = false;
+      while (pruneOldestProgress(data)) {
+        trimmed = true;
+        try {
+          persist();
+          if (trimmed) {
+            console.warn('S\'ha alliberat espai del tutor eliminant intent(s) antic(s).');
+          }
+          return;
+        } catch (retryErr) {
+          if (!isQuotaError(retryErr)) {
+            console.error('No s\'ha pogut actualitzar el progrés del tutor virtual.', retryErr);
+            return;
+          }
+        }
+      }
+
+      console.error('No s\'ha pogut actualitzar el progrés del tutor virtual: espai insuficient.', err);
     }
   };
 

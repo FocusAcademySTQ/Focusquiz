@@ -29,6 +29,17 @@ const escapeHTML = (str = '') => String(str)
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#39;');
 
+const MAX_RESULTS_PER_USER = 250;
+
+function isQuotaError(err){
+  return !!err && (
+    err.name === 'QuotaExceededError' ||
+    err.name === 'NS_ERROR_DOM_QUOTA_REACHED' ||
+    err.code === 22 ||
+    err.code === 1014
+  );
+}
+
 const store = {
   get k() { return 'focus-math-results-v1'; },
 
@@ -83,8 +94,63 @@ const store = {
     const user = this.defaultUser();
     const data = this.load();
     if (!Array.isArray(data[user])) data[user] = [];
-    data[user].push(entry);
-    localStorage.setItem(this.k, JSON.stringify(data));
+    const bucket = data[user];
+
+    if (bucket.length >= MAX_RESULTS_PER_USER) {
+      bucket.splice(0, bucket.length - (MAX_RESULTS_PER_USER - 1));
+    }
+
+    bucket.push(entry);
+
+    const persist = () => localStorage.setItem(this.k, JSON.stringify(data));
+
+    try {
+      persist();
+      return;
+    } catch (err) {
+      if (!isQuotaError(err)) throw err;
+    }
+
+    const pruneOldest = () => {
+      let oldestUser = null;
+      let oldestIndex = -1;
+      let oldestTime = Infinity;
+      for (const [name, entries] of Object.entries(data)) {
+        if (!Array.isArray(entries) || !entries.length) continue;
+        entries.forEach((item, idx) => {
+          const stamp = new Date(item && item.at ? item.at : 0).getTime();
+          const time = Number.isFinite(stamp) ? stamp : 0;
+          if (time < oldestTime) {
+            oldestTime = time;
+            oldestUser = name;
+            oldestIndex = idx;
+          }
+        });
+      }
+      if (oldestUser === null || oldestIndex < 0) return false;
+      const target = data[oldestUser];
+      if (Array.isArray(target)) {
+        target.splice(oldestIndex, 1);
+        if (!target.length) delete data[oldestUser];
+      }
+      return true;
+    };
+
+    let trimmed = false;
+    while (pruneOldest()) {
+      trimmed = true;
+      try {
+        persist();
+        if (trimmed) {
+          console.warn("S'ha alliberat espai eliminant resultats antics per poder guardar els nous.");
+        }
+        return;
+      } catch (err) {
+        if (!isQuotaError(err)) throw err;
+      }
+    }
+
+    throw new Error('No hi ha espai suficient a localStorage per guardar més resultats.');
   },
 
   clear() {
@@ -1071,6 +1137,7 @@ function finishQuiz(timeUp){
     store.save(entry);
   } catch (err) {
     console.error('No s\'ha pogut guardar el resultat al magatzem local.', err);
+    alert('No s\'ha pogut guardar aquest examen perquè no hi ha espai lliure. Esborra alguns intents antics i torna-ho a provar.');
   }
 
   try {
