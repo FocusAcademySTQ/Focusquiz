@@ -1364,18 +1364,48 @@ function downloadEditorSheet(){
   }));
 
   const pdfBytes = buildPrintablePdf(printableEditorState, entries, printableEditorState.includeAnswers);
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-  const link = document.createElement('a');
+  if(!pdfBytes || (pdfBytes.length !== undefined && pdfBytes.length === 0)){
+    alert('No s\'ha pogut preparar el PDF. Torna-ho a intentar.');
+    return;
+  }
+
+  const buffer = pdfBytes instanceof Uint8Array
+    ? pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength)
+    : pdfBytes;
+  const blob = new Blob([buffer], { type: 'application/pdf' });
   const moduleName = printableEditorState.module?.name || printableEditorState.module?.id || 'focusquiz';
   const safeName = moduleName.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'fitxa';
-  link.href = URL.createObjectURL(blob);
-  link.download = `${safeName}-focusquiz.pdf`;
-  document.body.appendChild(link);
-  link.click();
-  setTimeout(()=>{
-    URL.revokeObjectURL(link.href);
-    link.remove();
-  }, 0);
+  const blobUrl = URL.createObjectURL(blob);
+
+  const downloadFile = (url) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.rel = 'noopener';
+    link.style.position = 'fixed';
+    link.style.left = '-9999px';
+    link.download = `${safeName}-focusquiz.pdf`;
+    document.body.appendChild(link);
+    const trigger = () => {
+      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        link.remove();
+      }, 2000);
+    };
+    if('requestAnimationFrame' in window){
+      requestAnimationFrame(trigger);
+    } else {
+      setTimeout(trigger, 0);
+    }
+  };
+
+  if(window.navigator && typeof window.navigator.msSaveOrOpenBlob === 'function'){
+    window.navigator.msSaveOrOpenBlob(blob, `${safeName}-focusquiz.pdf`);
+    URL.revokeObjectURL(blobUrl);
+    return;
+  }
+
+  downloadFile(blobUrl);
 }
 
 function buildPrintablePdf(state, entries, includeAnswers){
