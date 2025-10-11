@@ -38,6 +38,14 @@ const LEGACY_RESULT_KEYS = [
   'focus-math-results'
 ];
 
+const PRINTABLE_STORAGE_KEYS = [
+  'focus-printable-sets-v1',
+  'focus-printable-sets',
+  'focus-printables',
+  'focusPrintables'
+];
+let activePrintableStorageKey = PRINTABLE_STORAGE_KEYS[0];
+
 function sanitizeResultEntry(entry = {}, fallbackName = 'Anònim') {
   const safeNumber = (value, fallback = 0) => {
     const num = Number(value);
@@ -2456,6 +2464,8 @@ function genFractions(level, opts={}){
 
 const labelText = (x,y,text)=> `<text class="svg-label" x="${x}" y="${y}">${text}</text>`;
 
+let circleFigId = 0;
+
 function dimLineOutside(x1,y1,x2,y2,text,offset=16, orient='h'){
   if(orient==='h'){
     const yy = Math.max(y1,y2)+offset;
@@ -2504,17 +2514,67 @@ function svgTriFig(b,h,units){
   </svg>`;
 }
 
-function svgCircleFig(labelTextStr){
-  const size=220, pad=12, cx=size/2, cy=size/2, R=size/2 - pad - 8;
+function svgCircleFig(measureText){
+  const size = 260;
+  const pad = 20;
+  const cx = size / 2;
+  const cy = size / 2 + 4;
+  const R = size / 2 - pad - 18;
+  const id = `circ${++circleFigId}`;
+  const isDiameter = /diàmetre/i.test(measureText);
+  const angle = -Math.PI / 3.2;
+  const tipX = cx + R * Math.cos(angle);
+  const tipY = cy + R * Math.sin(angle);
+  const labelWidth = Math.max(130, Math.min(220, measureText.length * 7));
+  const labelHeight = 34;
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  const pointerX = isDiameter ? cx : (cx + tipX) / 2;
+  const pointerY = isDiameter ? cy : (cy + tipY) / 2;
+  const bubbleX = clamp(pointerX - labelWidth / 2, 16, size - labelWidth - 16);
+  const bubbleY = clamp((isDiameter ? cy - R - labelHeight - 18 : pointerY - labelHeight - 18), 16, size - labelHeight - 16);
+  const pointerTargetX = clamp(pointerX, bubbleX + 14, bubbleX + labelWidth - 14);
+  const pointer = `<line x1="${pointerX}" y1="${pointerY}" x2="${pointerTargetX}" y2="${bubbleY + labelHeight}" stroke="#c7d2fe" stroke-width="1.4" stroke-dasharray="4 4"/>`;
+  const formulaText = isDiameter ? 'Perímetre = π · d' : 'Àrea = π · r²';
+  const measurementElements = isDiameter
+    ? `
+      <line x1="${cx - R}" y1="${cy}" x2="${cx + R}" y2="${cy}" stroke="url(#circStroke${id})" stroke-width="3.2" marker-start="url(#circArrowStart${id})" marker-end="url(#circArrowEnd${id})"/>
+      <circle cx="${cx}" cy="${cy}" r="4.5" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
+      ${pointer}
+    `
+    : `
+      <line x1="${cx}" y1="${cy}" x2="${tipX}" y2="${tipY}" stroke="url(#circStroke${id})" stroke-width="3.2" marker-end="url(#circArrowEnd${id})"/>
+      <circle cx="${cx}" cy="${cy}" r="4.5" fill="#1e293b" stroke="#ffffff" stroke-width="2"/>
+      ${pointer}
+    `;
   return `
     <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Cercle" style="display:block;margin:auto"><defs>
-    <radialGradient id="circGrad"><stop offset="0" stop-color="#e9d5ff"/><stop offset="1" stop-color="#93c5fd"/></radialGradient>
-  </defs>
-  <rect x="0" y="0" width="${size}" height="${size}" fill="#f8fafc" rx="18" ry="18" />
-  <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#circGrad)" stroke="#64748b">
-    <animate attributeName="r" from="${R*0.6}" to="${R}" dur=".35s" fill="freeze"/>
-  </circle>
-  ${labelText(cx, size-10, labelTextStr)}
+      <radialGradient id="circGrad${id}">
+        <stop offset="0" stop-color="#ede9fe"/>
+        <stop offset="1" stop-color="#93c5fd"/>
+      </radialGradient>
+      <linearGradient id="circStroke${id}" x1="0" x2="1">
+        <stop offset="0" stop-color="#6366f1"/>
+        <stop offset="1" stop-color="#22d3ee"/>
+      </linearGradient>
+      <marker id="circArrowEnd${id}" orient="auto" markerWidth="10" markerHeight="10" refX="8" refY="5">
+        <path d="M0,0 L10,5 L0,10 Z" fill="#2563eb"/>
+      </marker>
+      <marker id="circArrowStart${id}" orient="auto" markerWidth="10" markerHeight="10" refX="2" refY="5">
+        <path d="M10,0 L0,5 L10,10 Z" fill="#2563eb"/>
+      </marker>
+    </defs>
+    <rect x="0" y="0" width="${size}" height="${size}" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2" rx="26" ry="26" />
+    <circle cx="${cx}" cy="${cy}" r="${R + 8}" fill="none" stroke="#e0e7ff" stroke-width="2.4" stroke-dasharray="6 8" />
+    <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#circGrad${id})" stroke="#64748b" stroke-width="1.4">
+      <animate attributeName="r" from="${R * 0.65}" to="${R}" dur=".35s" fill="freeze"/>
+    </circle>
+    <circle cx="${cx}" cy="${cy}" r="${R - 18}" fill="rgba(255,255,255,.35)" stroke="none"/>
+    ${measurementElements}
+    <g transform="translate(${bubbleX}, ${bubbleY})">
+      <rect width="${labelWidth}" height="${labelHeight}" rx="14" ry="14" fill="#ffffff" stroke="#c7d2fe" stroke-width="1.2"/>
+      <text class="svg-label" x="${labelWidth / 2}" y="${labelHeight / 2 + 4}" text-anchor="middle">${measureText}</text>
+    </g>
+    ${labelText(cx, size - 12, formulaText)}
   </svg>`;
 }
 
@@ -3387,6 +3447,149 @@ function scatterSVG(points){
 }
 
 // ==== RENDER PRINCIPAL DE RESULTATS + PERFIL ====
+function loadPrintableSets(){
+  let entries = [];
+  let chosenKey = PRINTABLE_STORAGE_KEYS[0];
+
+  for (const key of PRINTABLE_STORAGE_KEYS) {
+    const raw = localStorage.getItem(key);
+    if (!raw) continue;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        entries = parsed;
+        chosenKey = key;
+        break;
+      }
+
+      if (parsed && typeof parsed === 'object') {
+        const values = Object.values(parsed).filter(Array.isArray);
+        if (values.length) {
+          entries = [].concat(...values);
+          chosenKey = key;
+          break;
+        }
+      }
+    } catch (err) {
+      console.warn('No s\'ha pogut llegir la llista de fitxes guardades.', err);
+      chosenKey = key;
+      entries = [];
+      break;
+    }
+  }
+
+  activePrintableStorageKey = chosenKey;
+  return Array.isArray(entries) ? entries : [];
+}
+
+function normalizePrintableEntry(entry = {}) {
+  const safeString = (value, fallback = '') => {
+    if (value === null || value === undefined) return fallback;
+    return String(value);
+  };
+  const safeNumber = (value, fallback = 0) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : fallback;
+  };
+
+  const rawStamp = entry.generatedAt || entry.createdAt || entry.created || entry.date || entry.at || entry.timestamp || entry.time || '';
+  const stamp = rawStamp ? new Date(rawStamp) : null;
+  const stampValue = stamp && Number.isFinite(stamp.getTime()) ? stamp.getTime() : 0;
+  const stampLabel = stampValue
+    ? new Date(stampValue).toLocaleString('ca-ES', { dateStyle: 'short', timeStyle: 'short' })
+    : 'Data desconeguda';
+
+  const moduleLabel = safeString(entry.moduleName || entry.moduleLabel || entry.module || entry.moduleId || 'Fitxa Focus Academy');
+  const levelLabel = safeString(entry.levelLabel || entry.levelName || (entry.level ? `Nivell ${entry.level}` : ''), '');
+  const count = safeNumber(entry.count ?? entry.questions ?? entry.questionCount ?? entry.totalQuestions, 0);
+  const student = safeString(entry.student || entry.name || entry.user || '', '');
+  const notes = safeString(entry.notes || entry.note || entry.comment || '', '');
+  const status = safeString(entry.status || entry.state || '', '');
+
+  return {
+    moduleLabel,
+    levelLabel,
+    count,
+    student,
+    notes,
+    status,
+    stampValue,
+    stampLabel
+  };
+}
+
+function clearPrintableSets(){
+  try {
+    if (activePrintableStorageKey) {
+      localStorage.removeItem(activePrintableStorageKey);
+    }
+  } catch (err) {
+    console.warn('No s\'ha pogut esborrar la llista de fitxes guardades.', err);
+  }
+  renderPrintableSets();
+}
+
+function renderPrintableSets(){
+  const list = document.querySelector('#printablesList');
+  const clearBtn = document.querySelector('#btnClearPrintables');
+  if (!list) return;
+
+  let entries = [];
+  try {
+    entries = loadPrintableSets();
+  } catch (err) {
+    console.warn('No s\'han pogut carregar les fitxes guardades.', err);
+    entries = [];
+  }
+
+  if (!entries.length) {
+    list.innerHTML = '<div class="chip">Encara no hi ha fitxes guardades.</div>';
+    if (clearBtn) {
+      clearBtn.disabled = true;
+      clearBtn.onclick = null;
+    }
+    return;
+  }
+
+  const normalized = entries
+    .map(normalizePrintableEntry)
+    .sort((a, b) => (b.stampValue || 0) - (a.stampValue || 0));
+
+  const markup = normalized.map(entry => {
+    const tags = [];
+    if (entry.levelLabel) tags.push(`<span class="chip">${escapeHTML(entry.levelLabel)}</span>`);
+    if (entry.count) tags.push(`<span class="chip">${entry.count} preguntes</span>`);
+    if (entry.student) tags.push(`<span class="chip">Alumne: ${escapeHTML(entry.student)}</span>`);
+    if (entry.status) tags.push(`<span class="chip">${escapeHTML(entry.status)}</span>`);
+
+    const notesBlock = entry.notes
+      ? `<div class="printable-item-notes">${escapeHTML(entry.notes)}</div>`
+      : '';
+
+    return `
+      <div class="printable-item">
+        <div class="printable-item-head">
+          <div class="printable-item-title">${escapeHTML(entry.moduleLabel)}</div>
+          <div class="printable-item-meta">${escapeHTML(entry.stampLabel)}</div>
+        </div>
+        ${tags.length ? `<div class="printable-item-tags">${tags.join('')}</div>` : ''}
+        ${notesBlock}
+      </div>
+    `;
+  }).join('');
+
+  list.innerHTML = markup;
+  if (clearBtn) {
+    clearBtn.disabled = false;
+    clearBtn.onclick = () => {
+      if (confirm('Vols esborrar totes les fitxes guardades?')) {
+        clearPrintableSets();
+      }
+    };
+  }
+}
+
 function renderResults(){
   renderPrintableSets();
   const data = store.all();
