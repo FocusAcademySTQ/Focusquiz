@@ -9,7 +9,11 @@ function showModal(contentHTML){
   overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
 }
 
-function closeModal(){ const m = document.querySelector('.modal'); if(m) m.remove(); }
+function closeModal(){
+  const m = document.querySelector('.modal');
+  if(m) m.remove();
+  printableEditorState = null;
+}
 
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => Array.from(document.querySelectorAll(q));
@@ -18,6 +22,12 @@ const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
 const clamp = (x,a,b)=> Math.max(a, Math.min(b,x));
 const gcd = (a,b)=>{ a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b] } return a||1 };
 const simplifyFrac = (n,d)=>{ const g=gcd(n,d); return [n/g, d/g] };
+const escapeHTML = (str = '') => String(str)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
 
 const store = {
   get k() { return 'focus-math-results-v1'; },
@@ -87,52 +97,6 @@ const store = {
   }
 };
 
-const printableStore = {
-  get k() { return 'focus-printable-sets-v1'; },
-
-  load() {
-    try {
-      const raw = JSON.parse(localStorage.getItem(this.k) || '[]');
-      return Array.isArray(raw) ? raw : [];
-    } catch {
-      return [];
-    }
-  },
-
-  save(list) {
-    if (!list || !list.length) {
-      localStorage.removeItem(this.k);
-      return;
-    }
-    localStorage.setItem(this.k, JSON.stringify(list));
-  },
-
-  list() {
-    return this.load();
-  },
-
-  add(entry) {
-    const list = this.load();
-    list.push(entry);
-    this.save(list);
-    return entry;
-  },
-
-  get(id) {
-    return this.load().find(item => item.id === id);
-  },
-
-  remove(id) {
-    const next = this.load().filter(item => item.id !== id);
-    this.save(next);
-  },
-
-  clear() {
-    localStorage.removeItem(this.k);
-  }
-};
-
-
 const fmtTime = (sec)=>{
   const m = Math.floor(sec/60), s = sec%60;
   return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
@@ -167,6 +131,7 @@ let pendingModule = null; // mòdul seleccionat per configurar
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
 let timerHandle = null;
+let printableEditorState = null;
 
 /* ===================== VIEWS ===================== */
 
@@ -542,7 +507,7 @@ function printActivitiesFromConfig(){
     alert('Aquest mòdul no admet fitxes imprimibles.');
     return;
   }
-  generatePrintableSet(pendingModule, cfg);
+  openPrintableEditor(pendingModule, cfg);
 }
 
 /* ===================== QUIZ ENGINE ===================== */
@@ -563,7 +528,6 @@ function startQuiz(moduleId, cfg){
     secondsLeft: time>0 ? time*60 : 0,
     questions: [],
     options: cfg.options || {},
-    printableId: null,
     levelLabel: `Nivell ${level}`
   };
 
@@ -612,7 +576,6 @@ function startQuizFromExisting(moduleId, options, questions, meta={}){
     secondsLeft: timeLimit>0 ? timeLimit*60 : 0,
     questions: normalized,
     options: opts,
-    printableId: meta.printableId || null,
     levelLabel: meta.levelLabel || (level>0 ? `Nivell ${level}` : 'Personalitzat')
   };
 
@@ -1145,19 +1108,13 @@ function cloneQuestionData(q){
   };
 }
 
-function createPrintableId(){
-  const stamp = Date.now().toString(36).toUpperCase();
-  const suffix = Math.floor(Math.random()*1296).toString(36).toUpperCase().padStart(2,'0');
-  return `FQ-${stamp.slice(-4)}${suffix}`;
-}
-
 function printableLineCount(q){
   if(!q || !q.type) return 2;
-  if(q.type.startsWith('eq')) return 4;
-  if(q.type.startsWith('geom')) return 4;
-  if(q.type.startsWith('frac')) return 3;
-  if(q.type.startsWith('stats')) return 3;
-  if(q.type.startsWith('func')) return 3;
+  if(q.type?.startsWith('eq')) return 4;
+  if(q.type?.startsWith('geom')) return 4;
+  if(q.type?.startsWith('frac')) return 3;
+  if(q.type?.startsWith('stats')) return 3;
+  if(q.type?.startsWith('func')) return 3;
   return 2;
 }
 
@@ -1256,226 +1213,236 @@ function formatPrintableOptions(moduleId, options){
   }
 }
 
-function generatePrintableSet(module, cfg){
+function openPrintableEditor(module, cfg){
   const level = clamp(parseInt(cfg.level)||1, 1, 4);
   const count = clamp(parseInt(cfg.count)||10, 1, 200);
   const timeLimit = clamp(parseInt(cfg.time)||0, 0, 180);
-  const optionsForGen = cfg.options ? JSON.parse(JSON.stringify(cfg.options)) : {};
-  const optionsForStore = cfg.options ? JSON.parse(JSON.stringify(cfg.options)) : {};
-  const questions = [];
-  for(let i=0;i<count;i++){
-    const q = module.gen(level, optionsForGen);
-    questions.push(cloneQuestionData(q));
-  }
-  const entry = {
-    id: createPrintableId(),
-    module: module.id,
-    moduleName: module.name,
+  const baseOptions = cfg.options ? JSON.parse(JSON.stringify(cfg.options)) : {};
+
+  printableEditorState = {
+    module,
     level,
-    count,
-    createdAt: new Date().toISOString(),
-    options: optionsForStore,
+    levelLabel: level > 0 ? `Nivell ${level}` : 'Personalitzat',
     timeLimit,
-    questions
+    options: baseOptions,
+    includeAnswers: true,
+    questions: [],
+    generatedAt: new Date().toISOString()
   };
-  printableStore.add(entry);
-  renderPrintableSets();
-  openPrintableWindow(entry);
+
+  for(let i=0;i<count;i++){
+    printableEditorState.questions.push(printableEditorGenerateQuestion());
+  }
+
+  const html = `
+    <div class="print-editor" role="document">
+      <div class="print-editor-header">
+        <div>
+          <h3 class="title" style="margin:0">${module.name} · Fitxa imprimible</h3>
+          <p class="subtitle" style="margin:6px 0 0">Revisa les operacions generades. Pots editar qualsevol enunciat o resposta, o regenera-les abans d'imprimir.</p>
+        </div>
+        <button type="button" class="btn-ghost" data-action="close">Tanca</button>
+      </div>
+      <div class="print-editor-toolbar">
+        <button type="button" class="btn-secondary" data-action="regen-all">↻ Regenera totes</button>
+        <label class="toggle"><input type="checkbox" id="printEditorIncludeAnswers" checked> Inclou solucions al final</label>
+      </div>
+      <div id="printEditorList" class="print-editor-list"></div>
+      <div class="print-editor-footer">
+        <button type="button" class="btn-secondary" data-action="close">Cancel·la</button>
+        <button type="button" class="btn" data-action="print">Imprimeix</button>
+      </div>
+    </div>`;
+
+  showModal(html);
+  const modal = document.querySelector('.modal .print-editor');
+  if(!modal) return;
+
+  const regenAll = modal.querySelector('[data-action="regen-all"]');
+  if(regenAll) regenAll.addEventListener('click', regenerateAllPrintableEditorQuestions);
+  modal.querySelectorAll('[data-action="close"]').forEach(btn=> btn.addEventListener('click', closePrintableEditor));
+  const printBtn = modal.querySelector('[data-action="print"]');
+  if(printBtn) printBtn.addEventListener('click', printEditorSheet);
+
+  renderPrintableEditorList();
 }
 
-function openPrintableWindow(entry){
+function printableEditorGenerateQuestion(){
+  if(!printableEditorState) return { raw:{}, prompt:'', answerText:'', html:'' };
+  const module = printableEditorState.module;
+  const level = printableEditorState.level;
+  const opts = printableEditorState.options ? JSON.parse(JSON.stringify(printableEditorState.options)) : {};
+  const raw = cloneQuestionData(module.gen(level, opts));
+  const defaultAnswer = printableAnswer(raw);
+  return {
+    raw,
+    prompt: raw.title || raw.text || '',
+    answerText: defaultAnswer === '—' ? '' : defaultAnswer,
+    html: raw.html || ''
+  };
+}
+
+function renderPrintableEditorList(){
+  if(!printableEditorState) return;
+  const list = document.querySelector('#printEditorList');
+  if(!list) return;
+  list.innerHTML = '';
+  printableEditorState.questions.forEach((entry, idx)=>{
+    list.appendChild(createPrintableEditorItem(entry, idx));
+  });
+}
+
+function createPrintableEditorItem(entry, idx){
+  const item = document.createElement('div');
+  item.className = 'print-editor-item';
+  item.dataset.index = String(idx);
+  item.innerHTML = `
+    <div class="print-editor-head">
+      <span class="print-editor-label">Pregunta ${idx+1}</span>
+      <button type="button" class="btn-secondary print-editor-regen">↻ Regenera</button>
+    </div>
+    <textarea class="input print-editor-text" rows="2"></textarea>
+    ${entry.html ? `<div class="print-editor-preview">${entry.html}</div>` : ''}
+    <label class="chip print-editor-answer-label">Resposta
+      <input type="text" class="input print-editor-answer" />
+    </label>
+  `;
+
+  const textarea = item.querySelector('.print-editor-text');
+  if(textarea){
+    textarea.value = entry.prompt || '';
+    textarea.addEventListener('input', ev => { entry.prompt = ev.target.value; });
+  }
+
+  const answerInput = item.querySelector('.print-editor-answer');
+  if(answerInput){
+    answerInput.value = entry.answerText || '';
+    answerInput.addEventListener('input', ev => { entry.answerText = ev.target.value; });
+  }
+
+  const regenBtn = item.querySelector('.print-editor-regen');
+  if(regenBtn){
+    regenBtn.addEventListener('click', () => regeneratePrintableEditorQuestion(idx));
+  }
+
+  return item;
+}
+
+function regeneratePrintableEditorQuestion(idx){
+  if(!printableEditorState) return;
+  const entry = printableEditorGenerateQuestion();
+  printableEditorState.questions[idx] = entry;
+  const list = document.querySelector('#printEditorList');
+  if(!list) return;
+  const current = list.querySelector(`.print-editor-item[data-index="${idx}"]`);
+  if(current){
+    const replacement = createPrintableEditorItem(entry, idx);
+    current.replaceWith(replacement);
+  }
+}
+
+function regenerateAllPrintableEditorQuestions(){
+  if(!printableEditorState) return;
+  printableEditorState.questions = printableEditorState.questions.map(() => printableEditorGenerateQuestion());
+  renderPrintableEditorList();
+}
+
+function printEditorSheet(){
+  if(!printableEditorState) return;
+  const modal = document.querySelector('.modal .print-editor');
+  if(modal){
+    const include = modal.querySelector('#printEditorIncludeAnswers');
+    printableEditorState.includeAnswers = include ? include.checked : true;
+  }
+
+  const entries = printableEditorState.questions.map((entry, idx)=>({
+    prompt: (entry.prompt || '').trim() || `Pregunta ${idx+1}`,
+    answer: (entry.answerText || '').trim(),
+    html: entry.html || '',
+    raw: entry.raw || {}
+  }));
+
+  const doc = buildPrintableDocument(printableEditorState, entries, printableEditorState.includeAnswers);
   const win = window.open('', '_blank', 'noopener');
   if(!win){
-    alert('No s\'ha pogut obrir la finestra d\'impressió. Permet finestres emergents per poder imprimir.');
+    alert('No s\'ha pogut obrir la vista d\'impressió. Permet finestres emergents.');
     return;
   }
-  const createdLabel = entry.createdAt ? new Date(entry.createdAt).toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' }) : '';
-  const levelLabel = entry.level ? `Nivell ${entry.level}` : 'Personalitzat';
-  const timeLabel = entry.timeLimit ? `${entry.timeLimit} min` : 'sense límit';
-  const optionSummary = formatPrintableOptions(entry.module, entry.options);
-  const optionLine = optionSummary ? optionSummary : 'Opcions per defecte';
-  const questionBlocks = (entry.questions||[]).map((q, idx)=>{
-    const prompt = q.title || q.text || '';
-    const media = q.html ? `<div class="print-q-media">${q.html}</div>` : '';
-    const lines = '<div class="print-lines">' + '<div class="line"></div>'.repeat(printableLineCount(q)) + '</div>';
-    return `<div class="print-question"><div class="print-q-num">${idx+1}.</div><div class="print-q-body"><div class="print-q-text">${prompt}</div>${media}${lines}</div></div>`;
-  }).join('');
-  const answersList = (entry.questions||[]).map((q, idx)=>`<li><strong>${idx+1}.</strong> ${printableAnswer(q)}</li>`).join('');
+  win.document.write(doc);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>{ try{ win.print(); }catch{} }, 200);
+}
 
-  const doc = `<!DOCTYPE html>
+function buildPrintableDocument(state, entries, includeAnswers){
+  const moduleName = state.module?.name || state.module?.id || 'Fitxa Focus Academy';
+  const levelLabel = state.levelLabel || (state.level ? `Nivell ${state.level}` : 'Personalitzat');
+  const timeLabel = state.timeLimit ? `${state.timeLimit} min` : 'sense límit';
+  const generatedAt = state.generatedAt ? new Date(state.generatedAt).toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' }) : new Date().toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' });
+  const optionSummary = formatPrintableOptions(state.module?.id || state.module?.module || state.module, state.options);
+  const optionLine = escapeHTML(optionSummary || 'Opcions per defecte');
+
+  const questionBlocks = entries.map((entry, idx)=>{
+    const promptHtml = escapeHTML(entry.prompt).replace(/\n/g, '<br>');
+    const media = entry.html ? `<div class="print-q-media">${entry.html}</div>` : '';
+    const lineCount = Math.max(2, printableLineCount(entry.raw));
+    const lines = '<div class="print-lines">' + '<div class="line"></div>'.repeat(lineCount) + '</div>';
+    return `<div class="print-question"><div class="print-q-num">${idx+1}.</div><div class="print-q-body"><div class="print-q-text">${promptHtml}</div>${media}${lines}</div></div>`;
+  }).join('');
+
+  const answersSection = includeAnswers ? `<div class="print-answers"><h2>Solucions</h2><ol>${entries.map((entry, idx)=>`<li><strong>${idx+1}.</strong> ${escapeHTML(entry.answer || '—')}</li>`).join('')}</ol></div>` : '';
+
+  return `<!DOCTYPE html>
 <html lang="ca">
 <head>
   <meta charset="utf-8">
-  <title>Focus Academy · Fitxa imprimible</title>
+  <title>Fitxa imprimible · ${escapeHTML(moduleName)}</title>
   <style>
     body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#f8fafc;margin:0;color:#0f172a;}
     .sheet{max-width:840px;margin:32px auto;padding:32px;background:#ffffff;border:1px solid #e2e8f0;box-shadow:0 18px 40px rgba(15,23,42,.12);border-radius:24px;}
-    h1{font-size:1.6rem;margin:0 0 6px;}
-    .meta-row{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 18px;font-size:.95rem;}
+    h1{font-size:1.6rem;margin:0;}
+    .meta-row{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 18px;font-size:.95rem;color:#334155;}
     .meta-row span{min-width:180px;}
     .note{background:#eef2ff;border:1px solid #c7d2fe;padding:12px 16px;border-radius:16px;font-size:.95rem;margin-bottom:18px;}
-    .printable-code{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#3730a3;margin-bottom:22px;}
-    .print-question{display:flex;gap:12px;page-break-inside:avoid;margin-bottom:18px;}
-    .print-q-num{font-weight:700;font-size:1.05rem;width:32px;}
+    .print-questions{display:flex;flex-direction:column;gap:18px;}
+    .print-question{display:flex;gap:12px;}
+    .print-q-num{font-weight:700;font-size:1.1rem;width:32px;}
     .print-q-body{flex:1;}
-    .print-q-text{font-size:1.05rem;margin-bottom:8px;}
-    .print-q-media{margin-bottom:10px;}
-    .print-lines{display:grid;gap:6px;margin-top:10px;}
-    .print-lines .line{border-bottom:1px dashed #cbd5f5;height:24px;}
-    .answers{margin-top:42px;padding-top:24px;border-top:2px solid #e2e8f0;}
-    .answers h2{font-size:1.3rem;margin-top:0;}
-    .answers ol{padding-left:20px;}
-    .answers li{margin-bottom:6px;font-size:1rem;}
-    @media print{body{background:#ffffff;margin:0;} .sheet{box-shadow:none;border:none;margin:0;padding:28px;} .note{background:#ffffff;border-color:#e2e8f0;} .answers{page-break-before:always;}}
+    .print-q-text{font-size:1.05rem;line-height:1.5;}
+    .print-q-media{margin:10px 0;}
+    .print-lines{margin-top:14px;display:grid;gap:14px;}
+    .print-lines .line{height:1px;background:#cbd5f5;}
+    .print-answers{margin-top:32px;padding-top:24px;border-top:2px solid #e2e8f0;}
+    .print-answers h2{margin:0 0 12px;font-size:1.25rem;}
+    .print-answers ol{margin:0;padding-left:20px;display:grid;gap:6px;}
+    @media print{body{background:#fff;} .sheet{box-shadow:none;border:none;margin:0 auto;padding:24px;} .note{display:none;}}
   </style>
 </head>
 <body>
   <div class="sheet">
-    <header>
-      <h1>${entry.moduleName || entry.module} · Fitxa imprimible</h1>
-      <div class="meta-row">
-        <span><strong>Nombre de preguntes:</strong> ${entry.count}</span>
-        <span><strong>Nivell:</strong> ${levelLabel}</span>
-        <span><strong>Temps orientatiu:</strong> ${timeLabel}</span>
-      </div>
-      <div class="meta-row">
-        <span><strong>Alumne/a:</strong> ____________________________</span>
-        <span><strong>Data:</strong> ____ / ____ / ______</span>
-        <span><strong>Generada:</strong> ${createdLabel}</span>
-      </div>
-      <div class="note">Resol les preguntes en paper i, quan acabis, introdueix les respostes a l'aplicació per corregir-les. Configuració: ${optionLine}.</div>
-      <div class="printable-code">Codi de fitxa: ${entry.id}</div>
-    </header>
-    <section class="questions">
+    <h1>${escapeHTML(moduleName)}</h1>
+    <div class="meta-row">
+      <span><strong>Nivell:</strong> ${escapeHTML(levelLabel)}</span>
+      <span><strong>Preguntes:</strong> ${entries.length}</span>
+      <span><strong>Temps orientatiu:</strong> ${escapeHTML(timeLabel)}</span>
+      <span><strong>Generat:</strong> ${escapeHTML(generatedAt)}</span>
+    </div>
+    <div class="meta-row">
+      <span><strong>Alumne/a:</strong> ____________________</span>
+      <span><strong>Data:</strong> ____________________</span>
+    </div>
+    <div class="note">Opcions configurades: ${optionLine}</div>
+    <div class="print-questions">
       ${questionBlocks}
-    </section>
-    <section class="answers">
-      <h2>Solucions</h2>
-      <p style="margin:0 0 12px;font-size:.95rem;color:#475569;">Per al professorat o per comprovar ràpidament el resultat.</p>
-      <ol>
-        ${answersList}
-      </ol>
-    </section>
+    </div>
+    ${answersSection}
   </div>
-  <script>window.addEventListener('load',()=>setTimeout(()=>window.print(),400));</script>
 </body>
 </html>`;
-
-  win.document.write(doc);
-  win.document.close();
 }
 
-function renderPrintableSets(){
-  const listEl = $('#printablesList');
-  if(!listEl) return;
-  const sets = printableStore.list().slice().sort((a,b)=> new Date(b.createdAt||0) - new Date(a.createdAt||0));
-  const clearBtn = $('#btnClearPrintables');
-  if(clearBtn) clearBtn.disabled = !sets.length;
-  if(!sets.length){
-    listEl.innerHTML = '<div class="chip">Encara no hi ha fitxes guardades.</div>';
-    return;
-  }
-  listEl.innerHTML = '';
-  sets.forEach(entry => {
-    const item = document.createElement('div');
-    item.className = 'printable-item';
-
-    const info = document.createElement('div');
-    info.className = 'printable-info';
-
-    const title = document.createElement('div');
-    title.className = 'printable-title';
-    title.textContent = `${entry.moduleName || entry.module} · ${entry.count} preguntes`;
-    info.appendChild(title);
-
-    const levelMeta = document.createElement('div');
-    levelMeta.className = 'printable-meta';
-    const levelLabel = entry.level ? `Nivell ${entry.level}` : 'Personalitzat';
-    const timeLabel = entry.timeLimit ? `${entry.timeLimit} min` : 'sense límit';
-    levelMeta.textContent = `${levelLabel} · Temps orientatiu: ${timeLabel}`;
-    info.appendChild(levelMeta);
-
-    if(entry.createdAt){
-      const createdMeta = document.createElement('div');
-      createdMeta.className = 'printable-meta';
-      createdMeta.textContent = `Generada: ${new Date(entry.createdAt).toLocaleString('ca-ES', { dateStyle:'short', timeStyle:'short' })}`;
-      info.appendChild(createdMeta);
-    }
-
-    const optionMeta = document.createElement('div');
-    optionMeta.className = 'printable-meta';
-    optionMeta.textContent = `Opcions: ${formatPrintableOptions(entry.module, entry.options)}`;
-    info.appendChild(optionMeta);
-
-    const code = document.createElement('div');
-    code.className = 'printable-code';
-    code.textContent = `Codi: ${entry.id}`;
-    info.appendChild(code);
-
-    const actions = document.createElement('div');
-    actions.className = 'printable-actions';
-
-    const btnReview = document.createElement('button');
-    btnReview.type = 'button';
-    btnReview.className = 'btn-secondary';
-    btnReview.textContent = 'Corregeix';
-    btnReview.addEventListener('click', ()=> startPrintableCorrection(entry.id));
-
-    const btnDelete = document.createElement('button');
-    btnDelete.type = 'button';
-    btnDelete.className = 'btn-ghost';
-    btnDelete.textContent = 'Elimina';
-    btnDelete.addEventListener('click', ()=> removePrintableSet(entry.id));
-
-    actions.appendChild(btnReview);
-    actions.appendChild(btnDelete);
-
-    item.appendChild(info);
-    item.appendChild(actions);
-    listEl.appendChild(item);
-  });
-}
-
-function startPrintableCorrection(id){
-  const entry = printableStore.get(id);
-  if(!entry){
-    renderPrintableSets();
-    alert('No s\'ha trobat aquesta fitxa.');
-    return;
-  }
-  const module = MODULES.find(m=>m.id===entry.module) || { name: entry.module };
-  const questions = (entry.questions||[]).map(cloneQuestionData);
-  const options = entry.options ? JSON.parse(JSON.stringify(entry.options)) : {};
-  const meta = {
-    label: 'Fitxa impresa',
-    title: `${module.name} (fitxa impresa)`,
-    level: entry.level || 0,
-    levelLabel: entry.level ? `Nivell ${entry.level}` : 'Fitxa impresa',
-    printableId: entry.id,
-    time: entry.timeLimit || 0
-  };
-  startQuizFromExisting(entry.module, options, questions, meta);
-}
-
-function removePrintableSet(id){
-  const entry = printableStore.get(id);
-  if(!entry){ renderPrintableSets(); return; }
-  const label = entry.moduleName || entry.module;
-  if(!confirm(`Vols eliminar la fitxa ${id} (${label})?`)) return;
-  printableStore.remove(id);
-  renderPrintableSets();
-}
-
-function clearPrintableSets(){
-  const sets = printableStore.list();
-  if(!sets.length){
-    alert('No hi ha fitxes guardades.');
-    return;
-  }
-  if(confirm('Segur que vols eliminar totes les fitxes guardades?')){
-    printableStore.clear();
-    renderPrintableSets();
-  }
+function closePrintableEditor(){
+  closeModal();
 }
 
 /* ===================== GENERADORS ===================== */
@@ -2827,8 +2794,6 @@ function init(){
 document.addEventListener('DOMContentLoaded', () => {
   const btnPrint = document.querySelector('#btnPrintSet');
   if (btnPrint) btnPrint.addEventListener('click', printActivitiesFromConfig);
-  const btnClearPrintables = document.querySelector('#btnClearPrintables');
-  if (btnClearPrintables) btnClearPrintables.addEventListener('click', clearPrintableSets);
   init();
 });
 
