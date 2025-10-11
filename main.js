@@ -1293,6 +1293,36 @@ if (typeof window !== 'undefined') {
   window.barChartSVG = barChartSVG;
 }
 
+// Gràfic de barres simple per a comparar mòduls o valors agregats
+function barChartSVG(values, labels){
+  const w = 360, h = 200, p = 28;
+  const max = Math.max(...values, 0);
+  const barWidth = values.length ? (w - p * 2) / values.length : 0;
+
+  const bars = values.map((val, idx) => {
+    const height = max ? (val / max) * (h - p * 2) : 0;
+    const x = p + idx * barWidth;
+    const y = h - p - height;
+    return `
+      <g>
+        <rect x="${(x + 6).toFixed(2)}" y="${y.toFixed(2)}" width="${Math.max(barWidth - 12, 0).toFixed(2)}" height="${height.toFixed(2)}" fill="#93c5fd" stroke="#64748b">
+          <animate attributeName="height" from="0" to="${height.toFixed(2)}" dur=".4s" fill="freeze"/>
+          <animate attributeName="y" from="${(h - p).toFixed(2)}" to="${y.toFixed(2)}" dur=".4s" fill="freeze"/>
+        </rect>
+        <text x="${(x + barWidth / 2).toFixed(2)}" y="${h - 6}" text-anchor="middle" class="svg-label">${labels[idx] ?? ''}</text>
+      </g>`;
+  }).join('');
+
+  return `
+    <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Gràfic de barres">
+      <rect x="0" y="0" width="${w}" height="${h}" rx="16" ry="16" fill="#f8fafc"/>
+      ${bars}
+    </svg>`;
+}
+if (typeof window !== 'undefined') {
+  window.barChartSVG = barChartSVG;
+}
+
 // Gràfic de línies simple (puntuació vs temps)
 function lineChartSVG(values, labels){
   const w=360, h=200, p=28;
@@ -1330,6 +1360,149 @@ function scatterSVG(points){
 }
 
 // ==== RENDER PRINCIPAL DE RESULTATS + PERFIL ====
+function loadPrintableSets(){
+  let entries = [];
+  let chosenKey = PRINTABLE_STORAGE_KEYS[0];
+
+  for (const key of PRINTABLE_STORAGE_KEYS) {
+    const raw = localStorage.getItem(key);
+    if (!raw) continue;
+
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        entries = parsed;
+        chosenKey = key;
+        break;
+      }
+
+      if (parsed && typeof parsed === 'object') {
+        const values = Object.values(parsed).filter(Array.isArray);
+        if (values.length) {
+          entries = [].concat(...values);
+          chosenKey = key;
+          break;
+        }
+      }
+    } catch (err) {
+      console.warn('No s\'ha pogut llegir la llista de fitxes guardades.', err);
+      chosenKey = key;
+      entries = [];
+      break;
+    }
+  }
+
+  activePrintableStorageKey = chosenKey;
+  return Array.isArray(entries) ? entries : [];
+}
+
+function normalizePrintableEntry(entry = {}) {
+  const safeString = (value, fallback = '') => {
+    if (value === null || value === undefined) return fallback;
+    return String(value);
+  };
+  const safeNumber = (value, fallback = 0) => {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : fallback;
+  };
+
+  const rawStamp = entry.generatedAt || entry.createdAt || entry.created || entry.date || entry.at || entry.timestamp || entry.time || '';
+  const stamp = rawStamp ? new Date(rawStamp) : null;
+  const stampValue = stamp && Number.isFinite(stamp.getTime()) ? stamp.getTime() : 0;
+  const stampLabel = stampValue
+    ? new Date(stampValue).toLocaleString('ca-ES', { dateStyle: 'short', timeStyle: 'short' })
+    : 'Data desconeguda';
+
+  const moduleLabel = safeString(entry.moduleName || entry.moduleLabel || entry.module || entry.moduleId || 'Fitxa Focus Academy');
+  const levelLabel = safeString(entry.levelLabel || entry.levelName || (entry.level ? `Nivell ${entry.level}` : ''), '');
+  const count = safeNumber(entry.count ?? entry.questions ?? entry.questionCount ?? entry.totalQuestions, 0);
+  const student = safeString(entry.student || entry.name || entry.user || '', '');
+  const notes = safeString(entry.notes || entry.note || entry.comment || '', '');
+  const status = safeString(entry.status || entry.state || '', '');
+
+  return {
+    moduleLabel,
+    levelLabel,
+    count,
+    student,
+    notes,
+    status,
+    stampValue,
+    stampLabel
+  };
+}
+
+function clearPrintableSets(){
+  try {
+    if (activePrintableStorageKey) {
+      localStorage.removeItem(activePrintableStorageKey);
+    }
+  } catch (err) {
+    console.warn('No s\'ha pogut esborrar la llista de fitxes guardades.', err);
+  }
+  renderPrintableSets();
+}
+
+function renderPrintableSets(){
+  const list = document.querySelector('#printablesList');
+  const clearBtn = document.querySelector('#btnClearPrintables');
+  if (!list) return;
+
+  let entries = [];
+  try {
+    entries = loadPrintableSets();
+  } catch (err) {
+    console.warn('No s\'han pogut carregar les fitxes guardades.', err);
+    entries = [];
+  }
+
+  if (!entries.length) {
+    list.innerHTML = '<div class="chip">Encara no hi ha fitxes guardades.</div>';
+    if (clearBtn) {
+      clearBtn.disabled = true;
+      clearBtn.onclick = null;
+    }
+    return;
+  }
+
+  const normalized = entries
+    .map(normalizePrintableEntry)
+    .sort((a, b) => (b.stampValue || 0) - (a.stampValue || 0));
+
+  const markup = normalized.map(entry => {
+    const tags = [];
+    if (entry.levelLabel) tags.push(`<span class="chip">${escapeHTML(entry.levelLabel)}</span>`);
+    if (entry.count) tags.push(`<span class="chip">${entry.count} preguntes</span>`);
+    if (entry.student) tags.push(`<span class="chip">Alumne: ${escapeHTML(entry.student)}</span>`);
+    if (entry.status) tags.push(`<span class="chip">${escapeHTML(entry.status)}</span>`);
+
+    const notesBlock = entry.notes
+      ? `<div class="printable-item-notes">${escapeHTML(entry.notes)}</div>`
+      : '';
+
+    return `
+      <div class="printable-item">
+        <div class="printable-item-head">
+          <div class="printable-item-title">${escapeHTML(entry.moduleLabel)}</div>
+          <div class="printable-item-meta">${escapeHTML(entry.stampLabel)}</div>
+        </div>
+        ${tags.length ? `<div class="printable-item-tags">${tags.join('')}</div>` : ''}
+        ${notesBlock}
+      </div>
+    `;
+  }).join('');
+
+  list.innerHTML = markup;
+  if (clearBtn) {
+    clearBtn.disabled = false;
+    clearBtn.onclick = () => {
+      if (confirm('Vols esborrar totes les fitxes guardades?')) {
+        clearPrintableSets();
+      }
+    };
+  }
+}
+
 function renderResults(){
   const data = store.all();
   const modSelect = $('#filter-module');
