@@ -1603,10 +1603,8 @@ async function downloadEditorSheet(){
       throw new Error('empty-pdf');
     }
 
-    const buffer = pdfBytes instanceof Uint8Array
-      ? pdfBytes.buffer.slice(pdfBytes.byteOffset, pdfBytes.byteOffset + pdfBytes.byteLength)
-      : pdfBytes;
-    const blob = new Blob([buffer], { type: 'application/pdf' });
+    const payload = pdfBytes instanceof Uint8Array ? pdfBytes : new Uint8Array(pdfBytes);
+    const blob = new Blob([payload], { type: 'application/pdf' });
     const moduleName = printableEditorState.module?.name || printableEditorState.module?.id || 'focusquiz';
     const safeName = moduleName.toLowerCase().replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '') || 'fitxa';
     const blobUrl = URL.createObjectURL(blob);
@@ -1620,11 +1618,19 @@ async function downloadEditorSheet(){
       link.download = `${safeName}-focusquiz.pdf`;
       document.body.appendChild(link);
       const trigger = () => {
-        link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        try {
+          if(typeof HTMLAnchorElement !== 'undefined' && 'download' in HTMLAnchorElement.prototype){
+            link.click();
+          } else {
+            window.open(url, '_blank', 'noopener');
+          }
+        } catch {
+          window.open(url, '_blank', 'noopener');
+        }
         setTimeout(() => {
           URL.revokeObjectURL(url);
           link.remove();
-        }, 2000);
+        }, 1200);
       };
       if('requestAnimationFrame' in window){
         requestAnimationFrame(trigger);
@@ -1681,6 +1687,7 @@ async function buildPrintablePdf(state, entries, includeAnswers){
     headerGlow: '#bfd3ff',
     cardBase: '#ffffff',
     cardBorder: '#dbeafe',
+    cardShadow: '#e0e7ff',
     text: '#0f172a',
     muted: '#475569',
     label: '#64748b',
@@ -1690,7 +1697,9 @@ async function buildPrintablePdf(state, entries, includeAnswers){
     answersBorder: '#c7d2fe',
     answersAccent: '#1e3a8a',
     answersText: '#0f172a',
-    accent: '#7aa2ff'
+    accent: '#7aa2ff',
+    brand: '#7aa2ff',
+    brandWash: '#e2e8ff'
   };
 
   const accentRamp = [
@@ -1781,6 +1790,7 @@ async function buildPrintablePdf(state, entries, includeAnswers){
     cursorY = pageHeight - margin;
     fillRect(palette.pageBg, 0, 0, pageWidth, pageHeight);
     fillRect(palette.pageTop, 0, pageHeight - 190, pageWidth, 190);
+    fillRect(palette.brandWash, 0, pageHeight - 80, pageWidth, 80);
     fillRect(palette.pageHighlight, -40, pageHeight - 140, 220, 140);
     fillRect(mixColor(palette.headerAccent, '#ffffff', 0.65), pageWidth - 200, pageHeight - 150, 200, 150);
     currentPage.commands.push('0.5 w');
@@ -1886,8 +1896,11 @@ async function buildPrintablePdf(state, entries, includeAnswers){
     }
     infoLines.push(`• Generat: ${generatedAt}`);
 
-    const topPad = 34;
-    const bottomPad = 24;
+    const topPad = 32;
+    const bottomPad = 26;
+    const brandSize = 12;
+    const brandLineHeight = brandSize * 1.3;
+    const brandAfter = 4;
     const titleSize = 18;
     const titleLineHeight = titleSize * 1.2;
     const titleAfter = 6;
@@ -1897,7 +1910,7 @@ async function buildPrintablePdf(state, entries, includeAnswers){
     const metaSize = 11;
     const metaLineHeight = metaSize * 1.45;
     const metaBlock = infoLines.length * metaLineHeight;
-    const cardHeight = topPad + titleLineHeight + titleAfter + subtitleLineHeight + subtitleAfter + metaBlock + bottomPad;
+    const cardHeight = topPad + brandLineHeight + brandAfter + titleLineHeight + titleAfter + subtitleLineHeight + subtitleAfter + metaBlock + bottomPad;
 
     ensurePageSpace(cardHeight + 12);
     const top = cursorY;
@@ -1907,10 +1920,12 @@ async function buildPrintablePdf(state, entries, includeAnswers){
 
     fillRect(palette.cardBase, left, bottom, width, cardHeight);
     strokeRect(palette.cardBorder, 0.8, left, bottom, width, cardHeight);
-    fillRect(mixColor(palette.headerAccent, '#ffffff', 0.55), left, bottom + cardHeight - 8, width, 8);
-    fillRect(mixColor(palette.headerGlow, '#ffffff', 0.3), left + width - 160, bottom + cardHeight - 60, 140, 60);
+    fillRect(palette.cardShadow, left, bottom + cardHeight - 10, width, 10);
+    fillRect(mixColor(palette.headerAccent, '#ffffff', 0.5), left, bottom + cardHeight - 10, Math.min(160, width * 0.32), 10);
+    fillRect(mixColor(palette.headerGlow, '#ffffff', 0.3), left + width - 160, bottom + cardHeight - 62, 140, 62);
 
     cursorY = top - topPad;
+    addText('Focus Academy · Matemàtiques', brandSize, { indent: 26, indentRight: 26, color: palette.brand, lineHeight: 1.3, after: brandAfter });
     addText(moduleName, titleSize, { bold: true, indent: 26, indentRight: 26, lineHeight: 1.2, after: titleAfter });
     addText('Fitxa en PDF personalitzada', subtitleSize, { indent: 26, indentRight: 26, color: palette.muted, lineHeight: 1.4, after: subtitleAfter });
     addText(infoLines.join('\n'), metaSize, { indent: 26, indentRight: 26, color: palette.label, lineHeight: 1.45, after: 0 });
@@ -2184,6 +2199,30 @@ async function extractPrintableVisuals(html){
   return result;
 }
 
+function inlineSvgStyles(svg){
+  if(!svg) return;
+  const doc = svg.ownerDocument || document;
+  const win = doc.defaultView || window;
+  if(!win || typeof win.getComputedStyle !== 'function') return;
+  const important = [
+    'font-family','font-size','font-weight','font-style','letter-spacing','text-anchor','fill','fill-opacity',
+    'stroke','stroke-width','stroke-opacity','stroke-linejoin','stroke-linecap','stroke-dasharray','stroke-dashoffset',
+    'paint-order','color','opacity','stop-color','stop-opacity','text-decoration','dominant-baseline','alignment-baseline'
+  ];
+  const nodes = [svg, ...svg.querySelectorAll('*')];
+  nodes.forEach(el => {
+    const tag = (el.tagName || '').toLowerCase();
+    if(tag === 'style' || tag === 'script') return;
+    const computed = win.getComputedStyle(el);
+    if(!computed) return;
+    important.forEach(prop => {
+      const value = computed.getPropertyValue(prop);
+      if(!value) return;
+      el.style.setProperty(prop, value);
+    });
+  });
+}
+
 function serializeSvgForPdf(svg){
   const clone = svg.cloneNode(true);
   if(!clone.getAttribute('xmlns')){
@@ -2192,6 +2231,14 @@ function serializeSvgForPdf(svg){
   if(!clone.getAttribute('xmlns:xlink')){
     clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
   }
+  inlineSvgStyles(clone);
+  const doc = clone.ownerDocument || document;
+  if(doc && typeof doc.createElementNS === 'function'){
+    const styleNode = doc.createElementNS('http://www.w3.org/2000/svg', 'style');
+    styleNode.textContent = `text{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;fill:#1f2937;} .svg-label{font-size:13px;fill:#334155;stroke:#ffffff;stroke-width:4;paint-order:stroke fill;stroke-linejoin:round;}`;
+    clone.insertBefore(styleNode, clone.firstChild);
+  }
+  clone.querySelectorAll('animate,animateMotion,animateTransform,animateColor').forEach(node => node.remove());
   const serializer = new XMLSerializer();
   return serializer.serializeToString(clone);
 }
@@ -2224,21 +2271,21 @@ async function rasterizeSvgForPdf(svgMarkup){
     const naturalWidth = Math.max(1, Math.round(img.naturalWidth || img.width || 600));
     const naturalHeight = Math.max(1, Math.round(img.naturalHeight || img.height || 400));
     const canvas = document.createElement('canvas');
-    const scale = Math.max(1, Math.min(3, 1200 / Math.max(naturalWidth, naturalHeight)));
+    const scale = Math.max(1.5, Math.min(3.2, 1600 / Math.max(naturalWidth, naturalHeight)));
     canvas.width = Math.max(1, Math.round(naturalWidth * scale));
     canvas.height = Math.max(1, Math.round(naturalHeight * scale));
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.97);
     const bytes = dataUrlToUint8Array(dataUrl);
     return {
       bytes,
       pixelWidth: canvas.width,
       pixelHeight: canvas.height,
-      widthPt: canvas.width * (72 / 96),
-      heightPt: canvas.height * (72 / 96)
+      widthPt: naturalWidth * (72 / 96),
+      heightPt: naturalHeight * (72 / 96)
     };
   } finally {
     URL.revokeObjectURL(url);
