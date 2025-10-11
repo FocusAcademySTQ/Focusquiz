@@ -313,6 +313,12 @@ main{padding: 28px 0 60px}
 .subtitle{color:var(--muted); margin:0 0 18px}
 .tutor-card{margin-top:1rem; background:#fffafc; border-color:#fce7f3}
 .tutor-title{margin-top:0}
+.tutor-lead{margin:0; color:var(--ink); font-weight:500}
+.tutor-section{margin-top:14px; padding-top:12px; border-top:1px dashed #fbcfe8}
+.tutor-section h4{margin:0 0 6px; font-size:1rem}
+.tutor-list{margin:0; padding-left:20px; display:grid; gap:6px; color:var(--muted)}
+.tutor-link{color:#7c3aed; font-weight:600; text-decoration:none}
+.tutor-link:hover{text-decoration:underline}
 
 .grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px}
 @media (max-width: 560px){ .grid{grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));} }
