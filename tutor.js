@@ -40,7 +40,11 @@
   };
 
   const saveProgress = (data) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch (err) {
+      console.error('No s\'ha pogut actualitzar el progrés del tutor virtual.', err);
+    }
   };
 
   const ensureUserBucket = (data, user) => {
