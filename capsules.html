@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FocusQuiz · Espai d'aprenentatge</title>
+  <meta name="description" content="Accedeix a càpsules guiades per practicar pas a pas amb explicacions i exercicis autocorrectius." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body{background:linear-gradient(180deg,#f8fbff,#eef2ff 320px)}
+    .capsules-hero{margin:40px 0 28px}
+    .capsules-hero h1{margin:0;font-size:clamp(1.5rem,1.2rem + 2vw,2.4rem)}
+    .capsules-hero p{margin:10px 0 0;color:var(--muted);max-width:640px}
+    .capsules-nav{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .capsule-card{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;padding:22px 20px;border-radius:20px;border:1px solid var(--hair);background:linear-gradient(180deg,#ffffff,rgba(236,248,255,0.8));box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease}
+    .capsule-card::after{content:"";position:absolute;inset:auto auto 0 0;height:6px;width:100%;background:linear-gradient(90deg,#bfdbfe,#a7f3d0)}
+    .capsule-card:hover{transform:translateY(-2px);border-color:rgba(148,163,184,0.6);box-shadow:0 16px 38px rgba(148,163,184,0.22)}
+    .capsule-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(37,99,235,0.08);color:#1d4ed8;border-radius:999px;padding:6px 12px;font-weight:700;font-size:.8rem;letter-spacing:.03em}
+    .capsule-title{font-size:1.15rem;margin:4px 0;color:var(--ink);display:flex;align-items:center;gap:10px}
+    .capsule-title span{font-size:1.5rem}
+    .capsule-copy{margin:0;color:var(--muted);font-size:.95rem;line-height:1.4}
+    .capsule-meta{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:.85rem;color:#1e3a8a;font-weight:600}
+    .capsule-meta svg{width:18px;height:18px}
+    .empty-state{padding:26px;border-radius:18px;background:rgba(255,255,255,0.7);border:1px dashed rgba(148,163,184,0.4);color:#475569;display:flex;flex-direction:column;gap:10px;font-size:.95rem}
+    .empty-state strong{font-size:1rem;color:#0f172a}
+    @media (max-width:640px){
+      .capsules-hero{margin:28px 0 24px}
+      .capsules-nav{justify-content:flex-start}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap row header-bar">
+      <div class="brand">
+        <div class="logo">FQ</div>
+        <h1>Focus Academy</h1>
+      </div>
+      <nav class="capsules-nav" aria-label="Navegació">
+        <a class="pill" href="index.html">← Torna a l'inici</a>
+        <a class="pill" href="https://focuscat.onrender.com/" target="_blank" rel="noopener">Focus Exams</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="capsules-hero">
+      <p class="pill" style="display:inline-flex;align-items:center;gap:8px;background:rgba(34,197,94,0.12);color:#047857;font-weight:700;letter-spacing:.08em;text-transform:uppercase">🧠 Nou espai</p>
+      <h1>Espai d'aprenentatge</h1>
+      <p>Explora càpsules amb explicacions pas a pas, animacions i activitats autocorrectives per preparar-te abans d'afrontar els exàmens. Ara pots reforçar la divisió portant i la resta portant, i molt aviat arribaran més temes!</p>
+    </section>
+
+    <section aria-labelledby="capsules-list">
+      <h2 id="capsules-list" class="sr-only">Càpsules disponibles</h2>
+      <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+        <a class="capsule-card" href="capsula-divisio.html">
+          <span class="capsule-tag">Divisió portant</span>
+          <h3 class="capsule-title"><span>➗</span>Divisió europea, pas a pas</h3>
+          <p class="capsule-copy">Comprèn el mètode europeu de divisió portant amb teoria detallada, animacions i molta pràctica autocorrectiva.</p>
+          <div class="capsule-meta">
+            <span>4 sessions guiades</span>
+            <span aria-hidden="true">Comença →</span>
+          </div>
+        </a>
+        <a class="capsule-card" href="capsula-resta.html">
+          <span class="capsule-tag">Resta portant</span>
+          <h3 class="capsule-title"><span>➖</span>Domina la resta amb préstecs</h3>
+          <p class="capsule-copy">Repàs complet de la resta portant: explica les descomposicions, practica amb pistes visuals i supera la prova final.</p>
+          <div class="capsule-meta">
+            <span>4 sessions guiades</span>
+            <span aria-hidden="true">Comença →</span>
+          </div>
+        </a>
+        <div class="empty-state" aria-live="polite">
+          <strong>Properament…</strong>
+          <p>Estem preparant noves càpsules d'aprenentatge (fraccions, geometria, potències...). Si tens alguna prioritat, fes-nos-ho saber!</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
