@@ -320,6 +320,51 @@ main{padding: 28px 0 60px}
 .tutor-link{color:#7c3aed; font-weight:600; text-decoration:none}
 .tutor-link:hover{text-decoration:underline}
 
+.learning-card{
+  margin-top:1.2rem;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:18px 20px;
+  border-radius:20px;
+  border:1.5px dashed rgba(59,130,246,0.35);
+  background:linear-gradient(120deg, rgba(191,219,254,0.45), rgba(224,242,254,0.25));
+  text-decoration:none;
+  color:inherit;
+  transition:transform .18s ease, box-shadow .18s ease, border-color .2s ease;
+  box-shadow:0 10px 30px rgba(30,64,175,0.08);
+}
+.learning-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(59,130,246,0.55);
+  box-shadow:0 16px 38px rgba(30,64,175,0.12);
+}
+.learning-icon{
+  width:58px;
+  height:58px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  font-size:1.8rem;
+  background:linear-gradient(135deg, #bfdbfe, #e0f2fe);
+  box-shadow:0 8px 18px rgba(59,130,246,0.15);
+}
+.learning-body{flex:1; min-width:0}
+.learning-kicker{margin:0; font-size:0.78rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#1d4ed8}
+.learning-title{margin:2px 0 4px; font-size:1.25rem; color:#0f172a}
+.learning-copy{margin:0; color:#475569; font-size:0.95rem}
+.learning-pill{
+  align-self:flex-start;
+  background:#1d4ed8;
+  color:#fff;
+  border-radius:999px;
+  padding:8px 14px;
+  font-weight:700;
+  font-size:0.85rem;
+  letter-spacing:0.03em;
+  box-shadow:0 8px 16px rgba(29,78,216,0.2);
+}
+
 .grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px}
 @media (max-width: 560px){ .grid{grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));} }
 
