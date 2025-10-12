@@ -25,9 +25,10 @@
     .pill{background:#eef2ff;color:#3730a3;border-radius:999px;padding:9px 14px;font-size:.92rem;font-weight:700;display:inline-flex;align-items:center;gap:6px}
 
     .top-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .hero-card{background:linear-gradient(120deg,rgba(165,180,252,0.35),rgba(199,210,254,0.25));padding:18px 20px;border-radius:20px;border:1.5px dashed rgba(99,102,241,0.45);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+    .hero-card{background:linear-gradient(120deg,rgba(165,180,252,0.35),rgba(199,210,254,0.25));padding:18px 20px;border-radius:20px;border:1.5px dashed rgba(99,102,241,0.45);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;margin-bottom:18px}
     .hero-card h2{margin:0;font-size:1.25rem}
-    .hero-card p{margin:0;color:#334155;line-height:1.4}
+    .hero-card p{margin:0;color:#1e293b;line-height:1.45}
+    .hero-card ul{margin:0;padding-left:20px;color:#1e293b;line-height:1.45}
 
     .grid{display:grid;grid-template-columns:320px 1fr; gap:20px}
     @media (max-width:1024px){.grid{grid-template-columns:1fr}}
@@ -56,6 +57,8 @@
 
     .note{padding:12px 14px;border-radius:16px;background:#fff7ed;border:2px solid #fed7aa;color:#7c2d12;font-size:1.02rem;margin:12px 0}
     .info{padding:12px 14px;border-radius:16px;background:#eef2ff;border:2px solid #c7d2fe;color:#1e3a8a;font-size:1rem;margin:12px 0}
+    .info ol{margin:10px 0 0 20px;padding:0;color:#1e293b}
+    .info ol li{margin-bottom:6px;line-height:1.4}
 
     .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 14px}
     label>span{display:block;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#334155;margin-bottom:4px}
@@ -75,13 +78,14 @@
     .result.ok{background:#ecfdf5;color:#065f46}
     .result.no{background:#fef2f2;color:#7f1d1d}
 
-    .ld-board{margin:16px 0;border:2px solid var(--line);border-radius:18px;padding:16px;background:#f8fafc}
-    .ld{display:grid;grid-template-columns:auto 1fr;align-items:start;gap:0}
-    .ld-left{padding:10px 12px 18px 4px;border-right:3px solid #111;font-size:1.4rem;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace}
-    .ld-right{border-top:3px solid #111;padding:6px 0 0 14px;min-width:220px}
-    .ld-quotient{min-height:32px;font-size:1.3rem;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;letter-spacing:.12em}
-    .ld-dividend{font-size:1.35rem;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace}
-    .ld-steps{margin-top:12px;display:grid;gap:8px;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace}
+    .ld-board{margin:16px 0;padding:16px;border-radius:18px;background:#f8fafc;border:2px solid var(--line)}
+    .ld-eu{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;border-radius:14px;overflow:hidden;border:2px solid rgba(148,163,184,0.5);box-shadow:inset 0 0 0 1px rgba(148,163,184,0.08)}
+    .ld-eu-cell{position:relative;padding:16px 18px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:96px}
+    .ld-eu-cell:nth-child(-n+2){border-bottom:2px solid rgba(148,163,184,0.5)}
+    .ld-eu-cell:nth-child(odd){border-right:2px solid rgba(148,163,184,0.5)}
+    .ld-eu-label{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#475569}
+    .ld-eu-value{font-size:1.5rem;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;letter-spacing:.16em}
+    .ld-steps{margin-top:16px;display:grid;gap:10px;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace}
     .ld-step{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;gap:12px;align-items:center;justify-content:space-between}
     .ld-step strong{color:#1e3a8a}
     .ld-step span{display:inline-flex;align-items:center;gap:4px}
@@ -97,8 +101,7 @@
     @media (max-width:720px){
       header{align-items:flex-start}
       .hero-card{margin-bottom:12px}
-      .ld-left{font-size:1.2rem}
-      .ld-right{min-width:0}
+      .ld-eu-cell{min-height:80px;padding:14px}
       .dual-inputs input{width:100px}
     }
   </style>
@@ -120,8 +123,12 @@
     </header>
 
     <div class="hero-card">
-      <h2>Com funciona?</h2>
-      <p>Completa cada sessió per desbloquejar la següent. Primer mira com portem la següent xifra cap avall, després practica la divisió llarga guiada, fes entrenaments cronometrats i acaba amb la prova final.</p>
+      <h2>Mètode europeu de divisió portant</h2>
+      <p>El nostre quadre segueix la disposició habitual a Europa: <strong>Dividend</strong> a l'esquerra, <strong>Divisor</strong> a la dreta, <strong>Residu</strong> a sota del dividend i <strong>Quocient</strong> a sota del divisor. Cada sessió amplia la teoria i et guia pas a pas.</p>
+      <ul>
+        <li>Sessiona la teoria amb animacions comentades que expliquen per què portem cada xifra.</li>
+        <li>Aplica el procediment complet amb guiatge columna a columna, entrenament cronometrat i prova certificadora.</li>
+      </ul>
     </div>
 
     <section class="grid">
@@ -251,7 +258,15 @@
     const q=(sel)=>view.querySelector(sel);
     view.innerHTML = `
       <h2>1) Mira com portem</h2>
-      <div class="coach"><div class="avatar">👩‍🏫</div><div class="bubble">Quan fem <b>divisió portant</b> baixem (portem) la següent xifra quan la resta és més petita que el divisor. Mira l'animació i fixa't en com escrivim cada dígit del quocient.</div></div>
+      <div class="coach"><div class="avatar">👩‍🏫</div><div class="bubble">El mètode europeu col·loca el <b>dividend a l'esquerra</b> i el <b>divisor a la dreta</b>. Cada vegada que la resta parcial és més petita que el divisor, <b>portem una nova xifra cap avall</b> i anotem el dígit corresponent a la casella de <b>quocient</b>.</div></div>
+      <div class="info">
+        <strong>Resum teòric ampliat</strong>
+        <ol>
+          <li>Compara el dividend parcial amb el divisor i escriu el dígit del quocient a la casella inferior dreta.</li>
+          <li>Multiplica i escriu el producte sota el dividend parcial per poder restar-lo.</li>
+          <li>Anota la resta provisional a la casella «Residu» (inferior esquerra) i porta la següent xifra cap avall.</li>
+        </ol>
+      </div>
       <div class="controls">
         <label><span>Exemple</span>
           <select id="s1example">
@@ -263,16 +278,27 @@
         <button id="s1demo" class="ok">Mostra animació</button>
       </div>
       <div class="ld-board">
-        <div class="ld">
-          <div class="ld-left" id="s1divisor">—</div>
-          <div class="ld-right">
-            <div class="ld-quotient" id="s1quotient">···</div>
-            <div class="ld-dividend" id="s1dividend">—</div>
+        <div class="ld-eu">
+          <div class="ld-eu-cell">
+            <span class="ld-eu-label">Dividend</span>
+            <span class="ld-eu-value" id="s1dividend">—</span>
+          </div>
+          <div class="ld-eu-cell">
+            <span class="ld-eu-label">Divisor</span>
+            <span class="ld-eu-value" id="s1divisor">—</span>
+          </div>
+          <div class="ld-eu-cell">
+            <span class="ld-eu-label">Residu</span>
+            <span class="ld-eu-value" id="s1remainder">—</span>
+          </div>
+          <div class="ld-eu-cell">
+            <span class="ld-eu-label">Quocient</span>
+            <span class="ld-eu-value" id="s1quotient">···</span>
           </div>
         </div>
         <div class="ld-steps" id="s1work"></div>
       </div>
-      <div class="info" id="s1status">Prem «Mostra animació» per veure cada pas.</div>
+      <div class="info" id="s1status">Prem «Mostra animació» per veure com evoluciona cada casella del quadre.</div>
       <div class="note">Objectiu: aconsegueix <b>2 encerts seguits</b> amb divisions on cal portar per desbloquejar la Sessió 2.</div>
       <div class="controls">
         <label><span>Dificultat</span>
@@ -287,7 +313,7 @@
       <div id="s1question" class="info"></div>
       <div class="dual-inputs">
         <input id="s1ansQ" inputmode="numeric" maxlength="3" placeholder="Quocient" aria-label="Resposta: quocient" />
-        <input id="s1ansR" inputmode="numeric" maxlength="2" placeholder="Resta" aria-label="Resposta: resta" />
+        <input id="s1ansR" inputmode="numeric" maxlength="2" placeholder="Residu" aria-label="Resposta: residu" />
       </div>
       <div class="controls" style="margin-top:10px">
         <button id="s1check">Comprova</button>
@@ -303,16 +329,19 @@
 
     function describeStep(step, total){
       if(step.qDigit===0){
-        return `El número actual és <b>${step.partial}</b>. És més petit que ${example.divisor}, així que escrivim <b>0</b> i portem la següent xifra cap avall.`;
+        return `El dividend parcial és <b>${step.partial}</b>, massa petit per repartir amb ${example.divisor}. Escriu <b>0</b> a la casella de quocient (inferior dreta), copia <b>${step.remainder}</b> a «Residu» i baixa la següent xifra.`;
       }
       const base = `${step.qDigit} × ${example.divisor} = ${step.product}`;
-      if(step.remainder===0){
-        return `${base}. No sobra res en aquest pas, podem baixar la següent xifra.`;
-      }
       if(step.idx < total-1){
-        return `${base}. Resta <b>${step.remainder}</b> i porta la següent xifra cap avall.`;
+        if(step.remainder===0){
+          return `${base}. Escriu ${step.qDigit} al quocient, resta ${step.product} de ${step.partial} i anota <b>0</b> a «Residu». Baixa la següent xifra per continuar.`;
+        }
+        return `${base}. Escriu ${step.qDigit} al quocient, resta i anota <b>${step.remainder}</b> a la casella «Residu». Com que encara queden xifres, porta'n una de nova cap avall.`;
       }
-      return `${base}. Resta final: <b>${step.remainder}</b>.`;
+      if(step.remainder===0){
+        return `${base}. Últim pas: el residu final és <b>0</b>, així que la divisió és exacta.`;
+      }
+      return `${base}. Últim pas: el residu definitiu és <b>${step.remainder}</b>. Escriu-lo a la casella inferior esquerra.`;
     }
 
     function loadExample(){
@@ -329,8 +358,9 @@
       q('#s1divisor').textContent = example.divisor;
       q('#s1dividend').textContent = example.dividend;
       q('#s1quotient').textContent = '·'.repeat(example.steps.length);
+      q('#s1remainder').textContent = '—';
       q('#s1work').innerHTML='';
-      q('#s1status').innerHTML = `Analitzem <b>${example.dividend} ÷ ${example.divisor}</b>. Escriurem un dígit del quocient a cada pas.`;
+      q('#s1status').innerHTML = `Analitzem <b>${example.dividend} ÷ ${example.divisor}</b>. Omplirem les caselles de quocient i residu seguint el mètode europeu.`;
       animating=false;
     }
 
@@ -341,10 +371,12 @@
       animating=true;
       q('#s1work').innerHTML='';
       q('#s1quotient').textContent = '·'.repeat(example.steps.length);
+      q('#s1remainder').textContent = '—';
       let idx=0;
       const go=()=>{
         if(idx>=example.steps.length){
-          q('#s1status').innerHTML = `Resultat final: <b>${example.dividend} ÷ ${example.divisor} = ${example.quotient}${example.remainder?` (resta ${example.remainder})`:' (exacta)'}</b>.`;
+          q('#s1remainder').textContent = example.remainder;
+          q('#s1status').innerHTML = `Resultat final: <b>${example.dividend} ÷ ${example.divisor} = ${example.quotient}${example.remainder?` (residu ${example.remainder})`:' (exacta, residu 0)'}</b>.`;
           animTimer=null;
           animating=false;
           return;
@@ -355,9 +387,10 @@
         q('#s1quotient').textContent = chars.join('');
         const row = document.createElement('div');
         row.className='ld-step';
-        row.innerHTML = `<span><strong>${step.partial}</strong> − ${step.product}</span><span>Resta = <strong>${step.remainder}</strong></span>`;
+        row.innerHTML = `<span><strong>${step.partial}</strong> − ${step.product}</span><span>Residu = <strong>${step.remainder}</strong></span>`;
         q('#s1work').appendChild(row);
         q('#s1status').innerHTML = describeStep(step, example.steps.length);
+        q('#s1remainder').textContent = step.remainder;
         idx++;
         animTimer = setTimeout(go, 900);
       };
@@ -372,7 +405,7 @@
 
     function newDivision(){
       current = genDivision(Number(levelSel.value));
-      q('#s1question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu el quocient i la resta. Recorda portar la següent xifra quan la resta és menor que ${current.divisor}.`;
+      q('#s1question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu el quocient i el residu final. Recorda portar una nova xifra cap avall quan el residu provisional és menor que ${current.divisor}.`;
       q('#s1ansQ').value='';
       q('#s1ansR').value='';
       q('#s1ansQ').focus();
@@ -387,7 +420,7 @@
       const ansQ = Number(ansQStr);
       const ansR = Number(ansRStr);
       const ok = ansQ===current.quotient && ansR===current.remainder;
-      q('#s1fb').innerHTML = `<span class="result ${ok?'ok':'no'}">${ok?'Ben fet! ✅':'Oops… torna-ho a intentar ❌'} <span>${fmtDivision(current)} = ${current.quotient}${current.remainder?` (resta ${current.remainder})`:' (exacta)'}</span></span>`;
+      q('#s1fb').innerHTML = `<span class="result ${ok?'ok':'no'}">${ok?'Ben fet! ✅':'Oops… torna-ho a intentar ❌'} <span>${fmtDivision(current)} = ${current.quotient}${current.remainder?` (residu ${current.remainder})`:' (exacta, residu 0)'}</span></span>`;
       if(ok){
         streak++;
         q('#s1bar').style.width = Math.min(streak,2)/2*100+"%";
@@ -422,7 +455,15 @@
     const q=(sel)=>view.querySelector(sel);
     view.innerHTML = `
       <h2>2) Divisió llarga guiada</h2>
-      <div class="coach"><div class="avatar">🧑‍🏫</div><div class="bubble">Anirem columna a columna. A cada pas pensa: quantes vegades hi cap el divisor en el número actual sense passar-se? Escriu el dígit i veuràs com fem la resta.</div></div>
+      <div class="coach"><div class="avatar">🧑‍🏫</div><div class="bubble">Omplirem el quadre europeu <b>pas a pas</b>. Cada vegada decidirem el dígit del quocient, calcularem el producte i anotarem el residu a la casella inferior esquerra abans de portar la xifra següent.</div></div>
+      <div class="info">
+        <strong>Recordatori de passos</strong>
+        <ol>
+          <li>Observa el dividend parcial i tria el dígit més gran possible sense superar-lo.</li>
+          <li>Multiplica el dígit pel divisor, escriu el producte i calcula el residu provisional.</li>
+          <li>Anota el residu a la casella corresponent i porta la xifra següent si en queda cap.</li>
+        </ol>
+      </div>
       <div class="controls">
         <label><span>Dificultat</span>
           <select id="s2level">
@@ -434,16 +475,27 @@
         <button id="s2new" class="ghost">Nova divisió</button>
       </div>
       <div class="ld-board">
-        <div class="ld">
-          <div class="ld-left" id="s2divisor">—</div>
-          <div class="ld-right">
-            <div class="ld-quotient" id="s2quotient">···</div>
-            <div class="ld-dividend" id="s2dividend">—</div>
+        <div class="ld-eu">
+          <div class="ld-eu-cell">
+            <span class="ld-eu-label">Dividend</span>
+            <span class="ld-eu-value" id="s2dividend">—</span>
+          </div>
+          <div class="ld-eu-cell">
+            <span class="ld-eu-label">Divisor</span>
+            <span class="ld-eu-value" id="s2divisor">—</span>
+          </div>
+          <div class="ld-eu-cell">
+            <span class="ld-eu-label">Residu</span>
+            <span class="ld-eu-value" id="s2remainder">—</span>
+          </div>
+          <div class="ld-eu-cell">
+            <span class="ld-eu-label">Quocient</span>
+            <span class="ld-eu-value" id="s2quotient">···</span>
           </div>
         </div>
         <div class="ld-steps" id="s2work"></div>
       </div>
-      <div id="s2hint" class="info">Selecciona la resposta correcta per al primer pas.</div>
+      <div id="s2hint" class="info">Selecciona la resposta correcta per al primer pas i observa com evoluciona el quadre.</div>
       <div class="controls">
         <label><span>Resposta</span>
           <select id="s2choice">
@@ -468,21 +520,25 @@
       const solvedDigits = steps.slice(0, idx).map(s=>s.qDigit).join('');
       const remaining = steps.length - solvedDigits.length;
       q('#s2quotient').textContent = solvedDigits + (remaining>0 ? '·'.repeat(remaining) : '');
+      q('#s2remainder').textContent = idx>0 ? steps[idx-1].remainder : '—';
       q('#s2stepLabel').textContent = `Pas ${Math.min(idx+1, steps.length)}`;
       q('#s2multiples').innerHTML = multiplesOf(division.divisor).map(m=>`<span>${m}</span>`).join('');
     }
 
     function describeStep(step){
       if(step.qDigit===0){
-        return `El nombre actual és <b>${step.partial}</b>. És més petit que ${division.divisor}, així que escriu <b>0</b> al quocient i porta la següent xifra cap avall.`;
-      }
-      if(step.remainder===0){
-        return `Quantes vegades hi cap <b>${division.divisor}</b> dins <b>${step.partial}</b>? ${step.qDigit} × ${division.divisor} = ${step.product}. No sobra res: podem portar la següent xifra.`;
+        return `El dividend parcial és <b>${step.partial}</b>. És massa petit: escriu <b>0</b> al quocient, mantén <b>${step.remainder}</b> a «Residu» i porta la xifra següent cap avall.`;
       }
       if(step.idx < steps.length-1){
-        return `${step.qDigit} × ${division.divisor} = ${step.product}. Després resta i porta la següent xifra perquè la resta <b>${step.remainder}</b> és més petita que ${division.divisor}.`;
+        if(step.remainder===0){
+          return `${step.qDigit} × ${division.divisor} = ${step.product}. Escriu ${step.qDigit} a quocient, anota residu <b>0</b> i baixa la xifra següent.`;
+        }
+        return `${step.qDigit} × ${division.divisor} = ${step.product}. Escriu ${step.qDigit} a quocient, resta i anota el residu provisional <b>${step.remainder}</b>. Porta ara la xifra següent.`;
       }
-      return `Últim pas: ${step.qDigit} × ${division.divisor} = ${step.product}. Resta i comprova la resta final <b>${step.remainder}</b>.`;
+      if(step.remainder===0){
+        return `${step.qDigit} × ${division.divisor} = ${step.product}. Últim pas: residu final <b>0</b>, divisió exacta.`;
+      }
+      return `${step.qDigit} × ${division.divisor} = ${step.product}. Últim pas: el residu definitiu és <b>${step.remainder}</b>. Escriu-lo a la casella esquerra.`;
     }
 
     function newDivision(){
@@ -494,6 +550,7 @@
       q('#s2fb').innerHTML='';
       q('#s2bar').style.width = Math.min(solved,target)/target*100+"%";
       q('#s2choice').value='';
+      q('#s2remainder').textContent='—';
       updateBoard();
       q('#s2hint').innerHTML = describeStep(steps[idx]);
     }
@@ -509,8 +566,9 @@
       if(ok){
         const row = document.createElement('div');
         row.className='ld-step';
-        row.innerHTML = `<span><strong>${step.partial}</strong> − ${step.product}</span><span>Resta = <strong>${step.remainder}</strong></span>`;
+        row.innerHTML = `<span><strong>${step.partial}</strong> − ${step.product}</span><span>Residu = <strong>${step.remainder}</strong></span>`;
         q('#s2work').appendChild(row);
+        q('#s2remainder').textContent = step.remainder;
         idx++;
         if(idx>=steps.length){
           solved++;
@@ -542,7 +600,7 @@
     const q=(sel)=>view.querySelector(sel);
     view.innerHTML = `
       <h2>3) Pràctica cronometrada</h2>
-      <div class="coach"><div class="avatar">🏃‍♀️</div><div class="bubble">Tens <b>90 segons</b>. Respon divisions portant: escriu el quocient i la resta i fixa't si cal baixar la següent xifra. Pots repetir-ho per superar la teva millor marca.</div></div>
+      <div class="coach"><div class="avatar">🏃‍♀️</div><div class="bubble">Tens <b>90 segons</b>. Resol divisions portant amb el quadre europeu: escriu el <b>quocient</b> i el <b>residu final</b> mentre decideixes quan portar la xifra següent. Supera la teva millor marca!</div></div>
       <div class="controls">
         <label><span>Dificultat</span>
           <select id="s3level">
@@ -559,7 +617,7 @@
       <div id="s3question" class="info">Prem «Comença» per iniciar el compte enrere.</div>
       <div class="dual-inputs">
         <input id="s3ansQ" inputmode="numeric" maxlength="3" placeholder="Quocient" aria-label="Quocient" disabled />
-        <input id="s3ansR" inputmode="numeric" maxlength="2" placeholder="Resta" aria-label="Resta" disabled />
+        <input id="s3ansR" inputmode="numeric" maxlength="2" placeholder="Residu" aria-label="Residu" disabled />
       </div>
       <div class="controls" style="margin-top:10px">
         <button id="s3check" class="warn" disabled>Envia resposta</button>
@@ -576,7 +634,7 @@
 
     function tick(){ left--; q('#s3t').textContent = left+'s'; if(left<=0){ q('#s3question').innerHTML = `<strong>Temps esgotat!</strong> Has encertat ${ok} divisions.`; stop(false); } }
 
-    function newDivision(){ const lvl = Number(q('#s3level').value); current = genDivision(lvl); q('#s3question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu quocient i resta.`; q('#s3multiples').innerHTML = multiplesOf(current.divisor).map(m=>`<span>${m}</span>`).join(''); q('#s3ansQ').value=''; q('#s3ansR').value=''; q('#s3ansQ').focus(); }
+    function newDivision(){ const lvl = Number(q('#s3level').value); current = genDivision(lvl); q('#s3question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu el quocient i el residu final.`; q('#s3multiples').innerHTML = multiplesOf(current.divisor).map(m=>`<span>${m}</span>`).join(''); q('#s3ansQ').value=''; q('#s3ansR').value=''; q('#s3ansQ').focus(); }
 
     function start(){
       running=true;
@@ -601,7 +659,7 @@
       const ansQ = Number(ansQStr);
       const ansR = Number(ansRStr);
       const okNow = ansQ===current.quotient && ansR===current.remainder;
-      q('#s3fb').innerHTML = `<span class="result ${okNow?'ok':'no'}">${okNow?'Correcte ✅':'Incorrecte ❌'} ${fmtDivision(current)} = ${current.quotient}${current.remainder?` (r ${current.remainder})`:' exacta'}</span>`;
+      q('#s3fb').innerHTML = `<span class="result ${okNow?'ok':'no'}">${okNow?'Correcte ✅':'Incorrecte ❌'} ${fmtDivision(current)} = ${current.quotient}${current.remainder?` (residu ${current.remainder})`:' (exacta, residu 0)'}</span>`;
       if(okNow){
         ok++;
         q('#s3ok').textContent = ok;
@@ -624,7 +682,7 @@
     const q=(sel)=>view.querySelector(sel);
     view.innerHTML = `
       <h2>4) Prova final</h2>
-      <div class="coach"><div class="avatar">🎓</div><div class="bubble">Resol 10 divisions portant. A partir de 8 bones superaràs la càpsula i obtindràs el certificat. Pots repetir-la tantes vegades com vulguis.</div></div>
+      <div class="coach"><div class="avatar">🎓</div><div class="bubble">Resol <b>10 divisions portant</b> amb el format europeu. Necessites <b>8 encerts</b> per superar la càpsula: escriu sempre el quocient i el residu final a les caselles corresponents.</div></div>
       <div class="controls">
         <label><span>Dificultat</span>
           <select id="s4level">
@@ -640,7 +698,7 @@
       <div id="s4question" class="info">Prem «Inicia la prova» quan estiguis a punt.</div>
       <div class="dual-inputs">
         <input id="s4ansQ" inputmode="numeric" maxlength="3" placeholder="Quocient" aria-label="Quocient" disabled />
-        <input id="s4ansR" inputmode="numeric" maxlength="2" placeholder="Resta" aria-label="Resta" disabled />
+        <input id="s4ansR" inputmode="numeric" maxlength="2" placeholder="Residu" aria-label="Residu" disabled />
       </div>
       <div class="controls" style="margin-top:10px">
         <button id="s4check" disabled>Comprova</button>
@@ -651,7 +709,7 @@
 
     let idx=0, ok=0, current=null, running=false;
 
-    function newDivision(){ const lvl = Number(q('#s4level').value); current = genDivision(lvl); q('#s4question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu quocient i resta.`; q('#s4multiples').innerHTML = multiplesOf(current.divisor).map(m=>`<span>${m}</span>`).join(''); q('#s4ansQ').value=''; q('#s4ansR').value=''; q('#s4ansQ').focus(); }
+    function newDivision(){ const lvl = Number(q('#s4level').value); current = genDivision(lvl); q('#s4question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu el quocient i el residu final.`; q('#s4multiples').innerHTML = multiplesOf(current.divisor).map(m=>`<span>${m}</span>`).join(''); q('#s4ansQ').value=''; q('#s4ansR').value=''; q('#s4ansQ').focus(); }
 
     function start(){
       running=true;
@@ -683,7 +741,7 @@
       idx++;
       q('#s4i').textContent = idx;
       q('#s4ok').textContent = ok;
-      q('#s4fb').innerHTML = `<span class="result ${okNow?'ok':'no'}">${okNow?'Correcte ✅':'Incorrecte ❌'} ${fmtDivision(current)} = ${current.quotient}${current.remainder?` (r ${current.remainder})`:' (exacta)'}</span>`;
+      q('#s4fb').innerHTML = `<span class="result ${okNow?'ok':'no'}">${okNow?'Correcte ✅':'Incorrecte ❌'} ${fmtDivision(current)} = ${current.quotient}${current.remainder?` (residu ${current.remainder})`:' (exacta, residu 0)'}</span>`;
       if(idx>=10){ finish(); }
       else { setTimeout(newDivision, okNow?380:480); }
     }
