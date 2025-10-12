@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FocusQuiz · Càpsula · Divisió pas a pas</title>
-  <meta name="description" content="Càpsula d'aprenentatge per dominar la divisió: animacions de repartiment, divisió llarga guiada, pràctica cronometrada i prova final." />
+  <title>FocusQuiz · Càpsula · Divisió portant</title>
+  <meta name="description" content="Càpsula d'aprenentatge per dominar la divisió portant: animacions de portar cap avall, divisió llarga guiada, pràctica cronometrada i prova final." />
   <style>
     :root{
       --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
@@ -75,13 +75,6 @@
     .result.ok{background:#ecfdf5;color:#065f46}
     .result.no{background:#fef2f2;color:#7f1d1d}
 
-    .sim-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:12px}
-    .bucket{border:2px solid var(--line);border-radius:16px;padding:12px;min-height:120px;background:#fff}
-    .bucket h4{margin:0 0 8px;font-size:.95rem;color:#1f2937}
-    .token-wrap{display:flex;flex-wrap:wrap;gap:6px}
-    .token{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#a5f3fc,#93c5fd);color:#0f172a;font-weight:700;font-size:.85rem;box-shadow:0 6px 16px rgba(15,23,42,0.12)}
-    .token.rest{background:linear-gradient(135deg,#fbcfe8,#fbbf24);color:#78350f}
-
     .ld-board{margin:16px 0;border:2px solid var(--line);border-radius:18px;padding:16px;background:#f8fafc}
     .ld{display:grid;grid-template-columns:auto 1fr;align-items:start;gap:0}
     .ld-left{padding:10px 12px 18px 4px;border-right:3px solid #111;font-size:1.4rem;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace}
@@ -116,8 +109,8 @@
       <div class="left">
         <div class="logo">FQ</div>
         <div>
-          <h1>FocusQuiz · Càpsules — Divisió pas a pas</h1>
-          <div class="sub">Una ruta amb 4 sessions curtes per entendre el repartiment, practicar la divisió llarga i posar-te a prova. Tot queda guardat al teu dispositiu 👇</div>
+          <h1>FocusQuiz · Càpsules — Divisió portant</h1>
+          <div class="sub">Aprèn a portar la xifra cap avall pas a pas. Completa les 4 sessions per dominar la divisió llarga amb restes. Tot queda guardat al teu dispositiu 👇</div>
         </div>
       </div>
       <div class="top-controls">
@@ -128,7 +121,7 @@
 
     <div class="hero-card">
       <h2>Com funciona?</h2>
-      <p>Completa cada sessió per desbloquejar la següent. Si ja tens experiència, pots repetir les activitats per millorar la teva marca personal. Per començar, mira l'animació de repartiment i respon dues divisions senzilles.</p>
+      <p>Completa cada sessió per desbloquejar la següent. Primer mira com portem la següent xifra cap avall, després practica la divisió llarga guiada, fes entrenaments cronometrats i acaba amb la prova final.</p>
     </div>
 
     <section class="grid">
@@ -150,30 +143,6 @@
   const $$ = (q,el=document)=>Array.from(el.querySelectorAll(q));
   const rng = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
 
-  function genDivision(level){
-    let divisor, quotient, remainder, dividend;
-    if(level===1){
-      divisor = rng(2,9);
-      quotient = rng(2,9);
-      remainder = rng(0, divisor-1);
-      dividend = divisor * quotient + remainder;
-      if(dividend < 12 || dividend > 98) return genDivision(level);
-    } else if(level===2){
-      divisor = rng(3,9);
-      quotient = rng(10,36);
-      remainder = rng(0, divisor-1);
-      dividend = divisor * quotient + remainder;
-      if(dividend < 120 || dividend > 999) return genDivision(level);
-    } else {
-      divisor = rng(11,25);
-      quotient = rng(4,18);
-      remainder = rng(0, divisor-1);
-      dividend = divisor * quotient + remainder;
-      if(dividend < 200 || dividend > 999) return genDivision(level);
-    }
-    return {dividend, divisor, quotient, remainder};
-  }
-
   function divisionSteps(dividend, divisor){
     const digits = String(dividend).split('').map(Number);
     let partial = 0;
@@ -188,13 +157,44 @@
     });
   }
 
+  function divisionNeedsCarrying(dividend, divisor){
+    const steps = divisionSteps(dividend, divisor);
+    const hasZeroDigit = steps.some((step, idx)=> idx>0 && step.qDigit===0);
+    const hasRemainderBeforeEnd = steps.some((step, idx)=> idx < steps.length-1 && step.remainder>0);
+    return hasZeroDigit || hasRemainderBeforeEnd;
+  }
+
+  function genDivision(level){
+    for(let tries=0; tries<400; tries++){
+      let divisor, dividend;
+      if(level===1){
+        divisor = rng(3,9);
+        dividend = rng(24, 98);
+      } else if(level===2){
+        divisor = rng(4,9);
+        dividend = rng(120, 999);
+      } else {
+        divisor = rng(11,25);
+        dividend = rng(260, 999);
+      }
+      if(dividend <= divisor) continue;
+      const quotient = Math.floor(dividend / divisor);
+      const remainder = dividend % divisor;
+      if(level>=2 && quotient < 10) continue;
+      if(level===3 && quotient < 10) continue;
+      if(!divisionNeedsCarrying(dividend, divisor)) continue;
+      return {dividend, divisor, quotient, remainder};
+    }
+    throw new Error('No s\'ha pogut generar una divisió amb portar.');
+  }
+
   function multiplesOf(divisor){
     const out = [];
     for(let i=1;i<=9;i++) out.push(`${i} × ${divisor} = ${i*divisor}`);
     return out;
   }
 
-  const LS_KEY = 'fq_capsula_divisio_v1';
+  const LS_KEY = 'fq_capsula_divisio_portant_v1';
   const state = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
   if(!state.progress){ state.progress = { s1:false, s2:false, s3:false, s4:false }; }
   if(typeof state.best3 !== 'number') state.best3 = 0;
@@ -202,10 +202,16 @@
   function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
   const SESS = [
-    { id:'s1', title:'1) Mira i reparteix', sub:'Animació + 2 divisions senzilles', icon:'🎬' },
-    { id:'s2', title:'2) Divisió llarga guiada', sub:'Pas a pas amb pista visual', icon:'🧮' },
+    { id:'s1', title:'1) Mira com portem', sub:'Animació de divisió portant', icon:'🎬' },
+    { id:'s2', title:'2) Divisió llarga guiada', sub:'Portem xifres pas a pas', icon:'🧮' },
     { id:'s3', title:'3) Pràctica cronometrada', sub:'5 encerts en 90 segons', icon:'⏱️' },
     { id:'s4', title:'4) Prova final', sub:'10 preguntes. 8 bones per superar-la', icon:'🎯' },
+  ];
+
+  const EXAMPLES = [
+    { dividend: 432, divisor: 4 },
+    { dividend: 745, divisor: 5 },
+    { dividend: 968, divisor: 7 },
   ];
 
   function percentAll(){ const v = Object.values(state.progress).filter(Boolean).length; return Math.round(v/4*100); }
@@ -238,45 +244,36 @@
     renderSteps();
   }
 
-  function renderTokens(container, students, items){
-    container.innerHTML='';
-    const base = Math.floor(items / students);
-    const rest = items % students;
-    const frag = document.createDocumentFragment();
-    for(let i=0;i<students;i++){
-      const box = document.createElement('div');
-      box.className = 'bucket';
-      box.innerHTML = `<h4>Grup ${i+1}</h4><div class="token-wrap"></div>`;
-      const wrap = $('.token-wrap', box);
-      for(let j=0;j<base;j++){
-        const token = document.createElement('div'); token.className='token'; token.textContent=j+1; wrap.appendChild(token);
-      }
-      if(i < rest){ const extra = document.createElement('div'); extra.className='token rest'; extra.textContent='+1'; wrap.appendChild(extra); }
-      frag.appendChild(box);
-    }
-    container.appendChild(frag);
-    return { base, rest };
-  }
-
   function fmtDivision(d){ return `${d.dividend} ÷ ${d.divisor}`; }
 
   /* ===== S1 ===== */
   function initS1(view){
     const q=(sel)=>view.querySelector(sel);
     view.innerHTML = `
-      <h2>1) Mira i reparteix</h2>
-      <div class="coach"><div class="avatar">👩‍🏫</div><div class="bubble">Quan fem una <b>divisió</b>, repartim un total d'objectes entre grups iguals. El número que obtenim és quants n'hi toca a cada grup. Si en sobren, parlem de <b>resta</b>. Ajusta la simulació i observa què passa.</div></div>
-      <div class="info">Consell: pensa la divisió com un repartiment just. Primer mira quantes vegades hi cap el divisor i després comprova si sobren objectes.</div>
+      <h2>1) Mira com portem</h2>
+      <div class="coach"><div class="avatar">👩‍🏫</div><div class="bubble">Quan fem <b>divisió portant</b> baixem (portem) la següent xifra quan la resta és més petita que el divisor. Mira l'animació i fixa't en com escrivim cada dígit del quocient.</div></div>
       <div class="controls">
-        <label><span>Elements</span><input id="s1items" type="range" min="12" max="84" step="6" value="36"></label>
-        <span class="pill small">Total: <b id="s1itemsLabel">36</b></span>
-        <label><span>Nombre de grups</span><input id="s1groups" type="range" min="2" max="6" value="3"></label>
-        <span class="pill small">Grups: <b id="s1groupsLabel">3</b></span>
-        <button id="s1simulate" class="ok">Distribueix</button>
+        <label><span>Exemple</span>
+          <select id="s1example">
+            <option value="0">432 ÷ 4</option>
+            <option value="1">745 ÷ 5</option>
+            <option value="2">968 ÷ 7</option>
+          </select>
+        </label>
+        <button id="s1demo" class="ok">Mostra animació</button>
       </div>
-      <div id="s1visual" class="sim-grid" aria-live="polite"></div>
-      <div id="s1summary" class="note" style="display:none"></div>
-      <div class="info">Ara practica dues divisions seguides per desbloquejar la següent sessió.</div>
+      <div class="ld-board">
+        <div class="ld">
+          <div class="ld-left" id="s1divisor">—</div>
+          <div class="ld-right">
+            <div class="ld-quotient" id="s1quotient">···</div>
+            <div class="ld-dividend" id="s1dividend">—</div>
+          </div>
+        </div>
+        <div class="ld-steps" id="s1work"></div>
+      </div>
+      <div class="info" id="s1status">Prem «Mostra animació» per veure cada pas.</div>
+      <div class="note">Objectiu: aconsegueix <b>2 encerts seguits</b> amb divisions on cal portar per desbloquejar la Sessió 2.</div>
       <div class="controls">
         <label><span>Dificultat</span>
           <select id="s1level">
@@ -287,7 +284,7 @@
         </label>
         <button id="s1new" class="ghost">Nova divisió</button>
       </div>
-      <div id="s1question" class="info" style="display:none"></div>
+      <div id="s1question" class="info"></div>
       <div class="dual-inputs">
         <input id="s1ansQ" inputmode="numeric" maxlength="3" placeholder="Quocient" aria-label="Resposta: quocient" />
         <input id="s1ansR" inputmode="numeric" maxlength="2" placeholder="Resta" aria-label="Resposta: resta" />
@@ -299,33 +296,124 @@
       <div class="progress"><div id="s1bar"></div></div>
     `;
 
-    const items = q('#s1items');
-    const groups = q('#s1groups');
-    const itemsLabel = q('#s1itemsLabel');
-    const groupsLabel = q('#s1groupsLabel');
-    const visual = q('#s1visual');
-    const summary = q('#s1summary');
+    const exampleSel = q('#s1example');
+    let example=null; let animating=false; let animTimer=null;
+
+    function clearTimer(){ if(animTimer){ clearTimeout(animTimer); animTimer=null; } }
+
+    function describeStep(step, total){
+      if(step.qDigit===0){
+        return `El número actual és <b>${step.partial}</b>. És més petit que ${example.divisor}, així que escrivim <b>0</b> i portem la següent xifra cap avall.`;
+      }
+      const base = `${step.qDigit} × ${example.divisor} = ${step.product}`;
+      if(step.remainder===0){
+        return `${base}. No sobra res en aquest pas, podem baixar la següent xifra.`;
+      }
+      if(step.idx < total-1){
+        return `${base}. Resta <b>${step.remainder}</b> i porta la següent xifra cap avall.`;
+      }
+      return `${base}. Resta final: <b>${step.remainder}</b>.`;
+    }
+
+    function loadExample(){
+      clearTimer();
+      const data = EXAMPLES[Number(exampleSel.value)] || EXAMPLES[0];
+      const steps = divisionSteps(data.dividend, data.divisor);
+      example = {
+        dividend: data.dividend,
+        divisor: data.divisor,
+        steps,
+        quotient: Math.floor(data.dividend / data.divisor),
+        remainder: data.dividend % data.divisor,
+      };
+      q('#s1divisor').textContent = example.divisor;
+      q('#s1dividend').textContent = example.dividend;
+      q('#s1quotient').textContent = '·'.repeat(example.steps.length);
+      q('#s1work').innerHTML='';
+      q('#s1status').innerHTML = `Analitzem <b>${example.dividend} ÷ ${example.divisor}</b>. Escriurem un dígit del quocient a cada pas.`;
+      animating=false;
+    }
+
+    function runAnimation(){
+      clearTimer();
+      animating=false;
+      if(!example) return;
+      animating=true;
+      q('#s1work').innerHTML='';
+      q('#s1quotient').textContent = '·'.repeat(example.steps.length);
+      let idx=0;
+      const go=()=>{
+        if(idx>=example.steps.length){
+          q('#s1status').innerHTML = `Resultat final: <b>${example.dividend} ÷ ${example.divisor} = ${example.quotient}${example.remainder?` (resta ${example.remainder})`:' (exacta)'}</b>.`;
+          animTimer=null;
+          animating=false;
+          return;
+        }
+        const step = example.steps[idx];
+        const chars = q('#s1quotient').textContent.split('');
+        chars[idx] = String(step.qDigit);
+        q('#s1quotient').textContent = chars.join('');
+        const row = document.createElement('div');
+        row.className='ld-step';
+        row.innerHTML = `<span><strong>${step.partial}</strong> − ${step.product}</span><span>Resta = <strong>${step.remainder}</strong></span>`;
+        q('#s1work').appendChild(row);
+        q('#s1status').innerHTML = describeStep(step, example.steps.length);
+        idx++;
+        animTimer = setTimeout(go, 900);
+      };
+      go();
+    }
+
+    exampleSel.addEventListener('change', loadExample);
+    q('#s1demo').addEventListener('click', runAnimation);
+
     const levelSel = q('#s1level');
     let current=null; let streak=0;
 
-    function updateLabels(){ itemsLabel.textContent = items.value; groupsLabel.textContent = groups.value; }
-
-    function simulate(){ updateLabels(); const {base, rest} = renderTokens(visual, Number(groups.value), Number(items.value)); summary.style.display='block'; summary.innerHTML = `<strong>${items.value} objectes ÷ ${groups.value} grups</strong> → Cada grup rep <b>${base}</b> objectes${rest?` i en sobren <b>${rest}</b>.`:' i no en sobra cap!'} Toca dir: ${items.value} ÷ ${groups.value} = ${base}${rest?` amb resta ${rest}`:''}.`; }
-
-    function newDivision(){ current = genDivision(Number(levelSel.value)); q('#s1question').style.display='block'; q('#s1question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu quants en toca a cada grup i la resta.`; q('#s1ansQ').value=''; q('#s1ansR').value=''; q('#s1ansQ').focus(); }
-
-    function check(){ if(!current) return; const ansQ = Number(q('#s1ansQ').value); const ansR = Number(q('#s1ansR').value); const ok = ansQ===current.quotient && ansR===current.remainder; q('#s1fb').innerHTML = `<span class="result ${ok?'ok':'no'}">${ok?'Ben fet! ✅':'Oops… torna-ho a intentar ❌'} <span>${fmtDivision(current)} = ${current.quotient} ${current.remainder?`(resta ${current.remainder})`:'(sense resta)'}</span></span>`; if(ok){ streak++; q('#s1bar').style.width = Math.min(streak,2)/2*100+"%"; if(streak>=2){ state.progress.s1=true; save(); renderSteps(); setTimeout(()=>openSession('s2'),650); } else { setTimeout(newDivision,500); } } else { streak=0; q('#s1bar').style.width='0%'; }
+    function newDivision(){
+      current = genDivision(Number(levelSel.value));
+      q('#s1question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu el quocient i la resta. Recorda portar la següent xifra quan la resta és menor que ${current.divisor}.`;
+      q('#s1ansQ').value='';
+      q('#s1ansR').value='';
+      q('#s1ansQ').focus();
     }
 
-    items.addEventListener('input', ()=>{ updateLabels(); simulate(); });
-    groups.addEventListener('input', ()=>{ updateLabels(); simulate(); });
-    q('#s1simulate').addEventListener('click', simulate);
-    q('#s1new').addEventListener('click', newDivision);
-    levelSel.addEventListener('change', newDivision);
-    q('#s1check').addEventListener('click', check);
-    view.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ const active = document.activeElement; if(active===q('#s1ansQ') || active===q('#s1ansR')){ check(); } }});
+    function check(){
+      if(!current) return;
+      const ansQStr = q('#s1ansQ').value.trim();
+      const ansRStr = q('#s1ansR').value.trim();
+      if(ansQStr===''){ q('#s1ansQ').focus(); return; }
+      if(ansRStr===''){ q('#s1ansR').focus(); return; }
+      const ansQ = Number(ansQStr);
+      const ansR = Number(ansRStr);
+      const ok = ansQ===current.quotient && ansR===current.remainder;
+      q('#s1fb').innerHTML = `<span class="result ${ok?'ok':'no'}">${ok?'Ben fet! ✅':'Oops… torna-ho a intentar ❌'} <span>${fmtDivision(current)} = ${current.quotient}${current.remainder?` (resta ${current.remainder})`:' (exacta)'}</span></span>`;
+      if(ok){
+        streak++;
+        q('#s1bar').style.width = Math.min(streak,2)/2*100+"%";
+        if(streak>=2){
+          state.progress.s1=true; save(); renderSteps();
+          setTimeout(()=>openSession('s2'),650);
+        } else {
+          setTimeout(newDivision,500);
+        }
+      } else {
+        streak=0;
+        q('#s1bar').style.width='0%';
+      }
+    }
 
-    simulate();
+    q('#s1new').addEventListener('click', newDivision);
+    levelSel.addEventListener('change', ()=>{ streak=0; q('#s1bar').style.width='0%'; newDivision(); });
+    q('#s1check').addEventListener('click', check);
+    view.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){
+        const active = document.activeElement;
+        if(active===q('#s1ansQ') || active===q('#s1ansR')) check();
+      }
+    });
+
+    loadExample();
     newDivision();
   }
 
@@ -386,9 +474,15 @@
 
     function describeStep(step){
       if(step.qDigit===0){
-        return `El número actual és <b>${step.partial}</b>. ${division.divisor} no hi cap cap vegada sense passar-se, per tant escrivim <b>0</b> i baixem la següent xifra.`;
+        return `El nombre actual és <b>${step.partial}</b>. És més petit que ${division.divisor}, així que escriu <b>0</b> al quocient i porta la següent xifra cap avall.`;
       }
-      return `Quantes vegades hi cap <b>${division.divisor}</b> dins <b>${step.partial}</b> sense passar-se? Recorda: ${step.qDigit} × ${division.divisor} = ${step.product}.`;
+      if(step.remainder===0){
+        return `Quantes vegades hi cap <b>${division.divisor}</b> dins <b>${step.partial}</b>? ${step.qDigit} × ${division.divisor} = ${step.product}. No sobra res: podem portar la següent xifra.`;
+      }
+      if(step.idx < steps.length-1){
+        return `${step.qDigit} × ${division.divisor} = ${step.product}. Després resta i porta la següent xifra perquè la resta <b>${step.remainder}</b> és més petita que ${division.divisor}.`;
+      }
+      return `Últim pas: ${step.qDigit} × ${division.divisor} = ${step.product}. Resta i comprova la resta final <b>${step.remainder}</b>.`;
     }
 
     function newDivision(){
@@ -407,8 +501,9 @@
     function check(){
       if(!division) return;
       const step = steps[idx];
-      const val = Number(q('#s2choice').value);
-      if(Number.isNaN(val)){ return; }
+      const raw = q('#s2choice').value;
+      if(raw===''){ return; }
+      const val = Number(raw);
       const ok = val === step.qDigit;
       q('#s2fb').innerHTML = `<span class="result ${ok?'ok':'no'}">${ok?'Correcte ✅':'No del tot ❌'} ${ok?`(${step.qDigit} × ${division.divisor} = ${step.product})`:`Repensa: ${division.divisor} hi cap ${step.qDigit} vegades.`}</span>`;
       if(ok){
@@ -447,7 +542,7 @@
     const q=(sel)=>view.querySelector(sel);
     view.innerHTML = `
       <h2>3) Pràctica cronometrada</h2>
-      <div class="coach"><div class="avatar">🏃‍♀️</div><div class="bubble">Tens <b>90 segons</b>. Respon divisions amb quocient i resta. Pots repetir tantes vegades com vulguis per superar la teva millor marca.</div></div>
+      <div class="coach"><div class="avatar">🏃‍♀️</div><div class="bubble">Tens <b>90 segons</b>. Respon divisions portant: escriu el quocient i la resta i fixa't si cal baixar la següent xifra. Pots repetir-ho per superar la teva millor marca.</div></div>
       <div class="controls">
         <label><span>Dificultat</span>
           <select id="s3level">
@@ -483,9 +578,39 @@
 
     function newDivision(){ const lvl = Number(q('#s3level').value); current = genDivision(lvl); q('#s3question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu quocient i resta.`; q('#s3multiples').innerHTML = multiplesOf(current.divisor).map(m=>`<span>${m}</span>`).join(''); q('#s3ansQ').value=''; q('#s3ansR').value=''; q('#s3ansQ').focus(); }
 
-    function start(){ running=true; left=90; ok=0; q('#s3ok').textContent='0'; q('#s3t').textContent='90s'; q('#s3ansQ').disabled=false; q('#s3ansR').disabled=false; q('#s3check').disabled=false; newDivision(); timer=setInterval(tick,1000); }
+    function start(){
+      running=true;
+      left=90;
+      ok=0;
+      q('#s3ok').textContent='0';
+      q('#s3t').textContent=left+'s';
+      q('#s3fb').innerHTML='';
+      q('#s3ansQ').disabled=false;
+      q('#s3ansR').disabled=false;
+      q('#s3check').disabled=false;
+      newDivision();
+      timer=setInterval(tick,1000);
+    }
 
-    function check(){ if(!running || !current) return; const ansQ = Number(q('#s3ansQ').value); const ansR = Number(q('#s3ansR').value); const okNow = ansQ===current.quotient && ansR===current.remainder; q('#s3fb').innerHTML = `<span class="result ${okNow?'ok':'no'}">${okNow?'Correcte ✅':'Incorrecte ❌'} ${fmtDivision(current)} = ${current.quotient}${current.remainder?` (r ${current.remainder})`:' exacta'}</span>`; if(okNow){ ok++; q('#s3ok').textContent = ok; if(ok>=target){ q('#s3question').innerHTML = `<strong>Enhorabona!</strong> Has arribat als ${target} encerts.`; stop(true); return; } }
+    function check(){
+      if(!running || !current) return;
+      const ansQStr = q('#s3ansQ').value.trim();
+      const ansRStr = q('#s3ansR').value.trim();
+      if(ansQStr===''){ q('#s3ansQ').focus(); return; }
+      if(ansRStr===''){ q('#s3ansR').focus(); return; }
+      const ansQ = Number(ansQStr);
+      const ansR = Number(ansRStr);
+      const okNow = ansQ===current.quotient && ansR===current.remainder;
+      q('#s3fb').innerHTML = `<span class="result ${okNow?'ok':'no'}">${okNow?'Correcte ✅':'Incorrecte ❌'} ${fmtDivision(current)} = ${current.quotient}${current.remainder?` (r ${current.remainder})`:' exacta'}</span>`;
+      if(okNow){
+        ok++;
+        q('#s3ok').textContent = ok;
+        if(ok>=target){
+          q('#s3question').innerHTML = `<strong>Enhorabona!</strong> Has arribat als ${target} encerts.`;
+          stop(true);
+          return;
+        }
+      }
       if(left>0){ setTimeout(newDivision, okNow?350:450); }
     }
 
@@ -499,7 +624,7 @@
     const q=(sel)=>view.querySelector(sel);
     view.innerHTML = `
       <h2>4) Prova final</h2>
-      <div class="coach"><div class="avatar">🎓</div><div class="bubble">Resol 10 divisions. A partir de 8 bones superaràs la càpsula i obtindràs el certificat. Pots repetir-la tantes vegades com vulguis.</div></div>
+      <div class="coach"><div class="avatar">🎓</div><div class="bubble">Resol 10 divisions portant. A partir de 8 bones superaràs la càpsula i obtindràs el certificat. Pots repetir-la tantes vegades com vulguis.</div></div>
       <div class="controls">
         <label><span>Dificultat</span>
           <select id="s4level">
@@ -528,13 +653,37 @@
 
     function newDivision(){ const lvl = Number(q('#s4level').value); current = genDivision(lvl); q('#s4question').innerHTML = `<strong>${fmtDivision(current)}</strong> · Escriu quocient i resta.`; q('#s4multiples').innerHTML = multiplesOf(current.divisor).map(m=>`<span>${m}</span>`).join(''); q('#s4ansQ').value=''; q('#s4ansR').value=''; q('#s4ansQ').focus(); }
 
-    function start(){ running=true; idx=0; ok=0; q('#s4i').textContent='0'; q('#s4ok').textContent='0'; q('#s4check').disabled=false; q('#s4ansQ').disabled=false; q('#s4ansR').disabled=false; newDivision(); }
+    function start(){
+      running=true;
+      idx=0;
+      ok=0;
+      q('#s4i').textContent='0';
+      q('#s4ok').textContent='0';
+      q('#s4fb').innerHTML='';
+      q('#s4check').disabled=false;
+      q('#s4ansQ').disabled=false;
+      q('#s4ansR').disabled=false;
+      newDivision();
+    }
 
     function finish(){ running=false; q('#s4check').disabled=true; q('#s4ansQ').disabled=true; q('#s4ansR').disabled=true; const pass = ok>=8; if(pass){ state.progress.s4=true; save(); renderSteps(); q('#s4fb').insertAdjacentHTML('beforeend', ' <span class="pill small">Certificat aconseguit 🏆</span>'); }
       q('#s4question').innerHTML = `${pass?'🎉 Fantàstic!':'📝 Bon intent!'} Has encertat ${ok} de 10. ${pass?'Ja tens la càpsula superada.':'Torna-ho a provar quan vulguis.'}`;
     }
 
-    function check(){ if(!running || !current) return; const ansQ = Number(q('#s4ansQ').value); const ansR = Number(q('#s4ansR').value); const okNow = ansQ===current.quotient && ansR===current.remainder; if(okNow) ok++; idx++; q('#s4i').textContent = idx; q('#s4ok').textContent = ok; q('#s4fb').innerHTML = `<span class="result ${okNow?'ok':'no'}">${okNow?'Correcte ✅':'Incorrecte ❌'} ${fmtDivision(current)} = ${current.quotient}${current.remainder?` (r ${current.remainder})`:' (exacta)'}</span>`;
+    function check(){
+      if(!running || !current) return;
+      const ansQStr = q('#s4ansQ').value.trim();
+      const ansRStr = q('#s4ansR').value.trim();
+      if(ansQStr===''){ q('#s4ansQ').focus(); return; }
+      if(ansRStr===''){ q('#s4ansR').focus(); return; }
+      const ansQ = Number(ansQStr);
+      const ansR = Number(ansRStr);
+      const okNow = ansQ===current.quotient && ansR===current.remainder;
+      if(okNow) ok++;
+      idx++;
+      q('#s4i').textContent = idx;
+      q('#s4ok').textContent = ok;
+      q('#s4fb').innerHTML = `<span class="result ${okNow?'ok':'no'}">${okNow?'Correcte ✅':'Incorrecte ❌'} ${fmtDivision(current)} = ${current.quotient}${current.remainder?` (r ${current.remainder})`:' (exacta)'}</span>`;
       if(idx>=10){ finish(); }
       else { setTimeout(newDivision, okNow?380:480); }
     }
