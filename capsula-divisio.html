@@ -281,14 +281,23 @@
 
       const W=480,H=60,X0=60,Y=105,gap=20; const boxW=(W-gap*(G-1))/G;
       for(let i=0;i<G;i++){
-        const x=X0+i*(boxW+gap);
-        const rect=document.createElementNS(svgNS,'rect');
-        rect.setAttribute('x',x); rect.setAttribute('y',Y); rect.setAttribute('width',boxW); rect.setAttribute('height',H);
-        rect.setAttribute('rx','4'); rect.setAttribute('fill','none'); rect.setAttribute('stroke',getComputedStyle(document.documentElement).getPropertyValue('--pen')||'#2D4C9A'); rect.setAttribute('stroke-width','4');
-        rect.style.cursor='pointer';
-        rect.addEventListener('click',()=>place(i, x, Y, boxW, H));
-        svg.appendChild(rect); bins.push({x,y:Y,w:boxW,h:H});
-      }
+  const x = X0 + i*(boxW + gap);
+  const rect = document.createElementNS(svgNS, 'rect');
+  rect.setAttribute('x', x);
+  rect.setAttribute('y', Y);
+  rect.setAttribute('width', boxW);
+  rect.setAttribute('height', H);
+  rect.setAttribute('rx', '4');
+  rect.setAttribute('fill', 'none');
+  rect.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen') || '#2D4C9A');
+  rect.setAttribute('stroke-width', '4');
+  rect.style.cursor = 'pointer';
+  rect.addEventListener('click', () => place(i, x, Y, boxW, H));
+  svg.appendChild(rect);
+
+  // ✅ Correcció: “y:Y” no existia, ara és explícit
+  bins.push({ x: x, y: Y, w: boxW, h: H });
+}
 
       // punts a dalt (pendents de col·locar)
       const pending=Math.min(N,12); const topY=45; const startX=110; const step=30;
@@ -419,13 +428,13 @@
     view.addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkOne(); });
   }
 
-  // ===== Init =====
-  document.addEventListener('DOMContentLoaded', ()=>{
-    renderSteps();
-    const firstOpen = ['s1','s2','s3','s4'].find((id,idx)=> idx===0 || Object.values(state.progress).slice(0,idx).every(Boolean) );
-    openSession(firstOpen||'s1');
-    runSmokeTests();
-  });
+ // ===== Init =====
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderSteps();
+  const firstOpen = ['s1','s2','s3','s4'].find((id,idx)=> idx===0 || Object.values(state.progress).slice(0,idx).every(Boolean) );
+  openSession(firstOpen||'s1');
+  // runSmokeTests(); // (Comentat perquè obria automàticament la secció 2)
+});
 
   // ===== Smoke tests =====
   function runSmokeTests(){
