@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FocusQuiz · Càpsula · Divisió portant</title>
-  <meta name="description" content="Càpsula d'aprenentatge per dominar la divisió portant: animacions de portar cap avall, divisió llarga guiada, pràctica cronometrada i prova final." />
+  <title>FocusQuiz · Càpsula · Divisió</title>
+  <meta name="description" content="Càpsula d'aprenentatge per dominar la divisió amb portar: animacions lentes i repetibles, teoria visual i reptes guiats pas a pas." />
   <style>
     :root{
       --bg:#f8fafc; --card:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
@@ -25,10 +25,21 @@
     .pill{background:#eef2ff;color:#3730a3;border-radius:999px;padding:9px 14px;font-size:.92rem;font-weight:700;display:inline-flex;align-items:center;gap:6px}
 
     .top-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .hero-card{background:linear-gradient(120deg,rgba(165,180,252,0.35),rgba(199,210,254,0.25));padding:18px 20px;border-radius:20px;border:1.5px dashed rgba(99,102,241,0.45);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;margin-bottom:18px}
-    .hero-card h2{margin:0;font-size:1.25rem}
-    .hero-card p{margin:0;color:#1e293b;line-height:1.45}
-    .hero-card ul{margin:0;padding-left:20px;color:#1e293b;line-height:1.45}
+    .hero-card{background:linear-gradient(120deg,rgba(165,180,252,0.35),rgba(199,210,254,0.25));padding:22px 24px;border-radius:22px;border:2px dashed rgba(99,102,241,0.35);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:16px;margin-bottom:22px}
+    .hero-card h2{margin:0;font-size:1.28rem}
+    .hero-card p{margin:0;color:#1e293b;line-height:1.7}
+    .hero-card ul{margin:0;padding-left:0;color:#1e293b;line-height:1.7;display:grid;gap:10px;list-style:none}
+    .hero-card li{display:flex;align-items:flex-start;gap:10px}
+    .hero-card li span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:10px;background:#eef2ff;color:#4f46e5;font-weight:800;font-size:.9rem;flex-shrink:0}
+    .hero-card li div{flex:1}
+    .hero-figures{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
+    .mini-division{flex:1 1 220px;border-radius:18px;border:2px solid rgba(148,163,184,0.55);background:#fff;padding:16px;box-shadow:var(--shadow);display:grid;gap:8px}
+    .mini-division h3{margin:0;font-size:1rem;color:#1e3a8a;letter-spacing:.03em}
+    .mini-division small{color:#475569;font-size:.82rem}
+    .mini-division-board{display:grid;grid-template-columns:1fr auto;grid-auto-rows:auto;border:2px solid rgba(148,163,184,0.5);border-radius:12px;overflow:hidden;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace}
+    .mini-division-board div{padding:12px 14px;border-bottom:2px solid rgba(148,163,184,0.4);display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+    .mini-division-board div:nth-child(odd){border-right:2px solid rgba(148,163,184,0.4)}
+    .mini-division-board div:nth-last-child(-n+2){border-bottom:none}
 
     .grid{display:grid;grid-template-columns:320px 1fr; gap:20px}
     @media (max-width:1024px){.grid{grid-template-columns:1fr}}
@@ -37,9 +48,12 @@
     .card .inner{padding:20px}
 
     .steps{display:grid;gap:12px}
-    .step{display:flex;gap:12px;align-items:center;border:2px solid var(--line);padding:14px;border-radius:18px;cursor:pointer;background:#fff;transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}
+    .step{position:relative;display:flex;gap:12px;align-items:center;border:2px solid var(--line);padding:14px;border-radius:18px;cursor:pointer;background:#fff;transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease}
     .step:hover{transform:translateY(-1px); box-shadow:0 8px 24px rgba(0,0,0,.06); border-color:#c7d2fe}
-    .step.locked{opacity:.55; cursor:not-allowed}
+    .step.locked{opacity:.55; cursor:not-allowed; pointer-events:none}
+    .step.locked::after{content:'🔒';position:absolute;top:10px;right:12px;font-size:1.1rem}
+    .step.done{border-color:#bbf7d0;background:#f0fdf4}
+    .step.active{border-color:#6366f1;background:#eef2ff}
     .ico{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;background:#f1f5f9;font-size:1.35rem}
     .step .meta{display:flex;flex-direction:column;line-height:1.1}
     .step .meta small{color:var(--muted)}
@@ -53,12 +67,12 @@
 
     .coach{display:flex;gap:12px;align-items:flex-start;background:#f1f5f9;border:2px solid var(--line);padding:14px;border-radius:18px;margin:12px 0}
     .coach .avatar{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--brand-2),var(--brand-3));display:grid;place-items:center;font-weight:900;color:#111;font-size:1.1rem}
-    .coach .bubble{line-height:1.35;font-size:1.05rem}
+    .coach .bubble{line-height:1.62;font-size:1.05rem}
 
-    .note{padding:12px 14px;border-radius:16px;background:#fff7ed;border:2px solid #fed7aa;color:#7c2d12;font-size:1.02rem;margin:12px 0}
-    .info{padding:12px 14px;border-radius:16px;background:#eef2ff;border:2px solid #c7d2fe;color:#1e3a8a;font-size:1rem;margin:12px 0}
-    .info ol{margin:10px 0 0 20px;padding:0;color:#1e293b}
-    .info ol li{margin-bottom:6px;line-height:1.4}
+    .note{padding:12px 14px;border-radius:16px;background:#fff7ed;border:2px solid #fed7aa;color:#7c2d12;font-size:1.02rem;margin:12px 0;line-height:1.6}
+    .info{padding:16px 18px;border-radius:20px;background:#eef2ff;border:2px solid #c7d2fe;color:#1e3a8a;font-size:1rem;margin:14px 0;line-height:1.65}
+    .info ol{margin:12px 0 0 22px;padding:0;color:#1e293b;display:grid;gap:12px}
+    .info ol li{line-height:1.65}
 
     .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 14px}
     label>span{display:block;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#334155;margin-bottom:4px}
@@ -70,6 +84,7 @@
     button.ok{background:linear-gradient(135deg,#10b981,#34d399);color:#034732}
     button.warn{background:linear-gradient(135deg,#f59e0b,#fcd34d);color:#7c2d12}
     button.small{padding:8px 12px;font-size:.9rem}
+    button.soft{background:#f1f5f9;color:#1e293b;border:2px solid #cbd5f5;box-shadow:none}
 
     .progress{height:12px;background:#eef2ff;border-radius:999px;overflow:hidden}
     .progress > div{height:100%; background:linear-gradient(90deg,#4f46e5,#a855f7); width:0}
@@ -78,20 +93,29 @@
     .result.ok{background:#ecfdf5;color:#065f46}
     .result.no{background:#fef2f2;color:#7f1d1d}
 
-    .ld-board{margin:16px 0;padding:16px;border-radius:18px;background:#f8fafc;border:2px solid var(--line)}
-    .ld-eu{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;border-radius:14px;overflow:hidden;border:2px solid rgba(148,163,184,0.5);box-shadow:inset 0 0 0 1px rgba(148,163,184,0.08)}
-    .ld-eu-cell{position:relative;padding:16px 18px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:96px}
+    .ld-board{margin:18px 0;padding:18px;border-radius:20px;background:#f8fafc;border:2px solid var(--line)}
+    .ld-eu{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;border-radius:16px;overflow:hidden;border:2px solid rgba(148,163,184,0.5);box-shadow:inset 0 0 0 1px rgba(148,163,184,0.08)}
+    .ld-eu-cell{position:relative;padding:16px 18px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:96px;transition:transform .18s ease, box-shadow .18s ease}
     .ld-eu-cell:nth-child(-n+2){border-bottom:2px solid rgba(148,163,184,0.5)}
     .ld-eu-cell:nth-child(odd){border-right:2px solid rgba(148,163,184,0.5)}
     .ld-eu-label{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#475569}
     .ld-eu-value{font-size:1.5rem;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;letter-spacing:.16em}
-    .ld-steps{margin-top:16px;display:grid;gap:10px;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace}
-    .ld-step{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .ld-eu-cell.active{box-shadow:0 0 0 4px rgba(99,102,241,0.18) inset;transform:translateY(-2px)}
+    .ld-eu-cell.pulse{animation:pulse 1.6s ease-in-out infinite}
+    @keyframes pulse{0%{opacity:1}50%{opacity:.65}100%{opacity:1}}
+    .ld-steps{margin-top:18px;display:grid;gap:12px;font-family:"JetBrains Mono",ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace}
+    .ld-step{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;justify-content:space-between}
     .ld-step strong{color:#1e3a8a}
     .ld-step span{display:inline-flex;align-items:center;gap:4px}
 
     .multiples{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
     .multiples span{padding:6px 10px;border-radius:12px;background:#e0f2fe;color:#0c4a6e;font-weight:600;font-size:.85rem}
+
+    .trace{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+    .trace-title{font-weight:700;color:#1e3a8a;font-size:.95rem}
+    .trace-lane{position:relative;min-height:76px;background:linear-gradient(180deg,rgba(148,163,184,0.18),transparent);border-radius:16px;padding:8px 12px;display:flex;align-items:flex-end;gap:12px;overflow:hidden}
+    .trace-chip{width:42px;height:42px;border-radius:14px;background:#fff;border:2px solid rgba(99,102,241,0.4);box-shadow:var(--shadow);display:grid;place-items:center;font-size:1.3rem;font-weight:800;color:#312e81;transform:translateY(-54px);opacity:0;transition:transform .9s ease, opacity .9s ease}
+    .trace-chip.drop{transform:translateY(0);opacity:1}
 
     .dual-inputs{display:flex;gap:10px;flex-wrap:wrap}
     .dual-inputs input{width:120px;text-align:center;font-weight:700;font-size:1.05rem}
@@ -112,8 +136,8 @@
       <div class="left">
         <div class="logo">FQ</div>
         <div>
-          <h1>FocusQuiz · Càpsules — Divisió portant</h1>
-          <div class="sub">Aprèn a portar la xifra cap avall pas a pas. Completa les 4 sessions per dominar la divisió llarga amb restes. Tot queda guardat al teu dispositiu 👇</div>
+          <h1>FocusQuiz · Càpsules — Divisió</h1>
+          <div class="sub">Aprèn a repartir números a poc a poc, amb dibuixos i animacions que pots repetir sempre que vulguis. Completa les 4 sessions per convertir-te en expert/a 👇</div>
         </div>
       </div>
       <div class="top-controls">
@@ -123,12 +147,33 @@
     </header>
 
     <div class="hero-card">
-      <h2>Mètode europeu de divisió portant</h2>
-      <p>El nostre quadre segueix la disposició habitual a Europa: <strong>Dividend</strong> a l'esquerra, <strong>Divisor</strong> a la dreta, <strong>Residu</strong> a sota del dividend i <strong>Quocient</strong> a sota del divisor. Cada sessió amplia la teoria i et guia pas a pas.</p>
+      <h2>Dividir és repartir a parts iguals</h2>
+      <p>Mira el quadre europeu: <strong>Dividend</strong> a l'esquerra, <strong>Divisor</strong> a la dreta. A sota hi guardem el <strong>Residu</strong> i el <strong>Quocient</strong>. Cada sessió et dóna espai per mirar, entendre i practicar sense presses.</p>
       <ul>
-        <li>Sessiona la teoria amb animacions comentades que expliquen per què portem cada xifra.</li>
-        <li>Aplica el procediment complet amb guiatge columna a columna, entrenament cronometrat i prova certificadora.</li>
+        <li><span>👀</span><div>Animacions lentes que pots repetir per veure com baixa cada xifra.</div></li>
+        <li><span>✍️</span><div>Exemples curts per escriure números i entendre què passa a cada casella.</div></li>
+        <li><span>🎮</span><div>Reptes, cronòmetre i prova final per guanyar confiança repartint.</div></li>
       </ul>
+      <div class="hero-figures">
+        <div class="mini-division">
+          <h3>Divisió exacta</h3>
+          <small>El residu és zero: el repartiment és perfecte.</small>
+          <div class="mini-division-board" aria-hidden="true">
+            <div>20</div><div>5</div>
+            <div>-20</div><div>4</div>
+            <div>0</div><div></div>
+          </div>
+        </div>
+        <div class="mini-division">
+          <h3>Divisió entera</h3>
+          <small>Quan el residu és diferent de zero, encara queda quantitat per repartir.</small>
+          <div class="mini-division-board" aria-hidden="true">
+            <div>20</div><div>6</div>
+            <div>-18</div><div>3</div>
+            <div>2</div><div></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <section class="grid">
@@ -201,19 +246,25 @@
     return out;
   }
 
-  const LS_KEY = 'fq_capsula_divisio_portant_v1';
-  const state = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+  const LS_KEY = 'fq_capsula_divisio_v2';
+  const OLD_LS_KEY = 'fq_capsula_divisio_portant_v1';
+  const state = JSON.parse(localStorage.getItem(LS_KEY) || localStorage.getItem(OLD_LS_KEY) || '{}');
+  if(!localStorage.getItem(LS_KEY) && localStorage.getItem(OLD_LS_KEY)){
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  }
   if(!state.progress){ state.progress = { s1:false, s2:false, s3:false, s4:false }; }
   if(typeof state.best3 !== 'number') state.best3 = 0;
 
   function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
   const SESS = [
-    { id:'s1', title:'1) Mira com portem', sub:'Animació de divisió portant', icon:'🎬' },
-    { id:'s2', title:'2) Divisió llarga guiada', sub:'Portem xifres pas a pas', icon:'🧮' },
+    { id:'s1', title:'1) Mira com portem', sub:'Animació pas a pas amb pista de baixada', icon:'🎬' },
+    { id:'s2', title:'2) Divisió guiada', sub:'Seguim cada moviment del quadre', icon:'🧮' },
     { id:'s3', title:'3) Pràctica cronometrada', sub:'5 encerts en 90 segons', icon:'⏱️' },
-    { id:'s4', title:'4) Prova final', sub:'10 preguntes. 8 bones per superar-la', icon:'🎯' },
+    { id:'s4', title:'4) Prova final', sub:'10 reptes per guanyar el carnet', icon:'🎯' },
   ];
+
+  let currentSession = 's1';
 
   const EXAMPLES = [
     { dividend: 432, divisor: 4 },
@@ -228,17 +279,30 @@
     SESS.forEach((s,idx)=>{
       const unlocked = idx===0 || Object.values(state.progress).slice(0,idx).every(Boolean);
       const done = !!state.progress[s.id];
-      const el = document.createElement('div'); el.className = 'step' + (unlocked?'':' locked'); el.dataset.id = s.id;
+      const el = document.createElement('div');
+      el.classList.add('step');
+      if(currentSession===s.id) el.classList.add('active');
+      el.dataset.id = s.id;
+      if(done) el.classList.add('done');
+      if(!unlocked){ el.classList.add('locked'); el.setAttribute('aria-disabled','true'); }
+      const statusTxt = done?'Fet ✅':(unlocked?'Inicia ▶️':'Blocat 🔒');
       el.innerHTML = `<div class="ico">${s.icon}</div>
         <div class="meta"><b>${s.title}</b><small>${s.sub}</small></div>
-        <div class="status ${done?'ok':'do'}">${done?'Fet ✅': (unlocked?'Inicia':'Blocat')}</div>`;
-      if(unlocked){ el.addEventListener('click', ()=> openSession(s.id)); }
+        <div class="status ${done?'ok':'do'}">${statusTxt}</div>`;
+      if(unlocked){
+        el.setAttribute('role','button');
+        el.tabIndex = 0;
+        const open = ()=> openSession(s.id);
+        el.addEventListener('click', open);
+        el.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); open(); } });
+      }
       box.appendChild(el);
     });
     $('#allPct').textContent = percentAll()+"%";
   }
 
   function openSession(id){
+    currentSession = id;
     const host = $('#screen');
     host.innerHTML='';
     const view = document.createElement('div');
@@ -260,11 +324,11 @@
       <h2>1) Mira com portem</h2>
       <div class="coach"><div class="avatar">👩‍🏫</div><div class="bubble">El mètode europeu col·loca el <b>dividend a l'esquerra</b> i el <b>divisor a la dreta</b>. Cada vegada que la resta parcial és més petita que el divisor, <b>portem una nova xifra cap avall</b> i anotem el dígit corresponent a la casella de <b>quocient</b>.</div></div>
       <div class="info">
-        <strong>Resum teòric ampliat</strong>
+        <strong>Fem-ho en 3 passes curtes</strong>
         <ol>
-          <li>Compara el dividend parcial amb el divisor i escriu el dígit del quocient a la casella inferior dreta.</li>
-          <li>Multiplica i escriu el producte sota el dividend parcial per poder restar-lo.</li>
-          <li>Anota la resta provisional a la casella «Residu» (inferior esquerra) i porta la següent xifra cap avall.</li>
+          <li>Mirem quantes vegades cap el divisor dins del dividend parcial i escrivim aquest número al quocient.</li>
+          <li>Multipliquem i restem per saber què ens sobra.</li>
+          <li>Baixem la següent xifra cap avall per continuar repartint.</li>
         </ol>
       </div>
       <div class="controls">
@@ -275,30 +339,36 @@
             <option value="2">968 ÷ 7</option>
           </select>
         </label>
-        <button id="s1demo" class="ok">Mostra animació</button>
+        <button id="s1demo" class="ok">▶️ Reprodueix animació</button>
+        <button id="s1step" class="soft">Pas següent</button>
+        <button id="s1reset" class="ghost">Reinicia</button>
       </div>
       <div class="ld-board">
         <div class="ld-eu">
-          <div class="ld-eu-cell">
+          <div class="ld-eu-cell" id="s1dividendCell">
             <span class="ld-eu-label">Dividend</span>
             <span class="ld-eu-value" id="s1dividend">—</span>
           </div>
-          <div class="ld-eu-cell">
+          <div class="ld-eu-cell" id="s1divisorCell">
             <span class="ld-eu-label">Divisor</span>
             <span class="ld-eu-value" id="s1divisor">—</span>
           </div>
-          <div class="ld-eu-cell">
+          <div class="ld-eu-cell" id="s1remainderCell">
             <span class="ld-eu-label">Residu</span>
             <span class="ld-eu-value" id="s1remainder">—</span>
           </div>
-          <div class="ld-eu-cell">
+          <div class="ld-eu-cell" id="s1quotientCell">
             <span class="ld-eu-label">Quocient</span>
             <span class="ld-eu-value" id="s1quotient">···</span>
           </div>
         </div>
         <div class="ld-steps" id="s1work"></div>
       </div>
-      <div class="info" id="s1status">Prem «Mostra animació» per veure com evoluciona cada casella del quadre.</div>
+      <div class="trace" aria-hidden="true">
+        <div class="trace-title">Baixem les xifres cap al residu</div>
+        <div class="trace-lane" id="s1trace"></div>
+      </div>
+      <div class="info" id="s1status" aria-live="polite">Prem «Reprodueix animació» per veure com evoluciona cada casella del quadre.</div>
       <div class="note">Objectiu: aconsegueix <b>2 encerts seguits</b> amb divisions on cal portar per desbloquejar la Sessió 2.</div>
       <div class="controls">
         <label><span>Dificultat</span>
@@ -323,29 +393,63 @@
     `;
 
     const exampleSel = q('#s1example');
-    let example=null; let animating=false; let animTimer=null;
+    const traceLane = q('#s1trace');
+    let example=null; let animating=false; let animTimer=null; let stepCursor=0;
+    const cells = {
+      dividend: q('#s1dividendCell'),
+      divisor: q('#s1divisorCell'),
+      remainder: q('#s1remainderCell'),
+      quotient: q('#s1quotientCell')
+    };
 
-    function clearTimer(){ if(animTimer){ clearTimeout(animTimer); animTimer=null; } }
+    function clearTimer(){ if(animTimer){ clearTimeout(animTimer); animTimer=null; } animating=false; }
+
+    function clearHighlights(){ Object.values(cells).forEach(cell=> cell && cell.classList.remove('active','pulse')); }
+
+    function setActiveCells(...names){
+      clearHighlights();
+      names.forEach(name=>{
+        const cell = cells[name];
+        if(cell){
+          cell.classList.add('active','pulse');
+          setTimeout(()=> cell.classList.remove('pulse'), 1600);
+        }
+      });
+    }
 
     function describeStep(step, total){
       if(step.qDigit===0){
-        return `El dividend parcial és <b>${step.partial}</b>, massa petit per repartir amb ${example.divisor}. Escriu <b>0</b> a la casella de quocient (inferior dreta), copia <b>${step.remainder}</b> a «Residu» i baixa la següent xifra.`;
+        return `El dividend parcial és <b>${step.partial}</b>. Encara és massa petit per repartir amb ${example.divisor}, així que escrivim <b>0</b> al quocient, guardem <b>${step.remainder}</b> a «Residu» i baixem la següent xifra (mira-la com cau!).`;
       }
       const base = `${step.qDigit} × ${example.divisor} = ${step.product}`;
       if(step.idx < total-1){
         if(step.remainder===0){
           return `${base}. Escriu ${step.qDigit} al quocient, resta ${step.product} de ${step.partial} i anota <b>0</b> a «Residu». Baixa la següent xifra per continuar.`;
         }
-        return `${base}. Escriu ${step.qDigit} al quocient, resta i anota <b>${step.remainder}</b> a la casella «Residu». Com que encara queden xifres, porta'n una de nova cap avall.`;
+        return `${base}. Escriu ${step.qDigit} al quocient, resta i anota <b>${step.remainder}</b> a la casella «Residu». Com que encara queden xifres, porta'n una de nova cap avall i deixa-la caure a la pista.`;
       }
       if(step.remainder===0){
         return `${base}. Últim pas: el residu final és <b>0</b>, així que la divisió és exacta.`;
       }
-      return `${base}. Últim pas: el residu definitiu és <b>${step.remainder}</b>. Escriu-lo a la casella inferior esquerra.`;
+      return `${base}. Últim pas: el residu definitiu és <b>${step.remainder}</b>. Escriu-lo a la casella inferior esquerra i recorda que aquesta és una <b>divisió entera</b>.`;
+    }
+
+    function resetBoard(initial=false){
+      clearTimer();
+      if(!example) return;
+      stepCursor=0;
+      clearHighlights();
+      q('#s1quotient').textContent = '·'.repeat(example.steps.length);
+      q('#s1remainder').textContent = '—';
+      q('#s1work').innerHTML='';
+      if(traceLane) traceLane.innerHTML='';
+      const base = `Analitzem <b>${example.dividend} ÷ ${example.divisor}</b>. Omplirem les caselles i mirarem com les xifres van baixant per la pista.`;
+      q('#s1status').innerHTML = initial ? base : `Quadre reiniciat. ${base} Prem «Pas següent» o «Reprodueix animació».`;
+      animating=false;
+      setActiveCells('dividend','divisor');
     }
 
     function loadExample(){
-      clearTimer();
       const data = EXAMPLES[Number(exampleSel.value)] || EXAMPLES[0];
       const steps = divisionSteps(data.dividend, data.divisor);
       example = {
@@ -357,48 +461,85 @@
       };
       q('#s1divisor').textContent = example.divisor;
       q('#s1dividend').textContent = example.dividend;
-      q('#s1quotient').textContent = '·'.repeat(example.steps.length);
-      q('#s1remainder').textContent = '—';
-      q('#s1work').innerHTML='';
-      q('#s1status').innerHTML = `Analitzem <b>${example.dividend} ÷ ${example.divisor}</b>. Omplirem les caselles de quocient i residu seguint el mètode europeu.`;
-      animating=false;
+      resetBoard(true);
+    }
+
+    function playStep(idx){
+      const step = example.steps[idx];
+      const chars = q('#s1quotient').textContent.split('');
+      chars[idx] = String(step.qDigit);
+      q('#s1quotient').textContent = chars.join('');
+      const row = document.createElement('div');
+      row.className='ld-step';
+      row.innerHTML = `<span><strong>${step.partial}</strong> − ${step.product}</span><span>Residu = <strong>${step.remainder}</strong></span>`;
+      q('#s1work').appendChild(row);
+      q('#s1status').innerHTML = describeStep(step, example.steps.length);
+      q('#s1remainder').textContent = step.remainder;
+      setActiveCells('quotient','remainder');
+      if(traceLane){
+        const chip = document.createElement('div');
+        chip.className='trace-chip';
+        chip.textContent = step.bring;
+        chip.setAttribute('aria-hidden','true');
+        traceLane.appendChild(chip);
+        requestAnimationFrame(()=> chip.classList.add('drop'));
+      }
+    }
+
+    function finishAnimation(customMessage){
+      if(!example) return;
+      q('#s1remainder').textContent = example.remainder;
+      setActiveCells('quotient','remainder');
+      const base = `Resultat final: <b>${example.dividend} ÷ ${example.divisor} = ${example.quotient}${example.remainder?` (residu ${example.remainder})`:' (exacta, residu 0)'}</b>.`;
+      const typeMsg = example.remainder===0 ? ' És una <b>divisió exacta</b>.' : ' És una <b>divisió entera</b> perquè el residu és diferent de zero.';
+      const main = customMessage || base;
+      q('#s1status').innerHTML = `${main} ${typeMsg}`;
+      clearTimer();
     }
 
     function runAnimation(){
-      clearTimer();
-      animating=false;
       if(!example) return;
+      resetBoard(true);
       animating=true;
-      q('#s1work').innerHTML='';
-      q('#s1quotient').textContent = '·'.repeat(example.steps.length);
-      q('#s1remainder').textContent = '—';
-      let idx=0;
+      q('#s1status').innerHTML = `Comencem la divisió de <b>${example.dividend} ÷ ${example.divisor}</b>. Observa com baixem cada xifra i omplim el quadre.`;
       const go=()=>{
-        if(idx>=example.steps.length){
-          q('#s1remainder').textContent = example.remainder;
-          q('#s1status').innerHTML = `Resultat final: <b>${example.dividend} ÷ ${example.divisor} = ${example.quotient}${example.remainder?` (residu ${example.remainder})`:' (exacta, residu 0)'}</b>.`;
-          animTimer=null;
-          animating=false;
+        if(stepCursor>=example.steps.length){
+          finishAnimation();
           return;
         }
-        const step = example.steps[idx];
-        const chars = q('#s1quotient').textContent.split('');
-        chars[idx] = String(step.qDigit);
-        q('#s1quotient').textContent = chars.join('');
-        const row = document.createElement('div');
-        row.className='ld-step';
-        row.innerHTML = `<span><strong>${step.partial}</strong> − ${step.product}</span><span>Residu = <strong>${step.remainder}</strong></span>`;
-        q('#s1work').appendChild(row);
-        q('#s1status').innerHTML = describeStep(step, example.steps.length);
-        q('#s1remainder').textContent = step.remainder;
-        idx++;
-        animTimer = setTimeout(go, 900);
+        playStep(stepCursor);
+        stepCursor++;
+        if(stepCursor>=example.steps.length){
+          animTimer = setTimeout(()=> finishAnimation(), 1400);
+        } else {
+          animTimer = setTimeout(go, 1900);
+        }
       };
-      go();
+      animTimer = setTimeout(go, 900);
+    }
+
+    function manualStep(){
+      if(!example || animating) return;
+      if(stepCursor>=example.steps.length){
+        finishAnimation(`Ja hem completat la divisió. Prem «Reinicia» per repetir-la o tria un nou exemple.`);
+        return;
+      }
+      playStep(stepCursor);
+      stepCursor++;
+      if(stepCursor>=example.steps.length){
+        finishAnimation();
+      }
+    }
+
+    function handleReset(){
+      if(!example) return;
+      resetBoard(false);
     }
 
     exampleSel.addEventListener('change', loadExample);
     q('#s1demo').addEventListener('click', runAnimation);
+    q('#s1step').addEventListener('click', manualStep);
+    q('#s1reset').addEventListener('click', handleReset);
 
     const levelSel = q('#s1level');
     let current=null; let streak=0;
@@ -600,7 +741,7 @@
     const q=(sel)=>view.querySelector(sel);
     view.innerHTML = `
       <h2>3) Pràctica cronometrada</h2>
-      <div class="coach"><div class="avatar">🏃‍♀️</div><div class="bubble">Tens <b>90 segons</b>. Resol divisions portant amb el quadre europeu: escriu el <b>quocient</b> i el <b>residu final</b> mentre decideixes quan portar la xifra següent. Supera la teva millor marca!</div></div>
+      <div class="coach"><div class="avatar">🏃‍♀️</div><div class="bubble">Tens <b>90 segons</b>. Resol divisions llargues amb el quadre europeu: escriu el <b>quocient</b> i el <b>residu final</b> mentre decideixes quan baixar la xifra següent. Supera la teva millor marca!</div></div>
       <div class="controls">
         <label><span>Dificultat</span>
           <select id="s3level">
@@ -682,7 +823,7 @@
     const q=(sel)=>view.querySelector(sel);
     view.innerHTML = `
       <h2>4) Prova final</h2>
-      <div class="coach"><div class="avatar">🎓</div><div class="bubble">Resol <b>10 divisions portant</b> amb el format europeu. Necessites <b>8 encerts</b> per superar la càpsula: escriu sempre el quocient i el residu final a les caselles corresponents.</div></div>
+      <div class="coach"><div class="avatar">🎓</div><div class="bubble">Resol <b>10 divisions llargues</b> amb el format europeu. Necessites <b>8 encerts</b> per superar la càpsula: escriu sempre el quocient i el residu final a les caselles corresponents.</div></div>
       <div class="controls">
         <label><span>Dificultat</span>
           <select id="s4level">
@@ -755,11 +896,13 @@
     const box = document.getElementById('tests');
     if(!box) return;
     try{
+      const previous = currentSession;
       console.assert(document.querySelectorAll('#steps .step').length===4,'[TEST] quatre sessions');
       openSession('s1');
       console.assert(document.querySelector('#screen #s1check'),'[TEST] botó s1check');
       openSession('s2');
       console.assert(document.querySelector('#screen #s2check'),'[TEST] botó s2check');
+      if(previous) openSession(previous);
       box.className='info';
       box.style.display='block';
       box.textContent='Tests bàsics passats ✅';
