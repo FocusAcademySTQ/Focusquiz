@@ -176,8 +176,20 @@
     const dotR=7, fill=getComputedStyle(document.documentElement).getPropertyValue('--dot')||'#FF4DBB', stroke=getComputedStyle(document.documentElement).getPropertyValue('--pen')||'#2D4C9A';
     function placeDot(cx,cy,delay=0){
       const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',dotR); c.setAttribute('fill',fill); c.setAttribute('stroke',stroke); c.setAttribute('stroke-width','2'); c.style.opacity='0'; dots.appendChild(c);
-      if(opts.animate){ setTimeout(()=>{ c.animate([{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'translateY(0)'}],{duration:220,easing:'ease-out',fill:'forwards'}); }, delay); } else { c.style.opacity='1'; }
-    }
+      if (opts.animate) {
+  // Animació molt més lenta: duració més llarga i intervals més grans
+  setTimeout(() => {
+    c.animate(
+      [
+        { opacity: 0, transform: 'translateY(-12px)' },
+        { opacity: 1, transform: 'translateY(0)' }
+      ],
+      { duration: 800, easing: 'ease-out', fill: 'forwards' } // era 220ms
+    );
+  }, delay);
+} else {
+  c.style.opacity = '1';
+}
 
     const q=Math.floor(N/G), r=N%G;
     for(let g=0; g<G; g++){
@@ -186,11 +198,11 @@
       for(let k=0;k<q;k++){
         const col=(k%cols)+1, row=Math.floor(k/cols)+1;
         const cx=x + col*cellX, cy=Y + H - row*cellY - 10;
-        placeDot(cx, cy, opts.animate? (g*q+k)*60 : 0);
+        placeDot(cx, cy, opts.animate? (g*q+k)*800 : 0);
       }
     }
     for(let t=0;t<r;t++){
-      const x=X0 + t*(boxW+gap) + boxW/2; const y=Y-14; placeDot(x,y, opts.animate? (G*q + t)*60 : 0);
+      const x=X0 + t*(boxW+gap) + boxW/2; const y=Y-14; placeDot(x,y, opts.animate? (G*q + t)*800 : 0);
     }
 
     label.textContent = `${N} : ${G} = ${q}` + (r? `  (rest = ${r})` : ``);
@@ -306,14 +318,45 @@
       }
     }
 
-    function place(binIdx, x, Y, boxW, H){
-      if(placed>=N) return;
-      const cols=4; const cellX=boxW/(cols+1), cellY=18; const k=perBin[binIdx];
-      const col=(k%cols)+1, row=Math.floor(k/cols)+1; const cx=x + col*cellX, cy=Y + H - row*cellY - 10;
-      const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r','7'); c.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--dot')||'#FF4DBB'); c.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen')||'#2D4C9A'); c.setAttribute('stroke-width','2'); c.style.opacity='0'; svg.appendChild(c);
-      c.animate([{opacity:0,transform:'translateY(-8px)'},{opacity:1,transform:'translateY(0)'}],{duration:200,easing:'ease-out',fill:'forwards'});
-      perBin[binIdx]++; placed++;
-    }
+    function place(binIdx, x, Y, boxW, H) {
+  if (placed >= N) return; // ja s’han col·locat tots els punts
+
+  // permet col·locar punts successivament en la mateixa caixa
+  const cols = 4;
+  const cellX = boxW / (cols + 1);
+  const cellY = 18;
+  const k = perBin[binIdx];
+
+  const col = (k % cols) + 1;
+  const row = Math.floor(k / cols) + 1;
+
+  // no deixem sobreposar punts fora del marge
+  if (Y + H - row * cellY - 10 < Y + 10) return;
+
+  const cx = x + col * cellX;
+  const cy = Y + H - row * cellY - 10;
+  const c = document.createElementNS(svgNS, 'circle');
+  c.setAttribute('cx', cx);
+  c.setAttribute('cy', cy);
+  c.setAttribute('r', '7');
+  c.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--dot') || '#FF4DBB');
+  c.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen') || '#2D4C9A');
+  c.setAttribute('stroke-width', '2');
+  c.style.opacity = '0';
+  svg.appendChild(c);
+
+  // animació lleugerament més suau
+  c.animate(
+    [
+      { opacity: 0, transform: 'translateY(-12px)' },
+      { opacity: 1, transform: 'translateY(0)' }
+    ],
+    { duration: 400, easing: 'ease-out', fill: 'forwards' }
+  );
+
+  perBin[binIdx]++;
+  placed++;
+}
 
     function check(){
       const min=Math.min(...perBin), max=Math.max(...perBin); const equal=min===max; const q=Math.floor(N/G); const r=N%G;
