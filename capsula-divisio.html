@@ -253,128 +253,188 @@
   }
 
   // ===== Sessió 2 — Fem-ho pas a pas (interactiu) =====
-  function initS2(view){
-    const q=(sel)=>view.querySelector(sel);
-    view.innerHTML=`
-      <h2>2) Fem-ho pas a pas</h2>
-      <div class="coach"><div class="avatar">👩‍🏫</div><div class="bubble">Clica una caixa per col·locar-hi el <b>següent punt</b>. Prova d'aconseguir <b>el mateix nombre</b> de punts a cada caixa. El que sobri serà el <b>rest</b>.</div></div>
-      <div class="controls">
-        <label>Objectes (N)
-          <select id="s2N"><option>7</option><option selected>11</option><option>13</option><option>16</option></select>
-        </label>
-        <label>Grups (G)
-          <select id="s2G"><option>2</option><option selected>3</option><option>4</option></select>
-        </label>
-        <button id="s2reset" class="btn ghost">Reinicia</button>
-      </div>
-      <div class="smartick-figure"><svg id="s2svg" viewBox="0 0 600 190" preserveAspectRatio="xMidYMid slice" aria-label="Repartiment manual"></svg></div>
-      <div class="controls" style="margin-top:8px">
-        <button id="s2check" class="btn primary">Comprova</button>
-        <div id="s2fb"></div>
-      </div>
-      <div class="progress" style="margin-top:10px"><div id="s2bar"></div></div>
-    `;
+function initS2(view) {
+  const q = (sel) => view.querySelector(sel);
+  view.innerHTML = `
+    <h2>2) Fem-ho pas a pas</h2>
+    <div class="coach"><div class="avatar">👩‍🏫</div><div class="bubble">Clica una caixa per col·locar-hi el <b>següent punt</b>. Prova d'aconseguir <b>el mateix nombre</b> de punts a cada caixa. El que sobri serà el <b>rest</b>.</div></div>
+    <div class="controls">
+      <label>Objectes (N)
+        <select id="s2N"><option>7</option><option selected>11</option><option>13</option><option>16</option></select>
+      </label>
+      <label>Grups (G)
+        <select id="s2G"><option>2</option><option selected>3</option><option>4</option></select>
+      </label>
+      <button id="s2reset" class="btn ghost">Reinicia</button>
+    </div>
+    <div class="smartick-figure">
+      <svg id="s2svg" viewBox="0 0 600 190" preserveAspectRatio="xMidYMid slice" aria-label="Repartiment manual"></svg>
+    </div>
+    <div class="controls" style="margin-top:8px">
+      <button id="s2check" class="btn primary">Comprova</button>
+      <div id="s2fb"></div>
+    </div>
+    <div class="progress" style="margin-top:10px"><div id="s2bar"></div></div>
+  `;
 
-    const svg = q('#s2svg');
-    const svgNS='http://www.w3.org/2000/svg';
-    let N=11,G=3, placed=0, perBin=[]; let bins=[]; let doneRounds=0;
+  const svg = q('#s2svg');
+  const svgNS = 'http://www.w3.org/2000/svg';
+  let N = 11, G = 3, placed = 0, perBin = [], bins = [];
+  let doneRounds = 0;
 
-    function build(){
-      // reset
-      svg.innerHTML=''; bins=[]; perBin=Array(G).fill(0); placed=0;
-      // defs paper
-      const defs=document.createElementNS(svgNS,'defs');
-      const pat=document.createElementNS(svgNS,'pattern'); pat.setAttribute('id','paperS2'); pat.setAttribute('width','600'); pat.setAttribute('height','20'); pat.setAttribute('patternUnits','userSpaceOnUse');
-      const r1=document.createElementNS(svgNS,'rect'); r1.setAttribute('width','600'); r1.setAttribute('height','20'); r1.setAttribute('fill',getComputedStyle(document.documentElement).getPropertyValue('--paper')||'#FBF3CC');
-      const r2=document.createElementNS(svgNS,'rect'); r2.setAttribute('y','19'); r2.setAttribute('width','600'); r2.setAttribute('height','1'); r2.setAttribute('fill',getComputedStyle(document.documentElement).getPropertyValue('--paper-line')||'#9BB3E6');
-      pat.appendChild(r1); pat.appendChild(r2); defs.appendChild(pat); svg.appendChild(defs);
+  // --- dibuixa l'escenari inicial
+  function build() {
+    svg.innerHTML = '';
+    bins = [];
+    perBin = Array(G).fill(0);
+    placed = 0;
 
-      const bg=document.createElementNS(svgNS,'rect'); bg.setAttribute('width','600'); bg.setAttribute('height','190'); bg.setAttribute('fill','url(#paperS2)'); svg.appendChild(bg);
-      const top=document.createElementNS(svgNS,'rect'); top.setAttribute('x','60'); top.setAttribute('y','15'); top.setAttribute('width','480'); top.setAttribute('height','70'); top.setAttribute('fill','none'); top.setAttribute('stroke',getComputedStyle(document.documentElement).getPropertyValue('--pen')||'#2D4C9A'); top.setAttribute('stroke-width','4'); svg.appendChild(top);
+    // paper de fons
+    const defs = document.createElementNS(svgNS, 'defs');
+    const pat = document.createElementNS(svgNS, 'pattern');
+    pat.setAttribute('id', 'paperS2');
+    pat.setAttribute('width', '600');
+    pat.setAttribute('height', '20');
+    pat.setAttribute('patternUnits', 'userSpaceOnUse');
+    const r1 = document.createElementNS(svgNS, 'rect');
+    r1.setAttribute('width', '600');
+    r1.setAttribute('height', '20');
+    r1.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--paper') || '#FBF3CC');
+    const r2 = document.createElementNS(svgNS, 'rect');
+    r2.setAttribute('y', '19');
+    r2.setAttribute('width', '600');
+    r2.setAttribute('height', '1');
+    r2.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--paper-line') || '#9BB3E6');
+    pat.appendChild(r1);
+    pat.appendChild(r2);
+    defs.appendChild(pat);
+    svg.appendChild(defs);
 
-      const W=480,H=60,X0=60,Y=105,gap=20; const boxW=(W-gap*(G-1))/G;
-      for(let i=0;i<G;i++){
-  const x = X0 + i*(boxW + gap);
-  const rect = document.createElementNS(svgNS, 'rect');
-  rect.setAttribute('x', x);
-  rect.setAttribute('y', Y);
-  rect.setAttribute('width', boxW);
-  rect.setAttribute('height', H);
-  rect.setAttribute('rx', '4');
-  rect.setAttribute('fill', 'none');
-  rect.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen') || '#2D4C9A');
-  rect.setAttribute('stroke-width', '4');
-  rect.style.cursor = 'pointer';
-  rect.addEventListener('click', () => place(i, x, Y, boxW, H));
-  svg.appendChild(rect);
+    const bg = document.createElementNS(svgNS, 'rect');
+    bg.setAttribute('width', '600');
+    bg.setAttribute('height', '190');
+    bg.setAttribute('fill', 'url(#paperS2)');
+    svg.appendChild(bg);
 
-  // ✅ Correcció: “y:Y” no existia, ara és explícit
-  bins.push({ x: x, y: Y, w: boxW, h: H });
-}
+    const top = document.createElementNS(svgNS, 'rect');
+    top.setAttribute('x', '60');
+    top.setAttribute('y', '15');
+    top.setAttribute('width', '480');
+    top.setAttribute('height', '70');
+    top.setAttribute('fill', 'none');
+    top.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen') || '#2D4C9A');
+    top.setAttribute('stroke-width', '4');
+    svg.appendChild(top);
 
-      // punts a dalt (pendents de col·locar)
-      const pending=Math.min(N,12); const topY=45; const startX=110; const step=30;
-      for(let i=0;i<pending;i++){
-        const c=document.createElementNS(svgNS,'circle'); c.setAttribute('cx', startX + i*step); c.setAttribute('cy', topY); c.setAttribute('r','7'); c.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--dot')||'#FF4DBB'); c.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen')||'#2D4C9A'); c.setAttribute('stroke-width','2'); svg.appendChild(c);
+    // caixes clicables
+    const W = 480, H = 60, X0 = 60, Y = 105, gap = 20;
+    const boxW = (W - gap * (G - 1)) / G;
+    for (let i = 0; i < G; i++) {
+      const x = X0 + i * (boxW + gap);
+      const rect = document.createElementNS(svgNS, 'rect');
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', Y);
+      rect.setAttribute('width', boxW);
+      rect.setAttribute('height', H);
+      rect.setAttribute('fill', 'none');
+      rect.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen') || '#2D4C9A');
+      rect.setAttribute('stroke-width', '4');
+      rect.style.cursor = 'pointer';
+      rect.addEventListener('click', () => place(i, x, Y, boxW, H));
+      svg.appendChild(rect);
+      bins.push({ x, y: Y, w: boxW, h: H });
+    }
+
+    // punts a dalt (visuals)
+    const pending = Math.min(N, 12);
+    const topY = 45, startX = 110, step = 30;
+    for (let i = 0; i < pending; i++) {
+      const c = document.createElementNS(svgNS, 'circle');
+      c.setAttribute('cx', startX + i * step);
+      c.setAttribute('cy', topY);
+      c.setAttribute('r', '7');
+      c.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--dot') || '#FF4DBB');
+      c.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen') || '#2D4C9A');
+      c.setAttribute('stroke-width', '2');
+      svg.appendChild(c);
+    }
+  }
+
+  // --- col·loca un punt dins la caixa
+  function place(binIdx, x, Y, boxW, H) {
+    if (placed >= N) return; // ja estan tots col·locats
+
+    const cols = 4;
+    const cellX = boxW / (cols + 1);
+    const cellY = 18;
+    const k = perBin[binIdx];
+
+    const col = (k % cols) + 1;
+    const row = Math.floor(k / cols) + 1;
+    const cx = x + col * cellX;
+    const cy = Y + H - row * cellY - 10;
+
+    const c = document.createElementNS(svgNS, 'circle');
+    c.setAttribute('cx', cx);
+    c.setAttribute('cy', cy);
+    c.setAttribute('r', '7');
+    c.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--dot') || '#FF4DBB');
+    c.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen') || '#2D4C9A');
+    c.setAttribute('stroke-width', '2');
+    c.style.opacity = '0';
+    svg.appendChild(c);
+
+    // animació suau
+    c.animate(
+      [
+        { opacity: 0, transform: 'translateY(-12px)' },
+        { opacity: 1, transform: 'translateY(0)' }
+      ],
+      { duration: 400, easing: 'ease-out', fill: 'forwards' }
+    );
+
+    perBin[binIdx]++;
+    placed++;
+  }
+
+  // --- comprovació
+  function check() {
+    const min = Math.min(...perBin);
+    const max = Math.max(...perBin);
+    const equal = min === max;
+    const q = Math.floor(N / G);
+    const r = N % G;
+    const ok = equal && max === q && placed === N;
+
+    q('#s2fb').innerHTML = `<span class="result ${ok ? 'ok' : 'no'}">${ok ? 'Correcte ✅' : 'Encara no ❌'} <span class="mono">${N} : ${G} = ${q}${r ? ', rest ' + r : ''}</span></span>`;
+    if (ok) {
+      doneRounds++;
+      q('#s2bar').style.width = Math.min(doneRounds, 2) / 2 * 100 + '%';
+      if (doneRounds >= 2) {
+        state.progress.s2 = true;
+        save();
+        renderSteps();
+        setTimeout(() => openSession('s3'), 700);
       }
     }
+  }
 
-    function place(binIdx, x, Y, boxW, H) {
-  if (placed >= N) return; // ja s’han col·locat tots els punts
+  function reset() {
+    N = +q('#s2N').value;
+    G = +q('#s2G').value;
+    doneRounds = 0;
+    q('#s2bar').style.width = '0%';
+    build();
+  }
 
-  // permet col·locar punts successivament en la mateixa caixa
-  const cols = 4;
-  const cellX = boxW / (cols + 1);
-  const cellY = 18;
-  const k = perBin[binIdx];
+  q('#s2N').addEventListener('change', reset);
+  q('#s2G').addEventListener('change', reset);
+  q('#s2reset').addEventListener('click', reset);
+  q('#s2check').addEventListener('click', check);
 
-  const col = (k % cols) + 1;
-  const row = Math.floor(k / cols) + 1;
-
-  // no deixem sobreposar punts fora del marge
-  if (Y + H - row * cellY - 10 < Y + 10) return;
-
-  const cx = x + col * cellX;
-  const cy = Y + H - row * cellY - 10;
-  const c = document.createElementNS(svgNS, 'circle');
-  c.setAttribute('cx', cx);
-  c.setAttribute('cy', cy);
-  c.setAttribute('r', '7');
-  c.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--dot') || '#FF4DBB');
-  c.setAttribute('stroke', getComputedStyle(document.documentElement).getPropertyValue('--pen') || '#2D4C9A');
-  c.setAttribute('stroke-width', '2');
-  c.style.opacity = '0';
-  svg.appendChild(c);
-
-  // animació lleugerament més suau
-  c.animate(
-    [
-      { opacity: 0, transform: 'translateY(-12px)' },
-      { opacity: 1, transform: 'translateY(0)' }
-    ],
-    { duration: 400, easing: 'ease-out', fill: 'forwards' }
-  );
-
-  perBin[binIdx]++;
-  placed++;
+  build();
 }
 
-    function check(){
-      const min=Math.min(...perBin), max=Math.max(...perBin); const equal=min===max; const q=Math.floor(N/G); const r=N%G;
-      const ok = equal && max===q && placed===N; // tot col·locat i igualtat
-      q('#s2fb').innerHTML = `<span class="result ${ok?'ok':'no'}">${ok?'Correcte ✅':'Encara no ❌'} <span class="mono">${N} : ${G} = ${q}${r?`, rest ${r}`:''}</span></span>`;
-      if(ok){ doneRounds++; q('#s2bar').style.width=Math.min(doneRounds,2)/2*100+'%'; if(doneRounds>=2){ state.progress.s2=true; save(); renderSteps(); setTimeout(()=>openSession('s3'),700); } }
-    }
-
-    function reset(){ N=+q('#s2N').value; G=+q('#s2G').value; doneRounds=0; q('#s2bar').style.width='0%'; build(); }
-
-    q('#s2N').addEventListener('change', reset);
-    q('#s2G').addEventListener('change', reset);
-    q('#s2reset').addEventListener('click', reset);
-    q('#s2check').addEventListener('click', check);
-
-    reset();
-  }
 
   // ===== Sessió 3 — Practiquem ràpid (quocient + residu) =====
   function initS3(view){
