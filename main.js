@@ -14,6 +14,43 @@ function closeModal(){
   if(m) m.remove();
 }
 
+function openEuropeMap(){
+  const existing = document.querySelector('.map-overlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'map-overlay';
+  overlay.innerHTML = `
+    <div class="map-overlay__inner" role="dialog" aria-modal="true" aria-label="Mapa interactiu dels països d'Europa">
+      <button type="button" class="map-overlay__close" aria-label="Tanca el mapa">✕</button>
+      <iframe class="map-overlay__frame" src="geo-europe-map.html" title="Mapa interactiu dels països d'Europa" loading="lazy"></iframe>
+    </div>
+  `;
+
+  function cleanup(){
+    overlay.remove();
+    document.removeEventListener('keydown', handleEscape);
+  }
+
+  function handleEscape(event){
+    if (event.key === 'Escape') cleanup();
+  }
+
+  overlay.addEventListener('click', (event) => {
+    if (event.target === overlay) cleanup();
+  });
+
+  document.body.appendChild(overlay);
+
+  const closeBtn = overlay.querySelector('.map-overlay__close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', cleanup);
+    closeBtn.focus?.();
+  }
+
+  document.addEventListener('keydown', handleEscape);
+}
+
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => Array.from(document.querySelectorAll(q));
 const rng = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
@@ -650,6 +687,10 @@ function collectConfigValues(){
 function startFromConfig(){
   const cfg = collectConfigValues();
   if(!cfg) return;
+  if (pendingModule?.id === 'geo-europe' && cfg.options?.mode === 'map') {
+    openEuropeMap();
+    return;
+  }
   startQuiz(pendingModule.id, cfg);
 }
 
