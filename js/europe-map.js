@@ -1,5 +1,9 @@
 const MAP_CONTAINER_ID = 'map';
-const GEOJSON_PATH = 'data/europe.geojson';
+const GEOJSON_SOURCES = [
+  'data/europe.geojson',
+  'https://cdn.jsdelivr.net/gh/leakyMirror/map-of-europe@master/GeoJSON/europe.geojson',
+  'https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson',
+];
 
 const DEFAULT_STYLE = {
   color: '#0f172a',
@@ -96,6 +100,8 @@ class EuropeMapGame {
       zoomDelta: 0.5,
     }).setView([53, 11], 4);
 
+    // Base tiles are intentionally omitted to keep the quiz focused on the country shapes only.
+
     this.geoLayer = null;
     this.countries = [];
     this.order = [];
@@ -141,9 +147,7 @@ class EuropeMapGame {
 
   async load() {
     try {
-      const response = await fetch(GEOJSON_PATH);
-      if (!response.ok) throw new Error(`No s'ha pogut carregar el mapa (${response.status})`);
-      const data = await response.json();
+      const data = await this.loadGeoData();
       this.setupMap(data);
       this.start();
     } catch (error) {
@@ -151,6 +155,24 @@ class EuropeMapGame {
       this.setQuestion('No s’ha pogut carregar el mapa d’Europa. Torna-ho a provar més tard.');
       this.setFeedback(error.message || 'Error desconegut', 'error');
     }
+  }
+
+  async loadGeoData() {
+    let lastError;
+    for (const url of GEOJSON_SOURCES) {
+      try {
+        const response = await fetch(url, { cache: 'no-cache' });
+        if (!response.ok) throw new Error(`(${response.status}) ${response.statusText || 'Error'}`);
+        const data = await response.json();
+        if (data?.features?.length) {
+          return data;
+        }
+      } catch (error) {
+        console.warn(`No s'ha pogut carregar el GeoJSON des de ${url}`, error);
+        lastError = error;
+      }
+    }
+    throw lastError || new Error('No s’ha pogut obtenir el GeoJSON de països.');
   }
 
   setupMap(geojson) {
