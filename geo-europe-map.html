@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapa interactiu de països d'Europa · Focus Academy</title>
+  <meta name="description" content="Joc interactiu per localitzar països d'Europa en un mapa." />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/geo-map.css" />
+</head>
+<body>
+  <header class="map-header">
+    <a class="back-link" href="index.html">← Torna a Focus Academy</a>
+    <div>
+      <h1>Mapa interactiu: països d'Europa</h1>
+      <p>Fes clic al país correcte per respondre les preguntes i aprèn la geografia europea d'una manera lúdica.</p>
+    </div>
+  </header>
+
+  <main class="map-main">
+    <section class="hud" aria-live="polite">
+      <div class="hud-group">
+        <span class="hud-label">País a localitzar</span>
+        <div id="question">Carregant països...</div>
+      </div>
+      <div class="hud-group" aria-live="polite" aria-atomic="true">
+        <span class="hud-label">Marcador</span>
+        <div class="scoreline">✅ <span id="score-correct">0</span> · ❌ <span id="score-incorrect">0</span></div>
+      </div>
+      <div class="hud-group actions">
+        <button id="restartBtn" class="btn-primary" type="button">Torna a començar</button>
+        <button id="showHelpBtn" class="btn-secondary" type="button">Ajuda</button>
+      </div>
+    </section>
+
+    <section class="map-shell">
+      <div id="map" role="application" aria-label="Mapa interactiu dels països d'Europa"></div>
+      <div class="legend" aria-hidden="true">
+        <div class="legend-row"><span class="legend-swatch" style="background:#a5b4fc"></span> Països pendents</div>
+        <div class="legend-row"><span class="legend-swatch" style="background:#22c55e"></span> Resposta correcta</div>
+        <div class="legend-row"><span class="legend-swatch" style="background:#ef4444"></span> Resposta errònia</div>
+      </div>
+    </section>
+    <div id="feedback" class="feedback" role="status" aria-live="assertive"></div>
+  </main>
+
+  <dialog id="helpDialog">
+    <form method="dialog">
+      <h2>Com funciona el joc?</h2>
+      <p>El mapa selecciona un país d'Europa de forma aleatòria. Llegeix el nom que apareix a la capçalera i fes clic sobre el país corresponent. Si l'encertes, es marcarà en verd. Si t'equivoques, veuràs el país correcte en verd i el que has clicat en vermell. Pots utilitzar el zoom i desplaçar el mapa lliurement.</p>
+      <p>Pots repetir la partida tantes vegades com vulguis amb el botó «Torna a començar».</p>
+      <menu>
+        <button value="cancel">Tanca</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script type="module" src="js/europe-map.js"></script>
+</body>
+</html>

@@ -2031,8 +2031,30 @@
     illes: 'les grans illes asiàtiques'
   };
 
-  function createGeoConfig(moduleId, moduleName, region) {
+  function formatOptionList(items = []) {
+    if (!items.length) return '';
+    if (items.length === 1) return items[0];
+    if (items.length === 2) return `${items[0]} o ${items[1]}`;
+    return `${items.slice(0, -1).join(', ')} o ${items[items.length - 1]}`;
+  }
+
+  function createGeoConfig(moduleId, moduleName, region, options = {}) {
     const inputName = `${moduleId}-mode`;
+    const baseModes = [
+      { value: 'quiz', label: 'Preguntes generals' },
+      { value: 'flag', label: 'Banderes' },
+    ];
+    const extraModes = Array.isArray(options.extraModes)
+      ? options.extraModes.filter((mode) => mode && mode.value && mode.label)
+      : [];
+    const modes = baseModes.concat(extraModes);
+    const subtitleModes = formatOptionList(modes.map((mode) => mode.label.toLowerCase()));
+    const radios = modes.map((mode, index) => `
+            <label class="toggle">
+              <input class="check" type="radio" name="${inputName}" value="${mode.value}" ${index === 0 ? 'checked' : ''}>
+              ${mode.label}
+            </label>`).join('');
+
     return {
       render() {
         const wrap = document.createElement('div');
@@ -2040,32 +2062,27 @@
         <div class="section-title">Mode de pràctica</div>
         <div class="controls">
           <div class="group" role="group" aria-label="Modes del mòdul ${moduleName}">
-            <label class="toggle">
-              <input class="check" type="radio" name="${inputName}" value="quiz" checked>
-              Preguntes generals
-            </label>
-            <label class="toggle">
-              <input class="check" type="radio" name="${inputName}" value="flag">
-              Banderes
-            </label>
+            ${radios}
           </div>
         </div>
-        <p class="subtitle">Escull el tipus de pràctica: capitals, fronteres o banderes ${region.preposition}.</p>
+        <p class="subtitle">Escull el tipus de pràctica: ${subtitleModes} ${region.preposition}.</p>
       `;
         return wrap;
       },
       collect() {
-        const value = (document.querySelector(`input[name="${inputName}"]:checked`) || {}).value || 'quiz';
-        return { mode: value === 'flag' ? 'flag' : 'quiz' };
+        const selected = (document.querySelector(`input[name="${inputName}"]:checked`) || {}).value;
+        const allowedValues = modes.map((mode) => mode.value);
+        const value = allowedValues.includes(selected) ? selected : 'quiz';
+        return { mode: value };
       }
     };
   }
 
-  function createGeoModule({ id, name, desc, region, countries, groupLabels }) {
+  function createGeoModule({ id, name, desc, region, countries, groupLabels, configOptions = {} }) {
     const allNames = countries.map(c => c.name);
     const allCapitals = countries.map(c => c.capital);
     const labels = groupLabels || {};
-    const config = createGeoConfig(id, name, region);
+    const config = createGeoConfig(id, name, region, configOptions);
 
     const makeOptions = (correct, pool, count = 3) => {
       const available = pool.filter(item => item !== correct);
@@ -2273,7 +2290,12 @@
       desc: 'Descobreix països, capitals, banderes i fronteres europees.',
       region: { preposition: "d'Europa", gentilic: 'europeu', levelLabel: 'Mode lliure' },
       countries: EUROPE_COUNTRIES,
-      groupLabels: EUROPE_GROUP_LABELS
+      groupLabels: EUROPE_GROUP_LABELS,
+      configOptions: {
+        extraModes: [
+          { value: 'map', label: 'Mapa interactiu' }
+        ]
+      }
     }),
     createGeoModule({
       id: 'geo-america',
