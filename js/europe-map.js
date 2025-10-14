@@ -5,38 +5,168 @@ const GEOJSON_SOURCES = [
   'https://raw.githubusercontent.com/leakyMirror/map-of-europe/master/GeoJSON/europe.geojson',
 ];
 
+const CATALAN_NAME_OVERRIDES = {
+  AL: 'Albània',
+  AND: 'Andorra',
+  AD: 'Andorra',
+  AM: 'Armènia',
+  ARM: 'Armènia',
+  AT: 'Àustria',
+  AUT: 'Àustria',
+  AZ: 'Azerbaidjan',
+  AZE: 'Azerbaidjan',
+  BY: 'Belarús',
+  BLR: 'Belarús',
+  BE: 'Bèlgica',
+  BEL: 'Bèlgica',
+  BA: 'Bòsnia i Hercegovina',
+  BIH: 'Bòsnia i Hercegovina',
+  BG: 'Bulgària',
+  BGR: 'Bulgària',
+  HR: 'Croàcia',
+  HRV: 'Croàcia',
+  CY: 'Xipre',
+  CYP: 'Xipre',
+  CZ: 'Txèquia',
+  CZE: 'Txèquia',
+  DK: 'Dinamarca',
+  DNK: 'Dinamarca',
+  EE: 'Estònia',
+  EST: 'Estònia',
+  FO: 'Illes Fèroe',
+  FRO: 'Illes Fèroe',
+  AX: 'Illes Åland',
+  ALA: 'Illes Åland',
+  FI: 'Finlàndia',
+  FIN: 'Finlàndia',
+  FR: 'França',
+  FRA: 'França',
+  GE: 'Geòrgia',
+  GEO: 'Geòrgia',
+  DE: 'Alemanya',
+  DEU: 'Alemanya',
+  GI: 'Gibraltar',
+  GIB: 'Gibraltar',
+  GR: 'Grècia',
+  GRC: 'Grècia',
+  EL: 'Grècia',
+  HU: 'Hongria',
+  HUN: 'Hongria',
+  IS: 'Islàndia',
+  ISL: 'Islàndia',
+  IE: 'Irlanda',
+  IRL: 'Irlanda',
+  IT: 'Itàlia',
+  ITA: 'Itàlia',
+  KZ: 'Kazakhstan',
+  KAZ: 'Kazakhstan',
+  LV: 'Letònia',
+  LVA: 'Letònia',
+  LT: 'Lituània',
+  LTU: 'Lituània',
+  LI: 'Liechtenstein',
+  LIE: 'Liechtenstein',
+  LU: 'Luxemburg',
+  LUX: 'Luxemburg',
+  MT: 'Malta',
+  MLT: 'Malta',
+  MD: 'Moldàvia',
+  MDA: 'Moldàvia',
+  MC: 'Mònaco',
+  MCO: 'Mònaco',
+  ME: 'Montenegro',
+  MNE: 'Montenegro',
+  NL: 'Països Baixos',
+  NLD: 'Països Baixos',
+  MK: 'Macedònia del Nord',
+  MKD: 'Macedònia del Nord',
+  NMK: 'Macedònia del Nord',
+  NO: 'Noruega',
+  NOR: 'Noruega',
+  PL: 'Polònia',
+  POL: 'Polònia',
+  PT: 'Portugal',
+  PRT: 'Portugal',
+  RO: 'Romania',
+  ROU: 'Romania',
+  RU: 'Rússia',
+  RUS: 'Rússia',
+  SM: 'San Marino',
+  SMR: 'San Marino',
+  RS: 'Sèrbia',
+  SRB: 'Sèrbia',
+  SK: 'Eslovàquia',
+  SVK: 'Eslovàquia',
+  SI: 'Eslovènia',
+  SVN: 'Eslovènia',
+  ES: 'Espanya',
+  ESP: 'Espanya',
+  SE: 'Suècia',
+  SWE: 'Suècia',
+  CH: 'Suïssa',
+  CHE: 'Suïssa',
+  TR: 'Turquia',
+  TUR: 'Turquia',
+  UA: 'Ucraïna',
+  UKR: 'Ucraïna',
+  GB: 'Regne Unit',
+  GBR: 'Regne Unit',
+  UK: 'Regne Unit',
+  VA: 'Ciutat del Vaticà',
+  VAT: 'Ciutat del Vaticà',
+  XK: 'Kosovo',
+  RKS: 'Kosovo',
+  XKO: 'Kosovo',
+  IM: 'Illa de Man',
+  IMN: 'Illa de Man',
+  JE: 'Jersei',
+  JEY: 'Jersei',
+  GG: 'Guernsey',
+  GGY: 'Guernsey',
+};
+
 const DEFAULT_STYLE = {
-  color: '#0f172a',
-  weight: 1.4,
-  fillColor: '#cbd5f5',
-  fillOpacity: 0.22,
+  color: 'transparent',
+  weight: 0,
+  fillColor: 'transparent',
+  fillOpacity: 0,
   lineJoin: 'round',
   lineCap: 'round',
 };
 
+const OUTLINE_STYLE = {
+  color: '#0f172a',
+  weight: 1.25,
+  fillColor: '#dbeafe',
+  fillOpacity: 0.14,
+  lineJoin: 'round',
+  lineCap: 'round',
+  interactive: false,
+};
+
 const HOVER_STYLE = {
   color: '#1d4ed8',
-  weight: 2,
+  weight: 2.25,
   fillColor: '#bfdbfe',
-  fillOpacity: 0.55,
+  fillOpacity: 0.5,
   lineJoin: 'round',
   lineCap: 'round',
 };
 
 const CORRECT_STYLE = {
   color: '#166534',
-  weight: 2,
+  weight: 2.4,
   fillColor: '#22c55e',
-  fillOpacity: 0.8,
+  fillOpacity: 0.82,
   lineJoin: 'round',
   lineCap: 'round',
 };
 
 const WRONG_STYLE = {
   color: '#b91c1c',
-  weight: 2,
+  weight: 2.4,
   fillColor: '#ef4444',
-  fillOpacity: 0.8,
+  fillOpacity: 0.82,
   lineJoin: 'round',
   lineCap: 'round',
 };
@@ -54,11 +184,28 @@ function shuffle(array) {
 
 function getFeatureId(feature) {
   const props = feature?.properties ?? {};
-  return props.iso_a2 || props.iso_a3 || props.adm0_a3 || props.id || props.name;
+  const id = props.iso_a2 || props.iso_a3 || props.adm0_a3 || props.id || props.name;
+  if (id === undefined || id === null) return null;
+  if (typeof id === 'string') return id.trim();
+  return String(id);
 }
 
 function getFeatureName(feature) {
   const props = feature?.properties ?? {};
+  const isoA2Raw = props.iso_a2 || props.ISO_A2;
+  const isoA3Raw = props.iso_a3 || props.adm0_a3 || props.ISO_A3;
+  const isoA2 = typeof isoA2Raw === 'string' ? isoA2Raw.trim().toUpperCase() : '';
+  const isoA3 = typeof isoA3Raw === 'string' ? isoA3Raw.trim().toUpperCase() : '';
+  if (isoA2 && CATALAN_NAME_OVERRIDES[isoA2]) {
+    return CATALAN_NAME_OVERRIDES[isoA2];
+  }
+  if (isoA3 && CATALAN_NAME_OVERRIDES[isoA3]) {
+    return CATALAN_NAME_OVERRIDES[isoA3];
+  }
+  const id = typeof props.id === 'string' ? props.id.trim() : '';
+  if (id && CATALAN_NAME_OVERRIDES[id.toUpperCase()]) {
+    return CATALAN_NAME_OVERRIDES[id.toUpperCase()];
+  }
   return props.sovereignt_ct || props.name || props.sovereignt || 'País desconegut';
 }
 
@@ -100,9 +247,12 @@ class EuropeMapGame {
       zoomDelta: 0.5,
     }).setView([53, 11], 4);
 
-    // Base tiles are intentionally omitted to keep the quiz focused on the country shapes only.
+    this.map.options.maxBoundsViscosity = 0.6;
+    this.outlinePane = this.map.createPane('outlinePane');
+    this.outlinePane.style.zIndex = 360;
 
     this.geoLayer = null;
+    this.outlineLayer = null;
     this.countries = [];
     this.order = [];
     this.currentIndex = 0;
@@ -176,11 +326,38 @@ class EuropeMapGame {
   }
 
   setupMap(geojson) {
+    this.layerById.clear();
+    const seen = new Set();
     this.countries = (geojson?.features || []).map((feature) => {
+      const geometryType = feature?.geometry?.type;
+      if (!geometryType || (geometryType !== 'Polygon' && geometryType !== 'MultiPolygon')) {
+        return null;
+      }
       const id = getFeatureId(feature);
       const name = getFeatureName(feature);
       return { id, name, feature };
-    }).filter((item) => !!item.id && !!item.name);
+    }).filter((item) => {
+      if (!item) return false;
+      if (!item.id || !item.name) return false;
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+
+    if (this.outlineLayer) {
+      this.map.removeLayer(this.outlineLayer);
+    }
+    this.outlineLayer = L.geoJSON(geojson, {
+      style: () => ({ ...OUTLINE_STYLE }),
+      smoothFactor: 0.2,
+      interactive: false,
+      pane: 'outlinePane',
+    }).addTo(this.map);
+    this.outlineLayer.bringToBack?.();
+
+    if (this.geoLayer) {
+      this.map.removeLayer(this.geoLayer);
+    }
 
     const styleFn = () => ({ ...DEFAULT_STYLE });
 
@@ -209,9 +386,7 @@ class EuropeMapGame {
       },
     }).addTo(this.map);
 
-    if (this.geoLayer.bringToFront) {
-      this.geoLayer.bringToFront();
-    }
+    this.geoLayer.bringToFront?.();
 
     const bounds = this.geoLayer.getBounds();
     if (bounds?.isValid()) {
@@ -267,6 +442,7 @@ class EuropeMapGame {
 
     if (isCorrect) {
       layer.setStyle(CORRECT_STYLE);
+      layer.bringToFront?.();
       setLayerState(layer, 'correct');
       this.solved.add(clickedId);
       this.correct += 1;
@@ -275,6 +451,7 @@ class EuropeMapGame {
       await wait(950);
     } else {
       layer.setStyle(WRONG_STYLE);
+      layer.bringToFront?.();
       this.incorrect += 1;
       this.setFeedback(`No és ${this.currentCountry.name}. Torna-ho a provar!`, 'error');
       this.updateScore();
@@ -282,6 +459,7 @@ class EuropeMapGame {
       const correctLayer = this.layerById.get(this.currentCountry.id);
       if (correctLayer) {
         correctLayer.setStyle(CORRECT_STYLE);
+        correctLayer.bringToFront?.();
         setLayerState(correctLayer, 'correct');
         this.solved.add(this.currentCountry.id);
       }
@@ -320,11 +498,13 @@ class EuropeMapGame {
   setFeedback(text, variant = 'info') {
     if (!this.feedbackEl) return;
     this.feedbackEl.textContent = text || '';
-    this.feedbackEl.classList.remove('success', 'error');
+    this.feedbackEl.classList.remove('success', 'error', 'info');
     if (variant === 'success') {
       this.feedbackEl.classList.add('success');
     } else if (variant === 'error') {
       this.feedbackEl.classList.add('error');
+    } else {
+      this.feedbackEl.classList.add('info');
     }
   }
 }

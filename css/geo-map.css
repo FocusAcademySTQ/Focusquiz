@@ -157,6 +157,10 @@ body {
   color: var(--error);
 }
 
+.feedback.info {
+  color: var(--accent);
+}
+
 .map-shell {
   position: relative;
   border-radius: 1.2rem;
@@ -205,6 +209,20 @@ body {
   height: 1.4rem;
   border-radius: 0.4rem;
   border: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+.legend-swatch--pending {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02));
+  border-color: rgba(255, 255, 255, 0.6);
+  position: relative;
+}
+
+.legend-swatch--pending::after {
+  content: '';
+  position: absolute;
+  inset: 0.25rem;
+  border-radius: 0.3rem;
+  border: 2px dashed rgba(255, 255, 255, 0.6);
 }
 
 dialog {
