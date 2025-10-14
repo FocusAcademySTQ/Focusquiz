@@ -5,7 +5,7 @@ const DEFAULT_STYLE = {
   color: '#1f2937',
   weight: 1,
   fillColor: '#a5b4fc',
-  fillOpacity: 0.7,
+  fillOpacity: 0,
 };
 
 const HOVER_STYLE = {
@@ -86,8 +86,10 @@ class EuropeMapGame {
       inertia: true,
     }).setView([53, 11], 4);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
+      attribution:
+        "© <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors, " +
+        "© <a href='https://carto.com/attributions'>CARTO</a>",
       maxZoom: 19,
     }).addTo(this.map);
 
