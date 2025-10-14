@@ -2,17 +2,21 @@ const MAP_CONTAINER_ID = 'map';
 const GEOJSON_PATH = 'data/europe.geojson';
 
 const DEFAULT_STYLE = {
-  color: '#1f2937',
-  weight: 1,
-  fillColor: '#a5b4fc',
-  fillOpacity: 0,
+  color: '#0f172a',
+  weight: 1.4,
+  fillColor: '#cbd5f5',
+  fillOpacity: 0.22,
+  lineJoin: 'round',
+  lineCap: 'round',
 };
 
 const HOVER_STYLE = {
-  color: '#1f2937',
+  color: '#1d4ed8',
   weight: 2,
-  fillColor: '#c7d2fe',
-  fillOpacity: 0.85,
+  fillColor: '#bfdbfe',
+  fillOpacity: 0.55,
+  lineJoin: 'round',
+  lineCap: 'round',
 };
 
 const CORRECT_STYLE = {
@@ -20,6 +24,8 @@ const CORRECT_STYLE = {
   weight: 2,
   fillColor: '#22c55e',
   fillOpacity: 0.8,
+  lineJoin: 'round',
+  lineCap: 'round',
 };
 
 const WRONG_STYLE = {
@@ -27,6 +33,8 @@ const WRONG_STYLE = {
   weight: 2,
   fillColor: '#ef4444',
   fillOpacity: 0.8,
+  lineJoin: 'round',
+  lineCap: 'round',
 };
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -82,16 +90,11 @@ class EuropeMapGame {
     this.map = L.map(MAP_CONTAINER_ID, {
       zoomControl: true,
       minZoom: 3,
-      maxZoom: 8,
+      maxZoom: 7,
       inertia: true,
+      zoomSnap: 0.25,
+      zoomDelta: 0.5,
     }).setView([53, 11], 4);
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png', {
-      attribution:
-        "© <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors, " +
-        "© <a href='https://carto.com/attributions'>CARTO</a>",
-      maxZoom: 19,
-    }).addTo(this.map);
 
     this.geoLayer = null;
     this.countries = [];
@@ -161,6 +164,7 @@ class EuropeMapGame {
 
     this.geoLayer = L.geoJSON(geojson, {
       style: styleFn,
+      smoothFactor: 0.4,
       onEachFeature: (feature, layer) => {
         const id = getFeatureId(feature);
         const name = getFeatureName(feature);
@@ -183,9 +187,14 @@ class EuropeMapGame {
       },
     }).addTo(this.map);
 
+    if (this.geoLayer.bringToFront) {
+      this.geoLayer.bringToFront();
+    }
+
     const bounds = this.geoLayer.getBounds();
     if (bounds?.isValid()) {
       this.map.fitBounds(bounds, { padding: [30, 30] });
+      this.map.setMaxBounds(bounds.pad(0.35));
     }
   }
 

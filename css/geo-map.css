@@ -168,10 +168,12 @@ body {
 #map {
   width: 100%;
   height: clamp(420px, 65vh, 720px);
+  background: linear-gradient(180deg, #bfdbfe 0%, #93c5fd 100%);
 }
 
 .leaflet-container {
   font-family: inherit;
+  background: transparent;
 }
 
 .leaflet-control-attribution {
