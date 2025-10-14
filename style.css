@@ -473,6 +473,17 @@ button:hover{transform: translateY(-1px)}
 .btn-ghost{background: transparent; border:1px dashed var(--hair); color:var(--muted); font-weight:700}
 .btn-ghost:disabled{opacity:.5; cursor:not-allowed}
 
+a.btn-secondary{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:12px 18px;
+  border-radius:14px;
+  text-decoration:none;
+  box-shadow:var(--shadow);
+}
+
 .hidden{display:none}
 
 /* ===== Quiz ===== */
