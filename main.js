@@ -14,16 +14,17 @@ function closeModal(){
   if(m) m.remove();
 }
 
-function openEuropeMap(){
+function openMapOverlay(title, src){
   const existing = document.querySelector('.map-overlay');
   if (existing) existing.remove();
 
   const overlay = document.createElement('div');
   overlay.className = 'map-overlay';
+  const safeTitle = escapeHTML(title);
   overlay.innerHTML = `
-    <div class="map-overlay__inner" role="dialog" aria-modal="true" aria-label="Mapa interactiu dels països d'Europa">
+    <div class="map-overlay__inner" role="dialog" aria-modal="true" aria-label="${safeTitle}">
       <button type="button" class="map-overlay__close" aria-label="Tanca el mapa">✕</button>
-      <iframe class="map-overlay__frame" src="geo-europe-map.html" title="Mapa interactiu dels països d'Europa" loading="lazy"></iframe>
+      <iframe class="map-overlay__frame" src="${src}" title="${safeTitle}" loading="lazy"></iframe>
     </div>
   `;
 
@@ -49,6 +50,14 @@ function openEuropeMap(){
   }
 
   document.addEventListener('keydown', handleEscape);
+}
+
+function openEuropeMap(){
+  openMapOverlay("Mapa interactiu dels països d'Europa", 'geo-europe-map.html');
+}
+
+function openAmericaMap(){
+  openMapOverlay("Mapa interactiu dels països d'Amèrica", 'geo-america-map.html');
 }
 
 const $ = (q) => document.querySelector(q);
@@ -578,6 +587,13 @@ function openConfig(moduleId){
       <div class="controls">
         <a class="btn-secondary" href="geo-europe-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
       </div>`;
+  } else if(pendingModule.id === 'geo-america') {
+    wrap.innerHTML = `
+      <div class="section-title">Recurs interactiu</div>
+      <p class="subtitle">Repassa els països americans amb el mapa interactiu i posa a prova la teva memòria visual.</p>
+      <div class="controls">
+        <a class="btn-secondary" href="geo-america-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
+      </div>`;
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -687,9 +703,15 @@ function collectConfigValues(){
 function startFromConfig(){
   const cfg = collectConfigValues();
   if(!cfg) return;
-  if (pendingModule?.id === 'geo-europe' && cfg.options?.mode === 'map') {
-    openEuropeMap();
-    return;
+  if (cfg.options?.mode === 'map') {
+    if (pendingModule?.id === 'geo-europe') {
+      openEuropeMap();
+      return;
+    }
+    if (pendingModule?.id === 'geo-america') {
+      openAmericaMap();
+      return;
+    }
   }
   startQuiz(pendingModule.id, cfg);
 }

@@ -2303,7 +2303,12 @@
       desc: 'Recorre el continent americà amb capitals, banderes i pistes culturals.',
       region: { preposition: "d'Amèrica", gentilic: 'americà', levelLabel: 'Mode lliure' },
       countries: AMERICA_COUNTRIES,
-      groupLabels: AMERICA_GROUP_LABELS
+      groupLabels: AMERICA_GROUP_LABELS,
+      configOptions: {
+        extraModes: [
+          { value: 'map', label: 'Mapa interactiu' }
+        ]
+      }
     }),
     createGeoModule({
       id: 'geo-africa',
