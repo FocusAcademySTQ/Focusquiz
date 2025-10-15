@@ -2,7 +2,7 @@
 <html lang="ca">
 <head>
 <meta charset="utf-8">
-<title>Mapa d'Europa · Joc de països</title>
+<title>Mapa d'Àfrica · Joc de països</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -30,11 +30,13 @@
 <div id="map"></div>
 
 <script>
-const map=L.map('map',{preferCanvas:true}).setView([54,15],4);
+// Configura mapa base sense etiquetes
+const map=L.map('map',{preferCanvas:true}).setView([0,20],3);
 L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png',{
   maxZoom:8, attribution:'© OpenStreetMap · © CartoDB'
 }).addTo(map);
 
+// Estils
 const base={color:'#1e293b',weight:1.2,fillColor:'#bfdbfe',fillOpacity:0.55};
 const hover={weight:2,fillOpacity:0.75};
 const ok={fillColor:'#22c55e',fillOpacity:0.8};
@@ -42,17 +44,19 @@ const ko={fillColor:'#ef4444',fillOpacity:0.8};
 
 let capa,features=[],objectiu=null,okCount=0,koCount=0;
 
-const trad = {"Germany":"Alemanya","France":"França","Spain":"Espanya","Italy":"Itàlia","Portugal":"Portugal",
-"Austria":"Àustria","Belgium":"Bèlgica","Netherlands":"Països Baixos","Switzerland":"Suïssa",
-"Poland":"Polònia","Czech Republic":"República Txeca","Slovakia":"Eslovàquia","Slovenia":"Eslovènia",
-"Hungary":"Hongria","Romania":"Romania","Bulgaria":"Bulgària","Greece":"Grècia","Croatia":"Croàcia",
-"Serbia":"Sèrbia","Bosnia and Herz.":"Bòsnia i Hercegovina","Norway":"Noruega","Sweden":"Suècia",
-"Finland":"Finlàndia","Denmark":"Dinamarca","Iceland":"Islàndia","Ireland":"Irlanda",
-"United Kingdom":"Regne Unit","Estonia":"Estònia","Latvia":"Letònia","Lithuania":"Lituània",
-"Ukraine":"Ucraïna","Belarus":"Bielorússia","Moldova":"Moldàvia","Andorra":"Andorra","Luxembourg":"Luxemburg",
-"Monaco":"Mònaco","San Marino":"San Marino","Malta":"Malta","Vatican":"Vaticà","Liechtenstein":"Liechtenstein",
-"Albania":"Albània","North Macedonia":"Macedònia del Nord","Montenegro":"Montenegro","Kosovo":"Kosovo",
-"Turkey":"Turquia","Georgia":"Geòrgia","Armenia":"Armènia","Azerbaijan":"Azerbaidjan"};
+// Traduccions principals (anglès → català)
+const trad={
+  "Morocco":"Marroc","Algeria":"Algèria","Tunisia":"Tunísia","Libya":"Líbia","Egypt":"Egipte",
+  "Mauritania":"Mauritània","Mali":"Mali","Niger":"Níger","Chad":"Txad","Sudan":"Sudan","South Sudan":"Sudan del Sud",
+  "Eritrea":"Eritrea","Djibouti":"Djibouti","Somalia":"Somàlia","Ethiopia":"Etiòpia",
+  "Senegal":"Senegal","Gambia":"Gàmbia","Guinea-Bissau":"Guinea Bissau","Guinea":"Guinea",
+  "Sierra Leone":"Sierra Leone","Liberia":"Libèria","Ivory Coast":"Costa d'Ivori","Ghana":"Ghana",
+  "Togo":"Togo","Benin":"Benín","Nigeria":"Nigèria","Cameroon":"Camerun","Central African Republic":"República Centreafricana",
+  "Equatorial Guinea":"Guinea Equatorial","Gabon":"Gabon","Congo":"Congo","Democratic Republic of the Congo":"República Democràtica del Congo",
+  "Angola":"Angola","Zambia":"Zàmbia","Malawi":"Malawi","Mozambique":"Moçambic","Namibia":"Namíbia",
+  "Botswana":"Botswana","Zimbabwe":"Zimbabwe","South Africa":"Sud-àfrica","Lesotho":"Lesotho","Eswatini":"Eswatini",
+  "Madagascar":"Madagascar","Seychelles":"Seychelles","Comoros":"Comores","Mauritius":"Maurici","Cape Verde":"Cap Verd"
+};
 
 function toCA(n){return trad[n]||n;}
 function actualitzarMarcador(){
@@ -65,14 +69,15 @@ function nouObjectiu(){
   document.getElementById('ask').textContent=toCA(objectiu.properties.name);
 }
 
+// Carrega GeoJSON mundial i filtra Àfrica
 fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
 .then(r=>r.json())
 .then(world=>{
-  // Filtra Europa
+  // Coordenades aproximades d’Àfrica
   world.features=world.features.filter(f=>{
     const b=L.geoJSON(f).getBounds();
     const c=b.getCenter();
-    return c.lat>34 && c.lat<72 && c.lng>-25 && c.lng<45;
+    return c.lat>-36 && c.lat<38 && c.lng>-25 && c.lng<60;
   });
   features=world.features;
 
@@ -95,10 +100,7 @@ fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.g
   }).addTo(map);
 
   map.fitBounds(capa.getBounds());
-  // Mostra el primer país un cop la capa està al mapa
-  capa.once('load',nouObjectiu);
-  // O per seguretat després d’un breu retard
-  setTimeout(()=>nouObjectiu(),1000);
+  nouObjectiu(); // Mostra el primer país automàticament
 })
 .catch(e=>alert("Error en carregar el mapa: "+e));
 
