@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<title>Mapa d'Amèrica · Joc de països</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html,body{margin:0;height:100%;font-family:system-ui;background:#f8fafc}
+  #map{height:100%;width:100%}
+  #hud{
+    position:fixed;top:10px;left:50%;transform:translateX(-50%);
+    background:white;padding:10px 16px;border-radius:12px;
+    display:flex;gap:16px;align-items:center;
+    box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1000
+  }
+  .pill{padding:4px 10px;border-radius:999px;font-weight:600}
+  .ok{background:#dcfce7}.ko{background:#fee2e2}
+  button{border:0;border-radius:8px;background:#e2e8f0;padding:8px 10px;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="hud">
+  <div><b>Troba:</b> <span id="ask">—</span></div>
+  <div class="pill ok">✅ <span id="good">0</span></div>
+  <div class="pill ko">❌ <span id="bad">0</span></div>
+  <button id="again">🔄 Torna a començar</button>
+</div>
+<div id="map"></div>
+
+<script>
+// Inicia mapa base sense etiquetes
+const map=L.map('map',{preferCanvas:true}).setView([15,-70],3);
+L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png',{
+  maxZoom:8, attribution:'© OpenStreetMap · © CartoDB'
+}).addTo(map);
+
+// Estils de països
+const base={color:'#1e293b',weight:1.2,fillColor:'#bfdbfe',fillOpacity:0.55};
+const hover={weight:2,fillOpacity:0.75};
+const ok={fillColor:'#22c55e',fillOpacity:0.8};
+const ko={fillColor:'#ef4444',fillOpacity:0.8};
+
+let capa,features=[],objectiu=null,okCount=0,koCount=0;
+
+// Traduccions de noms en anglès a català
+const trad={
+  "United States":"Estats Units","Canada":"Canadà","Mexico":"Mèxic","Greenland":"Grenlàndia",
+  "Guatemala":"Guatemala","Belize":"Belize","Honduras":"Hondures","El Salvador":"El Salvador",
+  "Nicaragua":"Nicaragua","Costa Rica":"Costa Rica","Panama":"Panamà",
+  "Bahamas":"Bahames","Cuba":"Cuba","Jamaica":"Jamaica","Haiti":"Haití","Dominican Republic":"República Dominicana",
+  "Trinidad and Tobago":"Trinitat i Tobago","Barbados":"Barbados","Saint Lucia":"Saint Lucia",
+  "Saint Vincent and the Grenadines":"Saint Vincent i les Grenadines","Grenada":"Grenada","Antigua and Barbuda":"Antigua i Barbuda",
+  "Dominica":"Dominica","Saint Kitts and Nevis":"Saint Kitts i Nevis",
+  "Colombia":"Colòmbia","Venezuela":"Veneçuela","Guyana":"Guyana","Suriname":"Surinam","French Guiana":"Guaiana Francesa",
+  "Ecuador":"Equador","Peru":"Perú","Bolivia":"Bolívia","Chile":"Xile","Argentina":"Argentina","Paraguay":"Paraguai","Uruguay":"Uruguai","Brazil":"Brasil"
+};
+
+function toCA(n){return trad[n]||n;}
+function actualitzarMarcador(){
+  document.getElementById('good').textContent=okCount;
+  document.getElementById('bad').textContent=koCount;
+}
+function nouObjectiu(){
+  if(features.length===0)return;
+  objectiu=features[Math.floor(Math.random()*features.length)];
+  document.getElementById('ask').textContent=toCA(objectiu.properties.name);
+}
+
+// Carrega GeoJSON mundial i filtra Amèrica
+fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+.then(r=>r.json())
+.then(world=>{
+  world.features=world.features.filter(f=>{
+    const b=L.geoJSON(f).getBounds();
+    const c=b.getCenter();
+    // Coordenades aproximades d’Amèrica (nord + sud)
+    return c.lat>-60 && c.lat<83 && c.lng>-170 && c.lng<-30;
+  });
+  features=world.features;
+
+  capa=L.geoJSON(world,{
+    style:base,
+    onEachFeature:(f,l)=>{
+      l.on('mouseover',()=>l.setStyle(hover));
+      l.on('mouseout',()=>capa.resetStyle(l));
+      l.on('click',()=>{
+        if(!objectiu)return;
+        if(f.properties.name===objectiu.properties.name){
+          l.setStyle(ok); okCount++;
+        }else{
+          l.setStyle(ko); koCount++;
+        }
+        actualitzarMarcador();
+        nouObjectiu();
+      });
+    }
+  }).addTo(map);
+
+  map.fitBounds(capa.getBounds());
+  nouObjectiu(); // Mostra primer país
+})
+.catch(e=>alert("Error en carregar el mapa: "+e));
+
+document.getElementById('again').onclick=()=>{
+  okCount=koCount=0;
+  actualitzarMarcador();
+  capa.eachLayer(l=>capa.resetStyle(l));
+  nouObjectiu();
+};
+</script>
+</body>
+</html>
