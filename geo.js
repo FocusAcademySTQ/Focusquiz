@@ -2303,7 +2303,12 @@
       desc: 'Recorre el continent americà amb capitals, banderes i pistes culturals.',
       region: { preposition: "d'Amèrica", gentilic: 'americà', levelLabel: 'Mode lliure' },
       countries: AMERICA_COUNTRIES,
-      groupLabels: AMERICA_GROUP_LABELS
+      groupLabels: AMERICA_GROUP_LABELS,
+      configOptions: {
+        extraModes: [
+          { value: 'map', label: 'Mapa interactiu' }
+        ]
+      }
     }),
     createGeoModule({
       id: 'geo-africa',
@@ -2311,7 +2316,12 @@
       desc: 'Coneix les regions africanes, les seves capitals i la seva diversitat.',
       region: { preposition: "d'Àfrica", gentilic: 'africà', levelLabel: 'Mode lliure' },
       countries: AFRICA_COUNTRIES,
-      groupLabels: AFRICA_GROUP_LABELS
+      groupLabels: AFRICA_GROUP_LABELS,
+      configOptions: {
+        extraModes: [
+          { value: 'map', label: 'Mapa interactiu' }
+        ]
+      }
     }),
     createGeoModule({
       id: 'geo-asia',
@@ -2319,7 +2329,12 @@
       desc: 'Explora Àsia de l\'Orient Mitjà a l\'Extrem Orient amb preguntes variades.',
       region: { preposition: "d'Àsia", gentilic: 'asiàtic', levelLabel: 'Mode lliure' },
       countries: ASIA_COUNTRIES,
-      groupLabels: ASIA_GROUP_LABELS
+      groupLabels: ASIA_GROUP_LABELS,
+      configOptions: {
+        extraModes: [
+          { value: 'map', label: 'Mapa interactiu' }
+        ]
+      }
     })
   ];
 
