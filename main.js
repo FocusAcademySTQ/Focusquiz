@@ -60,6 +60,14 @@ function openAmericaMap(){
   openMapOverlay("Mapa interactiu dels països d'Amèrica", 'geo-america-map.html');
 }
 
+function openAfricaMap(){
+  openMapOverlay("Mapa interactiu dels països d'Àfrica", 'geo-africa-map.html');
+}
+
+function openAsiaMap(){
+  openMapOverlay("Mapa interactiu dels països d'Àsia", 'geo-asia-map.html');
+}
+
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => Array.from(document.querySelectorAll(q));
 const rng = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
@@ -594,6 +602,20 @@ function openConfig(moduleId){
       <div class="controls">
         <a class="btn-secondary" href="geo-america-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
       </div>`;
+  } else if(pendingModule.id === 'geo-africa') {
+    wrap.innerHTML = `
+      <div class="section-title">Recurs interactiu</div>
+      <p class="subtitle">Explora el continent africà identificant ràpidament els seus països al mapa interactiu.</p>
+      <div class="controls">
+        <a class="btn-secondary" href="geo-africa-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
+      </div>`;
+  } else if(pendingModule.id === 'geo-asia') {
+    wrap.innerHTML = `
+      <div class="section-title">Recurs interactiu</div>
+      <p class="subtitle">Practica la localització dels països asiàtics i millora el teu domini geogràfic visual.</p>
+      <div class="controls">
+        <a class="btn-secondary" href="geo-asia-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
+      </div>`;
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -710,6 +732,14 @@ function startFromConfig(){
     }
     if (pendingModule?.id === 'geo-america') {
       openAmericaMap();
+      return;
+    }
+    if (pendingModule?.id === 'geo-africa') {
+      openAfricaMap();
+      return;
+    }
+    if (pendingModule?.id === 'geo-asia') {
+      openAsiaMap();
       return;
     }
   }
