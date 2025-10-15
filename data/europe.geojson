@@ -1,0 +1,1810 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "AL",
+        "name": "Albania",
+        "sovereignt": "Albania",
+        "sovereignt_ct": "Albània"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.7187,
+              40.2275
+            ],
+            [
+              20.9187,
+              40.2275
+            ],
+            [
+              20.9187,
+              42.4275
+            ],
+            [
+              18.7187,
+              42.4275
+            ],
+            [
+              18.7187,
+              40.2275
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "AD",
+        "name": "Andorra",
+        "sovereignt": "Andorra",
+        "sovereignt_ct": "Andorra"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              1.0718,
+              42.0563
+            ],
+            [
+              1.9718,
+              42.0563
+            ],
+            [
+              1.9718,
+              42.956300000000006
+            ],
+            [
+              1.0718,
+              42.956300000000006
+            ],
+            [
+              1.0718,
+              42.0563
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "AM",
+        "name": "Armenia",
+        "sovereignt": "Armenia",
+        "sovereignt_ct": "Armènia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              43.1991,
+              38.879200000000004
+            ],
+            [
+              45.799099999999996,
+              38.879200000000004
+            ],
+            [
+              45.799099999999996,
+              41.4792
+            ],
+            [
+              43.1991,
+              41.4792
+            ],
+            [
+              43.1991,
+              38.879200000000004
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "AT",
+        "name": "Austria",
+        "sovereignt": "Austria",
+        "sovereignt_ct": "Àustria"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              12.9501,
+              45.916199999999996
+            ],
+            [
+              16.150100000000002,
+              45.916199999999996
+            ],
+            [
+              16.150100000000002,
+              49.1162
+            ],
+            [
+              12.9501,
+              49.1162
+            ],
+            [
+              12.9501,
+              45.916199999999996
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "AZ",
+        "name": "Azerbaijan",
+        "sovereignt": "Azerbaijan",
+        "sovereignt_ct": "Azerbaidjan"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              45.9769,
+              38.543099999999995
+            ],
+            [
+              49.1769,
+              38.543099999999995
+            ],
+            [
+              49.1769,
+              41.7431
+            ],
+            [
+              45.9769,
+              41.7431
+            ],
+            [
+              45.9769,
+              38.543099999999995
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "BY",
+        "name": "Belarus",
+        "sovereignt": "Belarus",
+        "sovereignt_ct": "Bielorússia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              25.853399999999997,
+              51.6098
+            ],
+            [
+              30.0534,
+              51.6098
+            ],
+            [
+              30.0534,
+              55.8098
+            ],
+            [
+              25.853399999999997,
+              55.8098
+            ],
+            [
+              25.853399999999997,
+              51.6098
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "BE",
+        "name": "Belgium",
+        "sovereignt": "Belgium",
+        "sovereignt_ct": "Bèlgica"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              3.3017000000000003,
+              49.8003
+            ],
+            [
+              5.4017,
+              49.8003
+            ],
+            [
+              5.4017,
+              51.900299999999994
+            ],
+            [
+              3.3017000000000003,
+              51.900299999999994
+            ],
+            [
+              3.3017000000000003,
+              49.8003
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "BA",
+        "name": "Bosnia and Herzegovina",
+        "sovereignt": "Bosnia and Herzegovina",
+        "sovereignt_ct": "Bòsnia i Hercegovina"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.636000000000003,
+              43.024
+            ],
+            [
+              18.936,
+              43.024
+            ],
+            [
+              18.936,
+              45.324
+            ],
+            [
+              16.636000000000003,
+              45.324
+            ],
+            [
+              16.636000000000003,
+              43.024
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "BG",
+        "name": "Bulgaria",
+        "sovereignt": "Bulgaria",
+        "sovereignt_ct": "Bulgària"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.585800000000003,
+              40.8339
+            ],
+            [
+              27.3858,
+              40.8339
+            ],
+            [
+              27.3858,
+              44.6339
+            ],
+            [
+              23.585800000000003,
+              44.6339
+            ],
+            [
+              23.585800000000003,
+              40.8339
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "HR",
+        "name": "Croatia",
+        "sovereignt": "Croatia",
+        "sovereignt_ct": "Croàcia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.6,
+              43.5
+            ],
+            [
+              16.8,
+              43.5
+            ],
+            [
+              16.8,
+              46.7
+            ],
+            [
+              13.6,
+              46.7
+            ],
+            [
+              13.6,
+              43.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "CY",
+        "name": "Cyprus",
+        "sovereignt": "Cyprus",
+        "sovereignt_ct": "Xipre"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              32.5323,
+              34.3356
+            ],
+            [
+              34.2323,
+              34.3356
+            ],
+            [
+              34.2323,
+              36.0356
+            ],
+            [
+              32.5323,
+              36.0356
+            ],
+            [
+              32.5323,
+              34.3356
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "CZ",
+        "name": "Czechia",
+        "sovereignt": "Czechia",
+        "sovereignt_ct": "Txèquia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.9729,
+              48.3175
+            ],
+            [
+              16.9729,
+              48.3175
+            ],
+            [
+              16.9729,
+              51.3175
+            ],
+            [
+              13.9729,
+              51.3175
+            ],
+            [
+              13.9729,
+              48.3175
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "DK",
+        "name": "Denmark",
+        "sovereignt": "Denmark",
+        "sovereignt_ct": "Dinamarca"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              8.3018,
+              55.0639
+            ],
+            [
+              10.701799999999999,
+              55.0639
+            ],
+            [
+              10.701799999999999,
+              57.4639
+            ],
+            [
+              8.3018,
+              57.4639
+            ],
+            [
+              8.3018,
+              55.0639
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "EE",
+        "name": "Estonia",
+        "sovereignt": "Estonia",
+        "sovereignt_ct": "Estònia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.8636,
+              57.4453
+            ],
+            [
+              26.1636,
+              57.4453
+            ],
+            [
+              26.1636,
+              59.7453
+            ],
+            [
+              23.8636,
+              59.7453
+            ],
+            [
+              23.8636,
+              57.4453
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "FI",
+        "name": "Finland",
+        "sovereignt": "Finland",
+        "sovereignt_ct": "Finlàndia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              22.9982,
+              59.1741
+            ],
+            [
+              28.4982,
+              59.1741
+            ],
+            [
+              28.4982,
+              64.67410000000001
+            ],
+            [
+              22.9982,
+              64.67410000000001
+            ],
+            [
+              22.9982,
+              59.1741
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "FR",
+        "name": "France",
+        "sovereignt": "France",
+        "sovereignt_ct": "França"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -1.0363000000000002,
+              42.9776
+            ],
+            [
+              5.463699999999999,
+              42.9776
+            ],
+            [
+              5.463699999999999,
+              49.4776
+            ],
+            [
+              -1.0363000000000002,
+              49.4776
+            ],
+            [
+              -1.0363000000000002,
+              42.9776
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "GE",
+        "name": "Georgia",
+        "sovereignt": "Georgia",
+        "sovereignt_ct": "Geòrgia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              41.8569,
+              40.8154
+            ],
+            [
+              44.8569,
+              40.8154
+            ],
+            [
+              44.8569,
+              43.8154
+            ],
+            [
+              41.8569,
+              43.8154
+            ],
+            [
+              41.8569,
+              40.8154
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "DE",
+        "name": "Germany",
+        "sovereignt": "Germany",
+        "sovereignt_ct": "Alemanya"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              7.951499999999999,
+              48.6657
+            ],
+            [
+              12.9515,
+              48.6657
+            ],
+            [
+              12.9515,
+              53.6657
+            ],
+            [
+              7.951499999999999,
+              53.6657
+            ],
+            [
+              7.951499999999999,
+              48.6657
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "GR",
+        "name": "Greece",
+        "sovereignt": "Greece",
+        "sovereignt_ct": "Grècia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              19.5743,
+              36.8242
+            ],
+            [
+              24.0743,
+              36.8242
+            ],
+            [
+              24.0743,
+              41.3242
+            ],
+            [
+              19.5743,
+              41.3242
+            ],
+            [
+              19.5743,
+              36.8242
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "HU",
+        "name": "Hungary",
+        "sovereignt": "Hungary",
+        "sovereignt_ct": "Hongria"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.0033,
+              45.6625
+            ],
+            [
+              21.0033,
+              45.6625
+            ],
+            [
+              21.0033,
+              48.6625
+            ],
+            [
+              18.0033,
+              48.6625
+            ],
+            [
+              18.0033,
+              45.6625
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "IS",
+        "name": "Iceland",
+        "sovereignt": "Iceland",
+        "sovereignt_ct": "Islàndia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -22.2708,
+              61.7131
+            ],
+            [
+              -15.770800000000001,
+              61.7131
+            ],
+            [
+              -15.770800000000001,
+              68.2131
+            ],
+            [
+              -22.2708,
+              68.2131
+            ],
+            [
+              -22.2708,
+              61.7131
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "IE",
+        "name": "Ireland",
+        "sovereignt": "Ireland",
+        "sovereignt_ct": "Irlanda"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -9.4921,
+              51.342400000000005
+            ],
+            [
+              -5.8921,
+              51.342400000000005
+            ],
+            [
+              -5.8921,
+              54.9424
+            ],
+            [
+              -9.4921,
+              54.9424
+            ],
+            [
+              -9.4921,
+              51.342400000000005
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "IT",
+        "name": "Italy",
+        "sovereignt": "Italy",
+        "sovereignt_ct": "Itàlia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              9.8674,
+              39.171899999999994
+            ],
+            [
+              15.267399999999999,
+              39.171899999999994
+            ],
+            [
+              15.267399999999999,
+              44.5719
+            ],
+            [
+              9.8674,
+              44.5719
+            ],
+            [
+              9.8674,
+              39.171899999999994
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "XK",
+        "name": "Kosovo",
+        "sovereignt": "Kosovo",
+        "sovereignt_ct": "Kosovo"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              19.9529,
+              41.6526
+            ],
+            [
+              21.852899999999998,
+              41.6526
+            ],
+            [
+              21.852899999999998,
+              43.552600000000005
+            ],
+            [
+              19.9529,
+              43.552600000000005
+            ],
+            [
+              19.9529,
+              41.6526
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "LV",
+        "name": "Latvia",
+        "sovereignt": "Latvia",
+        "sovereignt_ct": "Letònia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              23.3532,
+              55.6296
+            ],
+            [
+              25.8532,
+              55.6296
+            ],
+            [
+              25.8532,
+              58.1296
+            ],
+            [
+              23.3532,
+              58.1296
+            ],
+            [
+              23.3532,
+              55.6296
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "LI",
+        "name": "Liechtenstein",
+        "sovereignt": "Liechtenstein",
+        "sovereignt_ct": "Liechtenstein"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              9.2554,
+              46.866
+            ],
+            [
+              9.855400000000001,
+              46.866
+            ],
+            [
+              9.855400000000001,
+              47.465999999999994
+            ],
+            [
+              9.2554,
+              47.465999999999994
+            ],
+            [
+              9.2554,
+              46.866
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "LT",
+        "name": "Lithuania",
+        "sovereignt": "Lithuania",
+        "sovereignt_ct": "Lituània"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              22.531299999999998,
+              53.8194
+            ],
+            [
+              25.2313,
+              53.8194
+            ],
+            [
+              25.2313,
+              56.519400000000005
+            ],
+            [
+              22.531299999999998,
+              56.519400000000005
+            ],
+            [
+              22.531299999999998,
+              53.8194
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "LU",
+        "name": "Luxembourg",
+        "sovereignt": "Luxembourg",
+        "sovereignt_ct": "Luxemburg"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.6296,
+              49.3153
+            ],
+            [
+              6.6296,
+              49.3153
+            ],
+            [
+              6.6296,
+              50.3153
+            ],
+            [
+              5.6296,
+              50.3153
+            ],
+            [
+              5.6296,
+              49.3153
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "MT",
+        "name": "Malta",
+        "sovereignt": "Malta",
+        "sovereignt_ct": "Malta"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.8254,
+              35.3875
+            ],
+            [
+              14.925400000000002,
+              35.3875
+            ],
+            [
+              14.925400000000002,
+              36.4875
+            ],
+            [
+              13.8254,
+              36.4875
+            ],
+            [
+              13.8254,
+              35.3875
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "MD",
+        "name": "Moldova",
+        "sovereignt": "Moldova",
+        "sovereignt_ct": "Moldàvia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              27.0199,
+              46.0616
+            ],
+            [
+              29.719900000000003,
+              46.0616
+            ],
+            [
+              29.719900000000003,
+              48.7616
+            ],
+            [
+              27.0199,
+              48.7616
+            ],
+            [
+              27.0199,
+              46.0616
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "MC",
+        "name": "Monaco",
+        "sovereignt": "Monaco",
+        "sovereignt_ct": "Mònaco"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              7.2745999999999995,
+              43.5884
+            ],
+            [
+              7.5746,
+              43.5884
+            ],
+            [
+              7.5746,
+              43.8884
+            ],
+            [
+              7.2745999999999995,
+              43.8884
+            ],
+            [
+              7.2745999999999995,
+              43.5884
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "ME",
+        "name": "Montenegro",
+        "sovereignt": "Montenegro",
+        "sovereignt_ct": "Montenegro"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.424400000000002,
+              41.7587
+            ],
+            [
+              20.3244,
+              41.7587
+            ],
+            [
+              20.3244,
+              43.6587
+            ],
+            [
+              18.424400000000002,
+              43.6587
+            ],
+            [
+              18.424400000000002,
+              41.7587
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "NL",
+        "name": "Netherlands",
+        "sovereignt": "Netherlands",
+        "sovereignt_ct": "Països Baixos"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              3.9913,
+              50.8326
+            ],
+            [
+              6.5912999999999995,
+              50.8326
+            ],
+            [
+              6.5912999999999995,
+              53.432599999999994
+            ],
+            [
+              3.9913,
+              53.432599999999994
+            ],
+            [
+              3.9913,
+              50.8326
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "MK",
+        "name": "North Macedonia",
+        "sovereignt": "North Macedonia",
+        "sovereignt_ct": "Macedònia del Nord"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              20.6953,
+              40.558600000000006
+            ],
+            [
+              22.7953,
+              40.558600000000006
+            ],
+            [
+              22.7953,
+              42.6586
+            ],
+            [
+              20.6953,
+              42.6586
+            ],
+            [
+              20.6953,
+              40.558600000000006
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "NO",
+        "name": "Norway",
+        "sovereignt": "Norway",
+        "sovereignt_ct": "Noruega"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              5.3689,
+              57.372
+            ],
+            [
+              11.5689,
+              57.372
+            ],
+            [
+              11.5689,
+              63.572
+            ],
+            [
+              5.3689,
+              63.572
+            ],
+            [
+              5.3689,
+              57.372
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "PL",
+        "name": "Poland",
+        "sovereignt": "Poland",
+        "sovereignt_ct": "Polònia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              16.7451,
+              49.519400000000005
+            ],
+            [
+              21.545099999999998,
+              49.519400000000005
+            ],
+            [
+              21.545099999999998,
+              54.3194
+            ],
+            [
+              16.7451,
+              54.3194
+            ],
+            [
+              16.7451,
+              49.519400000000005
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "PT",
+        "name": "Portugal",
+        "sovereignt": "Portugal",
+        "sovereignt_ct": "Portugal"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -10.024500000000002,
+              37.599900000000005
+            ],
+            [
+              -6.424500000000001,
+              37.599900000000005
+            ],
+            [
+              -6.424500000000001,
+              41.1999
+            ],
+            [
+              -10.024500000000002,
+              41.1999
+            ],
+            [
+              -10.024500000000002,
+              37.599900000000005
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "RO",
+        "name": "Romania",
+        "sovereignt": "Romania",
+        "sovereignt_ct": "Romania"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              22.5668,
+              43.5432
+            ],
+            [
+              27.366799999999998,
+              43.5432
+            ],
+            [
+              27.366799999999998,
+              48.343199999999996
+            ],
+            [
+              22.5668,
+              48.343199999999996
+            ],
+            [
+              22.5668,
+              43.5432
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "RU",
+        "name": "Russia",
+        "sovereignt": "Russia",
+        "sovereignt_ct": "Rússia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              34.0173,
+              52.1558
+            ],
+            [
+              41.2173,
+              52.1558
+            ],
+            [
+              41.2173,
+              59.3558
+            ],
+            [
+              34.0173,
+              59.3558
+            ],
+            [
+              34.0173,
+              52.1558
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "SM",
+        "name": "San Marino",
+        "sovereignt": "San Marino",
+        "sovereignt_ct": "San Marino"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              12.2078,
+              43.6924
+            ],
+            [
+              12.7078,
+              43.6924
+            ],
+            [
+              12.7078,
+              44.1924
+            ],
+            [
+              12.2078,
+              44.1924
+            ],
+            [
+              12.2078,
+              43.6924
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "RS",
+        "name": "Serbia",
+        "sovereignt": "Serbia",
+        "sovereignt_ct": "Sèrbia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              19.2059,
+              42.2165
+            ],
+            [
+              22.8059,
+              42.2165
+            ],
+            [
+              22.8059,
+              45.8165
+            ],
+            [
+              19.2059,
+              45.8165
+            ],
+            [
+              19.2059,
+              42.2165
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "SK",
+        "name": "Slovakia",
+        "sovereignt": "Slovakia",
+        "sovereignt_ct": "Eslovàquia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              18.399,
+              47.369
+            ],
+            [
+              20.999000000000002,
+              47.369
+            ],
+            [
+              20.999000000000002,
+              49.968999999999994
+            ],
+            [
+              18.399,
+              49.968999999999994
+            ],
+            [
+              18.399,
+              47.369
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "SI",
+        "name": "Slovenia",
+        "sovereignt": "Slovenia",
+        "sovereignt_ct": "Eslovènia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              13.9955,
+              45.1512
+            ],
+            [
+              15.9955,
+              45.1512
+            ],
+            [
+              15.9955,
+              47.1512
+            ],
+            [
+              13.9955,
+              47.1512
+            ],
+            [
+              13.9955,
+              45.1512
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "ES",
+        "name": "Spain",
+        "sovereignt": "Spain",
+        "sovereignt_ct": "Espanya"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.8992,
+              37.313700000000004
+            ],
+            [
+              -0.5992000000000002,
+              37.313700000000004
+            ],
+            [
+              -0.5992000000000002,
+              43.6137
+            ],
+            [
+              -6.8992,
+              43.6137
+            ],
+            [
+              -6.8992,
+              37.313700000000004
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "SE",
+        "name": "Sweden",
+        "sovereignt": "Sweden",
+        "sovereignt_ct": "Suècia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              15.7435,
+              57.2282
+            ],
+            [
+              21.543499999999998,
+              57.2282
+            ],
+            [
+              21.543499999999998,
+              63.0282
+            ],
+            [
+              15.7435,
+              63.0282
+            ],
+            [
+              15.7435,
+              57.2282
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "CH",
+        "name": "Switzerland",
+        "sovereignt": "Switzerland",
+        "sovereignt_ct": "Suïssa"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              6.927499999999999,
+              45.5182
+            ],
+            [
+              9.5275,
+              45.5182
+            ],
+            [
+              9.5275,
+              48.118199999999995
+            ],
+            [
+              6.927499999999999,
+              48.118199999999995
+            ],
+            [
+              6.927499999999999,
+              45.5182
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "TR",
+        "name": "Turkey",
+        "sovereignt": "Turkey",
+        "sovereignt_ct": "Turquia"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              29.959699999999998,
+              37.0334
+            ],
+            [
+              35.759699999999995,
+              37.0334
+            ],
+            [
+              35.759699999999995,
+              42.8334
+            ],
+            [
+              29.959699999999998,
+              42.8334
+            ],
+            [
+              29.959699999999998,
+              37.0334
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "UA",
+        "name": "Ukraine",
+        "sovereignt": "Ukraine",
+        "sovereignt_ct": "Ucraïna"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              28.0656,
+              45.279399999999995
+            ],
+            [
+              34.2656,
+              45.279399999999995
+            ],
+            [
+              34.2656,
+              51.4794
+            ],
+            [
+              28.0656,
+              51.4794
+            ],
+            [
+              28.0656,
+              45.279399999999995
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "GB",
+        "name": "United Kingdom",
+        "sovereignt": "United Kingdom",
+        "sovereignt_ct": "Regne Unit"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -6.336,
+              52.478100000000005
+            ],
+            [
+              -0.536,
+              52.478100000000005
+            ],
+            [
+              -0.536,
+              58.2781
+            ],
+            [
+              -6.336,
+              58.2781
+            ],
+            [
+              -6.336,
+              52.478100000000005
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iso_a2": "VA",
+        "name": "Vatican City",
+        "sovereignt": "Vatican City",
+        "sovereignt_ct": "Vaticà"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              12.3284,
+              41.7779
+            ],
+            [
+              12.5784,
+              41.7779
+            ],
+            [
+              12.5784,
+              42.0279
+            ],
+            [
+              12.3284,
+              42.0279
+            ],
+            [
+              12.3284,
+              41.7779
+            ]
+          ]
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "note": "Synthetic simplified polygons centered on each country's approximate centroid.",
+    "projection": "WGS84",
+    "credits": "Focus Academy (demo dataset)"
+  }
+}

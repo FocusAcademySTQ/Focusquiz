@@ -2290,7 +2290,12 @@
       desc: 'Descobreix països, capitals, banderes i fronteres europees.',
       region: { preposition: "d'Europa", gentilic: 'europeu', levelLabel: 'Mode lliure' },
       countries: EUROPE_COUNTRIES,
-      groupLabels: EUROPE_GROUP_LABELS
+      groupLabels: EUROPE_GROUP_LABELS,
+      configOptions: {
+        extraModes: [
+          { value: 'map', label: 'Mapa interactiu' }
+        ]
+      }
     }),
     createGeoModule({
       id: 'geo-america',
