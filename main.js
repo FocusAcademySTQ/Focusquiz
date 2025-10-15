@@ -534,6 +534,13 @@ function openConfig(moduleId){
   </label>
 </div>
 `;
+  } else if(pendingModule.id === 'geo-europe') {
+    wrap.innerHTML = `
+      <div class="section-title">Recurs interactiu</div>
+      <p class="subtitle">Complementa el qüestionari amb un mapa on pots practicar la localització dels països en directe.</p>
+      <div class="controls">
+        <a class="btn-secondary" href="geo-europe-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
+      </div>`;
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
