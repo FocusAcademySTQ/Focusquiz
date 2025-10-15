@@ -1,61 +1,113 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mapa interactiu de països d'Europa · Focus Academy</title>
-  <meta name="description" content="Joc interactiu per localitzar països d'Europa en un mapa." />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="css/geo-map.css" />
+<meta charset="utf-8">
+<title>Mapa d'Europa · Joc de països</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html,body{margin:0;height:100%;font-family:system-ui;background:#f8fafc}
+  #map{height:100%;width:100%}
+  #hud{
+    position:fixed;top:10px;left:50%;transform:translateX(-50%);
+    background:white;padding:10px 16px;border-radius:12px;
+    display:flex;gap:16px;align-items:center;
+    box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:1000
+  }
+  .pill{padding:4px 10px;border-radius:999px;font-weight:600}
+  .ok{background:#dcfce7}.ko{background:#fee2e2}
+  button{border:0;border-radius:8px;background:#e2e8f0;padding:8px 10px;cursor:pointer}
+</style>
 </head>
 <body>
-  <header class="map-header">
-    <a class="back-link" href="index.html">← Torna a Focus Academy</a>
-    <div>
-      <h1>Mapa interactiu: països d'Europa</h1>
-      <p>Fes clic al país correcte per respondre les preguntes i aprèn la geografia europea d'una manera lúdica.</p>
-    </div>
-  </header>
+<div id="hud">
+  <div><b>Troba:</b> <span id="ask">—</span></div>
+  <div class="pill ok">✅ <span id="good">0</span></div>
+  <div class="pill ko">❌ <span id="bad">0</span></div>
+  <button id="again">🔄 Torna a començar</button>
+</div>
+<div id="map"></div>
 
-  <main class="map-main">
-    <section class="hud" aria-live="polite">
-      <div class="hud-group">
-        <span class="hud-label">País a localitzar</span>
-        <div id="question">Carregant països...</div>
-      </div>
-      <div class="hud-group" aria-live="polite" aria-atomic="true">
-        <span class="hud-label">Marcador</span>
-        <div class="scoreline">✅ <span id="score-correct">0</span> · ❌ <span id="score-incorrect">0</span></div>
-      </div>
-      <div class="hud-group actions">
-        <button id="restartBtn" class="btn-primary" type="button">Torna a començar</button>
-        <button id="showHelpBtn" class="btn-secondary" type="button">Ajuda</button>
-      </div>
-    </section>
+<script>
+const map=L.map('map',{preferCanvas:true}).setView([54,15],4);
+L.tileLayer('https://cartodb-basemaps-a.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png',{
+  maxZoom:8, attribution:'© OpenStreetMap · © CartoDB'
+}).addTo(map);
 
-    <section class="map-shell">
-      <div id="map" role="application" aria-label="Mapa interactiu dels països d'Europa"></div>
-      <div class="legend" aria-hidden="true">
-        <div class="legend-row"><span class="legend-swatch legend-swatch--pending"></span> Països pendents (contorn)</div>
-        <div class="legend-row"><span class="legend-swatch" style="background:#22c55e"></span> Resposta correcta</div>
-        <div class="legend-row"><span class="legend-swatch" style="background:#ef4444"></span> Resposta errònia</div>
-      </div>
-    </section>
-    <div id="feedback" class="feedback" role="status" aria-live="assertive"></div>
-  </main>
+const base={color:'#1e293b',weight:1.2,fillColor:'#bfdbfe',fillOpacity:0.55};
+const hover={weight:2,fillOpacity:0.75};
+const ok={fillColor:'#22c55e',fillOpacity:0.8};
+const ko={fillColor:'#ef4444',fillOpacity:0.8};
 
-  <dialog id="helpDialog">
-    <form method="dialog">
-      <h2>Com funciona el joc?</h2>
-      <p>El mapa selecciona un país d'Europa de forma aleatòria. Llegeix el nom que apareix a la capçalera i fes clic sobre el país corresponent. Si l'encertes, es marcarà en verd. Si t'equivoques, veuràs el país correcte en verd i el que has clicat en vermell. Pots utilitzar el zoom i desplaçar el mapa lliurement.</p>
-      <p>Pots repetir la partida tantes vegades com vulguis amb el botó «Torna a començar».</p>
-      <menu>
-        <button value="cancel">Tanca</button>
-      </menu>
-    </form>
-  </dialog>
+let capa,features=[],objectiu=null,okCount=0,koCount=0;
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script type="module" src="js/europe-map.js"></script>
+const trad = {"Germany":"Alemanya","France":"França","Spain":"Espanya","Italy":"Itàlia","Portugal":"Portugal",
+"Austria":"Àustria","Belgium":"Bèlgica","Netherlands":"Països Baixos","Switzerland":"Suïssa",
+"Poland":"Polònia","Czech Republic":"República Txeca","Slovakia":"Eslovàquia","Slovenia":"Eslovènia",
+"Hungary":"Hongria","Romania":"Romania","Bulgaria":"Bulgària","Greece":"Grècia","Croatia":"Croàcia",
+"Serbia":"Sèrbia","Bosnia and Herz.":"Bòsnia i Hercegovina","Norway":"Noruega","Sweden":"Suècia",
+"Finland":"Finlàndia","Denmark":"Dinamarca","Iceland":"Islàndia","Ireland":"Irlanda",
+"United Kingdom":"Regne Unit","Estonia":"Estònia","Latvia":"Letònia","Lithuania":"Lituània",
+"Ukraine":"Ucraïna","Belarus":"Bielorússia","Moldova":"Moldàvia","Andorra":"Andorra","Luxembourg":"Luxemburg",
+"Monaco":"Mònaco","San Marino":"San Marino","Malta":"Malta","Vatican":"Vaticà","Liechtenstein":"Liechtenstein",
+"Albania":"Albània","North Macedonia":"Macedònia del Nord","Montenegro":"Montenegro","Kosovo":"Kosovo",
+"Turkey":"Turquia","Georgia":"Geòrgia","Armenia":"Armènia","Azerbaijan":"Azerbaidjan"};
+
+function toCA(n){return trad[n]||n;}
+function actualitzarMarcador(){
+  document.getElementById('good').textContent=okCount;
+  document.getElementById('bad').textContent=koCount;
+}
+function nouObjectiu(){
+  if(features.length===0)return;
+  objectiu=features[Math.floor(Math.random()*features.length)];
+  document.getElementById('ask').textContent=toCA(objectiu.properties.name);
+}
+
+fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
+.then(r=>r.json())
+.then(world=>{
+  // Filtra Europa
+  world.features=world.features.filter(f=>{
+    const b=L.geoJSON(f).getBounds();
+    const c=b.getCenter();
+    return c.lat>34 && c.lat<72 && c.lng>-25 && c.lng<45;
+  });
+  features=world.features;
+
+  capa=L.geoJSON(world,{
+    style:base,
+    onEachFeature:(f,l)=>{
+      l.on('mouseover',()=>l.setStyle(hover));
+      l.on('mouseout',()=>capa.resetStyle(l));
+      l.on('click',()=>{
+        if(!objectiu)return;
+        if(f.properties.name===objectiu.properties.name){
+          l.setStyle(ok); okCount++;
+        }else{
+          l.setStyle(ko); koCount++;
+        }
+        actualitzarMarcador();
+        nouObjectiu();
+      });
+    }
+  }).addTo(map);
+
+  map.fitBounds(capa.getBounds());
+  // Mostra el primer país un cop la capa està al mapa
+  capa.once('load',nouObjectiu);
+  // O per seguretat després d’un breu retard
+  setTimeout(()=>nouObjectiu(),1000);
+})
+.catch(e=>alert("Error en carregar el mapa: "+e));
+
+document.getElementById('again').onclick=()=>{
+  okCount=koCount=0;
+  actualitzarMarcador();
+  capa.eachLayer(l=>capa.resetStyle(l));
+  nouObjectiu();
+};
+</script>
 </body>
 </html>
