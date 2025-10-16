@@ -367,6 +367,9 @@ main{padding: 28px 0 60px}
 
 .grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px}
 @media (max-width: 560px){ .grid{grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));} }
+.grid.grid--math{grid-template-columns: repeat(3, minmax(220px, 1fr));}
+@media (max-width: 900px){ .grid.grid--math{grid-template-columns: repeat(2, minmax(200px, 1fr));} }
+@media (max-width: 560px){ .grid.grid--math{grid-template-columns: 1fr;} }
 
 /* Targetes mòduls amb accents pastel alterns */
 .option{
@@ -535,6 +538,32 @@ a.btn-secondary{
 .q .meta{color:var(--muted); font-size:.95rem}
 .answer-row{display:flex; gap:10px; align-items:center}
 .answer{flex:1; font-size:1.2rem}
+.quiz.coord-mode .answer-row{flex-wrap:wrap; gap:12px}
+.coord-answer{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:#f1f5f9;
+  border:1px solid #d0dbe8;
+  border-radius:14px;
+  padding:6px 12px;
+  font-size:1.2rem;
+  font-weight:600;
+  color:#0f172a;
+}
+.coord-answer .coord-token{font-size:1.2rem; line-height:1}
+.coord-answer .coord-number{
+  width:78px;
+  padding:8px 10px;
+  border:1px solid #cbd5e1;
+  border-radius:10px;
+  font-size:1.1rem;
+  text-align:center;
+  background:#ffffff;
+  font-variant-numeric:tabular-nums;
+}
+.coord-answer .coord-number:focus{outline:2px solid #38bdf8; outline-offset:2px; border-color:#38bdf8}
+.quiz.coord-mode #answer{display:none !important}
 
 .kbd{
   display:inline-grid; place-items:center; min-width:46px; height:46px; border-radius:12px;

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FocusQuiz · Càpsula · Suma de fraccions (denominadors diferents)</title>
+  <meta name="description" content="Càpsula visual i seqüencial: objectiu → introducció → explicació visual → pràctica guiada → joc → resum. Exemple base 1/2 + 1/3 amb transformació a sisens i suma final." />
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
+      --brand:#8ec5ff;--brand2:#a7f3d0;--brand3:#fbcfe8;--ok:#10b981;--bad:#ef4444;--warn:#f59e0b;
+      --shadow:0 10px 30px rgba(2,8,23,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg);
+      background-image:linear-gradient(transparent 23px,var(--line) 24px),linear-gradient(90deg,transparent 23px,var(--line) 24px);
+      background-size:24px 24px,24px 24px}
+    section{max-width:980px;margin:0 auto;padding:16px;display:grid;gap:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+    h1,h2{margin:6px 0 10px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;background:linear-gradient(135deg,var(--brand),var(--brand3));color:#0b1220;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(2,8,23,.08);transition:.2s transform}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .btn:hover{transform:translateY(-1px)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .frac{display:inline-grid;grid-template-rows:auto auto;line-height:1}
+    .frac>i{height:2px;background:#111827;border-radius:2px;margin:2px 0}
+    .input{padding:10px 12px;border:1px solid var(--line);border-radius:10px;width:110px}
+    .ok{color:var(--ok)} .bad{color:var(--bad)}
+    .hidden{display:none}
+    .fade{opacity:0;transform:translateY(6px);animation:fade .4s forwards}
+    @keyframes fade{to{opacity:1;transform:none}}
+    .progress{height:8px;background:var(--line);border-radius:999px;overflow:hidden}
+    .bar{height:8px;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.3s width}
+    svg{max-width:100%;height:auto}
+    .mini{font-size:.95rem}
+    .pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted)}
+    .list{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+  </style>
+</head>
+<body>
+  <section id="capsule">
+    <!-- 1) Objectiu didàctic -->
+    <article class="card" id="blk-1">
+      <h1>🎯 Objectiu didàctic</h1>
+      <p>Aprendre a <b>sumar fraccions amb denominadors diferents</b> mitjançant un itinerari visual i seqüencial: <b>MCM</b> → <b>equivalències</b> → <b>suma</b> → <b>simplificació</b>.</p>
+      <button class="btn" id="start">Comença</button>
+    </article>
+
+    <!-- 2) Introducció visual: 1/2 + 1/3 → apareixen 3/6 i 2/6 → suma 5/6 -->
+    <article class="card hidden" id="blk-2">
+      <h2>🔹 Introducció visual</h2>
+      <p class="muted">Primer veiem les fraccions originals. Després, les convertim a <b>sisens</b> (MCM=6) i finalment fem la <b>suma</b>.</p>
+      <div id="viz" class="fade"></div>
+      <div class="row" style="justify-content:space-between;margin-top:8px">
+        <span class="pill">Exemple: <span class="frac"><b>1</b><i></i><b>2</b></span> + <span class="frac"><b>1</b><i></i><b>3</b></span></span>
+        <div class="row">
+          <button class="btn" id="btnShowMCM">Mostra el MCM i transforma</button>
+          <button class="btn" id="btnShowSum" disabled>Mostra la suma</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- 3) Explicació guiada amb visuals -->
+    <article class="card hidden" id="blk-3">
+      <h2>🧠 Explicació guiada</h2>
+      <div class="progress" style="margin:6px 0 10px"><div class="bar" id="bar"></div></div>
+      <ol id="guide" class="fade" style="margin:0 0 0 18px"></ol>
+      <button class="btn" id="nextStep">Següent pas</button>
+    </article>
+
+    <!-- 4) Pràctica guiada clara (pas a pas) -->
+    <article class="card hidden" id="blk-4">
+      <h2>✏️ Pràctica guiada</h2>
+      <p class="muted">Completa cada pas. Quan el facis bé, s'obrirà el següent.</p>
+
+      <!-- Pas 1: MCM -->
+      <div id="p1" class="fade">
+        <h3 class="mini">Pas 1 · Troba el MCM (denominadors 2 i 3)</h3>
+        <div class="row">
+          <input id="mcm" class="input" placeholder="Escriu el MCM" />
+          <button class="btn" id="mcmChk">Comprova</button>
+          <span id="mcmMsg" class="muted"></span>
+        </div>
+        <div class="muted mini" style="margin-top:6px">Pista: múltiples de 2 → 2,4,6,8…  ·  múltiples de 3 → 3,6,9…</div>
+      </div>
+
+      <!-- Pas 2: Equivalències -->
+      <div id="p2" class="hidden">
+        <h3 class="mini">Pas 2 · Converteix a sisens</h3>
+        <div class="row list">
+          <div><span class="frac"><b>1</b><i></i><b>2</b></span> → </div>
+          <div class="row">
+            <input id="a2n" class="input" placeholder="numerador" />
+            <span class="frac"><b>&nbsp;</b><i></i><b>6</b></span>
+          </div>
+          <span id="eqMsg1" class="muted"></span>
+        </div>
+        <div class="row list">
+          <div><span class="frac"><b>1</b><i></i><b>3</b></span> → </div>
+          <div class="row">
+            <input id="c2n" class="input" placeholder="numerador" />
+            <span class="frac"><b>&nbsp;</b><i></i><b>6</b></span>
+          </div>
+          <span id="eqMsg2" class="muted"></span>
+        </div>
+        <div class="row" style="margin-top:6px"><button class="btn" id="eqChk">Comprova</button><span id="eqMsg" class="muted"></span></div>
+      </div>
+
+      <!-- Pas 3: Suma -->
+      <div id="p3" class="hidden">
+        <h3 class="mini">Pas 3 · Fes la suma</h3>
+        <div class="row">
+          <span class="frac"><b id="showA2">3</b><i></i><b>6</b></span>
+          <span> + </span>
+          <span class="frac"><b id="showC2">2</b><i></i><b>6</b></span>
+          <span> = </span>
+          <div class="frac"><b><input id="sumN" class="input" placeholder="numerador" /></b><i></i><b><input id="sumD" class="input" value="6" readonly /></b></div>
+          <button class="btn" id="sumChk">Comprova</button>
+          <span id="sumMsg" class="muted"></span>
+        </div>
+      </div>
+
+      <!-- Pas 4: Resultat i simplificació -->
+      <div id="p4" class="hidden">
+        <h3 class="mini">Pas 4 · Resultat final</h3>
+        <div class="row">
+          <span class="pill">Resultat: <span class="frac"><b id="resN">5</b><i></i><b id="resD">6</b></span></span>
+          <span class="ok" id="simpMsg">Ja està simplificat ✅</span>
+        </div>
+        <div class="row" style="margin-top:8px"><button class="btn" id="toGame">Anar al joc</button></div>
+      </div>
+    </article>
+
+    <!-- 5) Joc curt -->
+    <article class="card hidden" id="blk-5">
+      <h2>🎮 Joc interactiu</h2>
+      <div id="game" class="fade"></div>
+    </article>
+
+    <!-- 6) Resum -->
+    <article class="card hidden" id="blk-6">
+      <h2>📘 Resum</h2>
+      <ul>
+        <li>Troba el <b>MCM</b> dels denominadors.</li>
+        <li>Converteix les fraccions al denominador comú.</li>
+        <li><b>Suma</b> els numeradors; el denominador es manté.</li>
+        <li><b>Simplifica</b> si cal.</li>
+      </ul>
+      <button class="btn" id="restart">Torna a començar</button>
+    </article>
+  </section>
+
+  <script>
+    // ——— Utilitats visuals ———
+    const $=id=>document.getElementById(id);
+    const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+
+    function drawPie(cx,cy,r,parts,fill,color){
+      let out='';const tau=Math.PI*2,off=-Math.PI/2;
+      for(let i=0;i<parts;i++){
+        const a0=off+i*(tau/parts),a1=off+(i+1)*(tau/parts);
+        const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+        const large=(a1-a0)>Math.PI?1:0;
+        const p=`M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`;
+        out+=`<path d="${p}" fill="${i<fill?color:'#e5e7eb'}" stroke="#94a3b8"/>`;
+      }
+      return out;
+    }
+
+    // ——— 1) Flux seqüencial ———
+    const order=['blk-1','blk-2','blk-3','blk-4','blk-5','blk-6'];
+    function openNext(currId){
+      const i=order.indexOf(currId); if(i>-1 && i<order.length-1){
+        const nextId=order[i+1]; $(nextId).classList.remove('hidden');
+        $(nextId).scrollIntoView({behavior:'smooth',block:'start'});
+      }
+    }
+
+    // ——— 2) Introducció visual ———
+    function renderIntro(){
+      // Primer: mostrem només 1/2 i 1/3 a dalt
+      const svg=`<svg viewBox="0 0 820 240">
+        <g>
+          ${drawPie(150,90,70,2,1,'#93c5fd')}<text x="150" y="190" text-anchor="middle" fill="#334155">1/2</text>
+        </g>
+        <g>
+          ${drawPie(390,90,70,3,1,'#fbcfe8')}<text x="390" y="190" text-anchor="middle" fill="#334155">1/3</text>
+        </g>
+        <text x="270" y="100" font-size="26" text-anchor="middle" fill="#0f172a">+</text>
+        <!-- zona inferior preparada per a la transformació i la suma -->
+        <g id="zone2"></g>
+      </svg>`;
+      $('viz').innerHTML=svg;
+    }
+
+    function showMCM(){
+      // A sota apareixen 3/6 i 2/6
+      const zone=`
+        <g>
+          ${drawPie(150,160,60,6,3,'#a7f3d0')}<text x="150" y="230" text-anchor="middle" fill="#0f172a">3/6</text>
+        </g>
+        <g>
+          ${drawPie(390,160,60,6,2,'#c7d2fe')}<text x="390" y="230" text-anchor="middle" fill="#0f172a">2/6</text>
+        </g>
+      `;
+      const doc=$('viz').querySelector('#zone2');
+      doc.innerHTML=zone;
+      $('btnShowSum').disabled=false;
+    }
+
+    function showSum(){
+      // A la dreta apareix la suma final 5/6
+      const sum=`
+        <g>
+          ${drawPie(650,160,70,6,5,'#fde68a')}<text x="650" y="230" text-anchor="middle" fill="#0f172a">3/6 + 2/6 = 5/6</text>
+        </g>`;
+      const doc=$('viz').querySelector('#zone2');
+      doc.innerHTML+=sum;
+      // Quan es veu la suma, obrim la següent secció
+      openNext('blk-2');
+    }
+
+    // ——— 3) Explicació guiada amb visuals ———
+    const guideItems=[
+      {html:`<b>Pas 1</b> · Denominadors: 2 i 3 → <b>MCM = 6</b>`, visual:`<div class="mini muted">Múltiples: 2→2,4,<b>6</b>,8… · 3→3,<b>6</b>,9…</div>`},
+      {html:`<b>Pas 2</b> · Equivalències: 1/2 → <b>3/6</b> i 1/3 → <b>2/6</b>`, visual:`<div class="mini">1/2 <span class="muted">×3</span> → 3/6 &nbsp; · &nbsp; 1/3 <span class="muted">×2</span> → 2/6</div>`},
+      {html:`<b>Pas 3</b> · Suma: 3/6 + 2/6 = <b>5/6</b>`, visual:`<div class="mini">Només <b>suma el numerador</b>; el denominador es manté (6).</div>`},
+      {html:`<b>Pas 4</b> · Simplificació`, visual:`<div class="mini">MCD(5,6)=1 → ja està simplificat ✅</div>`},
+    ];
+    let gIndex=0; const bar=$('bar');
+    function addGuideStep(){
+      if(gIndex>=guideItems.length){ $('nextStep').disabled=true; openNext('blk-3'); return }
+      const li=document.createElement('li'); li.className='fade'; li.innerHTML=guideItems[gIndex].html + guideItems[gIndex].visual; $('guide').appendChild(li);
+      gIndex++; bar.style.width=(gIndex/guideItems.length*100)+'%';
+    }
+
+    // ——— 4) Pràctica guiada (clara) ———
+    function checkMCM(){
+      const v=$('mcm').value.trim(); const ok=(v==='6');
+      $('mcmMsg').innerHTML= ok?'<span class="ok">Correcte! El MCM és 6.</span>':'<span class="bad">No és el MCM. Prova amb 6.</span>';
+      if(ok){ $('p2').classList.remove('hidden'); $('p2').classList.add('fade'); }
+    }
+    function checkEq(){
+      const a2=$('a2n').value.trim(), c2=$('c2n').value.trim();
+      const ok1=(a2==='3'), ok2=(c2==='2');
+      $('eqMsg1').innerHTML = ok1?'<span class="ok">1/2 = 3/6</span>':'<span class="bad">Recorda: 1/2 × 3 = 3/6</span>';
+      $('eqMsg2').innerHTML = ok2?'<span class="ok">1/3 = 2/6</span>':'<span class="bad">Recorda: 1/3 × 2 = 2/6</span>';
+      if(ok1 && ok2){ $('eqMsg').innerHTML='<span class="ok">Perfecte! Ara suma.</span>'; $('p3').classList.remove('hidden'); $('p3').classList.add('fade'); $('showA2').textContent='3'; $('showC2').textContent='2'; }
+    }
+    function checkSum(){
+      const n=$('sumN').value.trim(), d=$('sumD').value.trim();
+      const ok=(n==='5' && d==='6');
+      $('sumMsg').innerHTML= ok?'<span class="ok">Correcte: 5/6.</span>':'<span class="bad">Revisa: 3+2=5 i el denominador es manté (6).</span>';
+      if(ok){ $('p4').classList.remove('hidden'); $('p4').classList.add('fade'); }
+    }
+
+    // ——— 5) Joc senzill ———
+    function renderGame(){
+      $('game').innerHTML=`
+        <p>Resol: <span class="frac"><b>2</b><i></i><b>5</b></span> + <span class="frac"><b>1</b><i></i><b>10</b></span></p>
+        <div class="row">
+          <button class="btn" data-a>3/10</button>
+          <button class="btn" data-b>1/2</button>
+          <button class="btn" data-c>7/10</button>
+        </div>
+        <p id="gMsg" class="muted"></p>`;
+      $('game').querySelector('[data-a]').onclick=()=>{$('gMsg').innerHTML='<span class="bad">No: cal MCM(5,10)=10.</span>'}
+      $('game').querySelector('[data-b]').onclick=()=>{$('gMsg').innerHTML='<span class="ok">Correcte! 2/5=4/10 → 4/10+1/10=5/10=1/2 ✅</span>'; openNext('blk-5');}
+      $('game').querySelector('[data-c]').onclick=()=>{$('gMsg').innerHTML='<span class="bad">No: 4/10+1/10 no dona 7/10.</span>'}
+    }
+
+    // ——— 6) Esdeveniments ———
+    $('start').addEventListener('click',()=>{ $('blk-2').classList.remove('hidden'); $('blk-2').classList.add('fade'); renderIntro(); });
+    $('btnShowMCM').addEventListener('click',showMCM);
+    $('btnShowSum').addEventListener('click',showSum);
+
+    $('nextStep').addEventListener('click',addGuideStep);
+
+    $('mcmChk').addEventListener('click',checkMCM);
+    $('eqChk').addEventListener('click',checkEq);
+    $('sumChk').addEventListener('click',checkSum);
+
+    $('toGame').addEventListener('click',()=>{ $('blk-5').classList.remove('hidden'); $('blk-5').classList.add('fade'); renderGame(); });
+
+    $('restart').addEventListener('click',()=>{ location.reload(); });
+  </script>
+</body>
+</html>
