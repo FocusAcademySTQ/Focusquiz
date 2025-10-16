@@ -98,8 +98,171 @@
       <span class="learning-pill">Entrar →</span>
     </a>
 
+    <section class="panel card codex-brief" aria-labelledby="codex-brief-title">
+      <header class="codex-brief__header">
+        <p class="pill codex-brief__pill">🆕 Recursos per desenvolupament</p>
+        <h2 class="title" id="codex-brief-title">Brief per generar el mòdul de flashcards</h2>
+        <p class="subtitle">Copia i enganxa aquest redactat a Codex per crear l'espai de flashcards amb repetició espaiada.</p>
+      </header>
+      <pre id="codexBrief" class="brief-block" aria-label="Brief per a Codex"></pre>
+    </section>
+
+    <script type="text/plain" id="codexBriefSource">
+Genial! Aquí tens un **redactat llest per enganxar a Codex** i que et generi el **feature de flashcards** en un únic fitxer HTML, sense dependències externes, amb repetició espaiada bàsica i memòria local.
+(Copia-ho tal qual.)
+
+---
+
+# 🔧 BRIEF PER A CODEX — “Feature de Flashcards d’Estudi”
+
+**Objectiu:** Construir un mòdul de *flashcards* per a una web educativa (estil FocusQuiz) que funcioni **en un únic fitxer** `flashcards.html` amb **HTML + CSS + JS pur** (cap framework ni CDN). Ha de ser **responsive**, **accessible** (ARIA/teclat) i **llest per executar** només obrint l’arxiu al navegador.
+
+## 1) Requisits funcionals
+
+* Vista principal amb **una targeta centrada**.
+* **Anvers (front)** mostra una *pregunta/terme*; **revers (back)** mostra la *resposta*.
+* Botons:
+
+  * **Mostra resposta / Gira targeta** (toggle).
+  * **No ho sabia** (👎) i **Ho sabia** (👍) per autoavaluació.
+  * **Següent** (si ja s’ha valorat la targeta).
+* **Repetició espaiada simple**: targetes marcades com “No ho sabia” han d’aparèixer amb més freqüència fins que rebin “Ho sabia” diverses vegades. Implementar una versió simplificada d’SM-2:
+
+  * Mantén per targeta: `repetitions`, `interval`, `ease` (inicial 2.5).
+  * Si “Ho sabia”: incrementa `repetitions`; `ease = max(1.3, ease + 0.1)`; `interval` creix (1 → 2 → 5 → 10, … segons `ease`).
+  * Si “No ho sabia”: `repetitions = 0`; `interval = 1`; `ease = max(1.3, ease - 0.2)`.
+  * L’algorisme només s’utilitza per **prioritzar la següent targeta** en el *pool* actual (no cal calendari real; és una sessió curta).
+* **Progrés**: mostra (ex. a la capçalera o sota la targeta):
+
+  * Targetes vistes / totals
+  * % aproximat d’aprenentatge (p. ex. % de targetes amb `repetitions ≥ 2`)
+* **Creador bàsic de targetes** en modal/side-panel: formulari amb *Front* i *Back* + selector de **Col·lecció** (crea i tria col·leccions locals).
+
+  * Accions: Afegir, Editar, Esborrar.
+* **Gestor de col·leccions**: *dropdown* per escollir col·lecció; mostra número de targetes.
+* **Cercador** (live) per filtrar targetes per text (front/back).
+* **Memòria local** (LocalStorage):
+
+  * Guarda col·leccions i targetes.
+  * Guarda els paràmetres d’aprenentatge per targeta (`repetitions`, `interval`, `ease`).
+  * Guarda l’última col·lecció seleccionada i estat de sessió.
+* **Teclat & Accessibilitat**:
+
+  * Barra espaiadora o **F**: flip.
+  * Fletxa esquerra (**←**) = No ho sabia; Fletxa dreta (**→**) = Ho sabia.
+  * **Enter** = Següent (si escau).
+  * ARIA roles i `aria-live` per a missatges de feedback.
+* **Idiomes**: prepara estructura simple per I18N (objecte `strings` amb cadenes en ca/és). Mostra per defecte **ca**.
+
+## 2) Disseny i UX
+
+* **Paleta suau** (tons pastel), fons clar, targeta amb **ombra suau** i **border-radius**. No utilitzar frameworks CSS.
+* **Animació de gir** 3D suau (CSS `transform: rotateY()`), amb *preserve-3d* i *backface-visibility*.
+* Tipografia sans-serif, mides grans i contrast AA.
+* Layout:
+
+  * **Header**: Títol “Flashcards”, selector de col·lecció, camp de cerca, contador de progrés.
+  * **Card area**: targeta centrada + controls a sota.
+  * **Footer**: botó “+ Nova targeta” → obre modal de creació/edició.
+* **Mode fosc** opcional amb toggle (recordar preferència a LocalStorage).
+
+## 3) Dades i estructura
+
+* Incrusta una **col·lecció d’exemple** (JSON inline) amb 10–15 targetes (tema científic o matemàtic) perquè el fitxer funcioni sense res més.
+* Estructura de targeta:
+
+  ```json
+  {
+    "id": "uuid",
+    "front": "text o markup simple",
+    "back": "text o markup simple",
+    "collection": "Nom",
+    "spaced": { "repetitions": 0, "interval": 1, "ease": 2.5 }
+  }
+  ```
+* Si LocalStorage és buit en primera execució, **seeden** la col·lecció d’exemple.
+
+## 4) Lògica de sessió
+
+* Mantén un **pool** de targetes filtrades per col·lecció i cerca.
+* Quan l’usuari valora, **actualitza `spaced`** i **tria la següent** amb una funció `pickNextCard(pool)` que:
+
+  * Dona prioritat a targetes amb `repetitions` baixes, `interval` curt i “No ho sabia” recent.
+  * Desempata aleatòriament per evitar monotonia.
+* Evita repetir la mateixa targeta dues vegades seguides si és possible.
+* Quan el pool queda buit (filtre massa restrictiu), mostra missatge i botó per **reiniciar filtre**.
+
+## 5) Persistència
+
+* Claus de LocalStorage (prefix `fq_flashcards_*`):
+
+  * `fq_flashcards_collections` (array de col·leccions)
+  * `fq_flashcards_cards` (array de targetes)
+  * `fq_flashcards_prefs` (mode fosc, idioma, última col·lecció, etc.)
+
+## 6) Accessibilitat
+
+* Tots els botons amb `aria-label`.
+* `role="button"` on pertoqui, `tabindex="0"` per elements clicables.
+* Missatges de feedback amb `aria-live="polite"`.
+* Focus visible i ordre de tabulació coherent.
+
+## 7) Rendiment i qualitat
+
+* **Cap dependència externa**. Un sol fitxer `.html`.
+* JS modular intern (IIFE o mòduls dins del mateix fitxer).
+* Evitar *layout thrashing*. Usar *delegation* per events si cal.
+* Comentaris clars a les funcions clau: `flipCard`, `grade(known:boolean)`, `pickNextCard`, `saveState`, `loadState`.
+
+## 8) Tests manuals (acceptació)
+
+Implementa un petit panell “**Diagnòstic**” ocult (toggle a footer) que mostri:
+
+* Comptatge de targetes per col·lecció i per filtre.
+* Estadístiques del pool (mitjana d’`ease`, distribució d’`repetitions`).
+* Botó “Reset LocalStorage” (amb confirmació).
+
+**Casos a verificar (ha de passar):**
+
+1. Obrir el fitxer → es veu col·lecció d’exemple i primera targeta.
+2. Premre **Espai** gira la targeta; **←/→** registren No/Sí; el progrés s’actualitza.
+3. Afegir una targeta nova i apareix a la col·lecció actual.
+4. Filtrar per text redueix el pool; netejar el filtre el restaura.
+5. Tancar i reobrir conserva progrés, preferències i col·lecció.
+6. Mode fosc persistent.
+7. Navegació només amb teclat funciona i focus és visible.
+
+## 9) Contingut d’exemple (inclou al fitxer)
+
+Crea col·lecció “**MHS (1r Batx)**” amb ~12 targetes, p. ex.:
+
+* Front: “Fórmula posició MHS”; Back: `x = A·cos(ωt + φ)`
+* Front: “Relació ω i T”; Back: `ω = 2π/T`
+* Front: “Energia total en MHS”; Back: “Constant, E = (1/2)kA²”
+  (Afegir també 1–2 targetes amb imatge simple en `<svg>` o `<code>` breu si vols, però sense dependències.)
+
+## 10) Lliurament
+
+* **Un únic fitxer** `flashcards.html` amb:
+
+  * `<style>` (CSS)
+  * `<script>` (JS)
+  * HTML semantic estructurat
+* Codi **comentat**, net i **llest per executar**.
+* **No facis cap pregunta addicional**. Genera directament el codi complet.
+
+---
+
+> **IMPORTANT**: No utilitzis frameworks, ni importacions, ni fonts externes. Tot en un sol fitxer.
+> Mantén el pes del fitxer raonable (<200 KB sense minificar).
+
+---
+
+Si vols, quan Codex et torni el fitxer, te’l puc revisar i polir l’UX o l’algorisme de repetició espaiada.
+    </script>
+
     <script>
-document.addEventListener('DOMContentLoaded', ()=>{
+    document.addEventListener('DOMContentLoaded', ()=>{
   // 🔹 Mostra recomanació del tutor
   showRecommendation('#recommendationText');
 
@@ -111,6 +274,13 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (label) label.textContent = current || 'Sessió no iniciada';
     badge.classList.toggle('is-empty', !current);
   }
+
+  const briefNode = document.getElementById('codexBrief');
+  const briefSource = document.getElementById('codexBriefSource');
+  if (briefNode && briefSource) {
+    briefNode.textContent = briefSource.textContent.strip();
+  }
+
 });
 </script>
   </div>
