@@ -277,8 +277,8 @@ function randomPointInQuadrant(quadrant, range){
 
 function planeSVG(points, range){
   const axisRange = Math.max(range, 4);
-  const size = 360;
-  const pad = 56;
+  const size = 420;
+  const pad = 72;
   const center = size / 2;
   const step = (size - pad * 2) / (axisRange * 2 || 1);
   const toX = (x)=> center + x * step;
@@ -300,10 +300,10 @@ function planeSVG(points, range){
   for(let i=-axisRange; i<=axisRange; i++){
     if(i===0) continue;
     const x = toX(i), y = toY(i);
-    ticks.push(`<text x="${x}" y="${center + 36}" class="axis-label axis-label-x" text-anchor="middle">${i}</text>`);
-    ticks.push(`<text x="${center - 36}" y="${y}" class="axis-label axis-label-y" text-anchor="end">${i}</text>`);
-    tickMarks.push(`<line x1="${x}" y1="${center - 10}" x2="${x}" y2="${center + 10}" class="axis-tick axis-tick-x"/>`);
-    tickMarks.push(`<line x1="${center - 10}" y1="${y}" x2="${center + 10}" y2="${y}" class="axis-tick axis-tick-y"/>`);
+    ticks.push(`<text x="${x}" y="${size - pad + 32}" class="axis-label axis-label-x" text-anchor="middle">${i}</text>`);
+    ticks.push(`<text x="${pad - 32}" y="${y}" class="axis-label axis-label-y" text-anchor="end">${i}</text>`);
+    tickMarks.push(`<line x1="${x}" y1="${center - 12}" x2="${x}" y2="${center + 12}" class="axis-tick axis-tick-x"/>`);
+    tickMarks.push(`<line x1="${center - 12}" y1="${y}" x2="${center + 12}" y2="${y}" class="axis-tick axis-tick-y"/>`);
   }
 
   const pointSvg = points.map((pt, idx)=>{
@@ -322,17 +322,17 @@ function planeSVG(points, range){
   return `
     <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Pla de coordenades" class="coord-plane">
       <style>
-        .coord-plane{max-width:360px;display:block;margin:0 auto;background:#f8fafc;border-radius:20px;padding:10px;font-family:'Inter',system-ui,sans-serif}
-        .coord-plane .line-grid{stroke:#d7e0ef;stroke-width:1}
+        .coord-plane{max-width:420px;display:block;margin:0 auto;background:#f8fafc;border-radius:22px;padding:16px;font-family:'Inter',system-ui,sans-serif}
+        .coord-plane .line-grid{stroke:#d8e1ef;stroke-width:1}
         .coord-plane .line-grid.odd{stroke:#cdd7e7}
         .coord-plane .line-grid.even{stroke:#b9c6da}
-        .coord-plane .line-grid.boundary{stroke:#8090ad;stroke-width:1.3}
-        .coord-plane .axis-tick{stroke:#0f172a;stroke-width:1.4}
-        .coord-plane .axis-line{stroke:#0f172a;stroke-width:2.2}
-        .coord-plane .axis-label{fill:#0f172a;font-size:15px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:3.4px;stroke-linejoin:round;dominant-baseline:middle;letter-spacing:0.3px}
+        .coord-plane .line-grid.boundary{stroke:#7a8cab;stroke-width:1.4}
+        .coord-plane .axis-tick{stroke:#0f172a;stroke-width:1.5}
+        .coord-plane .axis-line{stroke:#0f172a;stroke-width:2.3}
+        .coord-plane .axis-label{fill:#1f2937;font-size:14px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:2.6px;stroke-linejoin:round;letter-spacing:0.3px}
         .coord-plane .axis-label-x{dominant-baseline:hanging}
         .coord-plane .axis-label-y{dominant-baseline:middle}
-        .coord-plane .axis-name{fill:#0f172a;font-size:16px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:3px;letter-spacing:0.4px;dominant-baseline:middle}
+        .coord-plane .axis-name{fill:#0f172a;font-size:17px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:2.6px;letter-spacing:0.4px;dominant-baseline:middle}
         .coord-plane .point circle{fill:url(#gradPoint);stroke:#1e293b;stroke-width:1.4}
         .coord-plane .point-label{fill:#0f172a;font-size:14px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:2.4px;stroke-linejoin:round}
       </style>
@@ -350,8 +350,8 @@ function planeSVG(points, range){
       <line x1="${center}" y1="${size-pad}" x2="${center}" y2="${pad}" class="axis-line" marker-end="url(#arrow-y)"/>
       ${ticks.join('')}
       ${tickMarks.join('')}
-      <text x="${size - pad + 26}" y="${center - 4}" class="axis-name">x</text>
-      <text x="${center + 6}" y="${pad - 30}" class="axis-name">y</text>
+      <text x="${size - pad + 38}" y="${center - 4}" class="axis-name">x</text>
+      <text x="${center + 8}" y="${pad - 40}" class="axis-name">y</text>
       <circle cx="${center}" cy="${center}" r="3" fill="#0f172a"/>
       ${pointSvg}
     </svg>`;
