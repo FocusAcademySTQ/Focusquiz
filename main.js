@@ -352,7 +352,7 @@ function buildHome(){
     const section = document.createElement('div');
     section.innerHTML = `<div class="section-title">${title}</div>`;
     const subgrid = document.createElement('div');
-    subgrid.className = 'grid';
+    subgrid.className = 'grid' + (cat==='math' ? ' grid--math' : '');
     mods.forEach(m=>{
       const el = document.createElement('div');
       el.className='option';
@@ -782,7 +782,11 @@ function startQuiz(moduleId, cfg){
   renderQuestion();
   stopTimer();
   if(time>0) startTimer(); else $('#timer').textContent='Sense límit';
-  $('#answer').focus();
+  if(moduleId === 'coord'){
+    setTimeout(()=> document.getElementById('coordInputX')?.focus(), 0);
+  } else {
+    $('#answer').focus();
+  }
 }
 
 // Nova: començar amb preguntes existents (repàs d'errors)
@@ -835,7 +839,36 @@ function startQuizFromExisting(moduleId, options, questions, meta={}){
   } else {
     $('#timer').textContent='Sense límit';
   }
-  $('#answer').focus();
+  if(moduleId === 'coord'){
+    setTimeout(()=> document.getElementById('coordInputX')?.focus(), 0);
+  } else {
+    $('#answer').focus();
+  }
+}
+
+function removeCoordAnswerUI(){
+  const wrap = document.getElementById('coordAnswerWrap');
+  if(wrap) wrap.remove();
+}
+
+function renderCoordAnswerUI(){
+  removeCoordAnswerUI();
+  const answerRow = document.querySelector('.answer-row');
+  const answerInput = document.getElementById('answer');
+  if(!answerRow || !answerInput) return;
+
+  const wrap = document.createElement('div');
+  wrap.id = 'coordAnswerWrap';
+  wrap.className = 'coord-answer';
+  wrap.innerHTML = `
+    <span class="coord-token">(</span>
+    <input id="coordInputX" class="coord-number" inputmode="decimal" autocomplete="off" aria-label="Coordenada X" placeholder="x" />
+    <span class="coord-token">,</span>
+    <input id="coordInputY" class="coord-number" inputmode="decimal" autocomplete="off" aria-label="Coordenada Y" placeholder="y" />
+    <span class="coord-token">)</span>
+  `;
+  answerRow.insertBefore(wrap, answerInput);
+  setTimeout(()=> document.getElementById('coordInputX')?.focus(), 0);
 }
 
 function renderQuestion(){
@@ -851,6 +884,8 @@ function renderQuestion(){
 
   const mod = MODULES.find(m => m.id === session.module);
   const quizEl = document.querySelector('.quiz');
+  quizEl?.classList.remove('coord-mode');
+  removeCoordAnswerUI();
 
   const toggleRightCol = (show) => {
     if (rightCol) {
@@ -920,11 +955,19 @@ function renderQuestion(){
   } else {
     // 🔹 Matemàtiques → teclat numèric a la dreta
     quizEl.classList.remove('sci-mode');
-    $('#answer').style.display = 'block';
     $('#answer').type = 'text';
-    $('#answer').setAttribute('inputmode','decimal');
-    toggleRightCol(true);
-    renderKeypad();
+    if(session.module === 'coord'){
+      $('#answer').style.display = 'none';
+      $('#answer').removeAttribute('inputmode');
+      toggleRightCol(false);
+      quizEl?.classList.add('coord-mode');
+      renderCoordAnswerUI();
+    } else {
+      $('#answer').style.display = 'block';
+      $('#answer').setAttribute('inputmode','decimal');
+      toggleRightCol(true);
+      renderKeypad();
+    }
   }
 }
 
@@ -1077,6 +1120,19 @@ function checkAnswer(){
     return;
   }
   const q = session.questions[session.idx];
+  if(session.module === 'coord'){
+    const xInput = document.getElementById('coordInputX');
+    const yInput = document.getElementById('coordInputY');
+    if(xInput && yInput){
+      const xVal = xInput.value.trim();
+      const yVal = yInput.value.trim();
+      if(xVal === '' || yVal === ''){
+        $('#answer').value = '';
+      } else {
+        $('#answer').value = `(${xVal},${yVal})`;
+      }
+    }
+  }
   const raw = $('#answer').value.trim();
   if(raw==='') { flashFeedback('Escriu una resposta o prem Omet.', 'warn'); return; }
 
