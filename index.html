@@ -98,8 +98,126 @@
       <span class="learning-pill">Entrar →</span>
     </a>
 
+    <section class="panel card flashcards" id="flashcards" aria-labelledby="flashcards-title">
+      <header class="flashcards__header">
+        <div>
+          <p class="pill flashcards__pill">🆕 Espai de pràctica</p>
+          <h2 class="title" id="flashcards-title">Flashcards d'estudi</h2>
+          <p class="subtitle" id="flashcards-subtitle">Repàs actiu amb repetició espaiada i memòria local.</p>
+        </div>
+        <div class="flashcards__controls" role="group" aria-label="Controls principals de les flashcards">
+          <label class="chip" for="flashcardsCollection"><span class="flashcards__label-text" data-i18n="collection">Col·lecció</span>
+            <select id="flashcardsCollection" aria-describedby="flashcardsCollectionHint"></select>
+          </label>
+          <label class="chip" for="flashcardsSearch"><span class="flashcards__label-text" data-i18n="search">Cerca</span>
+            <input id="flashcardsSearch" class="input" type="search" placeholder="Filtra per text" aria-describedby="flashcardsSearchHint" />
+          </label>
+          <label class="toggle flashcards__toggle" aria-label="Activa o desactiva el mode fosc">
+            <input type="checkbox" id="flashcardsDarkMode" /> Mode fosc
+          </label>
+          <label class="toggle flashcards__toggle" aria-label="Canvia d'idioma">
+            <select id="flashcardsLang" class="input flashcards__lang">
+              <option value="ca">Català</option>
+              <option value="es">Castellano</option>
+            </select>
+          </label>
+        </div>
+        <div class="sr-only" id="flashcardsCollectionHint">Escull la col·lecció que vols estudiar.</div>
+        <div class="sr-only" id="flashcardsSearchHint">Escriu paraules clau per filtrar targetes.</div>
+      </header>
+
+      <div class="flashcards__progress" aria-live="polite">
+        <div class="flashcards__progress-main">
+          <span id="flashcardsCounter">0 / 0 targetes vistes</span>
+          <span id="flashcardsLearned">0% après</span>
+        </div>
+        <div class="flashcards__progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <i></i>
+        </div>
+      </div>
+
+      <div class="flashcards__body">
+        <div class="flashcard-scene" aria-live="polite">
+          <article class="flashcard" id="flashcardCard" aria-label="Targeta d'estudi" tabindex="0">
+            <div class="flashcard__inner" id="flashcardInner">
+              <div class="flashcard__face flashcard__face--front" aria-labelledby="flashcardFrontLabel">
+                <header class="flashcard__face-header">
+                  <span class="pill flashcard__face-pill" id="flashcardFrontLabel">Anvers</span>
+                  <button type="button" id="flashcardMarkDoubt" class="btn-ghost flashcard__doubt" aria-pressed="false" aria-label="Marca aquesta targeta com a dubte">❓ Dubte</button>
+                </header>
+                <div class="flashcard__content" id="flashcardFront">Selecciona una col·lecció per començar.</div>
+              </div>
+              <div class="flashcard__face flashcard__face--back" aria-labelledby="flashcardBackLabel">
+                <header class="flashcard__face-header">
+                  <span class="pill flashcard__face-pill" id="flashcardBackLabel">Revers</span>
+                  <button type="button" id="flashcardEdit" class="btn-ghost flashcard__edit" aria-label="Edita aquesta targeta">✏️ Edita</button>
+                </header>
+                <div class="flashcard__content" id="flashcardBack">Aquí veuràs la resposta.</div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="flashcards__note" id="flashcardNoteWrapper" hidden>
+          <label class="chip flashcards__note-label" for="flashcardNoteInput"><span class="flashcards__note-title">Nota personal</span>
+            <textarea id="flashcardNoteInput" rows="3" placeholder="Escriu anotacions o dubtes..." aria-label="Nota personal per a aquesta targeta"></textarea>
+          </label>
+          <div class="flashcards__note-actions">
+            <button type="button" class="btn-secondary" id="flashcardCloseNote">Tanca nota</button>
+            <span class="flashcards__note-status" id="flashcardNoteStatus" aria-live="polite"></span>
+          </div>
+        </div>
+
+        <div class="flashcards__actions" role="group" aria-label="Accions de la targeta">
+          <button type="button" id="flashcardFlip" class="btn-primary" aria-label="Gira la targeta (tecles espai o F)">Mostra resposta</button>
+          <div class="flashcards__grade">
+            <button type="button" id="flashcardUnknown" class="btn-ghost" aria-label="No ho sabia (tecla fletxa esquerra)">👎 No ho sabia</button>
+            <button type="button" id="flashcardKnown" class="btn-success" aria-label="Ho sabia (tecla fletxa dreta)">👍 Ho sabia</button>
+          </div>
+          <button type="button" id="flashcardNext" class="btn-secondary" aria-label="Passa a la següent targeta (tecla Enter)" disabled>Següent</button>
+        </div>
+
+        <p class="flashcards__feedback" id="flashcardsFeedback" aria-live="polite"></p>
+
+        <div class="flashcards__empty" id="flashcardsEmpty" hidden>
+          <p>No hi ha targetes que coincideixin amb el filtre actual.</p>
+          <button type="button" id="flashcardsResetFilters" class="btn-secondary">Reinicia filtres</button>
+        </div>
+      </div>
+
+      <footer class="flashcards__footer">
+        <div class="flashcards__footer-left">
+          <button type="button" id="flashcardsAddCard" class="btn-primary">+ Nova targeta</button>
+          <button type="button" id="flashcardsManageCollections" class="btn-ghost">🗂️ Col·leccions</button>
+        </div>
+        <div class="flashcards__footer-right">
+          <button type="button" id="flashcardsDiagnosticsToggle" class="btn-ghost" aria-expanded="false">🔍 Diagnòstic</button>
+        </div>
+      </footer>
+
+      <section class="flashcards__diagnostics" id="flashcardsDiagnostics" hidden aria-live="polite">
+        <div class="flashcards__diagnostics-header">
+          <h3>Diagnòstic</h3>
+          <p>Revisa l'estat de les col·leccions, el filtre actiu i el progrés d'aprenentatge.</p>
+        </div>
+        <div class="flashcards__diagnostics-grid">
+          <div>
+            <h4>Col·leccions</h4>
+            <ul id="flashcardsDiagCollections" class="flashcards__list"></ul>
+          </div>
+          <div>
+            <h4>Pool actual</h4>
+            <ul id="flashcardsDiagPool" class="flashcards__list"></ul>
+          </div>
+        </div>
+        <div class="flashcards__diagnostics-actions">
+          <button type="button" id="flashcardsResetAll" class="btn-danger">Reset LocalStorage</button>
+        </div>
+      </section>
+    </section>
+
     <script>
-document.addEventListener('DOMContentLoaded', ()=>{
+    document.addEventListener('DOMContentLoaded', ()=>{
   // 🔹 Mostra recomanació del tutor
   showRecommendation('#recommendationText');
 
@@ -111,11 +229,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (label) label.textContent = current || 'Sessió no iniciada';
     badge.classList.toggle('is-empty', !current);
   }
+
 });
 </script>
-  </div>
-</section>
-
     <!-- CONFIG -->
     <section id="view-config" class="hidden">
       <div class="panel card">
@@ -271,6 +387,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   <script src="quim.js" defer></script>
   <script src="geo.js" defer></script>
   <script src="tutor.js"></script>
+  <script src="flashcards.js" defer></script>
 
   <!-- 🔹 Després el bloc del login local -->
   <script>
