@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FocusQuiz · Càpsula · Multiplicació i divisió de fraccions (simbòlica)</title>
+  <meta name="description" content="Càpsula simbòlica i seqüencial per multiplicar i dividir fraccions: operacions verticals com a llibre, animació pas a pas, pràctica guiada, joc i resum. Single‑file, sense dependències." />
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
+      --brand:#8ec5ff;--brand2:#a7f3d0;--brand3:#fbcfe8;--ok:#10b981;--bad:#ef4444;--warn:#f59e0b;
+      --shadow:0 10px 30px rgba(2,8,23,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg);
+      background-image:linear-gradient(transparent 23px,var(--line) 24px),linear-gradient(90deg,transparent 23px,var(--line) 24px);
+      background-size:24px 24px,24px 24px}
+    section{max-width:980px;margin:0 auto;padding:16px;display:grid;gap:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+    h1,h2{margin:6px 0 10px}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;background:linear-gradient(135deg,var(--brand),var(--brand3));color:#0b1220;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(2,8,23,.08);transition:.2s transform}
+    .btn:hover{transform:translateY(-1px)}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted)}
+    .ok{color:var(--ok)} .bad{color:var(--bad)}
+    .hidden{display:none}
+    .fade{opacity:0;transform:translateY(6px);animation:fade .35s forwards}
+    @keyframes fade{to{opacity:1;transform:none}}
+
+    /* Fraccions (format vertical llibre) */
+    .frac{display:inline-grid;grid-template-rows:auto 2px auto;align-items:center;justify-items:center;margin:0 4px;min-width:36px}
+    .frac b{font-size:1.15rem}
+    .frac i{display:block;width:100%;background:#0f172a;border-radius:2px}
+    .big{font-size:1.35rem}
+    .stack{display:grid;gap:8px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+    .input{padding:8px 10px;border:1px solid var(--line);border-radius:10px;width:90px}
+    .input.small{width:64px}
+    .progress{height:8px;background:var(--line);border-radius:999px;overflow:hidden}
+    .bar{height:8px;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.3s width}
+  </style>
+</head>
+<body>
+  <section id="capsule">
+    <!-- 1) Objectiu -->
+    <article class="card" id="blk-1">
+      <h1>🎯 Objectiu didàctic</h1>
+      <p>Aprendre a <b>multiplicar</b> i <b>dividir</b> fraccions amb escriptura <b>simbòlica</b> (com al paper):
+        multiplicar és directe (<span class="mono">a/b × c/d = (a×c)/(b×d)</span>),
+        dividir és <b>girar la segona fracció</b> i multiplicar (<span class="mono">a/b ÷ c/d = a/b × d/c</span>).</p>
+      <button class="btn" id="start">Comença</button>
+    </article>
+
+    <!-- 2) Multiplicació (animada pas a pas) -->
+    <article class="card hidden" id="blk-2">
+      <h2>✚ Multiplicació de fraccions</h2>
+      <p class="muted">Regla: <span class="mono">(a/b) × (c/d) = (a×c)/(b×d)</span></p>
+      <div class="stack mono" id="mulArea"></div>
+      <div class="row" style="justify-content:space-between;margin-top:8px">
+        <span class="pill">Exemple guia: <span class="frac"><b>2</b><i></i><b>3</b></span> × <span class="frac"><b>3</b><i></i><b>4</b></span></span>
+        <div class="row"><button class="btn" id="mulNext">Següent pas</button></div>
+      </div>
+    </article>
+
+    <!-- 3) Divisió (animada, amb fraccions verticals i signe ÷) -->
+    <article class="card hidden" id="blk-3">
+      <h2>➗ Divisió de fraccions</h2>
+      <p class="muted">Regla: <span class="mono">(a/b) ÷ (c/d) = (a/b) × (d/c)</span> (girem la segona fracció i multipliquem).</p>
+      <div class="stack mono" id="divArea"></div>
+      <div class="row" style="justify-content:space-between;margin-top:8px">
+        <span class="pill">Exemple guia: <span class="frac"><b>2</b><i></i><b>3</b></span> <span class="big">÷</span> <span class="frac"><b>3</b><i></i><b>4</b></span></span>
+        <div class="row"><button class="btn" id="divNext">Següent pas</button></div>
+      </div>
+    </article>
+
+    <!-- 4) Pràctica guiada -->
+    <article class="card hidden" id="blk-4">
+      <h2>✏️ Pràctica guiada</h2>
+      <p class="muted">Escriu els resultats pas a pas. Cada pas desbloqueja el següent.</p>
+
+      <div class="stack">
+        <!-- P1: Multiplica 1/2 × 3/4 -->
+        <div id="p1" class="fade">
+          <h3 class="mono">1) <span class="frac"><b>1</b><i></i><b>2</b></span> × <span class="frac"><b>3</b><i></i><b>4</b></span> =</h3>
+          <div class="row">
+            <input id="p1n" class="input small" placeholder="numerador" /> / <input id="p1d" class="input small" placeholder="denominador" />
+            <button class="btn" id="p1chk">Comprova</button>
+            <span id="p1msg" class="muted"></span>
+          </div>
+        </div>
+
+        <!-- P2: Divideix 2/3 ÷ 4/5 (primer invers) -->
+        <div id="p2" class="hidden">
+          <h3 class="mono">2) <span class="frac"><b>2</b><i></i><b>3</b></span> <span class="big">÷</span> <span class="frac"><b>4</b><i></i><b>5</b></span>
+            → escriu l'invers de la segona fracció:</h3>
+          <div class="row">
+            <span class="mono">= <span class="frac"><b>2</b><i></i><b>3</b></span> ×</span>
+            <span class="frac"><b><input id="p2invN" class="input small" placeholder="?" /></b><i></i><b><input id="p2invD" class="input small" placeholder="?" /></b></span>
+            <button class="btn" id="p2chk1">Comprova</button>
+            <span id="p2msg1" class="muted"></span>
+          </div>
+          <div id="p2step2" class="row hidden" style="margin-top:6px">
+            <span class="mono">=</span>
+            <span class="frac"><b><input id="p2n" class="input small" placeholder="?" /></b><i></i><b><input id="p2d" class="input small" placeholder="?" /></b></span>
+            <button class="btn" id="p2chk2">Comprova</button>
+            <span id="p2msg2" class="muted"></span>
+          </div>
+        </div>
+
+        <!-- P3: Multiplica 3/7 × 14/9 i simplifica → 2/3 -->
+        <div id="p3" class="hidden">
+          <h3 class="mono">3) <span class="frac"><b>3</b><i></i><b>7</b></span> × <span class="frac"><b>14</b><i></i><b>9</b></span> = producte i simplifica</h3>
+          <div class="row">
+            <span class="mono">Producte:</span>
+            <span class="frac"><b><input id="p3n" class="input small" placeholder="?" /></b><i></i><b><input id="p3d" class="input small" placeholder="?" /></b></span>
+            <button class="btn" id="p3chk1">Comprova</button>
+            <span id="p3msg1" class="muted"></span>
+          </div>
+          <div id="p3step2" class="row hidden" style="margin-top:6px">
+            <span class="mono">Simplifica →</span>
+            <span class="frac"><b><input id="p3sn" class="input small" placeholder="?" /></b><i></i><b><input id="p3sd" class="input small" placeholder="?" /></b></span>
+            <button class="btn" id="p3chk2">Comprova</button>
+            <span id="p3msg2" class="muted"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px"><button class="btn hidden" id="toGame">Anar al joc</button></div>
+    </article>
+
+    <!-- 5) Joc curt (5 preguntes) -->
+    <article class="card hidden" id="blk-5">
+      <h2>🎮 Joc</h2>
+      <div id="game" class="stack"></div>
+      <div class="row" style="justify-content:space-between">
+        <span class="pill">Puntuació: <b id="score">0</b>/50</span>
+        <button class="btn" id="finish">Acabar</button>
+      </div>
+    </article>
+
+    <!-- 6) Resum -->
+    <article class="card hidden" id="blk-6">
+      <h2>📘 Resum</h2>
+      <ul>
+        <li><b>Multiplicació</b>: <span class="mono">(a/b) × (c/d) = (a×c)/(b×d)</span>.</li>
+        <li><b>Divisió</b>: <span class="mono">(a/b) ÷ (c/d) = (a/b) × (d/c)</span> (gira la segona).</li>
+        <li><b>Simplifica</b> sempre que puguis (divideix per l’MCD).</li>
+      </ul>
+      <button class="btn" id="restart">Torna a començar</button>
+    </article>
+
+    <!-- 7) Tests (dev) -->
+    <article class="card hidden" id="blk-T">
+      <h2>🧪 Tests (dev)</h2>
+      <p class="muted">Verificació bàsica de càlculs i simplificacions.</p>
+      <button class="btn" id="runTests">Executa tests</button>
+      <pre id="testLog" class="mono"></pre>
+    </article>
+  </section>
+
+  <script>
+    // Utilitats
+    const $=id=>document.getElementById(id);
+    const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+    const simplify=(n,d)=>{const g=gcd(n,d)||1;return [n/g,d/g]};
+
+    // Control de flux
+    const order=['blk-1','blk-2','blk-3','blk-4','blk-5','blk-6','blk-T'];
+    function openNext(curr){const i=order.indexOf(curr); if(i>-1 && i<order.length-1){const next=order[i+1]; $(next).classList.remove('hidden'); $(next).classList.add('fade'); $(next).scrollIntoView({behavior:'smooth',block:'start'});}}
+
+    // 2) Multiplicació animada
+    const mulSteps=[
+      () => `<div class='fade'>\n  <span class='frac'><b>2</b><i></i><b>3</b></span> × <span class='frac'><b>3</b><i></i><b>4</b></span>\n</div>`,
+      () => `<div class='fade'>= <span class='mono'>(2×3)/(3×4)</span></div>`,
+      () => `<div class='fade'>= <span class='frac'><b>6</b><i></i><b>12</b></span></div>`,
+      () => `<div class='fade'>= <span class='frac'><b>1</b><i></i><b>2</b></span> (simplificat)</div>`
+    ];
+    let mulI=0; function mulNext(){ const host=$('mulArea'); if(mulI<mulSteps.length){ host.insertAdjacentHTML('beforeend', mulSteps[mulI++]()); if(mulI===mulSteps.length){ $('mulNext').disabled=true; openNext('blk-2'); } } }
+
+    // 3) Divisió animada (format de llibre amb "÷")
+    const divSteps=[
+      () => `<div class='fade'>\n  <span class='frac'><b>2</b><i></i><b>3</b></span> <span class='big'>÷</span> <span class='frac'><b>3</b><i></i><b>4</b></span>\n</div>`,
+      () => `<div class='fade'>= <span class='frac'><b>2</b><i></i><b>3</b></span> × <span class='frac'><b>4</b><i></i><b>3</b></span> (girem la segona)</div>`,
+      () => `<div class='fade'>= <span class='mono'>(2×4)/(3×3)</span></div>`,
+      () => `<div class='fade'>= <span class='frac'><b>8</b><i></i><b>9</b></span></div>`
+    ];
+    let divI=0; let practiceInit=false;
+    function divNext(){
+      const host=$('divArea');
+      if(divI<divSteps.length){
+        host.insertAdjacentHTML('beforeend', divSteps[divI++]());
+        if(divI===divSteps.length){
+          $('divNext').disabled=true;
+          openNext('blk-3');
+          if(!practiceInit){ setupPractice(); practiceInit=true; }
+        }
+      }
+    }
+
+    // 4) Pràctica guiada
+    function setupPractice(){
+      // P1: 1/2 × 3/4 = 3/8
+      $('p1chk').onclick=()=>{ const n=$('p1n').value.trim(), d=$('p1d').value.trim(); const ok=(n==='3'&&d==='8'); $('p1msg').innerHTML= ok?'<span class="ok">Correcte!</span>':'<span class="bad">Recorda: (1×3)/(2×4) → 3/8.</span>'; if(ok){ $('p2').classList.remove('hidden'); $('p2').classList.add('fade'); } };
+
+      // P2: 2/3 ÷ 4/5 → invers 5/4, producte 10/12, simplifica 5/6
+      $('p2chk1').onclick=()=>{ const n=$('p2invN').value.trim(), d=$('p2invD').value.trim(); const ok=(n==='5'&&d==='4'); $('p2msg1').innerHTML= ok?'<span class="ok">Invers correcte.</span>':'<span class="bad">Gira 4/5 → 5/4.</span>'; if(ok){ $('p2step2').classList.remove('hidden'); $('p2step2').classList.add('fade'); } };
+      $('p2chk2').onclick=()=>{ const n=$('p2n').value.trim(), d=$('p2d').value.trim(); const ok=(n==='10'&&d==='12'); $('p2msg2').innerHTML= ok?'<span class="ok">Producte correcte. Simplifica → 5/6.</span>':'<span class="bad">(2×5)/(3×4) → 10/12.</span>'; if(ok){ $('p3').classList.remove('hidden'); $('p3').classList.add('fade'); } };
+
+      // P3: 3/7 × 14/9 = 42/63 → 2/3
+      $('p3chk1').onclick=()=>{ const n=$('p3n').value.trim(), d=$('p3d').value.trim(); const ok=(n==='42'&&d==='63'); $('p3msg1').innerHTML= ok?'<span class="ok">Producte correcte.</span>':'<span class="bad">(3×14)/(7×9) → 42/63.</span>'; if(ok){ $('p3step2').classList.remove('hidden'); $('p3step2').classList.add('fade'); } };
+      $('p3chk2').onclick=()=>{ const n=$('p3sn').value.trim(), d=$('p3sd').value.trim(); const ok=(n==='2'&&d==='3'); $('p3msg2').innerHTML= ok?'<span class="ok">Molt bé! 42/63 = 2/3.</span>':'<span class="bad">Divideix per l\'MCD(42,63)=21 → 2/3.</span>'; if(ok){ $('toGame').classList.remove('hidden'); } };
+
+      $('toGame').onclick=()=>{ $('blk-5').classList.remove('hidden'); $('blk-5').classList.add('fade'); renderGame(); };
+    }
+
+    // 5) Joc (5 preguntes)
+    const qs=[
+      {q:"3/5 ÷ 1/2 = ?", opts:["3/10","3/5","6/5"], a:2, exp:"3/5 × 2/1 = 6/5"},
+      {q:"2/3 × 3/4 = ?", opts:["1/2","5/12","2/7"], a:0, exp:"(2×3)/(3×4) = 6/12 = 1/2"},
+      {q:"4/7 ÷ 2/7 = ?", opts:["2/7","2","1/2"], a:1, exp:"4/7 × 7/2 = 4/2 = 2"},
+      {q:"5/6 × 3/5 = ?", opts:["3/6","1/2","3/5"], a:1, exp:"(5×3)/(6×5)=3/6=1/2"},
+      {q:"7/9 ÷ 7/3 = ?", opts:["1/3","3/7","1/7"], a:0, exp:"7/9 × 3/7 = 3/9 = 1/3"}
+    ];
+    function renderGame(){
+      const host=$('game'); host.innerHTML=''; let score=0, idx=0;
+      function show(){
+        const it=qs[idx]; host.innerHTML=`<div class='card' style='border:1px dashed var(--line)'><p class='mono'><b>${idx+1}.</b> ${it.q}</p><div class='row' id='opts'></div><p id='exp' class='muted'></p></div>`;
+        it.opts.forEach((t,i)=>{ const b=document.createElement('button'); b.className='btn'; b.textContent=t; b.onclick=()=>{ const ok=i===it.a; $('exp').innerHTML= ok?`<span class='ok'>Correcte!</span> ${it.exp}`:`<span class='bad'>No exactament.</span> ${it.exp}`; if(ok) score+=10; $('score').textContent=score; setTimeout(()=>{ if(idx<qs.length-1){ idx++; show(); } }, 650); }; $('opts').appendChild(b); });
+      }
+      show();
+      $('finish').onclick=()=>{ openNext('blk-5'); openNext('blk-6'); };
+    }
+
+    // 7) Tests (dev)
+    function runTests(){
+      const out=[]; const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+      // Simplificació
+      out.push(eq(simplify(6,12),[1,2])?"OK simplify 6/12":"FAIL simplify 6/12");
+      out.push(eq(simplify(42,63),[2,3])?"OK simplify 42/63":"FAIL simplify 42/63");
+      // Multiplicació/divisió numèrica
+      const mul= (a,b,c,d)=>[a*c,b*d];
+      const div= (a,b,c,d)=>[a*d,b*c];
+      out.push(eq(mul(2,3,3,4),[6,12])?"OK mul 2/3*3/4":"FAIL mul");
+      out.push(eq(div(2,3,3,4),[8,9])?"OK div 2/3÷3/4":"FAIL div");
+      $('testLog').textContent=out.join('\n');
+    }
+
+    // Esdeveniments
+    $('start').onclick=()=>{ $('blk-2').classList.remove('hidden'); $('blk-2').classList.add('fade'); };
+    $('mulNext').onclick=mulNext;
+    $('divNext').onclick=divNext;
+
+    $('restart').onclick=()=>location.reload();
+    $('runTests') && ($('runTests').onclick=runTests);
+  </script>
+</body>
+</html>

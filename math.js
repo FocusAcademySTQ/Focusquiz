@@ -240,6 +240,157 @@ function genFractions(level, opts={}){
   return genFracSimplify(level, opts);
 }
 
+/* ===== Coordenades cartesianes ===== */
+
+const QUADRANTS = ['QI','QII','QIII','QIV'];
+
+function coordRange(level){
+  const L = clamp(level,1,4);
+  return [0, 5, 7, 10, 12][L];
+}
+
+function quadrantSigns(q){
+  switch(q){
+    case 'QI': return [1, 1];
+    case 'QII': return [-1, 1];
+    case 'QIII': return [-1, -1];
+    case 'QIV': return [1, -1];
+  }
+  return [1,1];
+}
+
+function quadrantLabel(q){
+  return {
+    QI: 'Quadrant I',
+    QII: 'Quadrant II',
+    QIII: 'Quadrant III',
+    QIV: 'Quadrant IV'
+  }[q] || 'Quadrant I';
+}
+
+function randomPointInQuadrant(quadrant, range){
+  const [sx, sy] = quadrantSigns(quadrant);
+  const absX = rng(1, range);
+  const absY = rng(1, range);
+  return { x: sx * absX, y: sy * absY };
+}
+
+function planeSVG(points, range){
+  const axisRange = Math.max(range, 4);
+  const size = 280;
+  const pad = 36;
+  const center = size / 2;
+  const step = (size - pad * 2) / (axisRange * 2 || 1);
+  const toX = (x)=> center + x * step;
+  const toY = (y)=> center - y * step;
+
+  let grid = '';
+  for(let i=-axisRange; i<=axisRange; i++){
+    const pos = center + i * step;
+    const cls = i===0 ? 'axis' : 'grid';
+    grid += `<line x1="${pad}" y1="${pos}" x2="${size-pad}" y2="${pos}" class="line-${cls}"/>`;
+    grid += `<line x1="${pos}" y1="${pad}" x2="${pos}" y2="${size-pad}" class="line-${cls}"/>`;
+  }
+
+  const ticks = [];
+  for(let i=-axisRange; i<=axisRange; i++){
+    if(i===0) continue;
+    const x = toX(i), y = toY(i);
+    const xLabelX = x + (i < 0 ? 4 : (i > 0 ? -4 : 0));
+    const xAnchor = i < 0 ? 'start' : (i > 0 ? 'end' : 'middle');
+    ticks.push(`<text x="${xLabelX}" y="${center + 18}" class="axis-label axis-label-x" text-anchor="${xAnchor}">${i}</text>`);
+    ticks.push(`<text x="${center - 16}" y="${y + (i < 0 ? -2 : 6)}" class="axis-label axis-label-y" text-anchor="end">${i}</text>`);
+  }
+
+  const pointSvg = points.map((pt, idx)=>{
+    const px = toX(pt.x);
+    const py = toY(pt.y);
+    const label = pt.label || String.fromCharCode(65 + idx);
+    const labelDx = pt.x >= 0 ? 14 : -14;
+    const anchor = pt.x >= 0 ? 'start' : 'end';
+    return `
+      <g class="point">
+        <circle cx="${px}" cy="${py}" r="6" />
+        <text x="${px + labelDx}" y="${py - 10}" text-anchor="${anchor}" class="point-label">${label}</text>
+      </g>`;
+  }).join('');
+
+  return `
+    <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Pla de coordenades" class="coord-plane">
+      <style>
+        .coord-plane{max-width:320px;display:block;margin:0 auto;background:#f8fafc;border-radius:16px;padding:4px;font-family:'Inter',system-ui,sans-serif}
+        .coord-plane .line-grid{stroke:#e2e8f0;stroke-width:1;stroke-dasharray:4 6}
+        .coord-plane .line-axis{stroke:#0f172a;stroke-width:1.4}
+        .coord-plane .axis-label{fill:#334155;font-size:13px;font-weight:500;paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round;dominant-baseline:middle}
+        .coord-plane .axis-label-x{dominant-baseline:hanging}
+        .coord-plane .axis-label-y{dominant-baseline:middle}
+        .coord-plane .point circle{fill:url(#gradPoint);stroke:#1e293b;stroke-width:1.3}
+        .coord-plane .point-label{fill:#0f172a;font-size:13px}
+      </style>
+      <defs>
+        <radialGradient id="gradPoint" cx="35%" cy="35%" r="75%">
+          <stop offset="0" stop-color="#bae6fd"/>
+          <stop offset="1" stop-color="#60a5fa"/>
+        </radialGradient>
+        <marker id="arrow-x" orient="auto" markerWidth="10" markerHeight="10" refX="8" refY="5"><path d="M0,0 L10,5 L0,10 Z" fill="#0f172a"/></marker>
+        <marker id="arrow-y" orient="auto" markerWidth="10" markerHeight="10" refX="8" refY="5"><path d="M0,0 L10,5 L0,10 Z" fill="#0f172a"/></marker>
+      </defs>
+      <rect x="4" y="4" width="${size-8}" height="${size-8}" rx="16" ry="16" fill="#ffffff" stroke="#e2e8f0"/>
+      ${grid}
+      <line x1="${pad}" y1="${center}" x2="${size-pad}" y2="${center}" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-x)"/>
+      <line x1="${center}" y1="${size-pad}" x2="${center}" y2="${pad}" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-y)"/>
+      ${ticks.join('')}
+      <circle cx="${center}" cy="${center}" r="3" fill="#0f172a"/>
+      ${pointSvg}
+    </svg>`;
+}
+
+function genCoordRead(level){
+  const range = coordRange(level);
+  const quadrant = choice(QUADRANTS);
+  const point = randomPointInQuadrant(quadrant, range);
+  const label = choice(['P','Q','R','S','T']);
+  const html = planeSVG([{ x: point.x, y: point.y, label }], range);
+  return {
+    type:'coord-read',
+    text:`Observa el pla i escriu les coordenades del punt ${label} (format (x,y)).`,
+    html,
+    answer:`(${point.x},${point.y})`
+  };
+}
+
+function genCoordQuadrant(level){
+  const range = coordRange(level);
+  const quadrant = choice(QUADRANTS);
+  const point = randomPointInQuadrant(quadrant, range);
+  return {
+    type:'coord-quadrant',
+    text:`En quin quadrant es troba el punt (${point.x}, ${point.y})? Escriu QI, QII, QIII o QIV.`,
+    answer: quadrant
+  };
+}
+
+function genCoordBuild(level){
+  const range = coordRange(level);
+  const quadrant = choice(QUADRANTS);
+  const [sx, sy] = quadrantSigns(quadrant);
+  const absX = rng(1, range);
+  const absY = rng(1, range);
+  return {
+    type:'coord-build',
+    text:`Col·loca un punt al ${quadrantLabel(quadrant)} amb |x| = ${absX} i |y| = ${absY}. Escriu les coordenades correctes (format (x,y)).`,
+    answer:`(${sx*absX},${sy*absY})`
+  };
+}
+
+function genCoordinates(level, opts={}){
+  // Temporalment només exposem preguntes de lectura de coordenades.
+  if(opts && Array.isArray(opts.types) && opts.types.includes('read')){
+    return genCoordRead(level);
+  }
+  return genCoordRead(level);
+}
+
 /* ====== GEOMETRIA ====== */
 
 const labelText = (x,y,text)=> `<text class="svg-label" x="${x}" y="${y}">${text}</text>`;
@@ -1325,11 +1476,12 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
     { id:'frac',  name:'Fraccions',  desc:'Identificar (imatge), aritmètica i simplificar.', gen: genFractions, category:'math' },
     { id:'perc',  name:'Percentatges', desc:'Calcula percentatges i descomptes.', gen: genPercent, category:'math' },
     { id:'geom',  name:'Àrees, perímetres i volums', desc:'Figures 2D i cossos 3D.', gen: genGeometry, category:'math' },
+    { id:'coord', name:'Coordenades cartesianes', desc:'Col·loca punts als quadrants i llegeix coordenades.', gen: genCoordinates, category:'math' },
     { id:'stats', name:'Estadística bàsica', desc:'Mitjana/mediana/moda, rang/desviació i gràfics.', gen: genStats, category:'math' },
     { id:'units', name:'Unitats i conversions', desc:'Longitud, massa, volum, superfície i temps.', gen: genUnits, category:'math' },
     { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', gen: genEq, category:'math' },
     { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', gen: genFunctions, category:'math' }
-  ];
+];
 
   if (typeof root.addModules === 'function') {
     root.addModules(MATH_MODULES);
