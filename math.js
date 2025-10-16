@@ -278,7 +278,7 @@ function randomPointInQuadrant(quadrant, range){
 function planeSVG(points, range){
   const axisRange = Math.max(range, 4);
   const size = 280;
-  const pad = 28;
+  const pad = 36;
   const center = size / 2;
   const step = (size - pad * 2) / (axisRange * 2 || 1);
   const toX = (x)=> center + x * step;
@@ -296,8 +296,10 @@ function planeSVG(points, range){
   for(let i=-axisRange; i<=axisRange; i++){
     if(i===0) continue;
     const x = toX(i), y = toY(i);
-    ticks.push(`<text x="${x}" y="${center + 16}" class="axis-label">${i}</text>`);
-    ticks.push(`<text x="${center - 12}" y="${y + 4}" class="axis-label">${i}</text>`);
+    const xLabelX = x + (i < 0 ? 4 : (i > 0 ? -4 : 0));
+    const xAnchor = i < 0 ? 'start' : (i > 0 ? 'end' : 'middle');
+    ticks.push(`<text x="${xLabelX}" y="${center + 18}" class="axis-label axis-label-x" text-anchor="${xAnchor}">${i}</text>`);
+    ticks.push(`<text x="${center - 16}" y="${y + (i < 0 ? -2 : 6)}" class="axis-label axis-label-y" text-anchor="end">${i}</text>`);
   }
 
   const pointSvg = points.map((pt, idx)=>{
@@ -319,8 +321,9 @@ function planeSVG(points, range){
         .coord-plane{max-width:320px;display:block;margin:0 auto;background:#f8fafc;border-radius:16px;padding:4px;font-family:'Inter',system-ui,sans-serif}
         .coord-plane .line-grid{stroke:#e2e8f0;stroke-width:1;stroke-dasharray:4 6}
         .coord-plane .line-axis{stroke:#0f172a;stroke-width:1.4}
-        .coord-plane .axis-label{fill:#475569;font-size:12px;dominant-baseline:middle;text-anchor:middle}
-        .coord-plane .axis-label:first-of-type{dominant-baseline:hanging}
+        .coord-plane .axis-label{fill:#334155;font-size:13px;font-weight:500;paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round;dominant-baseline:middle}
+        .coord-plane .axis-label-x{dominant-baseline:hanging}
+        .coord-plane .axis-label-y{dominant-baseline:middle}
         .coord-plane .point circle{fill:url(#gradPoint);stroke:#1e293b;stroke-width:1.3}
         .coord-plane .point-label{fill:#0f172a;font-size:13px}
       </style>
@@ -381,10 +384,10 @@ function genCoordBuild(level){
 }
 
 function genCoordinates(level, opts={}){
-  const pool = opts.types || ['read','quadrant','build'];
-  const type = choice(pool);
-  if(type==='quadrant') return genCoordQuadrant(level);
-  if(type==='build') return genCoordBuild(level);
+  // Temporalment només exposem preguntes de lectura de coordenades.
+  if(opts && Array.isArray(opts.types) && opts.types.includes('read')){
+    return genCoordRead(level);
+  }
   return genCoordRead(level);
 }
 
