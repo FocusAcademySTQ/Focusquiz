@@ -277,8 +277,8 @@ function randomPointInQuadrant(quadrant, range){
 
 function planeSVG(points, range){
   const axisRange = Math.max(range, 4);
-  const size = 280;
-  const pad = 36;
+  const size = 320;
+  const pad = 48;
   const center = size / 2;
   const step = (size - pad * 2) / (axisRange * 2 || 1);
   const toX = (x)=> center + x * step;
@@ -286,20 +286,23 @@ function planeSVG(points, range){
 
   let grid = '';
   for(let i=-axisRange; i<=axisRange; i++){
+    if(i===0) continue;
     const pos = center + i * step;
-    const cls = i===0 ? 'axis' : 'grid';
-    grid += `<line x1="${pad}" y1="${pos}" x2="${size-pad}" y2="${pos}" class="line-${cls}"/>`;
-    grid += `<line x1="${pos}" y1="${pad}" x2="${pos}" y2="${size-pad}" class="line-${cls}"/>`;
+    const dist = Math.abs(i);
+    const cls = dist===axisRange ? 'line-grid boundary' : 'line-grid';
+    grid += `<line x1="${pad}" y1="${pos}" x2="${size-pad}" y2="${pos}" class="${cls}"/>`;
+    grid += `<line x1="${pos}" y1="${pad}" x2="${pos}" y2="${size-pad}" class="${cls}"/>`;
   }
 
   const ticks = [];
+  const tickMarks = [];
   for(let i=-axisRange; i<=axisRange; i++){
     if(i===0) continue;
     const x = toX(i), y = toY(i);
-    const xLabelX = x + (i < 0 ? 4 : (i > 0 ? -4 : 0));
-    const xAnchor = i < 0 ? 'start' : (i > 0 ? 'end' : 'middle');
-    ticks.push(`<text x="${xLabelX}" y="${center + 18}" class="axis-label axis-label-x" text-anchor="${xAnchor}">${i}</text>`);
-    ticks.push(`<text x="${center - 16}" y="${y + (i < 0 ? -2 : 6)}" class="axis-label axis-label-y" text-anchor="end">${i}</text>`);
+    ticks.push(`<text x="${x}" y="${center + 28}" class="axis-label axis-label-x" text-anchor="middle">${i}</text>`);
+    ticks.push(`<text x="${center - 24}" y="${y}" class="axis-label axis-label-y" text-anchor="end">${i}</text>`);
+    tickMarks.push(`<line x1="${x}" y1="${center - 8}" x2="${x}" y2="${center + 8}" class="axis-tick"/>`);
+    tickMarks.push(`<line x1="${center - 8}" y1="${y}" x2="${center + 8}" y2="${y}" class="axis-tick"/>`);
   }
 
   const pointSvg = points.map((pt, idx)=>{
@@ -318,10 +321,12 @@ function planeSVG(points, range){
   return `
     <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Pla de coordenades" class="coord-plane">
       <style>
-        .coord-plane{max-width:320px;display:block;margin:0 auto;background:#f8fafc;border-radius:16px;padding:4px;font-family:'Inter',system-ui,sans-serif}
-        .coord-plane .line-grid{stroke:#e2e8f0;stroke-width:1;stroke-dasharray:4 6}
-        .coord-plane .line-axis{stroke:#0f172a;stroke-width:1.4}
-        .coord-plane .axis-label{fill:#334155;font-size:13px;font-weight:500;paint-order:stroke;stroke:#ffffff;stroke-width:4px;stroke-linejoin:round;dominant-baseline:middle}
+        .coord-plane{max-width:340px;display:block;margin:0 auto;background:#f8fafc;border-radius:18px;padding:6px;font-family:'Inter',system-ui,sans-serif}
+        .coord-plane .line-grid{stroke:#cbd5e1;stroke-width:1}
+        .coord-plane .line-grid.boundary{stroke:#94a3b8;stroke-width:1.2}
+        .coord-plane .axis-tick{stroke:#475569;stroke-width:1.2}
+        .coord-plane .axis-line{stroke:#0f172a;stroke-width:2.1}
+        .coord-plane .axis-label{fill:#0f172a;font-size:14px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;dominant-baseline:middle}
         .coord-plane .axis-label-x{dominant-baseline:hanging}
         .coord-plane .axis-label-y{dominant-baseline:middle}
         .coord-plane .point circle{fill:url(#gradPoint);stroke:#1e293b;stroke-width:1.3}
@@ -337,9 +342,10 @@ function planeSVG(points, range){
       </defs>
       <rect x="4" y="4" width="${size-8}" height="${size-8}" rx="16" ry="16" fill="#ffffff" stroke="#e2e8f0"/>
       ${grid}
-      <line x1="${pad}" y1="${center}" x2="${size-pad}" y2="${center}" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-x)"/>
-      <line x1="${center}" y1="${size-pad}" x2="${center}" y2="${pad}" stroke="#0f172a" stroke-width="1.5" marker-end="url(#arrow-y)"/>
+      <line x1="${pad}" y1="${center}" x2="${size-pad}" y2="${center}" class="axis-line" marker-end="url(#arrow-x)"/>
+      <line x1="${center}" y1="${size-pad}" x2="${center}" y2="${pad}" class="axis-line" marker-end="url(#arrow-y)"/>
       ${ticks.join('')}
+      ${tickMarks.join('')}
       <circle cx="${center}" cy="${center}" r="3" fill="#0f172a"/>
       ${pointSvg}
     </svg>`;
