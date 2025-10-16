@@ -98,168 +98,123 @@
       <span class="learning-pill">Entrar →</span>
     </a>
 
-    <section class="panel card codex-brief" aria-labelledby="codex-brief-title">
-      <header class="codex-brief__header">
-        <p class="pill codex-brief__pill">🆕 Recursos per desenvolupament</p>
-        <h2 class="title" id="codex-brief-title">Brief per generar el mòdul de flashcards</h2>
-        <p class="subtitle">Copia i enganxa aquest redactat a Codex per crear l'espai de flashcards amb repetició espaiada.</p>
+    <section class="panel card flashcards" id="flashcards" aria-labelledby="flashcards-title">
+      <header class="flashcards__header">
+        <div>
+          <p class="pill flashcards__pill">🆕 Espai de pràctica</p>
+          <h2 class="title" id="flashcards-title">Flashcards d'estudi</h2>
+          <p class="subtitle" id="flashcards-subtitle">Repàs actiu amb repetició espaiada i memòria local.</p>
+        </div>
+        <div class="flashcards__controls" role="group" aria-label="Controls principals de les flashcards">
+          <label class="chip" for="flashcardsCollection"><span class="flashcards__label-text" data-i18n="collection">Col·lecció</span>
+            <select id="flashcardsCollection" aria-describedby="flashcardsCollectionHint"></select>
+          </label>
+          <label class="chip" for="flashcardsSearch"><span class="flashcards__label-text" data-i18n="search">Cerca</span>
+            <input id="flashcardsSearch" class="input" type="search" placeholder="Filtra per text" aria-describedby="flashcardsSearchHint" />
+          </label>
+          <label class="toggle flashcards__toggle" aria-label="Activa o desactiva el mode fosc">
+            <input type="checkbox" id="flashcardsDarkMode" /> Mode fosc
+          </label>
+          <label class="toggle flashcards__toggle" aria-label="Canvia d'idioma">
+            <select id="flashcardsLang" class="input flashcards__lang">
+              <option value="ca">Català</option>
+              <option value="es">Castellano</option>
+            </select>
+          </label>
+        </div>
+        <div class="sr-only" id="flashcardsCollectionHint">Escull la col·lecció que vols estudiar.</div>
+        <div class="sr-only" id="flashcardsSearchHint">Escriu paraules clau per filtrar targetes.</div>
       </header>
-      <pre id="codexBrief" class="brief-block" aria-label="Brief per a Codex"></pre>
+
+      <div class="flashcards__progress" aria-live="polite">
+        <div class="flashcards__progress-main">
+          <span id="flashcardsCounter">0 / 0 targetes vistes</span>
+          <span id="flashcardsLearned">0% après</span>
+        </div>
+        <div class="flashcards__progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <i></i>
+        </div>
+      </div>
+
+      <div class="flashcards__body">
+        <div class="flashcard-scene" aria-live="polite">
+          <article class="flashcard" id="flashcardCard" aria-label="Targeta d'estudi" tabindex="0">
+            <div class="flashcard__inner" id="flashcardInner">
+              <div class="flashcard__face flashcard__face--front" aria-labelledby="flashcardFrontLabel">
+                <header class="flashcard__face-header">
+                  <span class="pill flashcard__face-pill" id="flashcardFrontLabel">Anvers</span>
+                  <button type="button" id="flashcardMarkDoubt" class="btn-ghost flashcard__doubt" aria-pressed="false" aria-label="Marca aquesta targeta com a dubte">❓ Dubte</button>
+                </header>
+                <div class="flashcard__content" id="flashcardFront">Selecciona una col·lecció per començar.</div>
+              </div>
+              <div class="flashcard__face flashcard__face--back" aria-labelledby="flashcardBackLabel">
+                <header class="flashcard__face-header">
+                  <span class="pill flashcard__face-pill" id="flashcardBackLabel">Revers</span>
+                  <button type="button" id="flashcardEdit" class="btn-ghost flashcard__edit" aria-label="Edita aquesta targeta">✏️ Edita</button>
+                </header>
+                <div class="flashcard__content" id="flashcardBack">Aquí veuràs la resposta.</div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="flashcards__note" id="flashcardNoteWrapper" hidden>
+          <label class="chip flashcards__note-label" for="flashcardNoteInput"><span class="flashcards__note-title">Nota personal</span>
+            <textarea id="flashcardNoteInput" rows="3" placeholder="Escriu anotacions o dubtes..." aria-label="Nota personal per a aquesta targeta"></textarea>
+          </label>
+          <div class="flashcards__note-actions">
+            <button type="button" class="btn-secondary" id="flashcardCloseNote">Tanca nota</button>
+            <span class="flashcards__note-status" id="flashcardNoteStatus" aria-live="polite"></span>
+          </div>
+        </div>
+
+        <div class="flashcards__actions" role="group" aria-label="Accions de la targeta">
+          <button type="button" id="flashcardFlip" class="btn-primary" aria-label="Gira la targeta (tecles espai o F)">Mostra resposta</button>
+          <div class="flashcards__grade">
+            <button type="button" id="flashcardUnknown" class="btn-ghost" aria-label="No ho sabia (tecla fletxa esquerra)">👎 No ho sabia</button>
+            <button type="button" id="flashcardKnown" class="btn-success" aria-label="Ho sabia (tecla fletxa dreta)">👍 Ho sabia</button>
+          </div>
+          <button type="button" id="flashcardNext" class="btn-secondary" aria-label="Passa a la següent targeta (tecla Enter)" disabled>Següent</button>
+        </div>
+
+        <p class="flashcards__feedback" id="flashcardsFeedback" aria-live="polite"></p>
+
+        <div class="flashcards__empty" id="flashcardsEmpty" hidden>
+          <p>No hi ha targetes que coincideixin amb el filtre actual.</p>
+          <button type="button" id="flashcardsResetFilters" class="btn-secondary">Reinicia filtres</button>
+        </div>
+      </div>
+
+      <footer class="flashcards__footer">
+        <div class="flashcards__footer-left">
+          <button type="button" id="flashcardsAddCard" class="btn-primary">+ Nova targeta</button>
+          <button type="button" id="flashcardsManageCollections" class="btn-ghost">🗂️ Col·leccions</button>
+        </div>
+        <div class="flashcards__footer-right">
+          <button type="button" id="flashcardsDiagnosticsToggle" class="btn-ghost" aria-expanded="false">🔍 Diagnòstic</button>
+        </div>
+      </footer>
+
+      <section class="flashcards__diagnostics" id="flashcardsDiagnostics" hidden aria-live="polite">
+        <div class="flashcards__diagnostics-header">
+          <h3>Diagnòstic</h3>
+          <p>Revisa l'estat de les col·leccions, el filtre actiu i el progrés d'aprenentatge.</p>
+        </div>
+        <div class="flashcards__diagnostics-grid">
+          <div>
+            <h4>Col·leccions</h4>
+            <ul id="flashcardsDiagCollections" class="flashcards__list"></ul>
+          </div>
+          <div>
+            <h4>Pool actual</h4>
+            <ul id="flashcardsDiagPool" class="flashcards__list"></ul>
+          </div>
+        </div>
+        <div class="flashcards__diagnostics-actions">
+          <button type="button" id="flashcardsResetAll" class="btn-danger">Reset LocalStorage</button>
+        </div>
+      </section>
     </section>
-
-    <script type="text/plain" id="codexBriefSource">
-Genial! Aquí tens un **redactat llest per enganxar a Codex** i que et generi el **feature de flashcards** en un únic fitxer HTML, sense dependències externes, amb repetició espaiada bàsica i memòria local.
-(Copia-ho tal qual.)
-
----
-
-# 🔧 BRIEF PER A CODEX — “Feature de Flashcards d’Estudi”
-
-**Objectiu:** Construir un mòdul de *flashcards* per a una web educativa (estil FocusQuiz) que funcioni **en un únic fitxer** `flashcards.html` amb **HTML + CSS + JS pur** (cap framework ni CDN). Ha de ser **responsive**, **accessible** (ARIA/teclat) i **llest per executar** només obrint l’arxiu al navegador.
-
-## 1) Requisits funcionals
-
-* Vista principal amb **una targeta centrada**.
-* **Anvers (front)** mostra una *pregunta/terme*; **revers (back)** mostra la *resposta*.
-* Botons:
-
-  * **Mostra resposta / Gira targeta** (toggle).
-  * **No ho sabia** (👎) i **Ho sabia** (👍) per autoavaluació.
-  * **Següent** (si ja s’ha valorat la targeta).
-* **Repetició espaiada simple**: targetes marcades com “No ho sabia” han d’aparèixer amb més freqüència fins que rebin “Ho sabia” diverses vegades. Implementar una versió simplificada d’SM-2:
-
-  * Mantén per targeta: `repetitions`, `interval`, `ease` (inicial 2.5).
-  * Si “Ho sabia”: incrementa `repetitions`; `ease = max(1.3, ease + 0.1)`; `interval` creix (1 → 2 → 5 → 10, … segons `ease`).
-  * Si “No ho sabia”: `repetitions = 0`; `interval = 1`; `ease = max(1.3, ease - 0.2)`.
-  * L’algorisme només s’utilitza per **prioritzar la següent targeta** en el *pool* actual (no cal calendari real; és una sessió curta).
-* **Progrés**: mostra (ex. a la capçalera o sota la targeta):
-
-  * Targetes vistes / totals
-  * % aproximat d’aprenentatge (p. ex. % de targetes amb `repetitions ≥ 2`)
-* **Creador bàsic de targetes** en modal/side-panel: formulari amb *Front* i *Back* + selector de **Col·lecció** (crea i tria col·leccions locals).
-
-  * Accions: Afegir, Editar, Esborrar.
-* **Gestor de col·leccions**: *dropdown* per escollir col·lecció; mostra número de targetes.
-* **Cercador** (live) per filtrar targetes per text (front/back).
-* **Memòria local** (LocalStorage):
-
-  * Guarda col·leccions i targetes.
-  * Guarda els paràmetres d’aprenentatge per targeta (`repetitions`, `interval`, `ease`).
-  * Guarda l’última col·lecció seleccionada i estat de sessió.
-* **Teclat & Accessibilitat**:
-
-  * Barra espaiadora o **F**: flip.
-  * Fletxa esquerra (**←**) = No ho sabia; Fletxa dreta (**→**) = Ho sabia.
-  * **Enter** = Següent (si escau).
-  * ARIA roles i `aria-live` per a missatges de feedback.
-* **Idiomes**: prepara estructura simple per I18N (objecte `strings` amb cadenes en ca/és). Mostra per defecte **ca**.
-
-## 2) Disseny i UX
-
-* **Paleta suau** (tons pastel), fons clar, targeta amb **ombra suau** i **border-radius**. No utilitzar frameworks CSS.
-* **Animació de gir** 3D suau (CSS `transform: rotateY()`), amb *preserve-3d* i *backface-visibility*.
-* Tipografia sans-serif, mides grans i contrast AA.
-* Layout:
-
-  * **Header**: Títol “Flashcards”, selector de col·lecció, camp de cerca, contador de progrés.
-  * **Card area**: targeta centrada + controls a sota.
-  * **Footer**: botó “+ Nova targeta” → obre modal de creació/edició.
-* **Mode fosc** opcional amb toggle (recordar preferència a LocalStorage).
-
-## 3) Dades i estructura
-
-* Incrusta una **col·lecció d’exemple** (JSON inline) amb 10–15 targetes (tema científic o matemàtic) perquè el fitxer funcioni sense res més.
-* Estructura de targeta:
-
-  ```json
-  {
-    "id": "uuid",
-    "front": "text o markup simple",
-    "back": "text o markup simple",
-    "collection": "Nom",
-    "spaced": { "repetitions": 0, "interval": 1, "ease": 2.5 }
-  }
-  ```
-* Si LocalStorage és buit en primera execució, **seeden** la col·lecció d’exemple.
-
-## 4) Lògica de sessió
-
-* Mantén un **pool** de targetes filtrades per col·lecció i cerca.
-* Quan l’usuari valora, **actualitza `spaced`** i **tria la següent** amb una funció `pickNextCard(pool)` que:
-
-  * Dona prioritat a targetes amb `repetitions` baixes, `interval` curt i “No ho sabia” recent.
-  * Desempata aleatòriament per evitar monotonia.
-* Evita repetir la mateixa targeta dues vegades seguides si és possible.
-* Quan el pool queda buit (filtre massa restrictiu), mostra missatge i botó per **reiniciar filtre**.
-
-## 5) Persistència
-
-* Claus de LocalStorage (prefix `fq_flashcards_*`):
-
-  * `fq_flashcards_collections` (array de col·leccions)
-  * `fq_flashcards_cards` (array de targetes)
-  * `fq_flashcards_prefs` (mode fosc, idioma, última col·lecció, etc.)
-
-## 6) Accessibilitat
-
-* Tots els botons amb `aria-label`.
-* `role="button"` on pertoqui, `tabindex="0"` per elements clicables.
-* Missatges de feedback amb `aria-live="polite"`.
-* Focus visible i ordre de tabulació coherent.
-
-## 7) Rendiment i qualitat
-
-* **Cap dependència externa**. Un sol fitxer `.html`.
-* JS modular intern (IIFE o mòduls dins del mateix fitxer).
-* Evitar *layout thrashing*. Usar *delegation* per events si cal.
-* Comentaris clars a les funcions clau: `flipCard`, `grade(known:boolean)`, `pickNextCard`, `saveState`, `loadState`.
-
-## 8) Tests manuals (acceptació)
-
-Implementa un petit panell “**Diagnòstic**” ocult (toggle a footer) que mostri:
-
-* Comptatge de targetes per col·lecció i per filtre.
-* Estadístiques del pool (mitjana d’`ease`, distribució d’`repetitions`).
-* Botó “Reset LocalStorage” (amb confirmació).
-
-**Casos a verificar (ha de passar):**
-
-1. Obrir el fitxer → es veu col·lecció d’exemple i primera targeta.
-2. Premre **Espai** gira la targeta; **←/→** registren No/Sí; el progrés s’actualitza.
-3. Afegir una targeta nova i apareix a la col·lecció actual.
-4. Filtrar per text redueix el pool; netejar el filtre el restaura.
-5. Tancar i reobrir conserva progrés, preferències i col·lecció.
-6. Mode fosc persistent.
-7. Navegació només amb teclat funciona i focus és visible.
-
-## 9) Contingut d’exemple (inclou al fitxer)
-
-Crea col·lecció “**MHS (1r Batx)**” amb ~12 targetes, p. ex.:
-
-* Front: “Fórmula posició MHS”; Back: `x = A·cos(ωt + φ)`
-* Front: “Relació ω i T”; Back: `ω = 2π/T`
-* Front: “Energia total en MHS”; Back: “Constant, E = (1/2)kA²”
-  (Afegir també 1–2 targetes amb imatge simple en `<svg>` o `<code>` breu si vols, però sense dependències.)
-
-## 10) Lliurament
-
-* **Un únic fitxer** `flashcards.html` amb:
-
-  * `<style>` (CSS)
-  * `<script>` (JS)
-  * HTML semantic estructurat
-* Codi **comentat**, net i **llest per executar**.
-* **No facis cap pregunta addicional**. Genera directament el codi complet.
-
----
-
-> **IMPORTANT**: No utilitzis frameworks, ni importacions, ni fonts externes. Tot en un sol fitxer.
-> Mantén el pes del fitxer raonable (<200 KB sense minificar).
-
----
-
-Si vols, quan Codex et torni el fitxer, te’l puc revisar i polir l’UX o l’algorisme de repetició espaiada.
-    </script>
 
     <script>
     document.addEventListener('DOMContentLoaded', ()=>{
@@ -275,17 +230,8 @@ Si vols, quan Codex et torni el fitxer, te’l puc revisar i polir l’UX o l’
     badge.classList.toggle('is-empty', !current);
   }
 
-  const briefNode = document.getElementById('codexBrief');
-  const briefSource = document.getElementById('codexBriefSource');
-  if (briefNode && briefSource) {
-    briefNode.textContent = briefSource.textContent.strip();
-  }
-
 });
 </script>
-  </div>
-</section>
-
     <!-- CONFIG -->
     <section id="view-config" class="hidden">
       <div class="panel card">
@@ -441,6 +387,7 @@ Si vols, quan Codex et torni el fitxer, te’l puc revisar i polir l’UX o l’
   <script src="quim.js" defer></script>
   <script src="geo.js" defer></script>
   <script src="tutor.js"></script>
+  <script src="flashcards.js" defer></script>
 
   <!-- 🔹 Després el bloc del login local -->
   <script>
