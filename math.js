@@ -277,8 +277,8 @@ function randomPointInQuadrant(quadrant, range){
 
 function planeSVG(points, range){
   const axisRange = Math.max(range, 4);
-  const size = 320;
-  const pad = 48;
+  const size = 360;
+  const pad = 56;
   const center = size / 2;
   const step = (size - pad * 2) / (axisRange * 2 || 1);
   const toX = (x)=> center + x * step;
@@ -289,7 +289,8 @@ function planeSVG(points, range){
     if(i===0) continue;
     const pos = center + i * step;
     const dist = Math.abs(i);
-    const cls = dist===axisRange ? 'line-grid boundary' : 'line-grid';
+    const parity = (Math.abs(i) % 2 === 0) ? ' even' : ' odd';
+    const cls = dist===axisRange ? 'line-grid boundary' : `line-grid${parity}`;
     grid += `<line x1="${pad}" y1="${pos}" x2="${size-pad}" y2="${pos}" class="${cls}"/>`;
     grid += `<line x1="${pos}" y1="${pad}" x2="${pos}" y2="${size-pad}" class="${cls}"/>`;
   }
@@ -299,10 +300,10 @@ function planeSVG(points, range){
   for(let i=-axisRange; i<=axisRange; i++){
     if(i===0) continue;
     const x = toX(i), y = toY(i);
-    ticks.push(`<text x="${x}" y="${center + 28}" class="axis-label axis-label-x" text-anchor="middle">${i}</text>`);
-    ticks.push(`<text x="${center - 24}" y="${y}" class="axis-label axis-label-y" text-anchor="end">${i}</text>`);
-    tickMarks.push(`<line x1="${x}" y1="${center - 8}" x2="${x}" y2="${center + 8}" class="axis-tick"/>`);
-    tickMarks.push(`<line x1="${center - 8}" y1="${y}" x2="${center + 8}" y2="${y}" class="axis-tick"/>`);
+    ticks.push(`<text x="${x}" y="${center + 36}" class="axis-label axis-label-x" text-anchor="middle">${i}</text>`);
+    ticks.push(`<text x="${center - 36}" y="${y}" class="axis-label axis-label-y" text-anchor="end">${i}</text>`);
+    tickMarks.push(`<line x1="${x}" y1="${center - 10}" x2="${x}" y2="${center + 10}" class="axis-tick axis-tick-x"/>`);
+    tickMarks.push(`<line x1="${center - 10}" y1="${y}" x2="${center + 10}" y2="${y}" class="axis-tick axis-tick-y"/>`);
   }
 
   const pointSvg = points.map((pt, idx)=>{
@@ -321,16 +322,19 @@ function planeSVG(points, range){
   return `
     <svg viewBox="0 0 ${size} ${size}" role="img" aria-label="Pla de coordenades" class="coord-plane">
       <style>
-        .coord-plane{max-width:340px;display:block;margin:0 auto;background:#f8fafc;border-radius:18px;padding:6px;font-family:'Inter',system-ui,sans-serif}
-        .coord-plane .line-grid{stroke:#cbd5e1;stroke-width:1}
-        .coord-plane .line-grid.boundary{stroke:#94a3b8;stroke-width:1.2}
-        .coord-plane .axis-tick{stroke:#475569;stroke-width:1.2}
-        .coord-plane .axis-line{stroke:#0f172a;stroke-width:2.1}
-        .coord-plane .axis-label{fill:#0f172a;font-size:14px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:3px;stroke-linejoin:round;dominant-baseline:middle}
+        .coord-plane{max-width:360px;display:block;margin:0 auto;background:#f8fafc;border-radius:20px;padding:10px;font-family:'Inter',system-ui,sans-serif}
+        .coord-plane .line-grid{stroke:#d7e0ef;stroke-width:1}
+        .coord-plane .line-grid.odd{stroke:#cdd7e7}
+        .coord-plane .line-grid.even{stroke:#b9c6da}
+        .coord-plane .line-grid.boundary{stroke:#8090ad;stroke-width:1.3}
+        .coord-plane .axis-tick{stroke:#0f172a;stroke-width:1.4}
+        .coord-plane .axis-line{stroke:#0f172a;stroke-width:2.2}
+        .coord-plane .axis-label{fill:#0f172a;font-size:15px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:3.4px;stroke-linejoin:round;dominant-baseline:middle;letter-spacing:0.3px}
         .coord-plane .axis-label-x{dominant-baseline:hanging}
         .coord-plane .axis-label-y{dominant-baseline:middle}
-        .coord-plane .point circle{fill:url(#gradPoint);stroke:#1e293b;stroke-width:1.3}
-        .coord-plane .point-label{fill:#0f172a;font-size:13px}
+        .coord-plane .axis-name{fill:#0f172a;font-size:16px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:3px;letter-spacing:0.4px;dominant-baseline:middle}
+        .coord-plane .point circle{fill:url(#gradPoint);stroke:#1e293b;stroke-width:1.4}
+        .coord-plane .point-label{fill:#0f172a;font-size:14px;font-weight:600;paint-order:stroke;stroke:#ffffff;stroke-width:2.4px;stroke-linejoin:round}
       </style>
       <defs>
         <radialGradient id="gradPoint" cx="35%" cy="35%" r="75%">
@@ -346,6 +350,8 @@ function planeSVG(points, range){
       <line x1="${center}" y1="${size-pad}" x2="${center}" y2="${pad}" class="axis-line" marker-end="url(#arrow-y)"/>
       ${ticks.join('')}
       ${tickMarks.join('')}
+      <text x="${size - pad + 26}" y="${center - 4}" class="axis-name">x</text>
+      <text x="${center + 6}" y="${pad - 30}" class="axis-name">y</text>
       <circle cx="${center}" cy="${center}" r="3" fill="#0f172a"/>
       ${pointSvg}
     </svg>`;
@@ -359,7 +365,7 @@ function genCoordRead(level){
   const html = planeSVG([{ x: point.x, y: point.y, label }], range);
   return {
     type:'coord-read',
-    text:`Observa el pla i escriu les coordenades del punt ${label} (format (x,y)).`,
+    text:`Observa el pla i completa les coordenades del punt ${label}.`,
     html,
     answer:`(${point.x},${point.y})`
   };
