@@ -100,112 +100,112 @@
     </div>
     <!-- 1) Objectiu didàctic -->
     <article class="card" id="blk-1">
-      <h1>🎯 Objectiu didàctic</h1>
-      <p>Aprendre a <b>sumar fraccions amb denominadors diferents</b> mitjançant un itinerari visual i seqüencial: <b>MCM</b> → <b>equivalències</b> → <b>suma</b> → <b>simplificació</b>.</p>
-      <button class="btn" id="start">Comença</button>
+      <h1>Objectiu d’aprenentatge</h1>
+      <div class="toast small">Quan <b>denominadors són diferents</b> → <b>MCM</b> → <b>equivalències</b> → <b>suma</b> → <b>simplificació</b>.</div>
+      <p>Al final podràs: (1) trobar el <b>MCM</b>, (2) convertir a <b>denominador comú</b>, (3) sumar <b>només els numeradors</b>, (4) <b>simplificar</b> el resultat.</p>
+      <div class="row"><button class="btn primary" id="start">Comença</button><span class="pill">Criteris d’èxit: aplica MCM correctament ≥ 80% dels casos</span></div>
     </article>
 
-    <!-- 2) Introducció visual: 1/2 + 1/3 → apareixen 3/6 i 2/6 → suma 5/6 -->
     <article class="card hidden" id="blk-2">
-      <h2>🔹 Introducció visual</h2>
-      <p class="muted">Primer veiem les fraccions originals. Després, les convertim a <b>sisens</b> (MCM=6) i finalment fem la <b>suma</b>.</p>
-      <div id="viz" class="fade"></div>
+      <h2>Demostració visual</h2>
+      <p class="muted">Exemple base <span class="pill">1/2 + 1/3</span>. Convertim a sisens (MCM=6) i sumem.</p>
+      <div id="viz" class="fade" role="img" aria-label="Diagrama circular de fraccions amb transformació a sisens"></div>
       <div class="row" style="justify-content:space-between;margin-top:8px">
         <span class="pill">Exemple: <span class="frac"><b>1</b><i></i><b>2</b></span> + <span class="frac"><b>1</b><i></i><b>3</b></span></span>
         <div class="row">
-          <button class="btn" id="btnShowMCM">Mostra el MCM i transforma</button>
+          <button class="btn" id="btnShowMCM">Mostra MCM i equivalències</button>
           <button class="btn" id="btnShowSum" disabled>Mostra la suma</button>
+          <button class="btn" data-retry="2">Reinicia aquest pas</button>
         </div>
       </div>
     </article>
 
-    <!-- 3) Explicació guiada amb visuals -->
     <article class="card hidden" id="blk-3">
-      <h2>🧠 Explicació guiada</h2>
-      <div class="progress" style="margin:6px 0 10px"><div class="bar" id="bar"></div></div>
-      <ol id="guide" class="fade" style="margin:0 0 0 18px"></ol>
-      <button class="btn" id="nextStep">Següent pas</button>
+      <h2>Guia pas a pas</h2>
+      <ol id="guide" class="fade small" style="margin:0 0 8px 18px"></ol>
+      <div class="row"><button class="btn primary" id="nextStep">Següent pas</button><button class="btn" data-retry="3">Reinicia aquest pas</button></div>
     </article>
 
-    <!-- 4) Pràctica guiada clara (pas a pas) -->
     <article class="card hidden" id="blk-4">
-      <h2>✏️ Pràctica guiada</h2>
-      <p class="muted">Completa cada pas. Quan el facis bé, s'obrirà el següent.</p>
-
-      <!-- Pas 1: MCM -->
+      <h2>Pràctica guiada</h2>
+      <p class="muted">Completa cada pas. Quan el facis bé, s’obrirà el següent.</p>
       <div id="p1" class="fade">
-        <h3 class="mini">Pas 1 · Troba el MCM (denominadors 2 i 3)</h3>
-        <div class="row">
-          <input id="mcm" class="input" placeholder="Escriu el MCM" />
-          <button class="btn" id="mcmChk">Comprova</button>
-          <span id="mcmMsg" class="muted"></span>
-        </div>
-        <div class="muted mini" style="margin-top:6px">Pista: múltiples de 2 → 2,4,6,8…  ·  múltiples de 3 → 3,6,9…</div>
+        <h3>Pas 1 · Troba el MCM (2 i 3) <span class="pill" id="bc1">Pas 1/4</span></h3>
+        <div class="row"><input id="mcm" class="input" placeholder="Escriu el MCM" aria-label="Resposta MCM"/><button class="btn" id="mcmChk">Comprova</button><button class="btn" data-retry="p1">Reinicia</button><span id="mcmMsg" class="muted"></span></div>
+        <div class="small muted">Pista 1: múltiples de 2 → 2,4,6… · 3 → 3,6,9… <span id="pistaMCM" class="hidden">Pista 2: el primer múltiple compartit és 6.</span></div>
       </div>
-
-      <!-- Pas 2: Equivalències -->
       <div id="p2" class="hidden">
-        <h3 class="mini">Pas 2 · Converteix a sisens</h3>
-        <div class="row list">
-          <div><span class="frac"><b>1</b><i></i><b>2</b></span> → </div>
-          <div class="row">
-            <input id="a2n" class="input" placeholder="numerador" />
-            <span class="frac"><b>&nbsp;</b><i></i><b>6</b></span>
-          </div>
-          <span id="eqMsg1" class="muted"></span>
+        <h3>Pas 2 · Equivalències a sisens <span class="pill" id="bc2">Pas 2/4</span></h3>
+        <div class="grid">
+          <div class="row"><div><span class="frac"><b>1</b><i></i><b>2</b></span> →</div><div class="row"><input id="a2n" class="input" placeholder="numerador"/><span class="frac"><b>&nbsp;</b><i></i><b>6</b></span></div><span id="eqMsg1" class="muted"></span></div>
+          <div class="row"><div><span class="frac"><b>1</b><i></i><b>3</b></span> →</div><div class="row"><input id="c2n" class="input" placeholder="numerador"/><span class="frac"><b>&nbsp;</b><i></i><b>6</b></span></div><span id="eqMsg2" class="muted"></span></div>
         </div>
-        <div class="row list">
-          <div><span class="frac"><b>1</b><i></i><b>3</b></span> → </div>
-          <div class="row">
-            <input id="c2n" class="input" placeholder="numerador" />
-            <span class="frac"><b>&nbsp;</b><i></i><b>6</b></span>
-          </div>
-          <span id="eqMsg2" class="muted"></span>
-        </div>
-        <div class="row" style="margin-top:6px"><button class="btn" id="eqChk">Comprova</button><span id="eqMsg" class="muted"></span></div>
+        <div class="row"><button class="btn" id="eqChk">Comprova</button><button class="btn" data-retry="p2">Reinicia</button><span id="eqMsg" class="muted"></span></div>
       </div>
-
-      <!-- Pas 3: Suma -->
       <div id="p3" class="hidden">
-        <h3 class="mini">Pas 3 · Fes la suma</h3>
+        <h3>Pas 3 · Fes la suma <span class="pill" id="bc3">Pas 3/4</span></h3>
         <div class="row">
-          <span class="frac"><b id="showA2">3</b><i></i><b>6</b></span>
-          <span> + </span>
-          <span class="frac"><b id="showC2">2</b><i></i><b>6</b></span>
-          <span> = </span>
-          <div class="frac"><b><input id="sumN" class="input" placeholder="numerador" /></b><i></i><b><input id="sumD" class="input" value="6" readonly /></b></div>
-          <button class="btn" id="sumChk">Comprova</button>
-          <span id="sumMsg" class="muted"></span>
+          <span class="frac"><b id="showA2">3</b><i></i><b>6</b></span> + <span class="frac"><b id="showC2">2</b><i></i><b>6</b></span> =
+          <div class="frac"><b><input id="sumN" class="input" placeholder="numerador"/></b><i></i><b><input id="sumD" class="input" value="6" readonly/></b></div>
+          <button class="btn" id="sumChk">Comprova</button><button class="btn" data-retry="p3">Reinicia</button><span id="sumMsg" class="muted"></span>
         </div>
+        <div class="small muted">Error típic: <span class="pill">sumar denominadors</span>. No ho facis.</div>
       </div>
-
-      <!-- Pas 4: Resultat i simplificació -->
       <div id="p4" class="hidden">
-        <h3 class="mini">Pas 4 · Resultat final</h3>
-        <div class="row">
-          <span class="pill">Resultat: <span class="frac"><b id="resN">5</b><i></i><b id="resD">6</b></span></span>
-          <span class="ok" id="simpMsg">Ja està simplificat ✅</span>
-        </div>
-        <div class="row" style="margin-top:8px"><button class="btn" id="toGame">Anar al joc</button></div>
+        <h3>Pas 4 · Resultat i simplificació <span class="pill" id="bc4">Pas 4/4</span></h3>
+        <div class="row"><span class="pill">Resultat: <span class="frac"><b id="resN">5</b><i></i><b id="resD">6</b></span></span><span class="ok" id="simpMsg">Ja està simplificat ✅</span></div>
+        <div class="row"><button class="btn primary" id="toGame">Anar al joc</button><button class="btn" data-retry="p4">Reinicia</button></div>
       </div>
     </article>
 
-    <!-- 5) Joc curt -->
     <article class="card hidden" id="blk-5">
-      <h2>🎮 Joc interactiu</h2>
-      <div id="game" class="fade"></div>
+      <h2>Joc interactiu</h2>
+      <div id="game" class="fade small"></div>
+      <div class="row"><button class="btn" id="moreGame">Nou repte</button><button class="btn" data-retry="5">Reinicia aquest pas</button><a class="btn" href="#blk-7">Ves a Exercicis</a></div>
     </article>
 
-    <!-- 6) Resum -->
+    <article class="card hidden" id="blk-7">
+      <h2>Exercicis d’entrenament</h2>
+      <p class="muted">Pràctiques variades amb generador aleatori i Mastery Check.</p>
+      <div class="grid">
+        <div class="card">
+          <h3>MCM ràpid · 10 ítems</h3>
+          <div id="mcmFlash"></div>
+          <div class="row"><button class="btn primary" id="mcmRun">Comença</button><span id="mcmScore" class="pill">0/0</span></div>
+        </div>
+        <div class="card">
+          <h3>Equivalències dirigides</h3>
+          <div id="eqDir"></div>
+          <div class="row"><button class="btn primary" id="eqDirRun">Comença</button><span id="eqDirScore" class="pill">0/0</span></div>
+        </div>
+        <div class="card">
+          <h3>Suma guiada (aleatòria)</h3>
+          <div id="sumTrain"></div>
+          <div class="row"><button class="btn primary" id="sumRun">Comença</button><span id="sumScore" class="pill">0/0</span></div>
+        </div>
+        <div class="card">
+          <h3>Simplificació</h3>
+          <div id="simpTrain"></div>
+          <div class="row"><button class="btn primary" id="simpRun">Comença</button><span id="simpScore" class="pill">0/0</span></div>
+        </div>
+        <div class="card">
+          <h3>Mastery Check · 8 ítems</h3>
+          <div id="master"></div>
+          <div class="row"><button class="btn primary" id="masterRun">Inicia</button><span id="masterScore" class="pill">0/0</span><span class="muted small">Aprovat amb 6/8</span></div>
+        </div>
+      </div>
+    </article>
+
     <article class="card hidden" id="blk-6">
-      <h2>📘 Resum</h2>
+      <h2>Resum i recomanacions</h2>
       <ul>
         <li>Troba el <b>MCM</b> dels denominadors.</li>
-        <li>Converteix les fraccions al denominador comú.</li>
+        <li>Converteix a <b>denominador comú</b> (fraccions equivalents).</li>
         <li><b>Suma</b> els numeradors; el denominador es manté.</li>
         <li><b>Simplifica</b> si cal.</li>
       </ul>
-      <button class="btn" id="restart">Torna a començar</button>
+      <div class="row"><button class="btn" id="restart">Torna a començar</button><button class="btn" id="printSum">Imprimeix resum</button></div>
+      <div class="printOnly small"><hr/>Errors freqüents: sumar denominadors; confondre MCM amb MCD.</div>
     </article>
   </section>
 
