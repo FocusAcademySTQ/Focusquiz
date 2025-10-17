@@ -1,83 +1,104 @@
-<!DOCTYPE html><html lang="ca"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>FocusQuiz·Suma de fraccions (denominadors diferents)</title><meta name="description" content="Càpsula visual seqüencial: MCM→equivalències→suma→simplificació. Inclou índex lateral, mode fosc, estat guardat, glossari, exercicis i Mastery Check."/>
-<style>
-:root{--bg:#f7f9fc;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--brand:#8ec5ff;--brand2:#a7f3d0;--ok:#10b981;--bad:#ef4444;--warn:#f59e0b;--shadow:0 10px 30px rgba(2,8,23,.08);--radius:16px}
-*{box-sizing:border-box}html,body{height:100%}body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg)}
-a{color:inherit}
-#app{display:grid;grid-template-columns:260px 1fr;min-height:100%}
-#sidebar{border-right:1px solid var(--line);background:#fcfdff}
-#sideHead{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
-#toggleSide{appearance:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer}
-#toc{list-style:none;margin:0;padding:10px}#toc li{margin:4px 0}
-#toc a{display:block;padding:8px 10px;border-radius:10px;text-decoration:none;border:1px solid transparent}
-#toc a[aria-current="true"],#toc a:hover{background:linear-gradient(135deg,#fff,rgba(142,197,255,.15));border-color:var(--line)}
-#main{position:relative}
-.topbar{position:sticky;top:0;z-index:10;background:linear-gradient(180deg,#ffffffcc,#ffffffee);backdrop-filter:saturate(150%) blur(4px);border-bottom:1px solid var(--line)}
-.progressWrap{padding:10px 14px;display:flex;gap:10px;align-items:center}
-.progress{flex:1;height:10px;background:var(--line);border-radius:999px;overflow:hidden}
-.bar{height:10px;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.3s width}
-.stepTag{font-weight:600;color:#0b1220}
-.actions{display:flex;gap:8px;align-items:center}
-.btn{appearance:none;border:1px solid var(--line);border-radius:12px;padding:8px 12px;background:#fff;cursor:pointer;font-weight:600;box-shadow:0 4px 14px rgba(2,8,23,.06);transition:.15s transform}
-.btn:hover{transform:translateY(-1px)}
-.btn[disabled]{opacity:.45;cursor:not-allowed}
-.btn.primary{background:linear-gradient(135deg,var(--brand),var(--brand2));border-color:transparent}
-section{max-width:980px;margin:0 auto;padding:16px;display:grid;gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
-h1{font-size:1.6rem;margin:0 0 6px}h2{font-size:1.3rem;margin:0 0 8px}h3{font-size:1.05rem;margin:8px 0}
-p,li{margin:.25rem 0}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted)}
-.muted{color:var(--muted)}.ok{color:var(--ok)}.bad{color:var(--bad)}.warn{color:var(--warn)}
-.frac{display:inline-grid;grid-template-rows:auto auto;line-height:1;align-items:center}
-.frac>i{height:2px;background:#111827;border-radius:2px;margin:2px 0}
-.input{padding:10px 12px;border:1px solid var(--line);border-radius:10px;min-width:90px}
-.grid{display:grid;gap:10px}
-.fade{opacity:0;transform:translateY(6px);animation:fade .35s forwards}@keyframes fade{to{opacity:1;transform:none}}
-.hidden{display:none}
-kbd{border:1px solid var(--line);padding:2px 6px;border-radius:6px;background:#fff}
-#live{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.small{font-size:.92rem}
-svg{max-width:100%;height:auto}
-hr{border:none;border-top:1px solid var(--line);margin:6px 0}
-.toast{border-left:4px solid var(--ok);padding:8px 10px;border-radius:10px;background:#f7fff9}
-.errbox{border-left:4px solid var(--bad);padding:8px 10px;border-radius:10px;background:#fff6f6}
-#themeToggle{min-width:42px}
-.printOnly{display:none}
-@media print{#sidebar,.topbar,.actions,#themeToggle,.noPrint{display:none}.printOnly{display:block}}
-/* Mode fosc */
-body.dark{--bg:#0b1220;--card:#0f172a;--ink:#e6eefb;--muted:#a8b3c7;--line:#293241;--brand:#7bb0ff;--brand2:#5fe3c1;--shadow:0 10px 30px rgba(0,0,0,.35)}
-body.dark #toc a[aria-current="true"],body.dark #toc a:hover{background:linear-gradient(135deg,#0f172a,#152036)}
-</style>
-</head><body>
-<div id="app" aria-live="polite" aria-busy="false">
-<nav id="sidebar" aria-label="Índex lateral">
-  <div id="sideHead"><strong>Índex</strong><button id="toggleSide" class="btn" aria-expanded="true" title="Plega/desplega índex">▮▮</button></div>
-  <ul id="toc">
-    <li><a href="#blk-1" data-step="1">1. Objectiu</a></li>
-    <li><a href="#blk-2" data-step="2">2. Demostració</a></li>
-    <li><a href="#blk-3" data-step="3">3. Guia</a></li>
-    <li><a href="#blk-4" data-step="4">4. Pràctica</a></li>
-    <li><a href="#blk-5" data-step="5">5. Joc</a></li>
-    <li><a href="#blk-7" data-step="6">6. Exercicis</a></li>
-    <li><a href="#blk-6" data-step="7">7. Resum</a></li>
-    <li><a href="#blk-8" data-step="8">8. Glossari</a></li>
-  </ul>
-</nav>
-<main id="main">
-  <div class="topbar">
-    <div class="progressWrap">
-      <div class="stepTag" id="crumb">Pas 1/8 · Objectiu</div>
-      <div class="progress" aria-label="Progrés"><div class="bar" id="bar"></div></div>
-      <div class="actions">
-        <button id="themeToggle" class="btn" title="Canvia tema" aria-pressed="false">🌙</button>
-        <button id="printBtn" class="btn" title="Versió imprimible">🖨️</button>
-        <button id="resetAll" class="btn" title="Reinicia mòdul">Reinicia tot</button>
-      </div>
-    </div>
-  </div>
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FocusQuiz · Càpsula · Suma de fraccions (denominadors diferents)</title>
+  <meta name="description" content="Càpsula visual i seqüencial: objectiu → introducció → explicació visual → pràctica guiada → joc → resum. Exemple base 1/2 + 1/3 amb transformació a sisens i suma final." />
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
+      --brand:#8ec5ff;--brand2:#a7f3d0;--brand3:#fbcfe8;--ok:#10b981;--bad:#ef4444;--warn:#f59e0b;
+      --shadow:0 10px 30px rgba(2,8,23,.08);
+      --grid-fine:#e9eef6;--grid-bold:#d9e2f1;--grid-blur:0.3px;--grid-size:24px;--grid-mult:5;
+      --focus:#7bb0ff;
+    }
+    body.dark{
+      --grid-fine:#1b2535;
+      --grid-bold:#162031;
+      --grid-blur:0.2px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg);position:relative;min-height:100vh;}
+    body::before{
+      content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+      background:
+        repeating-linear-gradient(
+          to right,
+          transparent 0 calc(var(--grid-size)*(var(--grid-mult) - 0.1)),
+          var(--grid-bold) 0 calc(var(--grid-size)*var(--grid-mult))
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0 calc(var(--grid-size)*(var(--grid-mult) - 0.1)),
+          var(--grid-bold) 0 calc(var(--grid-size)*var(--grid-mult))
+        ),
+        repeating-linear-gradient(
+          to right,
+          var(--grid-fine) 0 1px,
+          transparent 1px var(--grid-size)
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          var(--grid-fine) 0 1px,
+          transparent 1px var(--grid-size)
+        ),
+        var(--bg);
+      background-attachment:fixed;
+      filter:blur(var(--grid-blur));
+    }
+    body.dots::before{
+      background:
+        radial-gradient(var(--grid-fine) 1px,transparent 1px) 0 0/ var(--grid-size) var(--grid-size),
+        radial-gradient(var(--grid-bold) 1px,transparent 1px) 0 0/ calc(var(--grid-size)*var(--grid-mult)) calc(var(--grid-size)*var(--grid-mult)),
+        var(--bg);
+      filter:none;
+    }
+    @media print{
+      body{background:#fff!important;}
+      body::before{display:none;}
+    }
+    section{max-width:980px;margin:0 auto;padding:16px;display:grid;gap:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px}
+    h1,h2{margin:6px 0 10px}
+    .muted{color:var(--muted)}
+    .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;background:linear-gradient(135deg,var(--brand),var(--brand3));color:#0b1220;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(2,8,23,.08)}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .btn:hover{transform:translateY(-1px)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .frac{display:inline-grid;grid-template-rows:auto auto;line-height:1}
+    .frac>i{height:2px;background:#111827;border-radius:2px;margin:2px 0}
+    .input{padding:10px 12px;border:1px solid var(--line);border-radius:10px;width:110px}
+    .ok{color:var(--ok)} .bad{color:var(--bad)}
+    .hidden{display:none}
+    .fade{opacity:0;transform:translateY(6px);animation:fade .4s forwards}
+    @keyframes fade{to{opacity:1;transform:none}}
+    .progress{height:8px;background:var(--line);border-radius:999px;overflow:hidden}
+    .bar{height:8px;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.3s width}
+    svg{max-width:100%;height:auto}
+    .mini{font-size:.95rem}
+    .pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted)}
+    .list{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+    .topbar{justify-content:flex-end}
+    .topbar .btn{min-width:44px;padding:8px 12px}
+    .btn:focus-visible,.input:focus-visible,.topbar button:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:12px}
+    @media (prefers-reduced-motion:no-preference){
+      .card{transition:box-shadow .2s ease,transform .15s ease}
+      .card:hover{transform:translateY(-1px);box-shadow:0 14px 34px rgba(2,8,23,.1)}
+      .btn{transition:transform .12s ease,box-shadow .12s ease}
+      .btn:active{transform:translateY(0)}
+    }
+    @media (prefers-reduced-motion:reduce){
+      *{animation:none!important;transition:none!important}
+    }
+  </style>
+</head>
+<body>
   <section id="capsule">
-    <div id="live" aria-live="assertive"></div>
-
+    <div class="row topbar" aria-label="Eines de fons">
+      <button class="btn" id="gridToggle" type="button" aria-label="Canvia el patró de fons" title="Canvia fons">📐</button>
+    </div>
+    <!-- 1) Objectiu didàctic -->
     <article class="card" id="blk-1">
       <h1>Objectiu d’aprenentatge</h1>
       <div class="toast small">Quan <b>denominadors són diferents</b> → <b>MCM</b> → <b>equivalències</b> → <b>suma</b> → <b>simplificació</b>.</div>
@@ -186,80 +207,213 @@ body.dark #toc a[aria-current="true"],body.dark #toc a:hover{background:linear-g
       <div class="row"><button class="btn" id="restart">Torna a començar</button><button class="btn" id="printSum">Imprimeix resum</button></div>
       <div class="printOnly small"><hr/>Errors freqüents: sumar denominadors; confondre MCM amb MCD.</div>
     </article>
-
-    <article class="card hidden" id="blk-8">
-      <h2>Glossari</h2>
-      <ul class="small">
-        <li><b>MCM</b>: mínim comú múltiple dels denominadors; serveix per trobar el denominador comú.</li>
-        <li><b>MCD</b>: màxim comú divisor de numerador i denominador; serveix per simplificar.</li>
-        <li><b>Fracció equivalent</b>: fracció amb el mateix valor numèric obtinguda multiplicant/dividint numerador i denominador pel mateix nombre.</li>
-      </ul>
-    </article>
   </section>
-</main>
-</div>
 
-<script>
-const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
-const store={get:(k,d=null)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set:(k,v)=>localStorage.setItem(k,JSON.stringify(v)),del:k=>localStorage.removeItem(k)};
-const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
-const lcm=(a,b)=>Math.abs(a*b)/gcd(a,b);
-const ui={bar:$('#bar'),crumb:$('#crumb'),setStep(i,total,label){this.bar.style.width=(i/total*100)+'%';this.crumb.textContent=`Pas ${i}/${total} · ${label}`;},announce:t=>{$('#live').textContent=t;}};
-const steps=['Objectiu','Demostració','Guia','Pràctica','Joc','Exercicis','Resum','Glossari'];
-function goto(el){el.classList.remove('hidden');el.scrollIntoView({behavior:'smooth',block:'start'});}
-function setTOC(id){$$('#toc a').forEach(a=>a.setAttribute('aria-current',a.getAttribute('href')===`#${id}`));}
-function saveProgress(){const done=[...$$('article')].filter(x=>!x.classList.contains('hidden')).map(x=>x.id);store.set('fq_progress',{done,theme:document.body.classList.contains('dark')});}
-function loadProgress(){const s=store.get('fq_progress');if(!s)return;document.body.classList.toggle('dark',!!s.theme);if(s.done){s.done.forEach(id=>$('#'+id)?.classList.remove('hidden'));const last=s.done.at(-1);if(last)document.getElementById(last).scrollIntoView();}
-updateStepUI();}
-function updateStepUI(){const open=[...$$('article')].filter(x=>!x.classList.contains('hidden'));const last=open.at(-1);const idx=[...$$('article')].indexOf(last)+1;ui.setStep(idx,8,steps[idx-1]||'');setTOC(last.id);saveProgress();}
-function resetSection(target){if(target==='2'){renderIntro(true);}if(target==='3'){guideReset();}if(target==='5'){renderGame(true);}if(target==='p1'){ $('#mcm').value='';$('#mcmMsg').textContent='';$('#pistaMCM').classList.add('hidden');}if(target==='p2'){ $('#a2n').value='';$('#c2n').value='';$('#eqMsg').textContent='';$('#eqMsg1').textContent='';$('#eqMsg2').textContent='';}if(target==='p3'){ $('#sumN').value='';$('#sumMsg').textContent='';}if(target==='p4'){ $('#simpMsg').textContent='Ja està simplificat ✅';}}
-/* Sidebar + top controls */
-$('#toggleSide').onclick=()=>{const nav=$('#sidebar');const now=nav.style.display!=='none';nav.style.display=now?'none':'block';$('#toggleSide').setAttribute('aria-expanded',!now);};
-$('#themeToggle').onclick=()=>{document.body.classList.toggle('dark');const pressed=document.body.classList.contains('dark');$('#themeToggle').setAttribute('aria-pressed',pressed);saveProgress();}
-$('#printBtn').onclick=()=>window.print();$('#printSum').onclick=()=>window.print();
-$('#resetAll').onclick=()=>{localStorage.removeItem('fq_progress');location.reload();};
-/* Keyboard helpers */
-document.addEventListener('keydown',e=>{if(e.key==='Enter'){const f=document.activeElement;if(f && f.classList.contains('input')){const btn=f.closest('div').querySelector('button');btn?.click();}}});
-/* Intro demo SVG */
-function drawPie(cx,cy,r,parts,fill,color){let out='';const tau=Math.PI*2,off=-Math.PI/2;for(let i=0;i<parts;i++){const a0=off+i*(tau/parts),a1=off+(i+1)*(tau/parts),x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),large=(a1-a0)>Math.PI?1:0,p=`M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`;out+=`<path d="${p}" fill="${i<fill?color:'#e5e7eb'}" stroke="#94a3b8"/>`;}return out;}
-function renderIntro(reset){const svg=`<svg viewBox="0 0 840 260" role="img" aria-label="Transformació de 1/2 i 1/3 a sisens i suma"><g>${drawPie(150,90,70,2,1,'#93c5fd')}<text x="150" y="190" text-anchor="middle" fill="#334155">1/2</text></g><g>${drawPie(390,90,70,3,1,'#fbcfe8')}<text x="390" y="190" text-anchor="middle" fill="#334155">1/3</text></g><text x="270" y="100" font-size="26" text-anchor="middle" fill="#0f172a">+</text><g id="zone2"></g></svg>`;$('#viz').innerHTML=svg;if(reset){$('#btnShowSum').disabled=true;}updateStepUI();}
-function showMCM(){const zone=`<g>${drawPie(150,170,60,6,3,'#a7f3d0')}<text x="150" y="240" text-anchor="middle" fill="#0f172a">3/6</text></g><g>${drawPie(390,170,60,6,2,'#c7d2fe')}<text x="390" y="240" text-anchor="middle" fill="#0f172a">2/6</text></g>`;$('#viz').querySelector('#zone2').innerHTML=zone;$('#btnShowSum').disabled=false;ui.announce('MCM trobat, fraccions convertides a sisens.');}
-function showSum(){const sum=`<g>${drawPie(650,170,70,6,5,'#fde68a')}<text x="650" y="240" text-anchor="middle" fill="#0f172a">3/6 + 2/6 = 5/6</text></g>`;$('#viz').querySelector('#zone2').innerHTML+=sum;goto($('#blk-3'));updateStepUI();}
-/* Guide */
-const guideItems=[{h:`<b>Pas 1</b> · Denominadors: 2 i 3 → <b>MCM=6</b>`,v:`<div class="small muted">Múltiples: 2→2,4,<b>6</b>… · 3→3,<b>6</b>…</div>`},{h:`<b>Pas 2</b> · Equivalències: 1/2 → <b>3/6</b> i 1/3 → <b>2/6</b>`,v:`<div class="small">1/2×3→3/6 · 1/3×2→2/6</div>`},{h:`<b>Pas 3</b> · Suma: 3/6+2/6=<b>5/6</b>`,v:`<div class="small">Suma només numeradors; el denominador es manté.</div>`},{h:`<b>Pas 4</b> · Simplificació`,v:`<div class="small">MCD(5,6)=1 → ja simplificat.</div>`}];let gIndex=0;function guideReset(){gIndex=0;$('#guide').innerHTML='';$('#nextStep').disabled=false;}
-function addGuideStep(){if(gIndex>=guideItems.length){$('#nextStep').disabled=true;goto($('#blk-4'));updateStepUI();return}const li=document.createElement('li');li.className='fade';li.innerHTML=guideItems[gIndex].h+guideItems[gIndex].v;$('#guide').appendChild(li);gIndex++;updateStepUI();}
-/* Practice */
-function checkMCM(){const v=$('#mcm').value.trim();const ok=(v==='6');$('#mcmMsg').innerHTML=ok?'<span class="ok">Correcte! El MCM és 6.</span>':'<span class="bad">No és el MCM. Prova amb 6.</span>';if(!ok)$('#pistaMCM').classList.remove('hidden');if(ok){$('#p2').classList.remove('hidden');$('#p2').classList.add('fade');ui.announce('MCM correcte. Continua amb equivalències.');}saveProgress();}
-function checkEq(){const a2=$('#a2n').value.trim(),c2=$('#c2n').value.trim();const ok1=(a2==='3'),ok2=(c2==='2');$('#eqMsg1').innerHTML=ok1?'<span class="ok">1/2 = 3/6</span>':'<span class="bad">Recorda: 1/2 × 3 = 3/6</span>';$('#eqMsg2').innerHTML=ok2?'<span class="ok">1/3 = 2/6</span>':'<span class="bad">Recorda: 1/3 × 2 = 2/6</span>';if(ok1&&ok2){$('#eqMsg').innerHTML='<span class="ok">Perfecte! Ara suma.</span>';$('#p3').classList.remove('hidden');$('#p3').classList.add('fade');$('#showA2').textContent='3';$('#showC2').textContent='2';}saveProgress();}
-function checkSum(){const n=$('#sumN').value.trim(),d=$('#sumD').value.trim();const ok=(n==='5'&&d==='6');$('#sumMsg').innerHTML=ok?'<span class="ok">Correcte: 5/6.</span>':'<span class="bad">Revisa: 3+2=5 i el denominador es manté (6).</span>';if(ok){$('#p4').classList.remove('hidden');$('#p4').classList.add('fade');ui.announce('Suma correcta: cinc sisens.');}saveProgress();}
-/* Game with random */
-function randInt(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
-function genCoprime(n=9){let a=randInt(1,n),b=randInt(1,n);while(gcd(a,b)!==1){a=randInt(1,n);b=randInt(1,n);}return[a,b];}
-function genAdd(){let [a,b]=genCoprime(9),[c,d]=genCoprime(9);if(b===d)d=d+1;return{a,b,c,d};}
-function solveAdd({a,b,c,d}){const L=lcm(b,d),A=a*(L/b),C=c*(L/d);const N=A+C,D=L;const g=gcd(N,D);return{n:N/g,d:D/g,L,A,C};}
-function renderGame(reset){const ex=genAdd();const sol=solveAdd(ex);const wrong1=`${sol.n+1}/${sol.d}`;const wrong2=`${ex.a+ex.c}/${ex.b+ex.d}`;const opts=[[sol.n,sol.d],[sol.n+randInt(2,3),sol.d],[wrong2.split('/')[0],wrong2.split('/')[1]]].sort(()=>Math.random()-.5);$('#game').innerHTML=`<p>Resol: <span class="frac"><b>${ex.a}</b><i></i><b>${ex.b}</b></span> + <span class="frac"><b>${ex.c}</b><i></i><b>${ex.d}</b></span></p><div class="row">${opts.map((o,i)=>`<button class="btn" data-opt="${i}">${o[0]}/${o[1]}</button>`).join('')}</div><p id="gMsg" class="muted"></p><div class="small muted">Pista: MCM(${ex.b},${ex.d})=${sol.L} → ${ex.a}→${sol.A}/${sol.L}, ${ex.c}→${sol.C}/${sol.L}</div>`;$('#game').querySelectorAll('[data-opt]').forEach((b,i)=>b.onclick=()=>{const isRight=(opts[i][0]==sol.n&&opts[i][1]==sol.d);$('#gMsg').innerHTML=isRight?'<span class="ok">Correcte! '+sol.A+'/'+sol.L+' + '+sol.C+'/'+sol.L+' = '+sol.n+'/'+sol.d+' ✅</span>':'<span class="bad">No és correcte. Revisa el MCM i torna-ho a provar.</span>';if(isRight)goto($('#blk-7'));});if(reset)updateStepUI();}
-$('#moreGame').onclick=()=>renderGame(true);
-/* Training generators */
-function mountMCMFlash(){const root=$('#mcmFlash');root.innerHTML='';let done=0,ok=0;function one(){if(done>=10){$('#mcmScore').textContent=`${ok}/10`;ui.announce(`MCM ràpid completat ${ok} de 10`);return}const x=randInt(2,12),y=randInt(2,12);const ans=lcm(x,y);root.innerHTML=`<div class="row"><span>Quin és el MCM(${x},${y})?</span><input class="input" id="mcmA" placeholder="resposta"/><button class="btn" id="mcmGo">OK</button><span id="mcmMsg2" class="muted"></span></div>`;$('#mcmGo').onclick=()=>{const v=$('#mcmA').value.trim();if(v==ans){ok++;$('#mcmMsg2').innerHTML='<span class="ok">Bé!</span>'}else{$('#mcmMsg2').innerHTML='<span class="bad">És '+ans+'</span>'}done++;$('#mcmScore').textContent=`${ok}/${done}`;setTimeout(one,500);};}one();}
-function mountEqDir(){const root=$('#eqDir');root.innerHTML='';let done=0,ok=0;function one(){if(done>=5){$('#eqDirScore').textContent=`${ok}/5`;return}const b=randInt(2,12),d=randInt(2,12);const L=lcm(b,d),mul=L/b,fracN=1;root.innerHTML=`<div class="row small"><span>Converteix <span class="frac"><b>${fracN}</b><i></i><b>${b}</b></span> a denominador ${L}:</span><input class="input" id="eqNum" placeholder="numerador"/><button class="btn" id="eqGo">OK</button><span id="eqMsg3" class="muted"></span></div><div class="muted small">Pista: multiplica per ${mul}</div>`;$('#eqGo').onclick=()=>{const v=$('#eqNum').value.trim();if(v==(fracN*mul)){ok++;$('#eqMsg3').innerHTML='<span class="ok">Correcte!</span>'}else{$('#eqMsg3').innerHTML='<span class="bad">Ha de ser '+(fracN*mul)+'</span>'}done++;$('#eqDirScore').textContent=`${ok}/${done}`;setTimeout(one,500);};}one();}
-function mountSumTrain(){const root=$('#sumTrain');root.innerHTML='';let done=0,ok=0;function one(){if(done>=10){$('#sumScore').textContent=`${ok}/10`;return}const ex=genAdd(),sol=solveAdd(ex);root.innerHTML=`<div class="row small"><span><span class="frac"><b>${ex.a}</b><i></i><b>${ex.b}</b></span>+<span class="frac"><b>${ex.c}</b><i></i><b>${ex.d}</b></span>=</span><input class="input" id="sN" placeholder="num"/><span class="frac"><b>&nbsp;</b><i></i><b><input class="input" id="sD" placeholder="den"/></b></span><button class="btn" id="sGo">OK</button><span id="sMsg" class="muted"></span></div>`;$('#sGo').onclick=()=>{const n=$('#sN').value.trim(),d=$('#sD').value.trim();if(n==sol.n&&d==sol.d){ok++;$('#sMsg').innerHTML='<span class="ok">Bé!</span>'}else{$('#sMsg').innerHTML='<span class="bad">Correcte: '+sol.n+'/'+sol.d+'</span>'}done++;$('#sumScore').textContent=`${ok}/${done}`;setTimeout(one,600);};}one();}
-function mountSimpTrain(){const root=$('#simpTrain');root.innerHTML='';let done=0,ok=0;function one(){if(done>=5){$('#simpScore').textContent=`${ok}/5`;return}const n=randInt(2,18),d=randInt(2,18),g=gcd(n,d);const tn=n+'/'+d,ansN=n/g,ansD=d/g;root.innerHTML=`<div class="row small"><span>Simplifica ${tn}:</span><input class="input" id="tN" placeholder="num"/><span class="frac"><b>&nbsp;</b><i></i><b><input class="input" id="tD" placeholder="den"/></b></span><button class="btn" id="tGo">OK</button><span id="tMsg" class="muted"></span></div>`;$('#tGo').onclick=()=>{const a=$('#tN').value.trim(),b=$('#tD').value.trim();if(a==ansN&&b==ansD){ok++;$('#tMsg').innerHTML='<span class="ok">Correcte!</span>'}else{$('#tMsg').innerHTML='<span class="bad">Ha de ser '+ansN+'/'+ansD+'</span>'}done++;$('#simpScore').textContent=`${ok}/${done}`;setTimeout(one,600);};}one();}
-function mountMaster(){const root=$('#master');root.innerHTML='';let done=0,ok=0;function one(){if(done>=8){$('#masterScore').textContent=`${ok}/8`;ui.announce(ok>=6?'Mastery assolit!':'Cal repassar: no arribes a 6/8');return}const ex=genAdd(),sol=solveAdd(ex);const type=randInt(1,3);if(type===1){root.innerHTML=`<div class="row small"><span>MCM(${ex.b},${ex.d})=</span><input class="input" id="m" placeholder="MCM"/><button class="btn" id="go">OK</button><span id="msg" class="muted"></span></div>`;$('#go').onclick=()=>{const v=$('#m').value.trim();if(v==sol.L){ok++;$('#msg').innerHTML='<span class="ok">Bé!</span>'}else{$('#msg').innerHTML='<span class="bad">És '+sol.L+'</span>'}done++;$('#masterScore').textContent=`${ok}/${done}`;setTimeout(one,400);};}
-if(type===2){root.innerHTML=`<div class="row small"><span>Equiv. de <span class="frac"><b>${ex.a}</b><i></i><b>${ex.b}</b></span> a den. ${sol.L}:</span><input class="input" id="e" placeholder="numerador"/><button class="btn" id="go">OK</button><span id="msg" class="muted"></span></div>`;$('#go').onclick=()=>{const v=$('#e').value.trim();if(v==sol.A){ok++;$('#msg').innerHTML='<span class="ok">Bé!</span>'}else{$('#msg').innerHTML='<span class="bad">És '+sol.A+'</span>'}done++;$('#masterScore').textContent=`${ok}/${done}`;setTimeout(one,400);};}
-if(type===3){root.innerHTML=`<div class="row small"><span><span class="frac"><b>${ex.a}</b><i></i><b>${ex.b}</b></span>+<span class="frac"><b>${ex.c}</b><i></i><b>${ex.d}</b></span>=</span><input class="input" id="n" placeholder="num"/><span class="frac"><b>&nbsp;</b><i></i><b><input class="input" id="d" placeholder="den"/></b></span><button class="btn" id="go">OK</button><span id="msg" class="muted"></span></div>`;$('#go').onclick=()=>{const n=$('#n').value.trim(),d=$('#d').value.trim();if(n==sol.n&&d==sol.d){ok++;$('#msg').innerHTML='<span class="ok">Correcte</span>'}else{$('#msg').innerHTML='<span class="bad">'+sol.n+'/'+sol.d+'</span>'}done++;$('#masterScore').textContent=`${ok}/${done}`;setTimeout(one,400);};}}one();}
-/* Wiring buttons */
-$('#start').onclick=()=>{goto($('#blk-2'));renderIntro();updateStepUI();};
-$('#btnShowMCM').onclick=showMCM;$('#btnShowSum').onclick=showSum;
-$('#nextStep').onclick=addGuideStep;
-$('#mcmChk').onclick=checkMCM;$('#eqChk').onclick=checkEq;$('#sumChk').onclick=checkSum;
-$('#toGame').onclick=()=>{goto($('#blk-5'));renderGame();updateStepUI();};
-$$( '[data-retry]').forEach(b=>b.addEventListener('click',e=>resetSection(e.currentTarget.getAttribute('data-retry'))));
-$('#restart').onclick=()=>location.reload();
-/* Exercises */
-$('#mcmRun').onclick=mountMCMFlash;$('#eqDirRun').onclick=mountEqDir;$('#sumRun').onclick=mountSumTrain;$('#simpRun').onclick=mountSimpTrain;$('#masterRun').onclick=mountMaster;
-/* TOC anchors */
-$$('#toc a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const id=a.getAttribute('href');goto(document.querySelector(id));updateStepUI();}));
-/* Init */
-window.addEventListener('load',()=>{loadProgress();setTOC('blk-1');});
-</script>
-</body></html>
+  <script>
+    // ——— Utilitats visuals ———
+    const $=id=>document.getElementById(id);
+    const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+    const prefersReduced = typeof window.matchMedia==='function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const PREF_KEY='fq_capsula_suma_prefs';
+
+    function scrollToEl(el){
+      if(!el) return;
+      const behavior=prefersReduced?'auto':'smooth';
+      el.scrollIntoView({behavior,block:'start'});
+    }
+
+    function safeParse(json){
+      try{return JSON.parse(json);}catch{return null;}
+    }
+
+    function savePrefs(){
+      try{
+        const prefs={dots:document.body.classList.contains('dots')};
+        localStorage.setItem(PREF_KEY,JSON.stringify(prefs));
+      }catch(err){/* ignore storage errors */}
+    }
+
+    function loadPrefs(){
+      try{
+        const stored=safeParse(localStorage.getItem(PREF_KEY));
+        if(stored?.dots){ document.body.classList.add('dots'); }
+      }catch(err){/* ignore */}
+    }
+
+    loadPrefs();
+
+    function drawPie(cx,cy,r,parts,fill,color){
+      let out='';const tau=Math.PI*2,off=-Math.PI/2;
+      for(let i=0;i<parts;i++){
+        const a0=off+i*(tau/parts),a1=off+(i+1)*(tau/parts);
+        const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+        const large=(a1-a0)>Math.PI?1:0;
+        const p=`M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`;
+        out+=`<path d="${p}" fill="${i<fill?color:'#e5e7eb'}" stroke="#94a3b8"/>`;
+      }
+      return out;
+    }
+
+    // ——— 1) Flux seqüencial ———
+    const order=['blk-1','blk-2','blk-3','blk-4','blk-5','blk-6'];
+    function reveal(id){
+      const el=$(id);
+      if(!el) return;
+      const wasHidden=el.classList.contains('hidden');
+      el.classList.remove('hidden');
+      if(wasHidden) el.classList.add('fade');
+      scrollToEl(el);
+    }
+    function openNext(currId){
+      const i=order.indexOf(currId); if(i>-1 && i<order.length-1){
+        const nextId=order[i+1];
+        reveal(nextId);
+      }
+    }
+
+    // ——— 2) Introducció visual ———
+    function renderIntro(){
+      // Primer: mostrem només 1/2 i 1/3 a dalt
+      const svg=`<svg viewBox="0 0 820 240">
+        <g>
+          ${drawPie(150,90,70,2,1,'#93c5fd')}<text x="150" y="190" text-anchor="middle" fill="#334155">1/2</text>
+        </g>
+        <g>
+          ${drawPie(390,90,70,3,1,'#fbcfe8')}<text x="390" y="190" text-anchor="middle" fill="#334155">1/3</text>
+        </g>
+        <text x="270" y="100" font-size="26" text-anchor="middle" fill="#0f172a">+</text>
+        <!-- zona inferior preparada per a la transformació i la suma -->
+        <g id="zone2"></g>
+      </svg>`;
+      $('viz').innerHTML=svg;
+    }
+
+    function showMCM(){
+      // A sota apareixen 3/6 i 2/6
+      const zone=`
+        <g>
+          ${drawPie(150,160,60,6,3,'#a7f3d0')}<text x="150" y="230" text-anchor="middle" fill="#0f172a">3/6</text>
+        </g>
+        <g>
+          ${drawPie(390,160,60,6,2,'#c7d2fe')}<text x="390" y="230" text-anchor="middle" fill="#0f172a">2/6</text>
+        </g>
+      `;
+      const doc=$('viz').querySelector('#zone2');
+      doc.innerHTML=zone;
+      $('btnShowSum').disabled=false;
+    }
+
+    function showSum(){
+      // A la dreta apareix la suma final 5/6
+      const sum=`
+        <g>
+          ${drawPie(650,160,70,6,5,'#fde68a')}<text x="650" y="230" text-anchor="middle" fill="#0f172a">3/6 + 2/6 = 5/6</text>
+        </g>`;
+      const doc=$('viz').querySelector('#zone2');
+      doc.innerHTML+=sum;
+      // Quan es veu la suma, obrim la següent secció
+      openNext('blk-2');
+    }
+
+    // ——— 3) Explicació guiada amb visuals ———
+    const guideItems=[
+      {html:`<b>Pas 1</b> · Denominadors: 2 i 3 → <b>MCM = 6</b>`, visual:`<div class="mini muted">Múltiples: 2→2,4,<b>6</b>,8… · 3→3,<b>6</b>,9…</div>`},
+      {html:`<b>Pas 2</b> · Equivalències: 1/2 → <b>3/6</b> i 1/3 → <b>2/6</b>`, visual:`<div class="mini">1/2 <span class="muted">×3</span> → 3/6 &nbsp; · &nbsp; 1/3 <span class="muted">×2</span> → 2/6</div>`},
+      {html:`<b>Pas 3</b> · Suma: 3/6 + 2/6 = <b>5/6</b>`, visual:`<div class="mini">Només <b>suma el numerador</b>; el denominador es manté (6).</div>`},
+      {html:`<b>Pas 4</b> · Simplificació`, visual:`<div class="mini">MCD(5,6)=1 → ja està simplificat ✅</div>`},
+    ];
+    let gIndex=0; const bar=$('bar');
+    function addGuideStep(){
+      if(gIndex>=guideItems.length){ $('nextStep').disabled=true; openNext('blk-3'); return }
+      const li=document.createElement('li'); li.className='fade'; li.innerHTML=guideItems[gIndex].html + guideItems[gIndex].visual; $('guide').appendChild(li);
+      gIndex++; bar.style.width=(gIndex/guideItems.length*100)+'%';
+    }
+
+    // ——— 4) Pràctica guiada (clara) ———
+    function checkMCM(){
+      const v=$('mcm').value.trim(); const ok=(v==='6');
+      $('mcmMsg').innerHTML= ok?'<span class="ok">Correcte! El MCM és 6.</span>':'<span class="bad">No és el MCM. Prova amb 6.</span>';
+      if(ok){ reveal('p2'); }
+    }
+    function checkEq(){
+      const a2=$('a2n').value.trim(), c2=$('c2n').value.trim();
+      const ok1=(a2==='3'), ok2=(c2==='2');
+      $('eqMsg1').innerHTML = ok1?'<span class="ok">1/2 = 3/6</span>':'<span class="bad">Recorda: 1/2 × 3 = 3/6</span>';
+      $('eqMsg2').innerHTML = ok2?'<span class="ok">1/3 = 2/6</span>':'<span class="bad">Recorda: 1/3 × 2 = 2/6</span>';
+      if(ok1 && ok2){ $('eqMsg').innerHTML='<span class="ok">Perfecte! Ara suma.</span>'; reveal('p3'); $('showA2').textContent='3'; $('showC2').textContent='2'; }
+    }
+    function checkSum(){
+      const n=$('sumN').value.trim(), d=$('sumD').value.trim();
+      const ok=(n==='5' && d==='6');
+      $('sumMsg').innerHTML= ok?'<span class="ok">Correcte: 5/6.</span>':'<span class="bad">Revisa: 3+2=5 i el denominador es manté (6).</span>';
+      if(ok){ reveal('p4'); }
+    }
+
+    // ——— 5) Joc senzill ———
+    function renderGame(){
+      $('game').innerHTML=`
+        <p>Resol: <span class="frac"><b>2</b><i></i><b>5</b></span> + <span class="frac"><b>1</b><i></i><b>10</b></span></p>
+        <div class="row">
+          <button class="btn" data-a>3/10</button>
+          <button class="btn" data-b>1/2</button>
+          <button class="btn" data-c>7/10</button>
+        </div>
+        <p id="gMsg" class="muted"></p>`;
+      $('game').querySelector('[data-a]').onclick=()=>{$('gMsg').innerHTML='<span class="bad">No: cal MCM(5,10)=10.</span>'}
+      $('game').querySelector('[data-b]').onclick=()=>{$('gMsg').innerHTML='<span class="ok">Correcte! 2/5=4/10 → 4/10+1/10=5/10=1/2 ✅</span>'; openNext('blk-5');}
+      $('game').querySelector('[data-c]').onclick=()=>{$('gMsg').innerHTML='<span class="bad">No: 4/10+1/10 no dona 7/10.</span>'}
+    }
+
+    // ——— 6) Esdeveniments ———
+    $('start').addEventListener('click',()=>{ reveal('blk-2'); renderIntro(); });
+    $('btnShowMCM').addEventListener('click',showMCM);
+    $('btnShowSum').addEventListener('click',showSum);
+
+    $('nextStep').addEventListener('click',addGuideStep);
+
+    $('mcmChk').addEventListener('click',checkMCM);
+    $('eqChk').addEventListener('click',checkEq);
+    $('sumChk').addEventListener('click',checkSum);
+
+    function showGameSection(){
+      reveal('blk-5');
+      renderGame();
+    }
+
+    $('toGame').addEventListener('click',showGameSection);
+
+    $('restart').addEventListener('click',()=>{ location.reload(); });
+
+    const gridToggle=$('gridToggle');
+    if(gridToggle){
+      gridToggle.setAttribute('aria-pressed',document.body.classList.contains('dots'));
+      gridToggle.addEventListener('click',()=>{
+        document.body.classList.toggle('dots');
+        gridToggle.setAttribute('aria-pressed',document.body.classList.contains('dots'));
+        savePrefs();
+      });
+    }
+
+    document.addEventListener('keydown',e=>{
+      if(e.defaultPrevented) return;
+      if(e.target.closest('input,textarea')) return;
+      const key=e.key.length===1?e.key.toLowerCase():e.key;
+      if(key==='n'){
+        const nextBtn=$('nextStep');
+        if(nextBtn && !nextBtn.disabled && !nextBtn.closest('.hidden')){
+          nextBtn.click();
+          e.preventDefault();
+        }
+      }
+      if(key==='g'){
+        showGameSection();
+        e.preventDefault();
+      }
+      if(e.key==='?'){
+        alert('Dreceres: N (següent pas), G (anar al joc), Enter valida al camp actiu.');
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>
