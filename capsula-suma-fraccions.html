@@ -66,8 +66,8 @@
     .btn:disabled{opacity:.45;cursor:not-allowed}
     .btn:hover{transform:translateY(-1px)}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .frac{display:inline-grid;grid-template-rows:auto auto;line-height:1}
-    .frac>i{height:2px;background:#111827;border-radius:2px;margin:2px 0}
+    .frac{display:inline-grid;grid-template-rows:auto auto;line-height:1;text-align:center;min-width:28px;justify-items:center}
+    .frac>i{height:2px;background:#111827;border-radius:2px;margin:2px 0;width:100%}
     .input{padding:10px 12px;border:1px solid var(--line);border-radius:10px;width:110px}
     .ok{color:var(--ok)} .bad{color:var(--bad)}
     .hidden{display:none}
@@ -76,6 +76,12 @@
     .progress{height:8px;background:var(--line);border-radius:999px;overflow:hidden}
     .bar{height:8px;width:0;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.3s width}
     svg{max-width:100%;height:auto}
+    #viz{position:relative;min-height:320px;border-radius:22px;padding:24px;background:radial-gradient(circle at top,var(--brand)10%,transparent 55%),radial-gradient(circle at bottom,var(--brand2)10%,transparent 60%),var(--card);border:1px solid var(--line);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;overflow:hidden}
+    #viz::after{content:"";position:absolute;inset:0;border-radius:22px;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.45),rgba(255,255,255,0));mix-blend-mode:screen;opacity:.65}
+    #viz svg{position:relative;z-index:1}
+    .grid{display:grid;gap:12px}
+    #blk-7 .grid{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+    #blk-7 .grid>.card{background:linear-gradient(135deg,rgba(142,197,255,.12),rgba(247,255,253,.9));border:1px solid rgba(148,163,184,.4);box-shadow:0 10px 24px rgba(15,23,42,.08)}
     .mini{font-size:.95rem}
     .pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted)}
     .list{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
@@ -108,7 +114,7 @@
 
     <article class="card hidden" id="blk-2">
       <h2>Demostració visual</h2>
-      <p class="muted">Exemple base <span class="pill">1/2 + 1/3</span>. Convertim a sisens (MCM=6) i sumem.</p>
+      <p class="muted">Exemple base <span class="pill"><span class="frac"><b>1</b><i></i><b>2</b></span> + <span class="frac"><b>1</b><i></i><b>3</b></span></span>. Convertim a sisens (MCM = 6) i sumem.</p>
       <div id="viz" class="fade" role="img" aria-label="Diagrama circular de fraccions amb transformació a sisens"></div>
       <div class="row" style="justify-content:space-between;margin-top:8px">
         <span class="pill">Exemple: <span class="frac"><b>1</b><i></i><b>2</b></span> + <span class="frac"><b>1</b><i></i><b>3</b></span></span>
@@ -216,6 +222,8 @@
     const prefersReduced = typeof window.matchMedia==='function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const PREF_KEY='fq_capsula_suma_prefs';
 
+    const frac=(n,d,extraClass='')=>`<span class="frac${extraClass?` ${extraClass}`:''}"><b>${n}</b><i></i><b>${d}</b></span>`;
+
     function scrollToEl(el){
       if(!el) return;
       const behavior=prefersReduced?'auto':'smooth';
@@ -254,6 +262,25 @@
       return out;
     }
 
+    function svgFraction(x,y,n,d,options={}){
+      const size=options.size??26;
+      const color=options.color??'#0f172a';
+      const lineColor=options.lineColor??'#0f172a';
+      const weight=options.fontWeight??600;
+      const half=options.width??size;
+      const offset=size*0.55;
+      const denomOffset=size*0.95;
+      const lineY=y+size*0.1;
+      const caption=options.caption?`<text x="${x}" y="${y+denomOffset+22}" text-anchor="middle" font-size="14" fill="#475569">${options.caption}</text>`:'';
+      return `
+        <g aria-label="${n}/${d}">
+          <text x="${x}" y="${y-offset}" text-anchor="middle" font-size="${size}" font-weight="${weight}" fill="${color}">${n}</text>
+          <line x1="${x-half}" x2="${x+half}" y1="${lineY}" y2="${lineY}" stroke="${lineColor}" stroke-width="2" stroke-linecap="round"/>
+          <text x="${x}" y="${y+denomOffset}" text-anchor="middle" font-size="${size}" font-weight="${weight}" fill="${color}">${d}</text>
+          ${caption}
+        </g>`;
+    }
+
     // ——— 1) Flux seqüencial ———
     const order=['blk-1','blk-2','blk-3','blk-4','blk-5','blk-6'];
     function reveal(id){
@@ -273,44 +300,59 @@
 
     // ——— 2) Introducció visual ———
     function renderIntro(){
-      // Primer: mostrem només 1/2 i 1/3 a dalt
-      const svg=`<svg viewBox="0 0 820 240">
-        <g>
-          ${drawPie(150,90,70,2,1,'#93c5fd')}<text x="150" y="190" text-anchor="middle" fill="#334155">1/2</text>
+      const svg=`<svg viewBox="0 0 820 480" role="img" aria-label="Transformació de fraccions fins a la suma final">
+        <g aria-label="Fraccions originals">
+          <text x="150" y="48" text-anchor="middle" font-size="15" fill="#64748b">Fracció 1</text>
+          ${drawPie(150,110,70,2,1,'#93c5fd')}
+          ${svgFraction(150,220,1,2,{caption:'Original'})}
         </g>
-        <g>
-          ${drawPie(390,90,70,3,1,'#fbcfe8')}<text x="390" y="190" text-anchor="middle" fill="#334155">1/3</text>
+        <g aria-label="Fraccions originals">
+          <text x="390" y="48" text-anchor="middle" font-size="15" fill="#64748b">Fracció 2</text>
+          ${drawPie(390,110,70,3,1,'#fbcfe8')}
+          ${svgFraction(390,220,1,3,{caption:'Original'})}
         </g>
-        <text x="270" y="100" font-size="26" text-anchor="middle" fill="#0f172a">+</text>
-        <!-- zona inferior preparada per a la transformació i la suma -->
-        <g id="zone2"></g>
+        <text x="270" y="120" font-size="42" text-anchor="middle" fill="#0f172a">+</text>
+        <g id="zoneEquiv"></g>
+        <g id="zoneResult"></g>
       </svg>`;
       $('viz').innerHTML=svg;
     }
 
     function showMCM(){
-      // A sota apareixen 3/6 i 2/6
       const zone=`
-        <g>
-          ${drawPie(150,160,60,6,3,'#a7f3d0')}<text x="150" y="230" text-anchor="middle" fill="#0f172a">3/6</text>
+        <g aria-label="Fraccions equivalents" transform="translate(0,120)">
+          <text x="150" y="48" text-anchor="middle" font-size="15" fill="#64748b">Equivalència</text>
+          ${drawPie(150,160,60,6,3,'#a7f3d0')}
+          ${svgFraction(150,270,3,6,{caption:'Comú (×3)'})}
         </g>
-        <g>
-          ${drawPie(390,160,60,6,2,'#c7d2fe')}<text x="390" y="230" text-anchor="middle" fill="#0f172a">2/6</text>
+        <g aria-label="Fraccions equivalents" transform="translate(0,120)">
+          <text x="390" y="48" text-anchor="middle" font-size="15" fill="#64748b">Equivalència</text>
+          ${drawPie(390,160,60,6,2,'#c7d2fe')}
+          ${svgFraction(390,270,2,6,{caption:'Comú (×2)'})}
         </g>
+        <text x="270" y="280" font-size="38" text-anchor="middle" fill="#0f172a">+</text>
       `;
-      const doc=$('viz').querySelector('#zone2');
+      const doc=$('viz').querySelector('#zoneEquiv');
       doc.innerHTML=zone;
       $('btnShowSum').disabled=false;
     }
 
     function showSum(){
-      // A la dreta apareix la suma final 5/6
       const sum=`
-        <g>
-          ${drawPie(650,160,70,6,5,'#fde68a')}<text x="650" y="230" text-anchor="middle" fill="#0f172a">3/6 + 2/6 = 5/6</text>
+        <g aria-label="Suma final" transform="translate(260,0)">
+          <text x="390" y="48" text-anchor="middle" font-size="15" fill="#64748b">Suma final</text>
+          ${drawPie(390,160,70,6,5,'#fde68a')}
+          ${svgFraction(390,270,5,6,{caption:'Resultat'})}
+          <g aria-label="Operació" transform="translate(-120,210)">
+            ${svgFraction(150,70,3,6,{size:22})}
+            <text x="190" y="72" font-size="26" text-anchor="middle" fill="#0f172a">+</text>
+            ${svgFraction(230,70,2,6,{size:22})}
+            <text x="270" y="72" font-size="26" text-anchor="middle" fill="#0f172a">=</text>
+            ${svgFraction(320,70,5,6,{size:26})}
+          </g>
         </g>`;
-      const doc=$('viz').querySelector('#zone2');
-      doc.innerHTML+=sum;
+      const doc=$('viz').querySelector('#zoneResult');
+      doc.innerHTML=sum;
       // Quan es veu la suma, obrim la següent secció
       openNext('blk-2');
     }
@@ -318,8 +360,8 @@
     // ——— 3) Explicació guiada amb visuals ———
     const guideItems=[
       {html:`<b>Pas 1</b> · Denominadors: 2 i 3 → <b>MCM = 6</b>`, visual:`<div class="mini muted">Múltiples: 2→2,4,<b>6</b>,8… · 3→3,<b>6</b>,9…</div>`},
-      {html:`<b>Pas 2</b> · Equivalències: 1/2 → <b>3/6</b> i 1/3 → <b>2/6</b>`, visual:`<div class="mini">1/2 <span class="muted">×3</span> → 3/6 &nbsp; · &nbsp; 1/3 <span class="muted">×2</span> → 2/6</div>`},
-      {html:`<b>Pas 3</b> · Suma: 3/6 + 2/6 = <b>5/6</b>`, visual:`<div class="mini">Només <b>suma el numerador</b>; el denominador es manté (6).</div>`},
+      {html:`<b>Pas 2</b> · Equivalències: ${frac(1,2)} → <b>${frac(3,6)}</b> i ${frac(1,3)} → <b>${frac(2,6)}</b>`, visual:`<div class="mini">${frac(1,2)} <span class="muted">×3</span> → ${frac(3,6)} &nbsp; · &nbsp; ${frac(1,3)} <span class="muted">×2</span> → ${frac(2,6)}</div>`},
+      {html:`<b>Pas 3</b> · Suma: ${frac(3,6)} + ${frac(2,6)} = <b>${frac(5,6)}</b>`, visual:`<div class="mini">Només <b>suma el numerador</b>; el denominador es manté (6).</div>`},
       {html:`<b>Pas 4</b> · Simplificació`, visual:`<div class="mini">MCD(5,6)=1 → ja està simplificat ✅</div>`},
     ];
     let gIndex=0; const bar=$('bar');
@@ -338,30 +380,30 @@
     function checkEq(){
       const a2=$('a2n').value.trim(), c2=$('c2n').value.trim();
       const ok1=(a2==='3'), ok2=(c2==='2');
-      $('eqMsg1').innerHTML = ok1?'<span class="ok">1/2 = 3/6</span>':'<span class="bad">Recorda: 1/2 × 3 = 3/6</span>';
-      $('eqMsg2').innerHTML = ok2?'<span class="ok">1/3 = 2/6</span>':'<span class="bad">Recorda: 1/3 × 2 = 2/6</span>';
+      $('eqMsg1').innerHTML = ok1?`<span class="ok">${frac(1,2)} = ${frac(3,6)}</span>`:`<span class="bad">Recorda: ${frac(1,2)} × 3 = ${frac(3,6)}</span>`;
+      $('eqMsg2').innerHTML = ok2?`<span class="ok">${frac(1,3)} = ${frac(2,6)}</span>`:`<span class="bad">Recorda: ${frac(1,3)} × 2 = ${frac(2,6)}</span>`;
       if(ok1 && ok2){ $('eqMsg').innerHTML='<span class="ok">Perfecte! Ara suma.</span>'; reveal('p3'); $('showA2').textContent='3'; $('showC2').textContent='2'; }
     }
     function checkSum(){
       const n=$('sumN').value.trim(), d=$('sumD').value.trim();
       const ok=(n==='5' && d==='6');
-      $('sumMsg').innerHTML= ok?'<span class="ok">Correcte: 5/6.</span>':'<span class="bad">Revisa: 3+2=5 i el denominador es manté (6).</span>';
+      $('sumMsg').innerHTML= ok?`<span class="ok">Correcte: ${frac(5,6)}.</span>`:'<span class="bad">Revisa: 3+2=5 i el denominador es manté (6).</span>';
       if(ok){ reveal('p4'); }
     }
 
     // ——— 5) Joc senzill ———
     function renderGame(){
       $('game').innerHTML=`
-        <p>Resol: <span class="frac"><b>2</b><i></i><b>5</b></span> + <span class="frac"><b>1</b><i></i><b>10</b></span></p>
+        <p>Resol: ${frac(2,5)} + ${frac(1,10)}</p>
         <div class="row">
-          <button class="btn" data-a>3/10</button>
-          <button class="btn" data-b>1/2</button>
-          <button class="btn" data-c>7/10</button>
+          <button class="btn" data-a>${frac(3,10)}</button>
+          <button class="btn" data-b>${frac(1,2)}</button>
+          <button class="btn" data-c>${frac(7,10)}</button>
         </div>
         <p id="gMsg" class="muted"></p>`;
       $('game').querySelector('[data-a]').onclick=()=>{$('gMsg').innerHTML='<span class="bad">No: cal MCM(5,10)=10.</span>'}
-      $('game').querySelector('[data-b]').onclick=()=>{$('gMsg').innerHTML='<span class="ok">Correcte! 2/5=4/10 → 4/10+1/10=5/10=1/2 ✅</span>'; openNext('blk-5');}
-      $('game').querySelector('[data-c]').onclick=()=>{$('gMsg').innerHTML='<span class="bad">No: 4/10+1/10 no dona 7/10.</span>'}
+      $('game').querySelector('[data-b]').onclick=()=>{$('gMsg').innerHTML=`<span class="ok">Correcte! ${frac(2,5)} = ${frac(4,10)} → ${frac(4,10)} + ${frac(1,10)} = ${frac(5,10)} = ${frac(1,2)} ✅</span>`; openNext('blk-5');}
+      $('game').querySelector('[data-c]').onclick=()=>{$('gMsg').innerHTML=`<span class="bad">No: ${frac(4,10)} + ${frac(1,10)} no dona ${frac(7,10)}.</span>`}
     }
 
     // ——— 6) Esdeveniments ———
