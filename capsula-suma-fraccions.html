@@ -10,16 +10,59 @@
       --bg:#f8fafc;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
       --brand:#8ec5ff;--brand2:#a7f3d0;--brand3:#fbcfe8;--ok:#10b981;--bad:#ef4444;--warn:#f59e0b;
       --shadow:0 10px 30px rgba(2,8,23,.08);
+      --grid-fine:#e9eef6;--grid-bold:#d9e2f1;--grid-blur:0.3px;--grid-size:24px;--grid-mult:5;
+      --focus:#7bb0ff;
+    }
+    body.dark{
+      --grid-fine:#1b2535;
+      --grid-bold:#162031;
+      --grid-blur:0.2px;
     }
     *{box-sizing:border-box}
-    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg);
-      background-image:linear-gradient(transparent 23px,var(--line) 24px),linear-gradient(90deg,transparent 23px,var(--line) 24px);
-      background-size:24px 24px,24px 24px}
+    body{margin:0;font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg);position:relative;min-height:100vh;}
+    body::before{
+      content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+      background:
+        repeating-linear-gradient(
+          to right,
+          transparent 0 calc(var(--grid-size)*(var(--grid-mult) - 0.1)),
+          var(--grid-bold) 0 calc(var(--grid-size)*var(--grid-mult))
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          transparent 0 calc(var(--grid-size)*(var(--grid-mult) - 0.1)),
+          var(--grid-bold) 0 calc(var(--grid-size)*var(--grid-mult))
+        ),
+        repeating-linear-gradient(
+          to right,
+          var(--grid-fine) 0 1px,
+          transparent 1px var(--grid-size)
+        ),
+        repeating-linear-gradient(
+          to bottom,
+          var(--grid-fine) 0 1px,
+          transparent 1px var(--grid-size)
+        ),
+        var(--bg);
+      background-attachment:fixed;
+      filter:blur(var(--grid-blur));
+    }
+    body.dots::before{
+      background:
+        radial-gradient(var(--grid-fine) 1px,transparent 1px) 0 0/ var(--grid-size) var(--grid-size),
+        radial-gradient(var(--grid-bold) 1px,transparent 1px) 0 0/ calc(var(--grid-size)*var(--grid-mult)) calc(var(--grid-size)*var(--grid-mult)),
+        var(--bg);
+      filter:none;
+    }
+    @media print{
+      body{background:#fff!important;}
+      body::before{display:none;}
+    }
     section{max-width:980px;margin:0 auto;padding:16px;display:grid;gap:16px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px}
     h1,h2{margin:6px 0 10px}
     .muted{color:var(--muted)}
-    .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;background:linear-gradient(135deg,var(--brand),var(--brand3));color:#0b1220;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(2,8,23,.08);transition:.2s transform}
+    .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;background:linear-gradient(135deg,var(--brand),var(--brand3));color:#0b1220;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(2,8,23,.08)}
     .btn:disabled{opacity:.45;cursor:not-allowed}
     .btn:hover{transform:translateY(-1px)}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -36,10 +79,25 @@
     .mini{font-size:.95rem}
     .pill{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted)}
     .list{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+    .topbar{justify-content:flex-end}
+    .topbar .btn{min-width:44px;padding:8px 12px}
+    .btn:focus-visible,.input:focus-visible,.topbar button:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:12px}
+    @media (prefers-reduced-motion:no-preference){
+      .card{transition:box-shadow .2s ease,transform .15s ease}
+      .card:hover{transform:translateY(-1px);box-shadow:0 14px 34px rgba(2,8,23,.1)}
+      .btn{transition:transform .12s ease,box-shadow .12s ease}
+      .btn:active{transform:translateY(0)}
+    }
+    @media (prefers-reduced-motion:reduce){
+      *{animation:none!important;transition:none!important}
+    }
   </style>
 </head>
 <body>
   <section id="capsule">
+    <div class="row topbar" aria-label="Eines de fons">
+      <button class="btn" id="gridToggle" type="button" aria-label="Canvia el patró de fons" title="Canvia fons">📐</button>
+    </div>
     <!-- 1) Objectiu didàctic -->
     <article class="card" id="blk-1">
       <h1>🎯 Objectiu didàctic</h1>
@@ -155,6 +213,34 @@
     // ——— Utilitats visuals ———
     const $=id=>document.getElementById(id);
     const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+    const prefersReduced = typeof window.matchMedia==='function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const PREF_KEY='fq_capsula_suma_prefs';
+
+    function scrollToEl(el){
+      if(!el) return;
+      const behavior=prefersReduced?'auto':'smooth';
+      el.scrollIntoView({behavior,block:'start'});
+    }
+
+    function safeParse(json){
+      try{return JSON.parse(json);}catch{return null;}
+    }
+
+    function savePrefs(){
+      try{
+        const prefs={dots:document.body.classList.contains('dots')};
+        localStorage.setItem(PREF_KEY,JSON.stringify(prefs));
+      }catch(err){/* ignore storage errors */}
+    }
+
+    function loadPrefs(){
+      try{
+        const stored=safeParse(localStorage.getItem(PREF_KEY));
+        if(stored?.dots){ document.body.classList.add('dots'); }
+      }catch(err){/* ignore */}
+    }
+
+    loadPrefs();
 
     function drawPie(cx,cy,r,parts,fill,color){
       let out='';const tau=Math.PI*2,off=-Math.PI/2;
@@ -170,10 +256,18 @@
 
     // ——— 1) Flux seqüencial ———
     const order=['blk-1','blk-2','blk-3','blk-4','blk-5','blk-6'];
+    function reveal(id){
+      const el=$(id);
+      if(!el) return;
+      const wasHidden=el.classList.contains('hidden');
+      el.classList.remove('hidden');
+      if(wasHidden) el.classList.add('fade');
+      scrollToEl(el);
+    }
     function openNext(currId){
       const i=order.indexOf(currId); if(i>-1 && i<order.length-1){
-        const nextId=order[i+1]; $(nextId).classList.remove('hidden');
-        $(nextId).scrollIntoView({behavior:'smooth',block:'start'});
+        const nextId=order[i+1];
+        reveal(nextId);
       }
     }
 
@@ -239,20 +333,20 @@
     function checkMCM(){
       const v=$('mcm').value.trim(); const ok=(v==='6');
       $('mcmMsg').innerHTML= ok?'<span class="ok">Correcte! El MCM és 6.</span>':'<span class="bad">No és el MCM. Prova amb 6.</span>';
-      if(ok){ $('p2').classList.remove('hidden'); $('p2').classList.add('fade'); }
+      if(ok){ reveal('p2'); }
     }
     function checkEq(){
       const a2=$('a2n').value.trim(), c2=$('c2n').value.trim();
       const ok1=(a2==='3'), ok2=(c2==='2');
       $('eqMsg1').innerHTML = ok1?'<span class="ok">1/2 = 3/6</span>':'<span class="bad">Recorda: 1/2 × 3 = 3/6</span>';
       $('eqMsg2').innerHTML = ok2?'<span class="ok">1/3 = 2/6</span>':'<span class="bad">Recorda: 1/3 × 2 = 2/6</span>';
-      if(ok1 && ok2){ $('eqMsg').innerHTML='<span class="ok">Perfecte! Ara suma.</span>'; $('p3').classList.remove('hidden'); $('p3').classList.add('fade'); $('showA2').textContent='3'; $('showC2').textContent='2'; }
+      if(ok1 && ok2){ $('eqMsg').innerHTML='<span class="ok">Perfecte! Ara suma.</span>'; reveal('p3'); $('showA2').textContent='3'; $('showC2').textContent='2'; }
     }
     function checkSum(){
       const n=$('sumN').value.trim(), d=$('sumD').value.trim();
       const ok=(n==='5' && d==='6');
       $('sumMsg').innerHTML= ok?'<span class="ok">Correcte: 5/6.</span>':'<span class="bad">Revisa: 3+2=5 i el denominador es manté (6).</span>';
-      if(ok){ $('p4').classList.remove('hidden'); $('p4').classList.add('fade'); }
+      if(ok){ reveal('p4'); }
     }
 
     // ——— 5) Joc senzill ———
@@ -271,7 +365,7 @@
     }
 
     // ——— 6) Esdeveniments ———
-    $('start').addEventListener('click',()=>{ $('blk-2').classList.remove('hidden'); $('blk-2').classList.add('fade'); renderIntro(); });
+    $('start').addEventListener('click',()=>{ reveal('blk-2'); renderIntro(); });
     $('btnShowMCM').addEventListener('click',showMCM);
     $('btnShowSum').addEventListener('click',showSum);
 
@@ -281,9 +375,45 @@
     $('eqChk').addEventListener('click',checkEq);
     $('sumChk').addEventListener('click',checkSum);
 
-    $('toGame').addEventListener('click',()=>{ $('blk-5').classList.remove('hidden'); $('blk-5').classList.add('fade'); renderGame(); });
+    function showGameSection(){
+      reveal('blk-5');
+      renderGame();
+    }
+
+    $('toGame').addEventListener('click',showGameSection);
 
     $('restart').addEventListener('click',()=>{ location.reload(); });
+
+    const gridToggle=$('gridToggle');
+    if(gridToggle){
+      gridToggle.setAttribute('aria-pressed',document.body.classList.contains('dots'));
+      gridToggle.addEventListener('click',()=>{
+        document.body.classList.toggle('dots');
+        gridToggle.setAttribute('aria-pressed',document.body.classList.contains('dots'));
+        savePrefs();
+      });
+    }
+
+    document.addEventListener('keydown',e=>{
+      if(e.defaultPrevented) return;
+      if(e.target.closest('input,textarea')) return;
+      const key=e.key.length===1?e.key.toLowerCase():e.key;
+      if(key==='n'){
+        const nextBtn=$('nextStep');
+        if(nextBtn && !nextBtn.disabled && !nextBtn.closest('.hidden')){
+          nextBtn.click();
+          e.preventDefault();
+        }
+      }
+      if(key==='g'){
+        showGameSection();
+        e.preventDefault();
+      }
+      if(e.key==='?'){
+        alert('Dreceres: N (següent pas), G (anar al joc), Enter valida al camp actiu.');
+        e.preventDefault();
+      }
+    });
   </script>
 </body>
 </html>

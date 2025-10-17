@@ -98,8 +98,18 @@
       <span class="learning-pill">Entrar →</span>
     </a>
 
+    <a class="learning-card" href="flashcards.html">
+      <div class="learning-icon" aria-hidden="true">🃏</div>
+      <div class="learning-body">
+        <p class="learning-kicker">Nova pràctica</p>
+        <h3 class="learning-title">Flashcards d'estudi</h3>
+        <p class="learning-copy">Accedeix al menú complet de targetes amb repetició espaiada, notes i estadístiques.</p>
+      </div>
+      <span class="learning-pill">Entrar →</span>
+    </a>
+
     <script>
-document.addEventListener('DOMContentLoaded', ()=>{
+    document.addEventListener('DOMContentLoaded', ()=>{
   // 🔹 Mostra recomanació del tutor
   showRecommendation('#recommendationText');
 
@@ -111,11 +121,9 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if (label) label.textContent = current || 'Sessió no iniciada';
     badge.classList.toggle('is-empty', !current);
   }
+
 });
 </script>
-  </div>
-</section>
-
     <!-- CONFIG -->
     <section id="view-config" class="hidden">
       <div class="panel card">
