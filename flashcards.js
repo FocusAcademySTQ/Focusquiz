@@ -70,6 +70,12 @@
         manageDeleteConfirm: (name, count) => `Eliminar "${name}" també esborrarà ${count} targetes. Vols continuar?",
         manageEmpty: "Encara no hi ha col·leccions guardades.",
         manageKeepOne: "Cal mantenir almenys una col·lecció.",
+        onboardingTitle: "Comença creant una col·lecció",
+        onboardingDescription: "Afegeix la teva primera col·lecció o revisa l'exemple per veure com funcionen les flashcards.",
+        onboardingAction: "Crea una col·lecció",
+        onboardingExample: "Mostra l'exemple",
+        onboardingDismiss: "Amaga aquest missatge",
+        emptyNoCollections: "Encara no hi ha col·leccions disponibles. Crea'n una per començar a practicar.",
         close: "Tanca",
         resetConfirm: "Això esborrarà totes les flashcards i preferències locals. Vols continuar?",
         addCollectionPrompt: "Introdueix el nom de la nova col·lecció",
@@ -79,7 +85,27 @@
         langCatalan: "Català",
         langSpanish: "Castellano",
         searchAria: "Filtra targetes per text",
-        progressAnnounce: (front) => `Mostrant: ${front}`
+        progressAnnounce: (front) => `Mostrant: ${front}`,
+        toggleLargeText: "Text gran",
+        toggleContrast: "Contrast alt",
+        exportData: "📤 Exporta",
+        importData: "📥 Importa",
+        importSuccess: "Importació completada",
+        importError: "No s'ha pogut importar. Verifica el fitxer.",
+        importConfirm: "Això substituirà les col·leccions i targetes actuals pel contingut importat. Vols continuar?",
+        summaryTitle: "Resum de la sessió",
+        summaryStats: (known, unknown) => `Correctes: ${known} · Per repassar: ${unknown}`,
+        summaryNone: "Fantàstic! No hi ha errors recents.",
+        summaryUnknownTitle: "Targetes a reforçar",
+        summaryRecommendation: "Repassa aquestes targetes i revisa el diagnòstic per més detalls.",
+        summaryClose: "Entesos",
+        backToTop: "⬆️ Torna al capçal",
+        exampleCollectionName: "Exemple: hàbits d'estudi",
+        exampleCards: [
+          { front: "Què és la tècnica Pomodoro?", back: "Mètode d'estudi que alterna 25 minuts de treball concentrat i 5 de descans." },
+          { front: "Quina és una bona pràctica abans d'una prova?", back: "Fer un repàs actiu amb flashcards i identificar els conceptes amb més dubtes." }
+        ],
+        sessionComplete: "Has repassat totes les targetes disponibles d'aquesta col·lecció."
       },
       es: {
         title: "Flashcards de estudio",
@@ -141,6 +167,12 @@
         manageDeleteConfirm: (name, count) => `Eliminar \"${name}\" también borrará ${count} tarjetas. ¿Continuar?`,
         manageEmpty: "Todavía no hay colecciones guardadas.",
         manageKeepOne: "Debe existir al menos una colección.",
+        onboardingTitle: "Empieza creando una colección",
+        onboardingDescription: "Añade tu primera colección o revisa el ejemplo para entender cómo funcionan las flashcards.",
+        onboardingAction: "Crea una colección",
+        onboardingExample: "Ver el ejemplo",
+        onboardingDismiss: "Ocultar este mensaje",
+        emptyNoCollections: "Todavía no hay colecciones disponibles. Crea una para comenzar a practicar.",
         close: "Cerrar",
         resetConfirm: "Esto borrará todas las flashcards y preferencias locales. ¿Quieres continuar?",
         addCollectionPrompt: "Introduce el nombre de la nueva colección",
@@ -150,7 +182,27 @@
         langCatalan: "Català",
         langSpanish: "Castellano",
         searchAria: "Filtra tarjetas por texto",
-        progressAnnounce: (front) => `Mostrando: ${front}`
+        progressAnnounce: (front) => `Mostrando: ${front}`,
+        toggleLargeText: "Texto grande",
+        toggleContrast: "Alto contraste",
+        exportData: "📤 Exportar",
+        importData: "📥 Importar",
+        importSuccess: "Importación completada",
+        importError: "No se pudo importar. Revisa el archivo.",
+        importConfirm: "Esto sustituirá las colecciones y tarjetas actuales por el contenido importado. ¿Quieres continuar?",
+        summaryTitle: "Resumen de la sesión",
+        summaryStats: (known, unknown) => `Correctas: ${known} · A repasar: ${unknown}`,
+        summaryNone: "¡Genial! No hay errores recientes.",
+        summaryUnknownTitle: "Tarjetas a reforzar",
+        summaryRecommendation: "Revisa estas tarjetas y consulta el diagnóstico para más detalles.",
+        summaryClose: "Entendido",
+        backToTop: "⬆️ Volver al inicio",
+        exampleCollectionName: "Ejemplo: hábitos de estudio",
+        exampleCards: [
+          { front: "¿Qué es la técnica Pomodoro?", back: "Método de estudio que alterna 25 minutos de trabajo concentrado y 5 de descanso." },
+          { front: "¿Qué es recomendable antes de un examen?", back: "Realizar un repaso activo con flashcards e identificar los conceptos con más dudas." }
+        ],
+        sessionComplete: "Has repasado todas las tarjetas disponibles de esta colección."
       }
     };
 
@@ -161,7 +213,11 @@
         darkMode: false,
         lang: 'ca',
         lastCollectionId: null,
-        search: ''
+        search: '',
+        largeText: false,
+        highContrast: false,
+        onboardingDismissed: false,
+        exampleCollectionId: null
       }
     };
 
@@ -174,7 +230,13 @@
       hasRevealed: false,
       awaitingGrade: false,
       lastCardId: null,
-      seenIds: new Set()
+      seenIds: new Set(),
+      stats: {
+        known: 0,
+        unknown: 0,
+        misses: new Map()
+      },
+      summaryShown: false
     };
 
     let announceTimer = null;
@@ -184,6 +246,8 @@
       collectionSelect: document.getElementById('flashcardsCollection'),
       search: document.getElementById('flashcardsSearch'),
       darkMode: document.getElementById('flashcardsDarkMode'),
+      largeText: document.getElementById('flashcardsLargeText'),
+      highContrast: document.getElementById('flashcardsHighContrast'),
       lang: document.getElementById('flashcardsLang'),
       counter: document.getElementById('flashcardsCounter'),
       learned: document.getElementById('flashcardsLearned'),
@@ -214,7 +278,23 @@
       noteWrapper: document.getElementById('flashcardNoteWrapper'),
       noteInput: document.getElementById('flashcardNoteInput'),
       noteStatus: document.getElementById('flashcardNoteStatus'),
-      noteClose: document.getElementById('flashcardCloseNote')
+      noteClose: document.getElementById('flashcardCloseNote'),
+      onboarding: document.getElementById('flashcardsOnboarding'),
+      onboardingTitle: document.getElementById('flashcardsOnboardingTitle'),
+      onboardingDescription: document.getElementById('flashcardsOnboardingDescription'),
+      onboardingAction: document.getElementById('flashcardsOnboardingCreate'),
+      onboardingExample: document.getElementById('flashcardsOnboardingExample'),
+      onboardingDismiss: document.getElementById('flashcardsOnboardingDismiss'),
+      summary: document.getElementById('flashcardsSummary'),
+      summaryTitle: document.getElementById('flashcardsSummaryTitle'),
+      summaryStats: document.getElementById('flashcardsSummaryStats'),
+      summaryList: document.getElementById('flashcardsSummaryList'),
+      summaryNote: document.getElementById('flashcardsSummaryNote'),
+      summaryClose: document.getElementById('flashcardsSummaryClose'),
+      exportBtn: document.getElementById('flashcardsExport'),
+      importBtn: document.getElementById('flashcardsImport'),
+      importInput: document.getElementById('flashcardsImportInput'),
+      backToTop: document.getElementById('flashcardsBackToTop')
     };
 
     function t(key, ...args){
@@ -298,6 +378,10 @@
       state.prefs.lang = state.prefs.lang || 'ca';
       state.prefs.darkMode = Boolean(state.prefs.darkMode);
       state.prefs.search = state.prefs.search || '';
+      state.prefs.largeText = Boolean(state.prefs.largeText);
+      state.prefs.highContrast = Boolean(state.prefs.highContrast);
+      state.prefs.onboardingDismissed = Boolean(state.prefs.onboardingDismissed);
+      state.prefs.exampleCollectionId = state.collections.some(col => col.id === state.prefs.exampleCollectionId) ? state.prefs.exampleCollectionId : null;
     }
 
     function saveCollections(){
@@ -315,22 +399,10 @@
     function seedExampleData(){
       const now = Date.now();
       const collectionId = createId('col');
-      state.collections = [{ id: collectionId, name: 'MHS (1r Batx)', createdAt: now }];
-      const samples = [
-        { front: 'Fórmula posició en MHS', back: 'x = A·cos(ωt + φ)' },
-        { front: 'Relació entre ω i T', back: 'ω = 2π / T' },
-        { front: 'Relació entre ω i f', back: 'ω = 2π·f' },
-        { front: 'Velocitat instantània', back: 'v(t) = -A·ω·sin(ωt + φ)' },
-        { front: 'Acceleració en MHS', back: 'a(t) = -A·ω²·cos(ωt + φ)' },
-        { front: 'Energia potencial elàstica', back: 'Ep = 1/2 · k · x²' },
-        { front: 'Energia cinètica en MHS', back: 'Ec = 1/2 · m · ω² · (A² - x²)' },
-        { front: 'Energia total en MHS', back: 'Et = 1/2 · k · A² (constant)' },
-        { front: 'Període d’un ressort', back: 'T = 2π · √(m/k)' },
-        { front: 'Període d’un pèndol simple', back: 'T = 2π · √(ℓ/g)' },
-        { front: 'Significat de l’amplitud A', back: 'És el desplaçament màxim respecte la posició d’equilibri.' },
-        { front: 'Fase inicial φ', back: 'Angle que fixa la posició en t = 0.' }
-      ];
-      state.cards = samples.map(sample => ({
+      const locale = strings[state.prefs.lang] || strings.ca;
+      const cards = Array.isArray(locale.exampleCards) && locale.exampleCards.length ? locale.exampleCards : strings.ca.exampleCards;
+      state.collections = [{ id: collectionId, name: locale.exampleCollectionName || 'Col·lecció d\'exemple', createdAt: now }];
+      state.cards = cards.map(sample => ({
         id: createId('card'),
         collectionId,
         front: sample.front,
@@ -342,6 +414,8 @@
         flagged: false
       }));
       state.prefs.lastCollectionId = collectionId;
+      state.prefs.exampleCollectionId = collectionId;
+      state.prefs.onboardingDismissed = false;
       saveCollections();
       saveCards();
       savePrefs();
@@ -387,6 +461,10 @@
       if (collectionLabelNode) collectionLabelNode.textContent = t('collectionLabel');
       const searchLabelNode = root.querySelector('[data-i18n="search"]');
       if (searchLabelNode) searchLabelNode.textContent = t('searchLabel');
+      const largeTextNode = root.querySelector('[data-i18n="largeText"]');
+      if (largeTextNode) largeTextNode.textContent = t('toggleLargeText');
+      const contrastNode = root.querySelector('[data-i18n="contrast"]');
+      if (contrastNode) contrastNode.textContent = t('toggleContrast');
       if (els.diagnosticsToggle) {
         els.diagnosticsToggle.textContent = t('diagnosticsToggle');
       }
@@ -398,6 +476,27 @@
       }
       if (els.resetFilters) {
         els.resetFilters.textContent = t('resetFilters');
+      }
+      if (els.exportBtn) {
+        els.exportBtn.textContent = t('exportData');
+      }
+      if (els.importBtn) {
+        els.importBtn.textContent = t('importData');
+      }
+      if (els.backToTop) {
+        els.backToTop.textContent = t('backToTop');
+      }
+      if (els.onboardingTitle) els.onboardingTitle.textContent = t('onboardingTitle');
+      if (els.onboardingDescription) els.onboardingDescription.textContent = t('onboardingDescription');
+      if (els.onboardingAction) els.onboardingAction.textContent = t('onboardingAction');
+      if (els.onboardingExample) els.onboardingExample.textContent = t('onboardingExample');
+      if (els.onboardingDismiss) els.onboardingDismiss.textContent = t('onboardingDismiss');
+      if (els.summaryTitle) els.summaryTitle.textContent = t('summaryTitle');
+      if (els.summaryClose) els.summaryClose.textContent = t('summaryClose');
+      if (!els.summary.hidden) {
+        if (els.summaryStats) els.summaryStats.textContent = t('summaryStats', session.stats.known, session.stats.unknown);
+        if (els.summaryNote) els.summaryNote.textContent = session.stats.unknown ? t('summaryRecommendation') : '';
+        renderSessionSummary({ silent: true });
       }
       const diagTitle = els.diagnostics?.querySelector('h3');
       if (diagTitle) diagTitle.textContent = t('diagnosticsTitle');
@@ -412,23 +511,72 @@
       updateProgress();
       updateDiagnostics();
       updateDoubtButton();
+      updateOnboarding();
     }
 
     function renderCollections(){
+      const previousCollection = state.prefs.lastCollectionId;
       const counts = countByCollection();
-      const options = state.collections.map(col => {
-        const count = counts[col.id] || 0;
-        const label = `${col.name} (${count})`;
-        return `<option value="${escapeHTML(col.id)}">${escapeHTML(label)}</option>`;
-      }).join('');
-      els.collectionSelect.innerHTML = options;
-      if (state.prefs.lastCollectionId) {
-        els.collectionSelect.value = state.prefs.lastCollectionId;
+      if (!state.collections.length) {
+        if (els.collectionSelect) {
+          els.collectionSelect.innerHTML = '';
+          els.collectionSelect.disabled = true;
+        }
+        if (els.search) els.search.disabled = true;
+        if (els.addCard) els.addCard.disabled = true;
+        if (els.manageCollections) els.manageCollections.disabled = false;
+        state.prefs.lastCollectionId = null;
+      } else {
+        const options = state.collections.map(col => {
+          const count = counts[col.id] || 0;
+          const label = `${col.name} (${count})`;
+          return `<option value="${escapeHTML(col.id)}">${escapeHTML(label)}</option>`;
+        }).join('');
+        if (els.collectionSelect) {
+          els.collectionSelect.innerHTML = options;
+          els.collectionSelect.disabled = false;
+        }
+        if (els.search) els.search.disabled = false;
+        if (els.addCard) els.addCard.disabled = false;
+        if (els.manageCollections) els.manageCollections.disabled = false;
+        if (state.prefs.lastCollectionId && els.collectionSelect) {
+          els.collectionSelect.value = state.prefs.lastCollectionId;
+        } else {
+          const fallbackId = state.collections[0]?.id || null;
+          state.prefs.lastCollectionId = fallbackId;
+          if (fallbackId && els.collectionSelect) {
+            els.collectionSelect.value = fallbackId;
+          }
+        }
+      }
+      updateOnboarding();
+      if (state.prefs.lastCollectionId !== previousCollection) {
+        savePrefs();
+      }
+    }
+
+    function updateOnboarding(){
+      if (!els.onboarding) return;
+      const hasCollections = state.collections.length > 0;
+      const hasCustom = state.collections.some(col => col.id !== state.prefs.exampleCollectionId);
+      const shouldShow = !state.prefs.onboardingDismissed && (!hasCollections || !hasCustom);
+      els.onboarding.hidden = !shouldShow;
+      els.onboarding.setAttribute('aria-hidden', String(!shouldShow));
+      if (els.onboardingExample) {
+        const hasExample = Boolean(state.prefs.exampleCollectionId && state.collections.some(col => col.id === state.prefs.exampleCollectionId));
+        els.onboardingExample.hidden = !hasExample;
       }
     }
 
     function buildPool(){
       const collectionId = state.prefs.lastCollectionId;
+      if (!collectionId) {
+        session.pool = [];
+        session.filteredCount = 0;
+        session.totalInCollection = 0;
+        session.currentCard = null;
+        return;
+      }
       const cardsInCollection = state.cards.filter(card => card.collectionId === collectionId);
       const query = (state.prefs.search || '').trim().toLowerCase();
       const filtered = query
@@ -495,10 +643,157 @@
       els.edit.disabled = empty;
       if (empty) {
         els.feedback.textContent = '';
-        els.front.innerHTML = escapeHTML(t('empty'));
-        els.back.innerHTML = escapeHTML(t('empty'));
+        const message = state.collections.length ? t('empty') : t('emptyNoCollections');
+        els.front.innerHTML = escapeHTML(message);
+        els.back.innerHTML = escapeHTML(message);
         if (els.noteWrapper) els.noteWrapper.hidden = true;
+        hideSessionSummary();
       }
+    }
+
+    function hideSessionSummary(){
+      if (!els.summary) return;
+      els.summary.hidden = true;
+      els.summary.setAttribute('aria-hidden', 'true');
+      if (els.summaryList) els.summaryList.innerHTML = '';
+      if (els.summaryStats) els.summaryStats.textContent = '';
+      if (els.summaryNote) els.summaryNote.textContent = '';
+    }
+
+    function renderSessionSummary(options = {}){
+      if (!els.summary) return;
+      const silent = Boolean(options.silent);
+      const misses = Array.from(session.stats.misses.values()).sort((a, b) => b.count - a.count).slice(0, 3);
+      els.summaryTitle.textContent = t('summaryTitle');
+      els.summaryStats.textContent = t('summaryStats', session.stats.known, session.stats.unknown);
+      if (!session.stats.unknown) {
+        els.summaryList.innerHTML = `<li>${escapeHTML(t('summaryNone'))}</li>`;
+      } else {
+        els.summaryList.innerHTML = misses.map(item => `
+          <li><strong>${escapeHTML(item.front || '')}</strong><br><small>${escapeHTML(item.back || '')}</small></li>
+        `).join('');
+      }
+      if (els.summaryNote) {
+        els.summaryNote.textContent = session.stats.unknown ? t('summaryRecommendation') : '';
+      }
+      els.summary.hidden = false;
+      els.summary.setAttribute('aria-hidden', 'false');
+      if (!silent) {
+        els.summary.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        els.feedback.textContent = t('sessionComplete');
+      }
+    }
+
+    function maybeShowSessionSummary(){
+      if (session.summaryShown) return;
+      if (!session.filteredCount) return;
+      if (session.seenIds.size < session.filteredCount) return;
+      session.summaryShown = true;
+      renderSessionSummary();
+    }
+
+    function resetSessionTracking(){
+      session.seenIds.clear();
+      session.stats = { known: 0, unknown: 0, misses: new Map() };
+      session.summaryShown = false;
+      hideSessionSummary();
+    }
+
+    function scrollToTop(){
+      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function exportData(){
+      const payload = {
+        collections: state.collections,
+        cards: state.cards,
+        prefs: state.prefs,
+        exportedAt: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `focusquiz-flashcards-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      requestAnimationFrame(() => {
+        URL.revokeObjectURL(url);
+        anchor.remove();
+      });
+    }
+
+    function triggerImport(){
+      if (!els.importInput) return;
+      if (!confirm(t('importConfirm'))) return;
+      els.importInput.value = '';
+      els.importInput.click();
+    }
+
+    function handleImportFile(event){
+      const input = event.target;
+      const file = input?.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const raw = reader.result;
+          const data = typeof raw === 'string' ? JSON.parse(raw) : null;
+          if (!data || !Array.isArray(data.collections) || !Array.isArray(data.cards)) {
+            throw new Error('invalid payload');
+          }
+          const nextPrefs = data.prefs && typeof data.prefs === 'object' ? { ...state.prefs, ...data.prefs } : { ...state.prefs };
+          saveJSON(STORAGE.collections, data.collections);
+          saveJSON(STORAGE.cards, data.cards);
+          saveJSON(STORAGE.prefs, nextPrefs);
+          loadState();
+          resetSessionTracking();
+          renderCollections();
+          els.lang.value = state.prefs.lang;
+          els.search.value = state.prefs.search;
+          toggleDarkMode(state.prefs.darkMode, false);
+          toggleLargeText(state.prefs.largeText, false);
+          toggleHighContrast(state.prefs.highContrast, false);
+          if (els.largeText) els.largeText.checked = state.prefs.largeText;
+          if (els.highContrast) els.highContrast.checked = state.prefs.highContrast;
+          applyLanguage();
+          showNextCard(true);
+          alert(t('importSuccess'));
+        } catch (error) {
+          console.error('flashcards import error', error);
+          alert(t('importError'));
+          loadState();
+          renderCollections();
+          applyLanguage();
+          showNextCard(true);
+        } finally {
+          input.value = '';
+        }
+      };
+      reader.onerror = () => {
+        alert(t('importError'));
+        input.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    function selectExampleCollection(){
+      if (!state.prefs.exampleCollectionId) return;
+      if (!state.collections.some(col => col.id === state.prefs.exampleCollectionId)) return;
+      state.prefs.lastCollectionId = state.prefs.exampleCollectionId;
+      state.prefs.onboardingDismissed = true;
+      savePrefs();
+      if (els.collectionSelect) els.collectionSelect.value = state.prefs.lastCollectionId;
+      resetSessionTracking();
+      showNextCard(true);
+      updateOnboarding();
+      scrollToTop();
+    }
+
+    function dismissOnboarding(){
+      state.prefs.onboardingDismissed = true;
+      savePrefs();
+      updateOnboarding();
     }
 
     function renderCard(card){
@@ -575,6 +870,7 @@
       const spaced = card.spaced || defaultSpaced();
       card.spaced = spaced;
       if (known) {
+        session.stats.known += 1;
         spaced.repetitions = (spaced.repetitions || 0) + 1;
         spaced.ease = Math.max(1.3, (spaced.ease || 2.5) + 0.1);
         if (spaced.repetitions === 1) spaced.interval = 1;
@@ -585,12 +881,18 @@
         spaced.lastGrade = 'known';
         els.feedback.textContent = t('feedbackKnown');
       } else {
+        session.stats.unknown += 1;
         spaced.repetitions = 0;
         spaced.interval = 1;
         spaced.ease = Math.max(1.3, (spaced.ease || 2.5) - 0.2);
         spaced.lastGrade = 'unknown';
         card.flagged = true;
         els.feedback.textContent = t('feedbackUnknown');
+        const record = session.stats.misses.get(card.id) || { front: card.front, back: card.back, count: 0 };
+        record.front = card.front;
+        record.back = card.back;
+        record.count += 1;
+        session.stats.misses.set(card.id, record);
       }
       spaced.lastReviewed = Date.now();
       card.updatedAt = Date.now();
@@ -608,6 +910,7 @@
       updateProgress();
       updateDiagnostics();
       updateDoubtButton();
+      maybeShowSessionSummary();
     }
 
     function showNextCard(force){
@@ -634,6 +937,8 @@
       state.prefs.search = '';
       els.search.value = '';
       savePrefs();
+      resetSessionTracking();
+      scrollToTop();
       showNextCard(true);
     }
 
@@ -670,10 +975,25 @@
       }
     }
 
-    function toggleDarkMode(on){
+    function toggleDarkMode(on, persist = true){
       state.prefs.darkMode = on;
       root.classList.toggle('flashcards--dark', on);
-      savePrefs();
+      if (els.darkMode) els.darkMode.checked = on;
+      if (persist) savePrefs();
+    }
+
+    function toggleLargeText(on, persist = true){
+      state.prefs.largeText = on;
+      root.classList.toggle('flashcards--large-text', on);
+      if (els.largeText) els.largeText.checked = on;
+      if (persist) savePrefs();
+    }
+
+    function toggleHighContrast(on, persist = true){
+      state.prefs.highContrast = on;
+      root.classList.toggle('flashcards--high-contrast', on);
+      if (els.highContrast) els.highContrast.checked = on;
+      if (persist) savePrefs();
     }
 
     function handleNoteChange(){
@@ -795,6 +1115,7 @@
         els.collectionSelect.value = state.prefs.lastCollectionId;
         if (typeof closeModal === 'function') closeModal();
         else form.closest('.modal-fallback')?.remove();
+        resetSessionTracking();
         showNextCard(true);
       });
       const deleteBtn = form.querySelector('[data-delete]');
@@ -806,6 +1127,7 @@
             saveCards();
             if (typeof closeModal === 'function') closeModal();
             else form.closest('.modal-fallback')?.remove();
+            resetSessionTracking();
             showNextCard(true);
           }
         });
@@ -818,6 +1140,8 @@
       const id = createId('col');
       state.collections.push({ id, name: trimmed, createdAt: Date.now() });
       saveCollections();
+      state.prefs.onboardingDismissed = true;
+      savePrefs();
       renderCollections();
       return id;
     }
@@ -893,12 +1217,17 @@
             if (state.prefs.lastCollectionId === col.id) {
               state.prefs.lastCollectionId = state.collections[0]?.id || null;
             }
+            if (state.prefs.exampleCollectionId === col.id) {
+              state.prefs.exampleCollectionId = null;
+            }
             saveCollections();
             saveCards();
+            savePrefs();
             renderCollections();
             updateDiagnostics();
             if (typeof closeModal === 'function') closeModal();
             else panel.closest('.modal-fallback')?.remove();
+            resetSessionTracking();
             showNextCard(true);
           }
         }
@@ -915,6 +1244,7 @@
         els.collectionSelect.value = id;
         if (typeof closeModal === 'function') closeModal();
         else panel.closest('.modal-fallback')?.remove();
+        resetSessionTracking();
         showNextCard(true);
       });
     }
@@ -922,26 +1252,32 @@
     function resetAll(){
       if (!confirm(t('resetConfirm'))) return;
       Object.values(STORAGE).forEach(key => localStorage.removeItem(key));
-      session.seenIds.clear();
       loadState();
+      resetSessionTracking();
       renderCollections();
       els.lang.value = state.prefs.lang;
-      els.darkMode.checked = state.prefs.darkMode;
       els.search.value = state.prefs.search;
-      toggleDarkMode(state.prefs.darkMode);
+      toggleDarkMode(state.prefs.darkMode, false);
+      toggleLargeText(state.prefs.largeText, false);
+      toggleHighContrast(state.prefs.highContrast, false);
+      if (els.largeText) els.largeText.checked = state.prefs.largeText;
+      if (els.highContrast) els.highContrast.checked = state.prefs.highContrast;
       applyLanguage();
       showNextCard(true);
     }
 
     function handleCollectionChange(){
-      state.prefs.lastCollectionId = els.collectionSelect.value;
+      state.prefs.lastCollectionId = els.collectionSelect.value || null;
       savePrefs();
+      resetSessionTracking();
       showNextCard(true);
+      scrollToTop();
     }
 
     function handleSearch(event){
       state.prefs.search = event.target.value;
       savePrefs();
+      resetSessionTracking();
       showNextCard(true);
     }
 
@@ -975,6 +1311,13 @@
           event.preventDefault();
           gradeCard(true);
           break;
+        case 'ArrowDown':
+        case 'ArrowUp':
+          if (!els.next.disabled) {
+            event.preventDefault();
+            showNextCard(true);
+          }
+          break;
         case 'Enter':
           if (!els.next.disabled) {
             event.preventDefault();
@@ -989,9 +1332,13 @@
     function init(){
       loadState();
       els.lang.value = state.prefs.lang;
-      els.darkMode.checked = state.prefs.darkMode;
       els.search.value = state.prefs.search;
-      toggleDarkMode(state.prefs.darkMode);
+      toggleDarkMode(state.prefs.darkMode, false);
+      toggleLargeText(state.prefs.largeText, false);
+      toggleHighContrast(state.prefs.highContrast, false);
+      if (els.largeText) els.largeText.checked = state.prefs.largeText;
+      if (els.highContrast) els.highContrast.checked = state.prefs.highContrast;
+      resetSessionTracking();
       renderCollections();
       applyLanguage();
       showNextCard(true);
@@ -1004,6 +1351,8 @@
       els.collectionSelect.addEventListener('change', handleCollectionChange);
       els.search.addEventListener('input', handleSearch);
       els.darkMode.addEventListener('change', () => toggleDarkMode(els.darkMode.checked));
+      els.largeText?.addEventListener('change', () => toggleLargeText(els.largeText.checked));
+      els.highContrast?.addEventListener('change', () => toggleHighContrast(els.highContrast.checked));
       els.lang.addEventListener('change', handleLangChange);
       els.diagnosticsToggle.addEventListener('click', toggleDiagnostics);
       els.resetAll.addEventListener('click', resetAll);
@@ -1020,6 +1369,21 @@
       });
       els.noteInput.addEventListener('input', handleNoteChange);
       els.noteClose.addEventListener('click', closeNote);
+      els.exportBtn?.addEventListener('click', exportData);
+      els.importBtn?.addEventListener('click', triggerImport);
+      els.importInput?.addEventListener('change', handleImportFile);
+      els.backToTop?.addEventListener('click', scrollToTop);
+      els.onboardingAction?.addEventListener('click', () => {
+        state.prefs.onboardingDismissed = true;
+        savePrefs();
+        openCollectionManager();
+      });
+      els.onboardingExample?.addEventListener('click', selectExampleCollection);
+      els.onboardingDismiss?.addEventListener('click', dismissOnboarding);
+      els.summaryClose?.addEventListener('click', () => {
+        hideSessionSummary();
+        els.feedback.textContent = '';
+      });
     }
 
     init();
