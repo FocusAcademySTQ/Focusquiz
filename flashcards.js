@@ -723,6 +723,7 @@
       session.seen = {};
       session.stats = { known: 0, unknown: 0 };
       loadState();
+      resetSessionTracking();
       renderCollections();
       filterCards();
       showCard();
