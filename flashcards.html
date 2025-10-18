@@ -83,6 +83,14 @@
           <label class="toggle flashcards__toggle" aria-label="Activa o desactiva el mode fosc">
             <input type="checkbox" id="flashcardsDarkMode" /> Mode fosc
           </label>
+          <label class="toggle flashcards__toggle" aria-label="Augmenta la mida del text de les targetes">
+            <input type="checkbox" id="flashcardsLargeText" />
+            <span class="flashcards__toggle-text" data-i18n="largeText">Text gran</span>
+          </label>
+          <label class="toggle flashcards__toggle" aria-label="Activa el contrast alt">
+            <input type="checkbox" id="flashcardsHighContrast" />
+            <span class="flashcards__toggle-text" data-i18n="contrast">Contrast alt</span>
+          </label>
           <label class="toggle flashcards__toggle" aria-label="Canvia d'idioma">
             <select id="flashcardsLang" class="input flashcards__lang">
               <option value="ca">Català</option>
@@ -93,6 +101,16 @@
         <div class="sr-only" id="flashcardsCollectionHint">Escull la col·lecció que vols estudiar.</div>
         <div class="sr-only" id="flashcardsSearchHint">Escriu paraules clau per filtrar targetes.</div>
       </header>
+
+      <section class="flashcards__onboarding" id="flashcardsOnboarding" role="region" aria-live="polite" hidden>
+        <h3 id="flashcardsOnboardingTitle">Comença creant una col·lecció</h3>
+        <p id="flashcardsOnboardingDescription">Afegeix la teva primera col·lecció per poder crear targetes d'estudi. Pots explorar la col·lecció d'exemple per veure com funciona.</p>
+        <div class="flashcards__onboarding-actions">
+          <button type="button" id="flashcardsOnboardingCreate" class="btn-primary">Crea una col·lecció</button>
+          <button type="button" id="flashcardsOnboardingExample" class="btn-secondary">Mostra l'exemple</button>
+          <button type="button" id="flashcardsOnboardingDismiss" class="btn-ghost">Amaga aquest missatge</button>
+        </div>
+      </section>
 
       <div class="flashcards__progress" aria-live="polite">
         <div class="flashcards__progress-main">
@@ -147,6 +165,18 @@
 
         <p class="flashcards__feedback" id="flashcardsFeedback" aria-live="polite"></p>
 
+        <section class="flashcards__summary" id="flashcardsSummary" role="status" aria-live="polite" hidden>
+          <div class="flashcards__summary-header">
+            <h3 id="flashcardsSummaryTitle">Resum de la sessió</h3>
+            <p id="flashcardsSummaryStats"></p>
+          </div>
+          <ul id="flashcardsSummaryList" class="flashcards__summary-list"></ul>
+          <p id="flashcardsSummaryNote" class="flashcards__summary-note">Repassa aquestes targetes i revisa el diagnòstic per més detalls.</p>
+          <div class="flashcards__summary-actions">
+            <button type="button" id="flashcardsSummaryClose" class="btn-secondary">D'acord</button>
+          </div>
+        </section>
+
         <div class="flashcards__empty" id="flashcardsEmpty" hidden>
           <p>No hi ha targetes que coincideixin amb el filtre actual.</p>
           <button type="button" id="flashcardsResetFilters" class="btn-secondary">Reinicia filtres</button>
@@ -159,6 +189,9 @@
           <button type="button" id="flashcardsManageCollections" class="btn-ghost">🗂️ Col·leccions</button>
         </div>
         <div class="flashcards__footer-right">
+          <button type="button" id="flashcardsBackToTop" class="btn-ghost">⬆️ Torna al capçal</button>
+          <button type="button" id="flashcardsExport" class="btn-ghost">📤 Exporta</button>
+          <button type="button" id="flashcardsImport" class="btn-ghost">📥 Importa</button>
           <button type="button" id="flashcardsDiagnosticsToggle" class="btn-ghost" aria-expanded="false">🔍 Diagnòstic</button>
         </div>
       </footer>
@@ -192,6 +225,8 @@
          referrerpolicy="no-referrer" />
   </footer>
 
+  <input type="file" id="flashcardsImportInput" accept="application/json" hidden />
+
   <script>
     function showModal(contentHTML){
       closeModal();
@@ -199,6 +234,14 @@
       overlay.className = 'modal';
       overlay.innerHTML = `<div class="modal-inner panel card" role="dialog" aria-modal="true">${contentHTML}</div>`;
       document.body.appendChild(overlay);
+      const focusable = overlay.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusable) focusable.focus();
+      overlay.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          closeModal();
+        }
+      });
       overlay.addEventListener('click', (event) => {
         if (event.target === overlay) closeModal();
       });
