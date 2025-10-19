@@ -188,6 +188,181 @@
       text-align: center;
     }
 
+    .main-card-stage {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .main-card-stage::before,
+    .main-card-stage::after {
+      content: '';
+      position: absolute;
+      inset: -24px 0 auto;
+      height: 26px;
+      background: linear-gradient(180deg, rgba(226, 232, 240, 0.3), rgba(148, 163, 184, 0));
+      border-radius: 999px;
+      filter: blur(6px);
+      opacity: 0.7;
+      z-index: -1;
+    }
+
+    .main-card-stage::after {
+      inset: auto 0 -26px;
+    }
+
+    .card-nav {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 600;
+      background: rgba(37, 99, 235, 0.12);
+      color: #1d4ed8;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12);
+    }
+
+    .card-nav:hover,
+    .card-nav:focus-visible {
+      background: #1d4ed8;
+      color: #eff6ff;
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(37, 99, 235, 0.2);
+      outline: none;
+    }
+
+    .card-nav:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      background: rgba(148, 163, 184, 0.2);
+      color: rgba(15, 23, 42, 0.4);
+      box-shadow: none;
+    }
+
+    .knowledge-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+      width: 100%;
+    }
+
+    .knowledge-title {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .knowledge-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .knowledge-button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+      background: rgba(148, 163, 184, 0.2);
+      color: #0f172a;
+    }
+
+    .knowledge-button:hover,
+    .knowledge-button:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+      outline: none;
+    }
+
+    .knowledge-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .knowledge-button.is-active {
+      color: #fff;
+      box-shadow: 0 16px 28px rgba(15, 23, 42, 0.22);
+    }
+
+    .knowledge-button[data-status='known'] {
+      background: rgba(34, 197, 94, 0.16);
+      color: #047857;
+    }
+
+    .knowledge-button[data-status='known'].is-active {
+      background: #16a34a;
+    }
+
+    .knowledge-button[data-status='partial'] {
+      background: rgba(249, 115, 22, 0.18);
+      color: #b45309;
+    }
+
+    .knowledge-button[data-status='partial'].is-active {
+      background: #f97316;
+    }
+
+    .knowledge-button[data-status='unknown'] {
+      background: rgba(239, 68, 68, 0.18);
+      color: #b91c1c;
+    }
+
+    .knowledge-button[data-status='unknown'].is-active {
+      background: #ef4444;
+    }
+
+    .reset-button {
+      margin-top: 4px;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font: inherit;
+      font-weight: 600;
+      background: linear-gradient(180deg, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.05));
+      color: #1d4ed8;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reset-button:hover,
+    .reset-button:focus-visible {
+      background: #1d4ed8;
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(37, 99, 235, 0.18);
+      outline: none;
+    }
+
+    .reset-button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
     .card-progress {
       margin: 0;
       font-weight: 600;
@@ -369,6 +544,19 @@
       background: linear-gradient(180deg, rgba(226, 244, 255, 0.95), rgba(219, 234, 254, 0.92));
     }
 
+    .library-status {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.2);
+      color: #0f172a;
+    }
+
     .library-card-number {
       font-size: 0.78rem;
       font-weight: 700;
@@ -388,6 +576,45 @@
     .library-card-hint {
       font-size: 0.8rem;
       color: rgba(15, 23, 42, 0.58);
+    }
+
+    .flashcard.status-known .flashcard-face,
+    .flashcard.status-known .flashcard-back,
+    .library-card.status-known {
+      border-color: rgba(34, 197, 94, 0.65);
+      box-shadow: 0 18px 36px rgba(34, 197, 94, 0.24);
+      background: linear-gradient(180deg, rgba(240, 253, 244, 0.96), rgba(220, 252, 231, 0.94));
+    }
+
+    .flashcard.status-partial .flashcard-face,
+    .flashcard.status-partial .flashcard-back,
+    .library-card.status-partial {
+      border-color: rgba(249, 115, 22, 0.65);
+      box-shadow: 0 18px 36px rgba(249, 115, 22, 0.22);
+      background: linear-gradient(180deg, rgba(255, 247, 237, 0.96), rgba(255, 237, 213, 0.94));
+    }
+
+    .flashcard.status-unknown .flashcard-face,
+    .flashcard.status-unknown .flashcard-back,
+    .library-card.status-unknown {
+      border-color: rgba(239, 68, 68, 0.65);
+      box-shadow: 0 18px 36px rgba(239, 68, 68, 0.22);
+      background: linear-gradient(180deg, rgba(254, 242, 242, 0.96), rgba(254, 226, 226, 0.94));
+    }
+
+    .library-card.status-known .library-status {
+      background: rgba(34, 197, 94, 0.16);
+      color: #047857;
+    }
+
+    .library-card.status-partial .library-status {
+      background: rgba(249, 115, 22, 0.18);
+      color: #b45309;
+    }
+
+    .library-card.status-unknown .library-status {
+      background: rgba(239, 68, 68, 0.18);
+      color: #b91c1c;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -415,8 +642,21 @@
         width: 100%;
       }
 
+      .main-card-stage {
+        gap: 8px;
+      }
+
+      .card-nav {
+        width: 44px;
+        height: 44px;
+      }
+
       .flashcard-main .flashcard-inner {
         min-height: 300px;
+      }
+
+      .knowledge-buttons {
+        gap: 10px;
       }
 
       .library-grid {
@@ -468,13 +708,26 @@
       <div class="game-stage">
         <div class="main-card-wrapper">
           <p id="card-progress" class="card-progress" aria-live="polite"></p>
-          <div id="game-main-card" class="main-card-slot" aria-live="polite"></div>
+          <div class="main-card-stage">
+            <button id="prev-card" class="card-nav" type="button" aria-label="Targeta anterior">←</button>
+            <div id="game-main-card" class="main-card-slot" aria-live="polite"></div>
+            <button id="next-card" class="card-nav" type="button" aria-label="Targeta següent">→</button>
+          </div>
+          <div class="knowledge-actions">
+            <p class="knowledge-title">Com t'ha anat aquesta targeta?</p>
+            <div class="knowledge-buttons" role="group" aria-label="Marca si te la sabies">
+              <button class="knowledge-button" type="button" data-status="known">✅ Me la sabia</button>
+              <button class="knowledge-button" type="button" data-status="partial">🟠 Mig mig</button>
+              <button class="knowledge-button" type="button" data-status="unknown">❌ No me la sabia</button>
+            </div>
+            <button id="reset-progress" class="reset-button" type="button">🔁 Reinicia el progrés</button>
+          </div>
         </div>
       </div>
       <div class="library-section" aria-label="Biblioteca de targetes">
         <h3>Biblioteca de targetes</h3>
         <p class="library-description">
-          Selecciona una targeta per portar-la a l’escenari principal. Pots girar la targeta gran per comprovar la resposta i tornar-la a girar quan vulguis repassar-la.
+          Selecciona una targeta per portar-la a l’escenari principal. Pots girar-la i marcar si la sabies: la biblioteca es tenyirà de verd, taronja o vermell segons el teu progrés.
         </p>
         <ol id="game-library" class="library-grid" aria-label="Llista de preguntes"></ol>
       </div>
@@ -1130,12 +1383,24 @@
     const libraryList = document.getElementById('game-library');
     const cardProgress = document.getElementById('card-progress');
     const backButton = document.getElementById('back-button');
+    const prevButton = document.getElementById('prev-card');
+    const nextButton = document.getElementById('next-card');
+    const knowledgeButtons = document.querySelectorAll('.knowledge-button');
+    const resetButton = document.getElementById('reset-progress');
+
+    const statusLabels = {
+      known: '✅ Me la sabia',
+      partial: '🟠 Mig mig',
+      unknown: '❌ No me la sabia',
+    };
 
     const instructionsBase =
-      'Gira la targeta principal per veure la resposta i utilitza la biblioteca inferior per saltar entre preguntes.';
+      'Gira la targeta principal per veure la resposta, fes servir les fletxes o la biblioteca per canviar de targeta i marca amb els botons si te la sabies.';
 
     let currentTopic = null;
     let currentCardIndex = 0;
+    let cardStatuses = [];
+    const topicProgress = new Map();
 
     function renderTopics() {
       topics.forEach((topic) => {
@@ -1175,13 +1440,19 @@
 
       gameTitle.textContent = topic.title;
       gameSummary.textContent = topic.summary;
-      gameInstructions.textContent = `${instructionsBase} Tens ${topic.cards.length} targetes en aquest bloc.`;
+      gameInstructions.textContent = `${instructionsBase} Tens ${topic.cards.length} targetes en aquest bloc. Pots reiniciar el seguiment quan vulguis.`;
 
       currentTopic = topic;
+      let existingStatuses = topicProgress.get(topic.id);
+      if (!existingStatuses || existingStatuses.length !== topic.cards.length) {
+        existingStatuses = Array(topic.cards.length).fill(null);
+        topicProgress.set(topic.id, existingStatuses);
+      }
+
+      cardStatuses = existingStatuses;
       currentCardIndex = 0;
 
-      renderMainCard();
-      renderLibrary();
+      goToCard(0, { focus: false, scroll: false });
 
       backButton.focus({ preventScroll: true });
       gameSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1191,6 +1462,7 @@
       if (!currentTopic) return;
 
       const card = currentTopic.cards[currentCardIndex];
+      const status = cardStatuses[currentCardIndex];
       mainCardSlot.innerHTML = '';
 
       const button = document.createElement('button');
@@ -1246,6 +1518,10 @@
       inner.append(front, back);
       button.appendChild(inner);
 
+      if (status) {
+        button.classList.add(`status-${status}`);
+      }
+
       const updateAria = (isFlipped) => {
         button.setAttribute('aria-expanded', isFlipped ? 'true' : 'false');
         button.setAttribute(
@@ -1270,7 +1546,8 @@
       });
 
       mainCardSlot.appendChild(button);
-      cardProgress.textContent = `Targeta ${currentCardIndex + 1} de ${currentTopic.cards.length}`;
+
+      updateGameControls();
 
       if (shouldFocus) {
         button.focus({ preventScroll: true });
@@ -1293,6 +1570,11 @@
           button.setAttribute('aria-current', 'true');
         }
 
+        const status = cardStatuses[index];
+        if (status) {
+          button.classList.add(`status-${status}`);
+        }
+
         const number = document.createElement('span');
         number.className = 'library-card-number';
         number.textContent = `#${index + 1}`;
@@ -1303,24 +1585,153 @@
 
         const hint = document.createElement('span');
         hint.className = 'library-card-hint';
-        hint.textContent = 'Mostra aquesta targeta en gran';
+        hint.textContent = 'Mostra aquesta targeta i actualitza el seguiment';
 
-        button.append(number, question, hint);
+        const elements = [number, question];
+
+        if (status) {
+          const statusBadge = document.createElement('span');
+          statusBadge.className = 'library-status';
+          statusBadge.textContent = statusLabels[status];
+          elements.push(statusBadge);
+        }
+
+        elements.push(hint);
+
+        button.append(...elements);
         button.addEventListener('click', () => {
-          if (currentCardIndex !== index) {
-            currentCardIndex = index;
-            renderMainCard(true);
-            renderLibrary();
-          } else {
-            renderMainCard(true);
-          }
-
-          mainCardSlot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          goToCard(index, { focus: true, scroll: true });
         });
 
         item.appendChild(button);
         libraryList.appendChild(item);
       });
+    }
+
+    function updateCardProgress() {
+      if (!currentTopic) {
+        cardProgress.textContent = '';
+        return;
+      }
+
+      const total = currentTopic.cards.length;
+      const counts = cardStatuses.reduce(
+        (acc, status) => {
+          if (status && acc[status] !== undefined) {
+            acc[status] += 1;
+          }
+          return acc;
+        },
+        { known: 0, partial: 0, unknown: 0 }
+      );
+
+      const summaryParts = [];
+      if (counts.known) summaryParts.push(`✅ ${counts.known}`);
+      if (counts.partial) summaryParts.push(`🟠 ${counts.partial}`);
+      if (counts.unknown) summaryParts.push(`❌ ${counts.unknown}`);
+
+      const summaryText = summaryParts.length ? ` · ${summaryParts.join(' · ')}` : '';
+      cardProgress.textContent = `Targeta ${currentCardIndex + 1} de ${total}${summaryText}`;
+    }
+
+    function updateKnowledgeButtons() {
+      const activeStatus = currentTopic ? cardStatuses[currentCardIndex] : null;
+
+      knowledgeButtons.forEach((button) => {
+        const isActive = activeStatus === button.dataset.status;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        button.disabled = !currentTopic;
+      });
+    }
+
+    function updateNavButtons() {
+      if (!currentTopic) {
+        prevButton.disabled = true;
+        nextButton.disabled = true;
+        return;
+      }
+
+      const total = currentTopic.cards.length;
+      const disableNav = total <= 1;
+      prevButton.disabled = disableNav;
+      nextButton.disabled = disableNav;
+    }
+
+    function updateResetButton() {
+      resetButton.disabled = !currentTopic;
+    }
+
+    function updateGameControls() {
+      updateCardProgress();
+      updateKnowledgeButtons();
+      updateNavButtons();
+      updateResetButton();
+    }
+
+    function setCardStatus(status) {
+      if (!currentTopic) return;
+
+      if (!cardStatuses || cardStatuses.length !== currentTopic.cards.length) {
+        cardStatuses = Array(currentTopic.cards.length).fill(null);
+        topicProgress.set(currentTopic.id, cardStatuses);
+      }
+
+      const currentStatus = cardStatuses[currentCardIndex];
+      cardStatuses[currentCardIndex] = currentStatus === status ? null : status;
+      topicProgress.set(currentTopic.id, cardStatuses);
+
+      renderMainCard();
+      renderLibrary();
+    }
+
+    function goToCard(newIndex, { focus = true, scroll = true } = {}) {
+      if (!currentTopic) return;
+
+      const total = currentTopic.cards.length;
+      if (!total) return;
+
+      const nextIndex = ((newIndex % total) + total) % total;
+      currentCardIndex = nextIndex;
+
+      renderMainCard(focus);
+      renderLibrary();
+
+      if (scroll) {
+        mainCardSlot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function goNext() {
+      goToCard(currentCardIndex + 1, { focus: true, scroll: true });
+    }
+
+    function goPrev() {
+      goToCard(currentCardIndex - 1, { focus: true, scroll: true });
+    }
+
+    function handleKeyNavigation(event) {
+      if (!currentTopic) return;
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        goToCard(currentCardIndex + 1, { focus: false, scroll: false });
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        goToCard(currentCardIndex - 1, { focus: false, scroll: false });
+      }
+    }
+
+    function resetProgress() {
+      if (!currentTopic) return;
+
+      if (!cardStatuses || cardStatuses.length !== currentTopic.cards.length) {
+        cardStatuses = Array(currentTopic.cards.length).fill(null);
+      } else {
+        cardStatuses.fill(null);
+      }
+      topicProgress.set(currentTopic.id, cardStatuses);
+      goToCard(0, { focus: true, scroll: true });
     }
 
     function showMenu() {
@@ -1329,9 +1740,10 @@
       menuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       currentTopic = null;
       currentCardIndex = 0;
+      cardStatuses = [];
       mainCardSlot.innerHTML = '';
       libraryList.innerHTML = '';
-      cardProgress.textContent = '';
+      updateGameControls();
       const firstTopicButton = topicsGrid.querySelector('button');
       if (firstTopicButton) {
         firstTopicButton.focus({ preventScroll: true });
@@ -1340,6 +1752,15 @@
 
     backButton.addEventListener('click', showMenu);
 
+    prevButton.addEventListener('click', goPrev);
+    nextButton.addEventListener('click', goNext);
+    knowledgeButtons.forEach((button) => {
+      button.addEventListener('click', () => setCardStatus(button.dataset.status));
+    });
+    resetButton.addEventListener('click', resetProgress);
+    document.addEventListener('keydown', handleKeyNavigation);
+
+    updateGameControls();
     renderTopics();
   </script>
 </body>
