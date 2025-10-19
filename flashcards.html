@@ -162,18 +162,34 @@
       font-size: 0.95rem;
     }
 
-    .flashcard-game {
-      display: grid;
-      gap: 18px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      list-style: none;
-      padding: 0;
-      margin: 32px 0 0;
+    .game-stage {
+      margin-top: 40px;
+      display: flex;
+      justify-content: center;
     }
 
-    .flashcard-game li {
-      list-style: none;
+    .main-card-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: center;
+      width: min(100%, 620px);
+    }
+
+    .card-progress {
       margin: 0;
+      font-weight: 600;
+      color: #1d4ed8;
+      background: rgba(59, 130, 246, 0.14);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.95rem;
+    }
+
+    .main-card-slot {
+      width: 100%;
+      display: flex;
+      justify-content: center;
     }
 
     .flashcard {
@@ -193,6 +209,10 @@
       outline-offset: 4px;
     }
 
+    .flashcard-main {
+      width: min(100%, 560px);
+    }
+
     .flashcard-inner {
       display: block;
       position: relative;
@@ -200,6 +220,10 @@
       min-height: 220px;
       transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
       transform-style: preserve-3d;
+    }
+
+    .flashcard-main .flashcard-inner {
+      min-height: clamp(320px, 52vh, 420px);
     }
 
     .flashcard.is-flipped .flashcard-inner {
@@ -213,7 +237,7 @@
       flex-direction: column;
       justify-content: space-between;
       gap: 16px;
-      padding: 24px 22px;
+      padding: clamp(24px, 3vw, 34px);
       border-radius: 22px;
       border: 1px solid rgba(148, 163, 184, 0.35);
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.95));
@@ -245,9 +269,10 @@
     }
 
     .flashcard-text {
-      font-size: 1.02rem;
+      font-size: clamp(1.02rem, 0.98rem + 0.4vw, 1.24rem);
       line-height: 1.5;
       color: #0f172a;
+      overflow-wrap: anywhere;
     }
 
     .flashcard-hint {
@@ -255,9 +280,99 @@
       color: rgba(15, 23, 42, 0.6);
     }
 
+    .library-section {
+      margin: 48px auto 0;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .library-section h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .library-description {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .library-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      justify-content: center;
+    }
+
+    .library-grid li {
+      list-style: none;
+      margin: 0;
+    }
+
+    .library-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-start;
+      min-width: 180px;
+      max-width: 220px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(236, 248, 255, 0.9));
+      box-shadow: var(--shadow);
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .library-card:hover,
+    .library-card:focus-visible {
+      transform: translateY(-3px);
+      border-color: rgba(59, 130, 246, 0.45);
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+      outline: none;
+    }
+
+    .library-card[aria-current='true'] {
+      border-color: rgba(37, 99, 235, 0.8);
+      box-shadow: 0 18px 36px rgba(37, 99, 235, 0.15);
+      background: linear-gradient(180deg, rgba(226, 244, 255, 0.95), rgba(219, 234, 254, 0.92));
+    }
+
+    .library-card-number {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      background: rgba(59, 130, 246, 0.16);
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    .library-card-text {
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: #0f172a;
+      text-align: left;
+    }
+
+    .library-card-hint {
+      font-size: 0.8rem;
+      color: rgba(15, 23, 42, 0.58);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .topic-card,
-      .flashcard-inner {
+      .flashcard-inner,
+      .library-card {
         transition-duration: 0.01ms !important;
       }
     }
@@ -275,8 +390,21 @@
         gap: 12px;
       }
 
-      .flashcard-game {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      .main-card-wrapper {
+        width: 100%;
+      }
+
+      .flashcard-main .flashcard-inner {
+        min-height: 300px;
+      }
+
+      .library-grid {
+        justify-content: flex-start;
+      }
+
+      .library-card {
+        flex: 1 1 calc(50% - 14px);
+        max-width: none;
       }
     }
   </style>
@@ -321,7 +449,18 @@
         </div>
       </div>
       <p id="game-instructions" class="game-instructions"></p>
-      <ol id="game-cards" class="flashcard-game" aria-label="Llista de flashcards"></ol>
+      <div class="game-stage">
+        <div class="main-card-wrapper">
+          <p id="card-progress" class="card-progress" aria-live="polite"></p>
+          <div id="game-main-card" class="main-card-slot" aria-live="polite"></div>
+        </div>
+      </div>
+      <div class="library-section" aria-label="Biblioteca de targetes">
+        <h3>Biblioteca de targetes</h3>
+        <p class="library-description">Selecciona una targeta per portar-la a l’escenari principal. Pots girar la targeta gran per
+          comprovar la resposta i tornar-la a girar quan vulguis repassar-la.</p>
+        <ol id="game-library" class="library-grid" aria-label="Llista de preguntes"></ol>
+      </div>
     </section>
   </main>
 
@@ -470,10 +609,16 @@
     const gameTitle = document.getElementById('game-title');
     const gameSummary = document.getElementById('game-summary');
     const gameInstructions = document.getElementById('game-instructions');
-    const gameCards = document.getElementById('game-cards');
+    const mainCardSlot = document.getElementById('game-main-card');
+    const libraryList = document.getElementById('game-library');
+    const cardProgress = document.getElementById('card-progress');
     const backButton = document.getElementById('back-button');
 
-    const instructionsBase = 'Clica o toca cada targeta per veure la resposta i torna-la a girar quan la vulguis repassar.';
+    const instructionsBase =
+      'Gira la targeta principal per veure la resposta i utilitza la biblioteca inferior per saltar entre preguntes.';
+
+    let currentTopic = null;
+    let currentCardIndex = 0;
 
     function renderTopics() {
       topics.forEach((topic) => {
@@ -515,24 +660,26 @@
       gameSummary.textContent = topic.summary;
       gameInstructions.textContent = `${instructionsBase} Tens ${topic.cards.length} targetes en aquest bloc.`;
 
-      gameCards.innerHTML = '';
-      topic.cards.forEach((card, index) => {
-        const cardItem = document.createElement('li');
-        cardItem.className = 'flashcard-item';
-        const cardButton = createFlashcard(card, index + 1, topic.cards.length);
-        cardItem.appendChild(cardButton);
-        gameCards.appendChild(cardItem);
-      });
+      currentTopic = topic;
+      currentCardIndex = 0;
+
+      renderMainCard();
+      renderLibrary();
 
       backButton.focus({ preventScroll: true });
       gameSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function createFlashcard(card, index, total) {
+    function renderMainCard(shouldFocus = false) {
+      if (!currentTopic) return;
+
+      const card = currentTopic.cards[currentCardIndex];
+      mainCardSlot.innerHTML = '';
+
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'flashcard';
-      const baseLabel = `Targeta ${index} de ${total}.`;
+      button.className = 'flashcard flashcard-main';
+      const baseLabel = `Targeta ${currentCardIndex + 1} de ${currentTopic.cards.length}.`;
 
       const inner = document.createElement('span');
       inner.className = 'flashcard-inner';
@@ -542,7 +689,7 @@
 
       const frontBadge = document.createElement('span');
       frontBadge.className = 'flashcard-number';
-      frontBadge.textContent = `#${index}`;
+      frontBadge.textContent = `#${currentCardIndex + 1}`;
 
       const frontLabel = document.createElement('span');
       frontLabel.className = 'flashcard-label';
@@ -563,7 +710,7 @@
 
       const backBadge = document.createElement('span');
       backBadge.className = 'flashcard-number';
-      backBadge.textContent = `#${index}`;
+      backBadge.textContent = `#${currentCardIndex + 1}`;
 
       const backLabel = document.createElement('span');
       backLabel.className = 'flashcard-label';
@@ -605,13 +752,69 @@
         }
       });
 
-      return button;
+      mainCardSlot.appendChild(button);
+      cardProgress.textContent = `Targeta ${currentCardIndex + 1} de ${currentTopic.cards.length}`;
+
+      if (shouldFocus) {
+        button.focus({ preventScroll: true });
+      }
+    }
+
+    function renderLibrary() {
+      if (!currentTopic) return;
+
+      libraryList.innerHTML = '';
+
+      currentTopic.cards.forEach((card, index) => {
+        const item = document.createElement('li');
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'library-card';
+        button.dataset.index = String(index);
+        if (index === currentCardIndex) {
+          button.setAttribute('aria-current', 'true');
+        }
+
+        const number = document.createElement('span');
+        number.className = 'library-card-number';
+        number.textContent = `#${index + 1}`;
+
+        const question = document.createElement('span');
+        question.className = 'library-card-text';
+        question.textContent = card.question;
+
+        const hint = document.createElement('span');
+        hint.className = 'library-card-hint';
+        hint.textContent = 'Mostra aquesta targeta en gran';
+
+        button.append(number, question, hint);
+        button.addEventListener('click', () => {
+          if (currentCardIndex !== index) {
+            currentCardIndex = index;
+            renderMainCard(true);
+            renderLibrary();
+          } else {
+            renderMainCard(true);
+          }
+
+          mainCardSlot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+
+        item.appendChild(button);
+        libraryList.appendChild(item);
+      });
     }
 
     function showMenu() {
       gameSection.setAttribute('hidden', '');
       menuSection.removeAttribute('hidden');
       menuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      currentTopic = null;
+      currentCardIndex = 0;
+      mainCardSlot.innerHTML = '';
+      libraryList.innerHTML = '';
+      cardProgress.textContent = '';
       const firstTopicButton = topicsGrid.querySelector('button');
       if (firstTopicButton) {
         firstTopicButton.focus({ preventScroll: true });
