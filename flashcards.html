@@ -57,6 +57,10 @@
       margin: 40px 0 70px;
     }
 
+    .subjects-section {
+      margin-bottom: 32px;
+    }
+
     #topics-menu,
     #flashcard-game {
       scroll-margin-top: 90px;
@@ -90,6 +94,10 @@
       margin: 0;
     }
 
+    #subjects-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
     .topics-grid li {
       list-style: none;
       margin: 0;
@@ -112,6 +120,29 @@
       border: none;
       font: inherit;
       background-color: transparent;
+    }
+
+    .subject-card {
+      align-items: flex-start;
+    }
+
+    .subject-card.is-active,
+    .subject-card.is-active:hover,
+    .subject-card.is-active:focus-visible {
+      border-color: rgba(37, 99, 235, 0.6);
+      box-shadow: 0 20px 38px rgba(37, 99, 235, 0.2);
+      transform: none;
+    }
+
+    .subject-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: #0f172a;
+      background: rgba(79, 70, 229, 0.12);
+      border-radius: 999px;
+      padding: 6px 12px;
     }
 
     .topic-card:hover,
@@ -196,7 +227,7 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      margin-bottom: clamp(6px, 1.8vh, 18px);
+      margin-bottom: clamp(20px, 4vh, 48px);
     }
 
     .main-card-stage::before,
@@ -258,7 +289,7 @@
       gap: 16px;
       align-items: center;
       width: min(100%, 620px);
-      margin: 0 auto;
+      margin: clamp(20px, 4.5vh, 52px) auto 0;
       padding: clamp(16px, 2.4vh, 26px) clamp(14px, 3vw, 28px) clamp(18px, 2.6vh, 28px);
       border-radius: 26px;
       border: 1px solid rgba(148, 163, 184, 0.28);
@@ -697,18 +728,26 @@
   <main class="wrap">
     <section class="flashcards-hero">
       <p class="section-kicker">🃏 Flashcards</p>
-      <h1>Flashcards d'estudi · Història del segle XX</h1>
-      <p>Tria un bloc per començar i gira les targetes per comprovar què en saps. Cada tema combina preguntes i respostes curtes
-        pensades per repassar de manera amena.</p>
+      <h1>Flashcards d'estudi personalitzades</h1>
+      <p>Escull l'assignatura i després el bloc temàtic per practicar preguntes i respostes amb efecte de gir. Marca el teu
+        progrés i reprèn quan vulguis.</p>
     </section>
 
-    <section id="topics-menu" class="topics-section" aria-labelledby="topics-title">
+    <section id="subjects-menu" class="topics-section subjects-section" aria-labelledby="subjects-title">
       <header>
-        <h2 id="topics-title">Tria el bloc que vols practicar</h2>
-        <p class="subtitle">Comença pel resum dels grans conflictes i transformacions del món contemporani. Quan seleccionis un
-          bloc, s'obriran les targetes corresponents.</p>
+        <h2 id="subjects-title">Tria l'assignatura que vols treballar</h2>
+        <p id="subjects-subtitle" class="subtitle">Cada assignatura inclou diversos blocs de targetes perquè puguis estudiar
+          pas a pas.</p>
       </header>
-      <ul id="topics-grid" class="topics-grid" aria-label="Blocs de flashcards d'història"></ul>
+      <ul id="subjects-grid" class="topics-grid" aria-label="Assignatures disponibles"></ul>
+    </section>
+
+    <section id="topics-menu" class="topics-section" aria-labelledby="topics-title" hidden>
+      <header>
+        <h2 id="topics-title"></h2>
+        <p id="topics-subtitle" class="subtitle"></p>
+      </header>
+      <ul id="topics-grid" class="topics-grid" aria-label="Blocs de flashcards"></ul>
     </section>
 
     <section id="flashcard-game" class="game-section" aria-labelledby="game-title" hidden>
@@ -754,6 +793,7 @@
       {
         id: 'ww1',
         title: '🪖 Primera Guerra Mundial (1914–1918)',
+        subject: 'history',
         summary: 'Explora les causes, els bàndols i les conseqüències del primer gran conflicte global.',
         cards: [
           {
@@ -881,6 +921,7 @@
       {
         id: 'ww2',
         title: '💣 Segona Guerra Mundial (1939–1945)',
+        subject: 'history',
         summary: 'Repassa els desencadenants, els aliats i els fets clau del conflicte més devastador del segle XX.',
         cards: [
           {
@@ -1008,6 +1049,7 @@
       {
         id: 'cold-war',
         title: '❄️ Guerra Freda (1947–1991)',
+        subject: 'history',
         summary: 'Entén la rivalitat entre blocs, els símbols de la divisió i el final del conflicte ideològic.',
         cards: [
           {
@@ -1135,6 +1177,7 @@
       {
         id: 'spain-transition',
         title: '🇪🇸 Dictadura i Transició a Espanya',
+        subject: 'history',
         summary: 'Repàs breu del franquisme i del camí cap a la democràcia actual.',
         cards: [
           {
@@ -1262,6 +1305,7 @@
       {
         id: 'eu-global',
         title: '🇪🇺 Unió Europea i globalització',
+        subject: 'history',
         summary: 'Descobreix com cooperen els països europeus i què implica viure en un món globalitzat.',
         cards: [
           {
@@ -1386,10 +1430,282 @@
           },
         ],
       },
+      {
+        id: 'science-cell',
+        title: '🧬 La cèl·lula: unitat de vida',
+        subject: 'science',
+        summary: 'Comprèn com són i què fan les parts principals d’una cèl·lula.',
+        cards: [
+          {
+            question: 'Què és una cèl·lula?',
+            answer: 'És la unitat bàsica de tots els éssers vius.',
+          },
+          {
+            question: 'Quines són les tres parts principals d’una cèl·lula?',
+            answer: 'Membrana, citoplasma i nucli.',
+          },
+          {
+            question: 'Quina funció té la membrana cel·lular?',
+            answer: 'Controla el pas de substàncies dins i fora de la cèl·lula.',
+          },
+          {
+            question: 'Quina funció té el nucli?',
+            answer: 'Conté el material genètic (ADN) i dirigeix les funcions de la cèl·lula.',
+          },
+          {
+            question: 'Quina diferència hi ha entre cèl·lules animals i vegetals?',
+            answer: 'Les vegetals tenen paret cel·lular i cloroplasts; les animals no.',
+          },
+          {
+            question: 'Què és el citoplasma?',
+            answer: 'Un líquid on hi ha els orgànuls cel·lulars.',
+          },
+          {
+            question: 'Què són els mitocondris?',
+            answer: 'Orgànuls que produeixen energia per a la cèl·lula.',
+          },
+          {
+            question: 'Què és la fotosíntesi i on es fa?',
+            answer: 'És el procés pel qual les plantes fan el seu aliment; es fa als cloroplasts.',
+          },
+          {
+            question: 'Què són les cèl·lules procariotes?',
+            answer: 'Cèl·lules sense nucli, com les bacteris.',
+          },
+          {
+            question: 'Què són les cèl·lules eucariotes?',
+            answer: 'Cèl·lules amb nucli ben definit, com les dels animals i plantes.',
+          },
+        ],
+      },
+      {
+        id: 'science-classification',
+        title: '🌱 Els éssers vius i la seva classificació',
+        subject: 'science',
+        summary: 'Aprèn com s’organitzen els éssers vius i les relacions d’alimentació.',
+        cards: [
+          {
+            question: 'Quants regnes d’éssers vius hi ha?',
+            answer: 'Cinc: animals, plantes, fongs, protists i moneres.',
+          },
+          {
+            question: 'Què diferencia els animals de les plantes?',
+            answer: 'Els animals s’alimenten d’altres éssers vius; les plantes fan fotosíntesi.',
+          },
+          {
+            question: 'Què és un vertebrat?',
+            answer: 'Un animal amb columna vertebral.',
+          },
+          {
+            question: 'Què és un invertebrat?',
+            answer: 'Un animal sense columna vertebral.',
+          },
+          {
+            question: 'Què és la fotosíntesi?',
+            answer: 'Procés pel qual les plantes converteixen llum, aigua i CO₂ en aliment i oxigen.',
+          },
+          {
+            question: 'Què és una cadena tròfica?',
+            answer: "L’ordre en què l’energia passa d’un ésser viu a un altre.",
+          },
+          {
+            question: 'Què és un ecosistema?',
+            answer: 'L’espai on conviuen éssers vius i elements no vius.',
+          },
+          {
+            question: 'Què és un productor en una cadena alimentària?',
+            answer: 'Un ésser viu que fa el seu propi aliment, com les plantes.',
+          },
+          {
+            question: 'Què és un consumidor?',
+            answer: 'Un ésser viu que s’alimenta d’altres.',
+          },
+          {
+            question: 'Què és un descomponedor?',
+            answer: 'Un organisme que transforma restes en nutrients per al sòl, com els fongs.',
+          },
+        ],
+      },
+      {
+        id: 'earth-changes',
+        title: '🌍 La Terra i els seus canvis',
+        subject: 'science',
+        summary: 'Descobreix l’estructura de la Terra i com canvia amb el temps.',
+        cards: [
+          {
+            question: 'Quines són les tres capes internes de la Terra?',
+            answer: 'Escorça, mantell i nucli.',
+          },
+          {
+            question: 'Quins són els dos moviments principals de la Terra?',
+            answer: 'Rotació i translació.',
+          },
+          {
+            question: 'Què causa el dia i la nit?',
+            answer: 'El moviment de rotació de la Terra sobre el seu eix.',
+          },
+          {
+            question: 'Què causa les estacions de l’any?',
+            answer: 'El moviment de translació i la inclinació de l’eix terrestre.',
+          },
+          {
+            question: 'Què són les plaques tectòniques?',
+            answer: 'Grans fragments de l’escorça terrestre que es mouen lentament.',
+          },
+          {
+            question: 'Què és un terratrèmol?',
+            answer: 'Un moviment brusc de la Terra causat pel desplaçament de plaques.',
+          },
+          {
+            question: 'Què és un volcà?',
+            answer: 'Una obertura per on surt magma, gasos i cendra de l’interior de la Terra.',
+          },
+          {
+            question: 'Què és l’erosió?',
+            answer: 'El desgast de les roques per l’aigua, el vent o el gel.',
+          },
+          {
+            question: 'Què és el cicle de les roques?',
+            answer: 'El procés pel qual les roques es transformen entre si amb el temps.',
+          },
+          {
+            question: 'Què és un fòssil?',
+            answer: 'El rest o empremta d’un ésser viu antic conservat a les roques.',
+          },
+        ],
+      },
+      {
+        id: 'human-body',
+        title: '💪 El cos humà i els seus sistemes',
+        subject: 'science',
+        summary: 'Repassa els principals aparells del cos i com ens mantenen en vida.',
+        cards: [
+          {
+            question: 'Quins són els tres tipus principals d’aparells del cos humà?',
+            answer: 'Nutrició, relació i reproducció.',
+          },
+          {
+            question: 'Quina funció té l’aparell digestiu?',
+            answer: 'Transformar els aliments en nutrients.',
+          },
+          {
+            question: 'Quina funció té l’aparell respiratori?',
+            answer: 'Intercanviar oxigen i diòxid de carboni amb l’aire.',
+          },
+          {
+            question: 'Quina funció té l’aparell circulatori?',
+            answer: 'Transportar sang, oxigen i nutrients per tot el cos.',
+          },
+          {
+            question: 'Quina funció té l’aparell excretor?',
+            answer: 'Eliminar substàncies de rebuig del cos.',
+          },
+          {
+            question: 'Quina funció té el sistema nerviós?',
+            answer: 'Coordinar totes les funcions del cos i rebre estímuls.',
+          },
+          {
+            question: 'Quins òrgans formen el sistema nerviós central?',
+            answer: 'El cervell i la medul·la espinal.',
+          },
+          {
+            question: 'Quina funció té el sistema locomotor?',
+            answer: 'Permetre el moviment del cos gràcies als músculs i ossos.',
+          },
+          {
+            question: 'Què és el sistema reproductor?',
+            answer: 'El conjunt d’òrgans que permeten la reproducció.',
+          },
+          {
+            question: 'Quins hàbits mantenen un cos sa?',
+            answer: 'Bona alimentació, exercici físic i descans suficient.',
+          },
+        ],
+      },
+      {
+        id: 'matter-energy',
+        title: '⚡ Matèria, energia i canvis',
+        subject: 'science',
+        summary: 'Entén els estats de la matèria, l’energia i les forces del nostre entorn.',
+        cards: [
+          {
+            question: 'Quins són els tres estats de la matèria?',
+            answer: 'Sòlid, líquid i gasós.',
+          },
+          {
+            question: 'Què és un canvi físic?',
+            answer: 'Un canvi que no altera la composició de la substància.',
+          },
+          {
+            question: 'Què és un canvi químic?',
+            answer: 'Un canvi que forma noves substàncies.',
+          },
+          {
+            question: 'Què és la massa?',
+            answer: 'La quantitat de matèria que té un cos.',
+          },
+          {
+            question: 'Què és la densitat?',
+            answer: 'La relació entre la massa i el volum d’un cos.',
+          },
+          {
+            question: 'Què és l’energia?',
+            answer: 'La capacitat de produir canvis o moviment.',
+          },
+          {
+            question: 'Quins tipus d’energia hi ha?',
+            answer: 'Cinètica, potencial, tèrmica, elèctrica, química, solar...',
+          },
+          {
+            question: 'Què és una força?',
+            answer: 'Una acció capaç de canviar el moviment o la forma d’un cos.',
+          },
+          {
+            question: 'Què és la gravetat?',
+            answer: 'La força que atrau els cossos cap al centre de la Terra.',
+          },
+          {
+            question: 'Quines són les fonts d’energia renovables?',
+            answer: 'Solar, eòlica, hidràulica, geotèrmica i biomassa.',
+          },
+        ],
+      },
     ];
 
+    const subjectsConfig = [
+      {
+        id: 'history',
+        title: '📜 Història',
+        name: 'Història',
+        summary: 'Conflictes i transformacions del segle XX i l’inici del XXI.',
+        topicsTitle: "Escull el bloc d'història que vols practicar",
+        topicsSubtitle:
+          'Repassa guerres mundials, la Guerra Freda, la Transició i la integració europea amb targetes interactives.',
+      },
+      {
+        id: 'science',
+        title: '🔬 Ciències naturals',
+        name: 'Ciències naturals',
+        summary: 'Biologia, geologia i física bàsiques per entendre el món que t’envolta.',
+        topicsTitle: 'Escull el tema de ciències naturals',
+        topicsSubtitle:
+          'Aprèn conceptes clau sobre les cèl·lules, els éssers vius, la Terra, el cos humà i la matèria.',
+      },
+    ];
+
+    const subjects = subjectsConfig
+      .map((subject) => ({
+        ...subject,
+        topics: topics.filter((topic) => topic.subject === subject.id),
+      }))
+      .filter((subject) => subject.topics.length > 0);
+
+    const subjectsGrid = document.getElementById('subjects-grid');
+    const subjectsSection = document.getElementById('subjects-menu');
+    const topicsSection = document.getElementById('topics-menu');
     const topicsGrid = document.getElementById('topics-grid');
-    const menuSection = document.getElementById('topics-menu');
+    const topicsTitle = document.getElementById('topics-title');
+    const topicsSubtitle = document.getElementById('topics-subtitle');
     const gameSection = document.getElementById('flashcard-game');
     const gameTitle = document.getElementById('game-title');
     const gameSummary = document.getElementById('game-summary');
@@ -1412,13 +1728,67 @@
     const instructionsBase =
       'Gira la targeta principal per veure la resposta, fes servir les fletxes o la biblioteca per canviar de targeta i marca amb els botons si te la sabies.';
 
+    const subjectButtons = new Map();
+
+    let currentSubject = null;
     let currentTopic = null;
     let currentCardIndex = 0;
     let cardStatuses = [];
     const topicProgress = new Map();
 
+    function renderSubjects() {
+      subjectsGrid.innerHTML = '';
+      subjectButtons.clear();
+
+      subjects.forEach((subject) => {
+        const listItem = document.createElement('li');
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'topic-card subject-card';
+        button.dataset.subjectId = subject.id;
+        button.setAttribute('aria-pressed', 'false');
+
+        const title = document.createElement('h3');
+        title.textContent = subject.title;
+
+        const summary = document.createElement('p');
+        summary.className = 'topic-summary';
+        summary.textContent = subject.summary;
+
+        const totalCards = subject.topics.reduce((acc, topic) => acc + topic.cards.length, 0);
+        const meta = document.createElement('span');
+        meta.className = 'subject-meta';
+        meta.textContent = `${subject.topics.length} blocs · ${totalCards} targetes`;
+
+        button.append(title, summary, meta);
+        button.addEventListener('click', () => {
+          if (!gameSection.hasAttribute('hidden')) {
+            showMenu({ focusFirstTopic: false, scroll: false });
+          }
+          selectSubject(subject.id, { scroll: true });
+        });
+
+        listItem.appendChild(button);
+        subjectsGrid.appendChild(listItem);
+        subjectButtons.set(subject.id, button);
+      });
+    }
+
     function renderTopics() {
-      topics.forEach((topic) => {
+      topicsGrid.innerHTML = '';
+
+      if (!currentSubject) {
+        topicsSection.setAttribute('hidden', '');
+        return;
+      }
+
+      topicsSection.removeAttribute('hidden');
+      topicsTitle.textContent = currentSubject.topicsTitle;
+      topicsSubtitle.textContent = currentSubject.topicsSubtitle;
+      topicsGrid.setAttribute('aria-label', `Blocs de flashcards de ${currentSubject.name}`);
+
+      currentSubject.topics.forEach((topic) => {
         const listItem = document.createElement('li');
         listItem.className = 'topic-card-item';
 
@@ -1446,16 +1816,53 @@
       });
     }
 
-    function openTopic(topicId) {
-      const topic = topics.find((item) => item.id === topicId);
-      if (!topic) return;
+    function selectSubject(subjectId, { scroll = false } = {}) {
+      const subject = subjects.find((item) => item.id === subjectId);
+      if (!subject) return;
 
-      menuSection.setAttribute('hidden', '');
+      currentSubject = subject;
+
+      subjectButtons.forEach((button, id) => {
+        const isActive = id === subjectId;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      });
+
+      renderTopics();
+
+      if (scroll) {
+        topicsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function findTopic(topicId) {
+      for (const subject of subjects) {
+        const topic = subject.topics.find((item) => item.id === topicId);
+        if (topic) {
+          return { subject, topic };
+        }
+      }
+      return null;
+    }
+
+    function openTopic(topicId) {
+      const match = findTopic(topicId);
+      if (!match) return;
+
+      if (currentSubject?.id !== match.subject.id) {
+        selectSubject(match.subject.id, { scroll: false });
+      }
+
+      currentSubject = match.subject;
+      const topic = match.topic;
+
+      topicsSection.setAttribute('hidden', '');
       gameSection.removeAttribute('hidden');
 
       gameTitle.textContent = topic.title;
       gameSummary.textContent = topic.summary;
-      gameInstructions.textContent = `${instructionsBase} Tens ${topic.cards.length} targetes en aquest bloc. Pots reiniciar el seguiment quan vulguis.`;
+      const subjectLabel = currentSubject ? currentSubject.name.toLowerCase() : "l'assignatura seleccionada";
+      gameInstructions.textContent = `${instructionsBase} Tens ${topic.cards.length} targetes en aquest bloc de ${subjectLabel}. Pots reiniciar el seguiment quan vulguis.`;
 
       currentTopic = topic;
       let existingStatuses = topicProgress.get(topic.id);
@@ -1749,23 +2156,27 @@
       goToCard(0, { focus: true, scroll: true });
     }
 
-    function showMenu() {
+    function showMenu({ focusFirstTopic = true, scroll = true } = {}) {
       gameSection.setAttribute('hidden', '');
-      menuSection.removeAttribute('hidden');
-      menuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      topicsSection.removeAttribute('hidden');
+      if (scroll) {
+        (currentSubject ? topicsSection : subjectsSection).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       currentTopic = null;
       currentCardIndex = 0;
       cardStatuses = [];
       mainCardSlot.innerHTML = '';
       libraryList.innerHTML = '';
       updateGameControls();
-      const firstTopicButton = topicsGrid.querySelector('button');
-      if (firstTopicButton) {
-        firstTopicButton.focus({ preventScroll: true });
+      if (focusFirstTopic) {
+        const firstTopicButton = topicsGrid.querySelector('button');
+        if (firstTopicButton) {
+          firstTopicButton.focus({ preventScroll: true });
+        }
       }
     }
 
-    backButton.addEventListener('click', showMenu);
+    backButton.addEventListener('click', () => showMenu());
 
     prevButton.addEventListener('click', goPrev);
     nextButton.addEventListener('click', goNext);
@@ -1775,8 +2186,14 @@
     resetButton.addEventListener('click', resetProgress);
     document.addEventListener('keydown', handleKeyNavigation);
 
+    renderSubjects();
+    if (subjects.length) {
+      selectSubject(subjects[0].id, { scroll: false });
+    } else {
+      topicsSection.setAttribute('hidden', '');
+    }
+
     updateGameControls();
-    renderTopics();
   </script>
 </body>
 </html>
