@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FocusQuiz · Flashcards d'estudi</title>
+  <meta
+    name="description"
+    content="Escull una temàtica i juga amb les flashcards de preguntes i respostes sobre història del segle XX."
+  />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background: linear-gradient(180deg, #f8fbff, #eef2ff 320px);
+    }
+
+    .flashcards-hero {
+      margin: 40px 0 28px;
+    }
+
+    .flashcards-hero h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 1.1rem + 2vw, 2.4rem);
+    }
+
+    .flashcards-hero p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      max-width: 720px;
+    }
+
+    .flashcards-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .section-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, 0.12);
+      color: #047857;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+    }
+
+    .topics-section,
+    .game-section {
+      display: grid;
+      gap: 24px;
+      margin: 40px 0 70px;
+    }
+
+    #topics-menu,
+    #flashcard-game {
+      scroll-margin-top: 90px;
+    }
+
+    .topics-section header,
+    .game-header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topics-section h2,
+    .game-header h2 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 720px;
+    }
+
+    .topics-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .topics-grid li {
+      list-style: none;
+      margin: 0;
+    }
+
+    .topic-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(236, 248, 255, 0.9));
+      padding: 24px 22px;
+      box-shadow: var(--shadow);
+      text-align: left;
+      color: inherit;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      width: 100%;
+      border: none;
+      font: inherit;
+      background-color: transparent;
+    }
+
+    .topic-card:hover,
+    .topic-card:focus-visible {
+      transform: translateY(-4px);
+      border-color: rgba(59, 130, 246, 0.4);
+      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
+      outline: none;
+    }
+
+    .topic-card h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #1d4ed8;
+    }
+
+    .topic-summary {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: #0f172a;
+      background: rgba(59, 130, 246, 0.12);
+      border-radius: 999px;
+      padding: 6px 12px;
+      width: fit-content;
+    }
+
+    .game-section {
+      margin-bottom: 90px;
+    }
+
+    .game-header {
+      gap: 16px;
+    }
+
+    .pill-back {
+      width: fit-content;
+    }
+
+    .game-header h2 {
+      font-size: clamp(1.3rem, 1.05rem + 1.2vw, 1.8rem);
+    }
+
+    .game-instructions {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      max-width: 720px;
+      text-align: center;
+      margin-inline: auto;
+    }
+
+    .game-stage {
+      margin-top: 36px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      padding-inline: clamp(8px, 3vw, 24px);
+    }
+
+    .main-card-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(22px, 4vh, 34px);
+      align-items: center;
+      width: min(100%, 620px);
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .main-card-stage {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: clamp(6px, 1.8vh, 18px);
+    }
+
+    .main-card-stage::before,
+    .main-card-stage::after {
+      content: '';
+      position: absolute;
+      inset: -24px 0 auto;
+      height: 26px;
+      background: linear-gradient(180deg, rgba(226, 232, 240, 0.3), rgba(148, 163, 184, 0));
+      border-radius: 999px;
+      filter: blur(6px);
+      opacity: 0.7;
+      z-index: -1;
+    }
+
+    .main-card-stage::after {
+      inset: auto 0 -26px;
+    }
+
+    .card-nav {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 600;
+      background: rgba(37, 99, 235, 0.12);
+      color: #1d4ed8;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12);
+    }
+
+    .card-nav:hover,
+    .card-nav:focus-visible {
+      background: #1d4ed8;
+      color: #eff6ff;
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(37, 99, 235, 0.2);
+      outline: none;
+    }
+
+    .card-nav:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      background: rgba(148, 163, 184, 0.2);
+      color: rgba(15, 23, 42, 0.4);
+      box-shadow: none;
+    }
+
+    .knowledge-actions {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-items: center;
+      width: min(100%, 620px);
+      margin: 0 auto;
+      padding: clamp(16px, 2.4vh, 26px) clamp(14px, 3vw, 28px) clamp(18px, 2.6vh, 28px);
+      border-radius: 26px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(236, 248, 255, 0.92));
+      box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
+    }
+
+    .knowledge-title {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .knowledge-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .knowledge-button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+      background: rgba(148, 163, 184, 0.2);
+      color: #0f172a;
+    }
+
+    .knowledge-button:hover,
+    .knowledge-button:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.18);
+      outline: none;
+    }
+
+    .knowledge-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .knowledge-button.is-active {
+      color: #fff;
+      box-shadow: 0 16px 28px rgba(15, 23, 42, 0.22);
+    }
+
+    .knowledge-button[data-status='known'] {
+      background: rgba(34, 197, 94, 0.16);
+      color: #047857;
+    }
+
+    .knowledge-button[data-status='known'].is-active {
+      background: #16a34a;
+    }
+
+    .knowledge-button[data-status='partial'] {
+      background: rgba(249, 115, 22, 0.18);
+      color: #b45309;
+    }
+
+    .knowledge-button[data-status='partial'].is-active {
+      background: #f97316;
+    }
+
+    .knowledge-button[data-status='unknown'] {
+      background: rgba(239, 68, 68, 0.18);
+      color: #b91c1c;
+    }
+
+    .knowledge-button[data-status='unknown'].is-active {
+      background: #ef4444;
+    }
+
+    .reset-button {
+      margin-top: 4px;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font: inherit;
+      font-weight: 600;
+      background: linear-gradient(180deg, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.05));
+      color: #1d4ed8;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .reset-button:hover,
+    .reset-button:focus-visible {
+      background: #1d4ed8;
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(37, 99, 235, 0.18);
+      outline: none;
+    }
+
+    .reset-button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .card-progress {
+      margin: 0;
+      font-weight: 600;
+      color: #1d4ed8;
+      background: rgba(59, 130, 246, 0.14);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .main-card-slot {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .flashcard {
+      position: relative;
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      perspective: 1200px;
+      text-align: left;
+    }
+
+    .flashcard:focus-visible {
+      outline: 3px solid rgba(59, 130, 246, 0.8);
+      outline-offset: 4px;
+    }
+
+    .flashcard-main {
+      width: min(100%, 580px);
+      margin: 0 auto;
+    }
+
+    .flashcard-inner {
+      display: block;
+      position: relative;
+      width: 100%;
+      min-height: 220px;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flashcard-main .flashcard-inner {
+      min-height: clamp(340px, 52vh, 460px);
+    }
+
+    .flashcard.is-flipped .flashcard-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flashcard-face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      padding: clamp(24px, 3vw, 34px);
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.95));
+      box-shadow: var(--shadow);
+      backface-visibility: hidden;
+    }
+
+    .flashcard-back {
+      transform: rotateY(180deg);
+      background: linear-gradient(180deg, rgba(226, 246, 255, 0.96), rgba(219, 234, 254, 0.95));
+    }
+
+    .flashcard-label {
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(15, 23, 42, 0.65);
+      font-weight: 700;
+    }
+
+    .flashcard-number {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      background: rgba(59, 130, 246, 0.15);
+      border-radius: 999px;
+      padding: 4px 10px;
+      width: fit-content;
+    }
+
+    .flashcard-text {
+      font-size: clamp(1.02rem, 0.98rem + 0.4vw, 1.24rem);
+      line-height: 1.5;
+      color: #0f172a;
+      overflow-wrap: anywhere;
+    }
+
+    .flashcard-hint {
+      font-size: 0.85rem;
+      color: rgba(15, 23, 42, 0.6);
+    }
+
+    .library-section {
+      margin: 48px auto 0;
+      width: min(100%, 960px);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: stretch;
+      padding-inline: clamp(8px, 3vw, 24px);
+    }
+
+    .library-section h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
+    .library-description {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      text-align: center;
+      max-width: 720px;
+      margin-inline: auto;
+    }
+
+    .library-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .library-grid li {
+      list-style: none;
+      margin: 0;
+      height: 100%;
+    }
+
+    .library-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-start;
+      width: 100%;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(236, 248, 255, 0.9));
+      box-shadow: var(--shadow);
+      color: inherit;
+      cursor: pointer;
+      font: inherit;
+      text-align: left;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      height: 100%;
+    }
+
+    .library-card:hover,
+    .library-card:focus-visible {
+      transform: translateY(-3px);
+      border-color: rgba(59, 130, 246, 0.45);
+      box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+      outline: none;
+    }
+
+    .library-card[aria-current='true'] {
+      border-color: rgba(37, 99, 235, 0.8);
+      box-shadow: 0 18px 36px rgba(37, 99, 235, 0.15);
+      background: linear-gradient(180deg, rgba(226, 244, 255, 0.95), rgba(219, 234, 254, 0.92));
+    }
+
+    .library-status {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.2);
+      color: #0f172a;
+    }
+
+    .library-card-number {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #1d4ed8;
+      background: rgba(59, 130, 246, 0.16);
+      border-radius: 999px;
+      padding: 4px 10px;
+    }
+
+    .library-card-text {
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: #0f172a;
+      text-align: left;
+    }
+
+    .library-card-hint {
+      font-size: 0.8rem;
+      color: rgba(15, 23, 42, 0.58);
+    }
+
+    .flashcard.status-known .flashcard-face,
+    .flashcard.status-known .flashcard-back,
+    .library-card.status-known {
+      border-color: rgba(34, 197, 94, 0.65);
+      box-shadow: 0 18px 36px rgba(34, 197, 94, 0.24);
+      background: linear-gradient(180deg, rgba(240, 253, 244, 0.96), rgba(220, 252, 231, 0.94));
+    }
+
+    .flashcard.status-partial .flashcard-face,
+    .flashcard.status-partial .flashcard-back,
+    .library-card.status-partial {
+      border-color: rgba(249, 115, 22, 0.65);
+      box-shadow: 0 18px 36px rgba(249, 115, 22, 0.22);
+      background: linear-gradient(180deg, rgba(255, 247, 237, 0.96), rgba(255, 237, 213, 0.94));
+    }
+
+    .flashcard.status-unknown .flashcard-face,
+    .flashcard.status-unknown .flashcard-back,
+    .library-card.status-unknown {
+      border-color: rgba(239, 68, 68, 0.65);
+      box-shadow: 0 18px 36px rgba(239, 68, 68, 0.22);
+      background: linear-gradient(180deg, rgba(254, 242, 242, 0.96), rgba(254, 226, 226, 0.94));
+    }
+
+    .library-card.status-known .library-status {
+      background: rgba(34, 197, 94, 0.16);
+      color: #047857;
+    }
+
+    .library-card.status-partial .library-status {
+      background: rgba(249, 115, 22, 0.18);
+      color: #b45309;
+    }
+
+    .library-card.status-unknown .library-status {
+      background: rgba(239, 68, 68, 0.18);
+      color: #b91c1c;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .topic-card,
+      .flashcard-inner,
+      .library-card {
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .flashcards-hero {
+        margin: 28px 0 24px;
+      }
+
+      .flashcards-nav {
+        justify-content: flex-start;
+      }
+
+      .game-header {
+        gap: 12px;
+      }
+
+      .main-card-wrapper {
+        width: 100%;
+      }
+
+      .main-card-stage {
+        gap: 8px;
+      }
+
+      .card-nav {
+        width: 44px;
+        height: 44px;
+      }
+
+      .flashcard-main .flashcard-inner {
+        min-height: 300px;
+      }
+
+      .knowledge-buttons {
+        gap: 10px;
+      }
+
+      .knowledge-actions {
+        padding: 16px 16px 22px;
+        border-radius: 22px;
+      }
+
+      .library-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap row header-bar">
+      <div class="brand">
+        <div class="logo">FQ</div>
+        <h1>Focus Academy</h1>
+      </div>
+      <nav class="flashcards-nav" aria-label="Navegació">
+        <a class="pill" href="index.html">← Torna a l'inici</a>
+        <a class="pill" href="https://focuscat.onrender.com/" target="_blank" rel="noopener">Focus Exams</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="flashcards-hero">
+      <p class="section-kicker">🃏 Flashcards</p>
+      <h1>Flashcards d'estudi · Història del segle XX</h1>
+      <p>Tria un bloc per començar i gira les targetes per comprovar què en saps. Cada tema combina preguntes i respostes curtes
+        pensades per repassar de manera amena.</p>
+    </section>
+
+    <section id="topics-menu" class="topics-section" aria-labelledby="topics-title">
+      <header>
+        <h2 id="topics-title">Tria el bloc que vols practicar</h2>
+        <p class="subtitle">Comença pel resum dels grans conflictes i transformacions del món contemporani. Quan seleccionis un
+          bloc, s'obriran les targetes corresponents.</p>
+      </header>
+      <ul id="topics-grid" class="topics-grid" aria-label="Blocs de flashcards d'història"></ul>
+    </section>
+
+    <section id="flashcard-game" class="game-section" aria-labelledby="game-title" hidden>
+      <div class="game-header">
+        <button id="back-button" class="pill pill-back" type="button">← Torna al menú</button>
+        <div>
+          <h2 id="game-title"></h2>
+          <p id="game-summary" class="subtitle"></p>
+        </div>
+      </div>
+      <p id="game-instructions" class="game-instructions"></p>
+      <div class="game-stage">
+        <div class="main-card-wrapper">
+          <p id="card-progress" class="card-progress" aria-live="polite"></p>
+          <div class="main-card-stage">
+            <button id="prev-card" class="card-nav" type="button" aria-label="Targeta anterior">←</button>
+            <div id="game-main-card" class="main-card-slot" aria-live="polite"></div>
+            <button id="next-card" class="card-nav" type="button" aria-label="Targeta següent">→</button>
+          </div>
+          <div class="knowledge-actions">
+            <p class="knowledge-title">Com t'ha anat aquesta targeta?</p>
+            <div class="knowledge-buttons" role="group" aria-label="Marca si te la sabies">
+              <button class="knowledge-button" type="button" data-status="known">✅ Me la sabia</button>
+              <button class="knowledge-button" type="button" data-status="partial">🟠 Mig mig</button>
+              <button class="knowledge-button" type="button" data-status="unknown">❌ No me la sabia</button>
+            </div>
+            <button id="reset-progress" class="reset-button" type="button">🔁 Reinicia el progrés</button>
+          </div>
+        </div>
+      </div>
+      <div class="library-section" aria-label="Biblioteca de targetes">
+        <h3>Biblioteca de targetes</h3>
+        <p class="library-description">
+          Selecciona una targeta per portar-la a l’escenari principal. Pots girar-la i marcar si la sabies: la biblioteca es tenyirà de verd, taronja o vermell segons el teu progrés.
+        </p>
+        <ol id="game-library" class="library-grid" aria-label="Llista de preguntes"></ol>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const topics = [
+      {
+        id: 'ww1',
+        title: '🪖 Primera Guerra Mundial (1914–1918)',
+        summary: 'Explora les causes, els bàndols i les conseqüències del primer gran conflicte global.',
+        cards: [
+          {
+            question: 'Quina fou la causa principal de la Primera Guerra Mundial?',
+            answer: "Les rivalitats entre potències europees i l’assassinat de l’arxiduc Francesc Ferran d’Àustria.",
+          },
+          {
+            question: 'Quins dos bàndols principals es van enfrontar?',
+            answer: 'La Triple Entesa (França, Regne Unit i Rússia) contra la Triple Aliança (Alemanya, Àustria-Hongria i Itàlia).',
+          },
+          {
+            question: 'Quin nou tipus de guerra va aparèixer durant la Primera Guerra Mundial?',
+            answer: 'La guerra de trinxeres.',
+          },
+          {
+            question: 'Quin tractat va posar fi a la guerra?',
+            answer: 'El Tractat de Versalles (1919).',
+          },
+          {
+            question: 'Quines conseqüències va tenir per Alemanya?',
+            answer: 'Pèrdues territorials, indemnitzacions econòmiques i ressentiment social i polític.',
+          },
+          {
+            question: 'Quin paper va tenir el sistema d’aliances europees abans de 1914?',
+            answer: "Va crear blocs militars oposats que es van activar quan va esclatar la crisi d'Austria i Sèrbia.",
+          },
+          {
+            question: 'Quin imperi donà suport a Àustria-Hongria contra Sèrbia?',
+            answer: 'L’Imperi Alemany, que li va garantir suport militar immediat.',
+          },
+          {
+            question: 'Per què Rússia va mobilitzar el seu exèrcit a l’estiu de 1914?',
+            answer: 'Per protegir Sèrbia i mantenir la seva influència als Balcans.',
+          },
+          {
+            question: 'Quina importància va tenir la batalla del Somme?',
+            answer: 'Va mostrar la brutalitat de la guerra de trinxeres amb enormes baixes sense avenços clars.',
+          },
+          {
+            question: 'Què era la guerra submarina irrestricta?',
+            answer: 'L’estratègia alemanya d’enfonsar qualsevol vaixell enemic o neutral que aprovisionàs el Regne Unit.',
+          },
+          {
+            question: 'Com afectà el telegrama Zimmerman al conflicte?',
+            answer: 'Va empènyer els Estats Units a entrar en guerra contra Alemanya el 1917.',
+          },
+          {
+            question: 'Quina nova arma química es va usar a Ieper el 1915?',
+            answer: 'El gas clor, que provocava sufocació i lesions greus als soldats.',
+          },
+          {
+            question: 'Per què Itàlia va canviar de bàndol el 1915?',
+            answer: 'Perquè els Aliats li prometeren territoris austríacs si els ajudava.',
+          },
+          {
+            question: 'Què va ser la batalla de Gallípoli?',
+            answer: 'Un intent fallit dels Aliats d’obrir un front a Turquia per assegurar l’accés al mar Negre.',
+          },
+          {
+            question: 'Quina funció tenien les dones en l’esforç de guerra?',
+            answer: 'Treballaven en fàbriques, hospitals i serveis per substituir els homes mobilitzats.',
+          },
+          {
+            question: 'Què va provocar la Revolució Russa durant la guerra?',
+            answer: 'L’esgotament social i econòmic que va portar Rússia a sortir del conflicte el 1917.',
+          },
+          {
+            question: 'Com s’anomenava el front entre Alemanya i Rússia?',
+            answer: 'El Front Oriental, amb batalles molt mòbils com Tannenberg.',
+          },
+          {
+            question: 'Quina innovació militar va aparèixer a la batalla de Cambrai?',
+            answer: 'L’ús massiu de tancs per trencar les línies de trinxeres.',
+          },
+          {
+            question: 'Quin paper jugaren les colònies europees?',
+            answer: 'Proporcionaren soldats i recursos, especialment de l’Índia, Àfrica i Austràlia.',
+          },
+          {
+            question: 'Què era el front occidental?',
+            answer: 'La línia de batalla principal a França i Bèlgica entre Alemanya i la Triple Entesa.',
+          },
+          {
+            question: 'Quina importància tingué la batalla de Verdun?',
+            answer: 'Es convertí en símbol de resistència francesa i de la guerra d’esgotament.',
+          },
+          {
+            question: 'Què defensava el president Wilson amb els Catorze Punts?',
+            answer: 'Una pau justa basada en l’autodeterminació i la creació de la Societat de Nacions.',
+          },
+          {
+            question: 'Quins imperis desaparegueren després del conflicte?',
+            answer: 'Els imperis Alemany, Austrohongarès, Otomà i Rus.',
+          },
+          {
+            question: 'Quines noves nacions sorgiren a Europa Central?',
+            answer: 'Polònia, Txecoslovàquia, Iugoslàvia o Finlàndia, entre d’altres.',
+          },
+          {
+            question: 'Què era la Societat de Nacions?',
+            answer: 'Un organisme internacional creat per garantir la pau i evitar noves guerres.',
+          },
+          {
+            question: 'Com afectà la guerra a l’economia europea?',
+            answer: 'Deixà deutes enormes, inflació i necessitat de reconstrucció.',
+          },
+          {
+            question: 'Què va passar amb l’Imperi Otomà després de la guerra?',
+            answer: 'Es va desmembrar i una part es convertí en la República de Turquia.',
+          },
+          {
+            question: 'Quin paper tingué la propaganda durant el conflicte?',
+            answer: 'Mobilitzava el suport ciutadà i justificava l’esforç bèl·lic.',
+          },
+          {
+            question: 'Per què la guerra és considerada total?',
+            answer: 'Perquè implicà tota la societat, l’economia i les colònies dels països en guerra.',
+          },
+          {
+            question: 'Quines condicions imposà el Tractat de Versalles a Alemanya?',
+            answer: 'Limitacions militars, pèrdues territorials i pagament de reparacions.',
+          },
+        ],
+      },
+      {
+        id: 'ww2',
+        title: '💣 Segona Guerra Mundial (1939–1945)',
+        summary: 'Repassa els desencadenants, els aliats i els fets clau del conflicte més devastador del segle XX.',
+        cards: [
+          {
+            question: 'Quina va ser la causa immediata de la Segona Guerra Mundial?',
+            answer: 'La invasió d’Alemanya a Polònia el 1939.',
+          },
+          {
+            question: 'Quins dos bàndols es van enfrontar?',
+            answer: 'Els Aliats (Regne Unit, EUA, URSS) i les Potències de l’Eix (Alemanya, Itàlia, Japó).',
+          },
+          {
+            question: 'Qui era Adolf Hitler?',
+            answer: 'El dictador nazi que governava Alemanya i va iniciar la guerra.',
+          },
+          {
+            question: 'Quin fet va posar fi a la guerra al Pacífic?',
+            answer: 'Les bombes atòmiques sobre Hiroshima i Nagasaki (1945).',
+          },
+          {
+            question: 'Quines conseqüències va tenir la guerra per al món?',
+            answer: 'Destrucció massiva, milions de morts i naixement de l’ONU.',
+          },
+          {
+            question: 'Què va ser el pacte Ribbentrop-Mólotov?',
+            answer: 'Un acord de no-agressió entre Alemanya i la URSS que incloïa el repartiment de Polònia.',
+          },
+          {
+            question: 'Què significà el Blitzkrieg?',
+            answer: "La guerra llampec alemanya basada en atacs ràpids amb avions, tancs i infanteria.",
+          },
+          {
+            question: 'Per què França va caure tan ràpidament el 1940?',
+            answer: 'Perquè Alemanya atacà pel nord a través de Bèlgica i rodejà la Línia Maginot.',
+          },
+          {
+            question: 'Què va ser la batalla d’Anglaterra?',
+            answer: 'Una campanya aèria on la RAF britànica va resistir els bombardejos alemanys.',
+          },
+          {
+            question: 'Quina operació fou la invasió alemanya de la URSS?',
+            answer: 'L’Operació Barbarroja, iniciada el juny de 1941.',
+          },
+          {
+            question: 'Quin esdeveniment va implicar els EUA al conflicte?',
+            answer: 'L’atac japonès a Pearl Harbor el desembre de 1941.',
+          },
+          {
+            question: 'Què va passar a Stalingrad?',
+            answer: 'L’exèrcit alemany fou derrotat per l’Exèrcit Roig, marcant un punt d’inflexió a l’est.',
+          },
+          {
+            question: 'Quin significat va tenir el desembarcament de Normandia?',
+            answer: 'Va obrir un nou front a l’oest d’Europa el 6 de juny de 1944.',
+          },
+          {
+            question: 'Què era la Solució Final?',
+            answer: 'El pla nazi per exterminar el poble jueu i altres col·lectius perseguits.',
+          },
+          {
+            question: 'Quin camp de concentració simbolitza l’Holocaust?',
+            answer: 'Auschwitz-Birkenau, on milions de persones foren assassinades.',
+          },
+          {
+            question: 'Què va ser la batalla del Pacífic de Midway?',
+            answer: 'Una victòria naval dels EUA que frenà l’expansió japonesa el 1942.',
+          },
+          {
+            question: 'Què eren els kamikazes?',
+            answer: 'Pilots japonesos que es llançaven contra vaixells enemics en missions suïcides.',
+          },
+          {
+            question: 'Quina conferència va establir l’estratègia aliada el 1943?',
+            answer: 'La Conferència de Teheran entre Stalin, Roosevelt i Churchill.',
+          },
+          {
+            question: 'Què va acordar-se a la Conferència de Yalta?',
+            answer: 'El repartiment d’influències a Europa i la creació de l’ONU.',
+          },
+          {
+            question: 'Quin paper va tenir la resistència europea?',
+            answer: 'Sabotejà les forces d’ocupació i ajudà els aliats amb informació i guerrilla.',
+          },
+          {
+            question: 'Què era el front africà durant la guerra?',
+            answer: 'Les batalles al desert del nord d’Àfrica entre els aliats i les forces de Rommel.',
+          },
+          {
+            question: 'Què va passar a la batalla de Kursk?',
+            answer: 'La URSS va repel·lir l’última gran ofensiva de tancs alemanya el 1943.',
+          },
+          {
+            question: 'Per què Itàlia va capitular el 1943?',
+            answer: 'Després de la invasió aliada de Sicília i la caiguda de Mussolini.',
+          },
+          {
+            question: 'Quina ciutat alemanya va patir un incendi devastador el 1945?',
+            answer: 'Dresden, bombardejada pels aliats provocant milers de morts civils.',
+          },
+          {
+            question: 'Què va ser el Projecte Manhattan?',
+            answer: 'El programa secret dels EUA per construir la bomba atòmica.',
+          },
+          {
+            question: 'Quina importància tingué la batalla del Bulge?',
+            answer: 'Va ser l’última ofensiva alemanya a l’oest, derrotada pels aliats a Bèlgica.',
+          },
+          {
+            question: 'Quan va capitular Alemanya?',
+            answer: 'El 8 de maig de 1945, Dia de la Victòria a Europa.',
+          },
+          {
+            question: 'Què va passar amb Japó després de les bombes atòmiques?',
+            answer: 'Va anunciar la rendició i signà la capitulació el 2 de setembre de 1945.',
+          },
+          {
+            question: 'Quins judicis es van celebrar després de la guerra?',
+            answer: 'Els judicis de Nuremberg contra líders nazis per crims de guerra.',
+          },
+          {
+            question: 'Què va passar amb Alemanya després de la guerra?',
+            answer: 'Va ser dividida en zones d’ocupació controlades pels aliats.',
+          },
+        ],
+      },
+      {
+        id: 'cold-war',
+        title: '❄️ Guerra Freda (1947–1991)',
+        summary: 'Entén la rivalitat entre blocs, els símbols de la divisió i el final del conflicte ideològic.',
+        cards: [
+          {
+            question: 'Què era la Guerra Freda?',
+            answer: 'Un conflicte ideològic i polític entre els Estats Units i la URSS sense enfrontament directe.',
+          },
+          {
+            question: 'Quins sistemes defensaven els dos blocs?',
+            answer: 'Els EUA el capitalisme; la URSS el comunisme.',
+          },
+          {
+            question: 'Quin mur simbolitzava la divisió d’Europa?',
+            answer: 'El mur de Berlín.',
+          },
+          {
+            question: 'Què va ser la cursa espacial?',
+            answer: 'La competició entre EUA i URSS per conquerir l’espai.',
+          },
+          {
+            question: 'Quin esdeveniment va marcar el final de la Guerra Freda?',
+            answer: 'La caiguda del mur de Berlín el 1989 i la desaparició de la URSS el 1991.',
+          },
+          {
+            question: 'Què és una superpotència?',
+            answer: 'Un país amb gran poder militar, econòmic i polític capaç d’influir arreu del món.',
+          },
+          {
+            question: 'Què era el Pla Marshall?',
+            answer: 'L’ajuda econòmica dels EUA per reconstruir Europa occidental i frenar el comunisme.',
+          },
+          {
+            question: 'Què era el COMECON?',
+            answer: 'L’organisme econòmic liderat per la URSS per coordinar els països comunistes.',
+          },
+          {
+            question: 'Quin era l’objectiu de l’OTAN?',
+            answer: 'Crear una aliança militar defensiva entre els Estats Units i Europa occidental.',
+          },
+          {
+            question: 'Què era el Pacte de Varsòvia?',
+            answer: 'L’aliança militar dels països comunistes liderats per la URSS.',
+          },
+          {
+            question: 'Què significava la doctrina Truman?',
+            answer: 'El compromís dels EUA de contenir l’expansió del comunisme.',
+          },
+          {
+            question: 'Què va passar durant el bloqueig de Berlín (1948-1949)?',
+            answer: 'La URSS tallà els accessos a Berlín Oest i els aliats organitzaren un pont aeri.',
+          },
+          {
+            question: 'Què va ser la guerra de Corea?',
+            answer: 'Un conflicte entre Corea del Nord comunista i Corea del Sud, amb suport de la ONU i la Xina.',
+          },
+          {
+            question: 'Quin líder impulsà la desestalinització a la URSS?',
+            answer: 'Nikita Khrusxov, que denuncià els crims de Stalin el 1956.',
+          },
+          {
+            question: 'Què va ser la crisi dels míssils de Cuba?',
+            answer: 'Un enfrontament el 1962 quan la URSS instal·là míssils nuclears a Cuba.',
+          },
+          {
+            question: 'Què és el teló d’acer?',
+            answer: 'La divisió simbòlica i física entre Europa occidental i oriental.',
+          },
+          {
+            question: 'Quina importància va tenir l’Sputnik el 1957?',
+            answer: 'Va ser el primer satèl·lit artificial, demostrant l’avenç soviètic en la cursa espacial.',
+          },
+          {
+            question: 'Què va passar a la revolta hongaresa del 1956?',
+            answer: 'La URSS la va reprimir amb tancs per mantenir el control sobre Hongria.',
+          },
+          {
+            question: 'Què era la Doctrina Brejnev?',
+            answer: 'El dret de la URSS a intervenir en països socialistes per mantenir el comunisme.',
+          },
+          {
+            question: 'Què va provocar la guerra del Vietnam?',
+            answer: 'La voluntat del nord comunista d’unificar el país i la intervenció dels EUA per evitar-ho.',
+          },
+          {
+            question: 'Què era el moviment dels països no alineats?',
+            answer: 'Estats que no volien triar entre EUA o URSS, com l’Índia o Iugoslàvia.',
+          },
+          {
+            question: 'Què significà la paraula distensió?',
+            answer: 'Un període de relaxament de tensions i acords de control d’armes als anys setanta.',
+          },
+          {
+            question: 'Quina importància tingué la cursa armamentística?',
+            answer: 'Els dos blocs acumularen armes nuclears com a forma de dissuasió.',
+          },
+          {
+            question: 'Què era el programa espacial Apollo?',
+            answer: 'El projecte nord-americà que portà l’ésser humà a la Lluna el 1969.',
+          },
+          {
+            question: 'Què va passar amb la primavera de Praga el 1968?',
+            answer: 'La URSS va enviar tropes per frenar les reformes democràtiques txeques.',
+          },
+          {
+            question: 'Què significà la paraula glasnost?',
+            answer: 'Una política de transparència i llibertat d’expressió impulsada per Gorbatxov.',
+          },
+          {
+            question: 'Què era la perestroika?',
+            answer: 'Les reformes econòmiques i polítiques de Gorbatxov per modernitzar la URSS.',
+          },
+          {
+            question: 'Quin paper va tenir Solidarnosc a Polònia?',
+            answer: 'Un sindicat independent que pressionà per reformes i democràcia.',
+          },
+          {
+            question: 'Què va provocar la caiguda del mur de Berlín?',
+            answer: 'La pressió ciutadana i les reformes a l’est que obriren les fronteres el 1989.',
+          },
+          {
+            question: 'Què va passar amb la URSS el 1991?',
+            answer: 'Es va dissoldre en repúbliques independents i acabà la Guerra Freda.',
+          },
+        ],
+      },
+      {
+        id: 'spain-transition',
+        title: '🇪🇸 Dictadura i Transició a Espanya',
+        summary: 'Repàs breu del franquisme i del camí cap a la democràcia actual.',
+        cards: [
+          {
+            question: 'Qui va governar Espanya després de la Guerra Civil?',
+            answer: 'El dictador Francisco Franco (1939–1975).',
+          },
+          {
+            question: 'Quines característiques tenia el franquisme?',
+            answer: 'Falta de llibertats, censura, persecució política i poder concentrat.',
+          },
+          {
+            question: 'Què va passar després de la mort de Franco?',
+            answer: 'Es va iniciar la Transició Democràtica.',
+          },
+          {
+            question: 'Quin rei va protagonitzar la Transició?',
+            answer: 'Joan Carles I.',
+          },
+          {
+            question: 'Quin any es va aprovar la Constitució democràtica actual?',
+            answer: 'El 1978.',
+          },
+          {
+            question: 'Què era el règim franquista?',
+            answer: 'Una dictadura autoritària nacional-catòlica basada en el control polític i la repressió.',
+          },
+          {
+            question: 'Quina policia política vigilava els opositors?',
+            answer: "La Brigada Político-Social, encarregada de la persecució i censura.",
+          },
+          {
+            question: 'Quin paper tenia l’Església catòlica durant el franquisme?',
+            answer: 'Col·laborava amb el règim i controlava l’educació i la moral pública.',
+          },
+          {
+            question: 'Què eren els maquis?',
+            answer: 'Guerrillers antifranquistes que resistiren als boscos i muntanyes.',
+          },
+          {
+            question: 'Quina importància va tenir el Pla d’Estabilització de 1959?',
+            answer: 'Va obrir l’economia espanyola i inicià el creixement industrial i turístic.',
+          },
+          {
+            question: 'Què era el desenvolupisme?',
+            answer: 'El període de creixement econòmic i modernització dels anys seixanta.',
+          },
+          {
+            question: 'Quin paper tingueren els sindicats clandestins?',
+            answer: 'Organitzaven vagues i protestes per reclamar drets laborals i democràcia.',
+          },
+          {
+            question: 'Què va ser el procés de Burgos de 1970?',
+            answer: 'Un judici militar contra militants bascos que despertà protestes internacionals.',
+          },
+          {
+            question: 'Qui era l’hereu designat per Franco?',
+            answer: 'El príncep Joan Carles de Borbó, proclamat rei el 1975.',
+          },
+          {
+            question: 'Qui va ser Adolfo Suárez?',
+            answer: 'El primer president del govern de la democràcia, impulsor de les reformes polítiques.',
+          },
+          {
+            question: 'Què va suposar la Llei per a la Reforma Política de 1976?',
+            answer: 'Va permetre la legalització de partits i la convocatòria d’eleccions democràtiques.',
+          },
+          {
+            question: 'Quan es van celebrar les primeres eleccions democràtiques?',
+            answer: 'El juny de 1977, amb victòria de la UCD.',
+          },
+          {
+            question: 'Quina importància tingué la Constitució de 1978?',
+            answer: 'Va establir un estat social i democràtic de dret amb monarquia parlamentària.',
+          },
+          {
+            question: 'Què va ser el cop d’estat del 23-F?',
+            answer: 'L’intent fallit de militars de frenar la democràcia ocupant el Congrés el 1981.',
+          },
+          {
+            question: 'Quina actitud va tenir el rei durant el 23-F?',
+            answer: 'Va defensar la Constitució i ordenà als militars que tornassin a les casernes.',
+          },
+          {
+            question: 'Què va significar la legalització del Partit Comunista el 1977?',
+            answer: 'Un pas clau cap a la reconciliació política i la pluralitat democràtica.',
+          },
+          {
+            question: 'Què són els Pactes de la Moncloa?',
+            answer: 'Acords econòmics i socials de 1977 per controlar la inflació i consolidar la democràcia.',
+          },
+          {
+            question: 'Quines llibertats va reconèixer la Constitució?',
+            answer: 'La llibertat d’expressió, associació, participació política i drets individuals.',
+          },
+          {
+            question: 'Què és l’Estat de les autonomies?',
+            answer: 'L’organització territorial que atorga autogovern a comunitats com Catalunya o el País Basc.',
+          },
+          {
+            question: 'Quin partit va guanyar les eleccions de 1982?',
+            answer: 'El PSOE de Felipe González, que consolidà el canvi polític.',
+          },
+          {
+            question: 'Què va passar amb la censura durant la Transició?',
+            answer: 'Es va eliminar progressivament, permetent llibertat de premsa i cultura.',
+          },
+          {
+            question: 'Quin paper tingueren les mobilitzacions ciutadanes?',
+            answer: 'Impulsaren reformes, reclamaren amnistia i participaren en manifestacions massives.',
+          },
+          {
+            question: 'Què va ser la Llei d’Amnistia de 1977?',
+            answer: 'Va alliberar presos polítics i perdonà delictes de motivació política.',
+          },
+          {
+            question: 'Com va canviar l’economia espanyola als anys vuitanta?',
+            answer: 'Es modernitzà i es preparà per l’entrada a la Comunitat Econòmica Europea.',
+          },
+          {
+            question: 'Quan va entrar Espanya a la Comunitat Econòmica Europea?',
+            answer: 'El 1986, integrant-se plenament a Europa occidental.',
+          },
+        ],
+      },
+      {
+        id: 'eu-global',
+        title: '🇪🇺 Unió Europea i globalització',
+        summary: 'Descobreix com cooperen els països europeus i què implica viure en un món globalitzat.',
+        cards: [
+          {
+            question: 'Què és la Unió Europea?',
+            answer: 'Una organització de països europeus que cooperen econòmicament i políticament.',
+          },
+          {
+            question: 'Quin és l’objectiu principal de la UE?',
+            answer: 'Garantir la pau, el progrés i la cooperació entre els estats membres.',
+          },
+          {
+            question: 'Quin any va aparèixer l’euro com a moneda comuna?',
+            answer: 'El 2002.',
+          },
+          {
+            question: 'Què és la globalització?',
+            answer: 'El procés d’interconnexió econòmica, cultural i tecnològica entre països.',
+          },
+          {
+            question: 'Quins avantatges i inconvenients té la globalització?',
+            answer: 'Avantatges: més comunicació i comerç. Inconvenients: desigualtats i pèrdua de cultures locals.',
+          },
+          {
+            question: 'Quins països van formar la Comunitat Europea del Carbó i l’Acer?',
+            answer: 'França, Alemanya Occidental, Itàlia, Bèlgica, Països Baixos i Luxemburg.',
+          },
+          {
+            question: 'Quin tractat va crear la Comunitat Econòmica Europea?',
+            answer: 'El Tractat de Roma signat el 1957.',
+          },
+          {
+            question: 'Què estableix l’Espai Schengen?',
+            answer: 'La lliure circulació de persones sense controls fronterers entre països signants.',
+          },
+          {
+            question: 'Què és el Parlament Europeu?',
+            answer: 'L’òrgan legislatiu elegit pels ciutadans dels estats membres.',
+          },
+          {
+            question: 'On té la seu la Comissió Europea?',
+            answer: 'A Brussel·les, Bèlgica.',
+          },
+          {
+            question: 'Quines polítiques finança la UE amb el pressupost?',
+            answer: 'Agricultura, cohesió regional, investigació, medi ambient i educació.',
+          },
+          {
+            question: 'Què és el Consell Europeu?',
+            answer: 'La reunió de caps d’estat o de govern que fixa les grans línies polítiques.',
+          },
+          {
+            question: 'Què és l’ampliació de la UE?',
+            answer: 'El procés d’admetre nous països quan compleixen els criteris democràtics i econòmics.',
+          },
+          {
+            question: 'Què estableixen els criteris de Copenhaguen?',
+            answer: 'Condicions democràtiques, econòmiques i d’acatament del dret europeu per entrar a la UE.',
+          },
+          {
+            question: 'Què és el Brexit?',
+            answer: 'La sortida del Regne Unit de la Unió Europea el 2020.',
+          },
+          {
+            question: 'Quin programa fomenta la mobilitat estudiantil?',
+            answer: 'Erasmus+, que permet estudiar en altres països europeus.',
+          },
+          {
+            question: 'Què és el Banc Central Europeu?',
+            answer: 'La institució que gestiona l’euro i controla la política monetària de la zona euro.',
+          },
+          {
+            question: 'Què són els fons de cohesió?',
+            answer: 'Ajuts per reduir diferències econòmiques entre regions menys desenvolupades.',
+          },
+          {
+            question: 'Què defensa la política agrícola comuna?',
+            answer: 'Garantir ingressos als agricultors i un subministrament estable d’aliments.',
+          },
+          {
+            question: 'Què promou el Pacte Verd Europeu?',
+            answer: 'La transició cap a una economia sostenible i neutra en carboni.',
+          },
+          {
+            question: 'Què és el Fons Next Generation EU?',
+            answer: 'Un pla de recuperació econòmica per ajudar els estats després de la COVID-19.',
+          },
+          {
+            question: 'Què és el Tribunal de Justícia de la UE?',
+            answer: 'L’òrgan que garanteix que les lleis europees s’apliquin igual a tots els estats.',
+          },
+          {
+            question: 'Què implica la ciutadania europea?',
+            answer: 'Drets com votar a les eleccions europees i rebre protecció consular en altres països.',
+          },
+          {
+            question: 'Com afecta la globalització als treballadors?',
+            answer: 'Pot crear noves oportunitats laborals però també deslocalitzacions i precarietat.',
+          },
+          {
+            question: 'Què és el comerç just?',
+            answer: 'Una manera de comprar productes que garanteix un salari digne als productors.',
+          },
+          {
+            question: 'Quin impacte té la globalització en el medi ambient?',
+            answer: 'Incrementa el transport i el consum, però també comparteix tecnologies verdes.',
+          },
+          {
+            question: 'Què vol dir deslocalització?',
+            answer: 'Quan una empresa trasllada la producció a un altre país per reduir costos.',
+          },
+          {
+            question: 'Què és la diversitat cultural?',
+            answer: 'La convivència de diferents llengües, tradicions i identitats en un mateix entorn.',
+          },
+          {
+            question: 'Com poden protegir-se les cultures locals?',
+            answer: 'Impulsant l’educació, els mitjans propis i el consum de productes locals.',
+          },
+          {
+            question: 'Què és la responsabilitat social corporativa?',
+            answer: 'Quan les empreses adopten mesures ètiques per respectar persones i planeta.',
+          },
+        ],
+      },
+    ];
+
+    const topicsGrid = document.getElementById('topics-grid');
+    const menuSection = document.getElementById('topics-menu');
+    const gameSection = document.getElementById('flashcard-game');
+    const gameTitle = document.getElementById('game-title');
+    const gameSummary = document.getElementById('game-summary');
+    const gameInstructions = document.getElementById('game-instructions');
+    const mainCardSlot = document.getElementById('game-main-card');
+    const libraryList = document.getElementById('game-library');
+    const cardProgress = document.getElementById('card-progress');
+    const backButton = document.getElementById('back-button');
+    const prevButton = document.getElementById('prev-card');
+    const nextButton = document.getElementById('next-card');
+    const knowledgeButtons = document.querySelectorAll('.knowledge-button');
+    const resetButton = document.getElementById('reset-progress');
+
+    const statusLabels = {
+      known: '✅ Me la sabia',
+      partial: '🟠 Mig mig',
+      unknown: '❌ No me la sabia',
+    };
+
+    const instructionsBase =
+      'Gira la targeta principal per veure la resposta, fes servir les fletxes o la biblioteca per canviar de targeta i marca amb els botons si te la sabies.';
+
+    let currentTopic = null;
+    let currentCardIndex = 0;
+    let cardStatuses = [];
+    const topicProgress = new Map();
+
+    function renderTopics() {
+      topics.forEach((topic) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'topic-card-item';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'topic-card';
+        button.dataset.topicId = topic.id;
+
+        const title = document.createElement('h3');
+        title.textContent = topic.title;
+
+        const summary = document.createElement('p');
+        summary.className = 'topic-summary';
+        summary.textContent = topic.summary;
+
+        const meta = document.createElement('span');
+        meta.className = 'topic-meta';
+        meta.textContent = `${topic.cards.length} targetes`;
+
+        button.append(title, summary, meta);
+        button.addEventListener('click', () => openTopic(topic.id));
+
+        listItem.appendChild(button);
+        topicsGrid.appendChild(listItem);
+      });
+    }
+
+    function openTopic(topicId) {
+      const topic = topics.find((item) => item.id === topicId);
+      if (!topic) return;
+
+      menuSection.setAttribute('hidden', '');
+      gameSection.removeAttribute('hidden');
+
+      gameTitle.textContent = topic.title;
+      gameSummary.textContent = topic.summary;
+      gameInstructions.textContent = `${instructionsBase} Tens ${topic.cards.length} targetes en aquest bloc. Pots reiniciar el seguiment quan vulguis.`;
+
+      currentTopic = topic;
+      let existingStatuses = topicProgress.get(topic.id);
+      if (!existingStatuses || existingStatuses.length !== topic.cards.length) {
+        existingStatuses = Array(topic.cards.length).fill(null);
+        topicProgress.set(topic.id, existingStatuses);
+      }
+
+      cardStatuses = existingStatuses;
+      currentCardIndex = 0;
+
+      goToCard(0, { focus: false, scroll: false });
+
+      backButton.focus({ preventScroll: true });
+      gameSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderMainCard(shouldFocus = false) {
+      if (!currentTopic) return;
+
+      const card = currentTopic.cards[currentCardIndex];
+      const status = cardStatuses[currentCardIndex];
+      mainCardSlot.innerHTML = '';
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'flashcard flashcard-main';
+      const baseLabel = `Targeta ${currentCardIndex + 1} de ${currentTopic.cards.length}.`;
+
+      const inner = document.createElement('span');
+      inner.className = 'flashcard-inner';
+
+      const front = document.createElement('span');
+      front.className = 'flashcard-face flashcard-front';
+
+      const frontBadge = document.createElement('span');
+      frontBadge.className = 'flashcard-number';
+      frontBadge.textContent = `#${currentCardIndex + 1}`;
+
+      const frontLabel = document.createElement('span');
+      frontLabel.className = 'flashcard-label';
+      frontLabel.textContent = 'Pregunta';
+
+      const frontText = document.createElement('span');
+      frontText.className = 'flashcard-text';
+      frontText.textContent = card.question;
+
+      const frontHint = document.createElement('span');
+      frontHint.className = 'flashcard-hint';
+      frontHint.textContent = 'Clica per descobrir la resposta';
+
+      front.append(frontBadge, frontLabel, frontText, frontHint);
+
+      const back = document.createElement('span');
+      back.className = 'flashcard-face flashcard-back';
+
+      const backBadge = document.createElement('span');
+      backBadge.className = 'flashcard-number';
+      backBadge.textContent = `#${currentCardIndex + 1}`;
+
+      const backLabel = document.createElement('span');
+      backLabel.className = 'flashcard-label';
+      backLabel.textContent = 'Resposta';
+
+      const backText = document.createElement('span');
+      backText.className = 'flashcard-text';
+      backText.textContent = card.answer;
+
+      const backHint = document.createElement('span');
+      backHint.className = 'flashcard-hint';
+      backHint.textContent = 'Torna a clicar per tornar a la pregunta';
+
+      back.append(backBadge, backLabel, backText, backHint);
+
+      inner.append(front, back);
+      button.appendChild(inner);
+
+      if (status) {
+        button.classList.add(`status-${status}`);
+      }
+
+      const updateAria = (isFlipped) => {
+        button.setAttribute('aria-expanded', isFlipped ? 'true' : 'false');
+        button.setAttribute(
+          'aria-label',
+          `${baseLabel} ${isFlipped ? 'Prem per tornar a la pregunta.' : 'Prem per veure la resposta.'}`
+        );
+      };
+
+      updateAria(false);
+
+      button.addEventListener('click', () => {
+        const isFlipped = button.classList.toggle('is-flipped');
+        updateAria(isFlipped);
+      });
+
+      button.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && button.classList.contains('is-flipped')) {
+          event.stopPropagation();
+          button.classList.remove('is-flipped');
+          updateAria(false);
+        }
+      });
+
+      mainCardSlot.appendChild(button);
+
+      updateGameControls();
+
+      if (shouldFocus) {
+        button.focus({ preventScroll: true });
+      }
+    }
+
+    function renderLibrary() {
+      if (!currentTopic) return;
+
+      libraryList.innerHTML = '';
+
+      currentTopic.cards.forEach((card, index) => {
+        const item = document.createElement('li');
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'library-card';
+        button.dataset.index = String(index);
+        if (index === currentCardIndex) {
+          button.setAttribute('aria-current', 'true');
+        }
+
+        const status = cardStatuses[index];
+        if (status) {
+          button.classList.add(`status-${status}`);
+        }
+
+        const number = document.createElement('span');
+        number.className = 'library-card-number';
+        number.textContent = `#${index + 1}`;
+
+        const question = document.createElement('span');
+        question.className = 'library-card-text';
+        question.textContent = card.question;
+
+        const hint = document.createElement('span');
+        hint.className = 'library-card-hint';
+        hint.textContent = 'Mostra aquesta targeta i actualitza el seguiment';
+
+        const elements = [number, question];
+
+        if (status) {
+          const statusBadge = document.createElement('span');
+          statusBadge.className = 'library-status';
+          statusBadge.textContent = statusLabels[status];
+          elements.push(statusBadge);
+        }
+
+        elements.push(hint);
+
+        button.append(...elements);
+        button.addEventListener('click', () => {
+          goToCard(index, { focus: true, scroll: true });
+        });
+
+        item.appendChild(button);
+        libraryList.appendChild(item);
+      });
+    }
+
+    function updateCardProgress() {
+      if (!currentTopic) {
+        cardProgress.textContent = '';
+        return;
+      }
+
+      const total = currentTopic.cards.length;
+      const counts = cardStatuses.reduce(
+        (acc, status) => {
+          if (status && acc[status] !== undefined) {
+            acc[status] += 1;
+          }
+          return acc;
+        },
+        { known: 0, partial: 0, unknown: 0 }
+      );
+
+      const summaryParts = [];
+      if (counts.known) summaryParts.push(`✅ ${counts.known}`);
+      if (counts.partial) summaryParts.push(`🟠 ${counts.partial}`);
+      if (counts.unknown) summaryParts.push(`❌ ${counts.unknown}`);
+
+      const summaryText = summaryParts.length ? ` · ${summaryParts.join(' · ')}` : '';
+      cardProgress.textContent = `Targeta ${currentCardIndex + 1} de ${total}${summaryText}`;
+    }
+
+    function updateKnowledgeButtons() {
+      const activeStatus = currentTopic ? cardStatuses[currentCardIndex] : null;
+
+      knowledgeButtons.forEach((button) => {
+        const isActive = activeStatus === button.dataset.status;
+        button.classList.toggle('is-active', isActive);
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        button.disabled = !currentTopic;
+      });
+    }
+
+    function updateNavButtons() {
+      if (!currentTopic) {
+        prevButton.disabled = true;
+        nextButton.disabled = true;
+        return;
+      }
+
+      const total = currentTopic.cards.length;
+      const disableNav = total <= 1;
+      prevButton.disabled = disableNav;
+      nextButton.disabled = disableNav;
+    }
+
+    function updateResetButton() {
+      resetButton.disabled = !currentTopic;
+    }
+
+    function updateGameControls() {
+      updateCardProgress();
+      updateKnowledgeButtons();
+      updateNavButtons();
+      updateResetButton();
+    }
+
+    function setCardStatus(status) {
+      if (!currentTopic) return;
+
+      if (!cardStatuses || cardStatuses.length !== currentTopic.cards.length) {
+        cardStatuses = Array(currentTopic.cards.length).fill(null);
+        topicProgress.set(currentTopic.id, cardStatuses);
+      }
+
+      const currentStatus = cardStatuses[currentCardIndex];
+      cardStatuses[currentCardIndex] = currentStatus === status ? null : status;
+      topicProgress.set(currentTopic.id, cardStatuses);
+
+      renderMainCard();
+      renderLibrary();
+    }
+
+    function goToCard(newIndex, { focus = true, scroll = true } = {}) {
+      if (!currentTopic) return;
+
+      const total = currentTopic.cards.length;
+      if (!total) return;
+
+      const nextIndex = ((newIndex % total) + total) % total;
+      currentCardIndex = nextIndex;
+
+      renderMainCard(focus);
+      renderLibrary();
+
+      if (scroll) {
+        mainCardSlot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function goNext() {
+      goToCard(currentCardIndex + 1, { focus: true, scroll: true });
+    }
+
+    function goPrev() {
+      goToCard(currentCardIndex - 1, { focus: true, scroll: true });
+    }
+
+    function handleKeyNavigation(event) {
+      if (!currentTopic) return;
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        goToCard(currentCardIndex + 1, { focus: false, scroll: false });
+      } else if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        goToCard(currentCardIndex - 1, { focus: false, scroll: false });
+      }
+    }
+
+    function resetProgress() {
+      if (!currentTopic) return;
+
+      if (!cardStatuses || cardStatuses.length !== currentTopic.cards.length) {
+        cardStatuses = Array(currentTopic.cards.length).fill(null);
+      } else {
+        cardStatuses.fill(null);
+      }
+      topicProgress.set(currentTopic.id, cardStatuses);
+      goToCard(0, { focus: true, scroll: true });
+    }
+
+    function showMenu() {
+      gameSection.setAttribute('hidden', '');
+      menuSection.removeAttribute('hidden');
+      menuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      currentTopic = null;
+      currentCardIndex = 0;
+      cardStatuses = [];
+      mainCardSlot.innerHTML = '';
+      libraryList.innerHTML = '';
+      updateGameControls();
+      const firstTopicButton = topicsGrid.querySelector('button');
+      if (firstTopicButton) {
+        firstTopicButton.focus({ preventScroll: true });
+      }
+    }
+
+    backButton.addEventListener('click', showMenu);
+
+    prevButton.addEventListener('click', goPrev);
+    nextButton.addEventListener('click', goNext);
+    knowledgeButtons.forEach((button) => {
+      button.addEventListener('click', () => setCardStatus(button.dataset.status));
+    });
+    resetButton.addEventListener('click', resetProgress);
+    document.addEventListener('keydown', handleKeyNavigation);
+
+    updateGameControls();
+    renderTopics();
+  </script>
+</body>
+</html>
