@@ -4,28 +4,280 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FocusQuiz · Flashcards d'estudi</title>
-  <meta name="description" content="Flashcards organitzades per temes perquè puguis repassar història amb preguntes i respostes ràpides." />
+  <meta
+    name="description"
+    content="Escull una temàtica i juga amb les flashcards de preguntes i respostes sobre història del segle XX."
+  />
   <link rel="stylesheet" href="style.css" />
   <style>
-    body{background:linear-gradient(180deg,#f8fbff,#eef2ff 320px)}
-    .flashcards-hero{margin:40px 0 28px}
-    .flashcards-hero h1{margin:0;font-size:clamp(1.5rem,1.1rem + 2vw,2.4rem)}
-    .flashcards-hero p{margin:10px 0 0;color:var(--muted);max-width:680px}
-    .flashcards-nav{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .section-kicker{display:inline-flex;align-items:center;gap:8px;background:rgba(34,197,94,0.12);color:#047857;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 14px;border-radius:999px;font-size:.8rem}
-    .flashcards-section{display:grid;gap:20px;margin:40px 0 60px}
-    .flashcards-section header{display:flex;flex-direction:column;gap:10px}
-    .flashcards-section h2{margin:0;font-size:1.6rem}
-    .flashcards-grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-    .flashcard-topic{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:12px;padding:22px 20px;border-radius:20px;border:1px solid rgba(148,163,184,0.35);background:linear-gradient(180deg,rgba(255,255,255,0.95),rgba(236,248,255,0.9));box-shadow:var(--shadow)}
-    .flashcard-topic::after{content:"";position:absolute;inset:auto auto 0 0;width:100%;height:6px;background:linear-gradient(90deg,var(--p-lilac),var(--p-blue));opacity:.9}
-    .flashcard-topic h3{margin:0;font-size:1.15rem;color:#1d4ed8}
-    dl{margin:0;display:grid;gap:10px}
-    dt{font-weight:700;color:#0f172a}
-    dd{margin:0;color:var(--muted)}
-    @media (max-width:640px){
-      .flashcards-hero{margin:28px 0 24px}
-      .flashcards-nav{justify-content:flex-start}
+    body {
+      background: linear-gradient(180deg, #f8fbff, #eef2ff 320px);
+    }
+
+    .flashcards-hero {
+      margin: 40px 0 28px;
+    }
+
+    .flashcards-hero h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 1.1rem + 2vw, 2.4rem);
+    }
+
+    .flashcards-hero p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      max-width: 720px;
+    }
+
+    .flashcards-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .section-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, 0.12);
+      color: #047857;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+    }
+
+    .topics-section,
+    .game-section {
+      display: grid;
+      gap: 20px;
+      margin: 40px 0 70px;
+    }
+
+    .topics-section header,
+    .game-header {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .topics-section h2,
+    .game-header h2 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 720px;
+    }
+
+    .topics-grid {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .topics-grid li {
+      list-style: none;
+      margin: 0;
+    }
+
+    .topic-card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(236, 248, 255, 0.9));
+      padding: 24px 22px;
+      box-shadow: var(--shadow);
+      text-align: left;
+      color: inherit;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      width: 100%;
+      border: none;
+      font: inherit;
+      background-color: transparent;
+    }
+
+    .topic-card:hover,
+    .topic-card:focus-visible {
+      transform: translateY(-4px);
+      border-color: rgba(59, 130, 246, 0.4);
+      box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
+      outline: none;
+    }
+
+    .topic-card h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #1d4ed8;
+    }
+
+    .topic-summary {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: #0f172a;
+      background: rgba(59, 130, 246, 0.12);
+      border-radius: 999px;
+      padding: 6px 12px;
+      width: fit-content;
+    }
+
+    .game-section {
+      margin-bottom: 90px;
+    }
+
+    .game-header {
+      gap: 16px;
+    }
+
+    .pill-back {
+      width: fit-content;
+    }
+
+    .game-header h2 {
+      font-size: clamp(1.3rem, 1.05rem + 1.2vw, 1.8rem);
+    }
+
+    .game-instructions {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .flashcard-game {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      list-style: none;
+      padding: 0;
+      margin: 32px 0 0;
+    }
+
+    .flashcard-game li {
+      list-style: none;
+      margin: 0;
+    }
+
+    .flashcard {
+      position: relative;
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      perspective: 1200px;
+      text-align: left;
+    }
+
+    .flashcard:focus-visible {
+      outline: 3px solid rgba(59, 130, 246, 0.8);
+      outline-offset: 4px;
+    }
+
+    .flashcard-inner {
+      display: block;
+      position: relative;
+      width: 100%;
+      min-height: 220px;
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flashcard.is-flipped .flashcard-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flashcard-face {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px 22px;
+      border-radius: 22px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.95));
+      box-shadow: var(--shadow);
+      backface-visibility: hidden;
+    }
+
+    .flashcard-back {
+      transform: rotateY(180deg);
+      background: linear-gradient(180deg, rgba(226, 246, 255, 0.96), rgba(219, 234, 254, 0.95));
+    }
+
+    .flashcard-label {
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(15, 23, 42, 0.65);
+      font-weight: 700;
+    }
+
+    .flashcard-number {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #1d4ed8;
+      background: rgba(59, 130, 246, 0.15);
+      border-radius: 999px;
+      padding: 4px 10px;
+      width: fit-content;
+    }
+
+    .flashcard-text {
+      font-size: 1.02rem;
+      line-height: 1.5;
+      color: #0f172a;
+    }
+
+    .flashcard-hint {
+      font-size: 0.85rem;
+      color: rgba(15, 23, 42, 0.6);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .topic-card,
+      .flashcard-inner {
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .flashcards-hero {
+        margin: 28px 0 24px;
+      }
+
+      .flashcards-nav {
+        justify-content: flex-start;
+      }
+
+      .game-header {
+        gap: 12px;
+      }
+
+      .flashcard-game {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
     }
   </style>
 </head>
@@ -47,96 +299,328 @@
     <section class="flashcards-hero">
       <p class="section-kicker">🃏 Flashcards</p>
       <h1>Flashcards d'estudi · Història del segle XX</h1>
-      <p>Repassa els moments clau del segle XX i el món actual amb preguntes i respostes ràpides. Cada targeta està pensada per reforçar conceptes clau del currículum d'ESO.</p>
+      <p>Tria un bloc per començar i gira les targetes per comprovar què en saps. Cada tema combina preguntes i respostes curtes
+        pensades per repassar de manera amena.</p>
     </section>
 
-    <section id="historia" class="flashcards-section" aria-labelledby="historia-title">
+    <section id="topics-menu" class="topics-section" aria-labelledby="topics-title">
       <header>
-        <h2 id="historia-title">Història</h2>
-        <p class="subtitle">Comença pel primer bloc dedicat als grans conflictes i canvis del món contemporani.</p>
+        <h2 id="topics-title">Tria el bloc que vols practicar</h2>
+        <p class="subtitle">Comença pel resum dels grans conflictes i transformacions del món contemporani. Quan seleccionis un
+          bloc, s'obriran les targetes corresponents.</p>
       </header>
-      <div class="flashcards-grid">
-        <article class="flashcard-topic">
-          <h3>🪖 Primera Guerra Mundial (1914–1918)</h3>
-          <dl>
-            <dt>P: Quina fou la causa principal de la Primera Guerra Mundial?</dt>
-            <dd>R: Les rivalitats entre potències europees i l’assassinat de l’arxiduc Francesc Ferran d’Àustria.</dd>
-            <dt>P: Quins dos bàndols principals es van enfrontar?</dt>
-            <dd>R: La Triple Entesa (França, Regne Unit i Rússia) contra la Triple Aliança (Alemanya, Àustria-Hongria i Itàlia).</dd>
-            <dt>P: Quin nou tipus de guerra va aparèixer durant la Primera Guerra Mundial?</dt>
-            <dd>R: La guerra de trinxeres.</dd>
-            <dt>P: Quin tractat va posar fi a la guerra?</dt>
-            <dd>R: El Tractat de Versalles (1919).</dd>
-            <dt>P: Quines conseqüències va tenir per Alemanya?</dt>
-            <dd>R: Pèrdues territorials, indemnitzacions econòmiques i ressentiment social i polític.</dd>
-          </dl>
-        </article>
+      <ul id="topics-grid" class="topics-grid" aria-label="Blocs de flashcards d'història"></ul>
+    </section>
 
-        <article class="flashcard-topic">
-          <h3>💣 Segona Guerra Mundial (1939–1945)</h3>
-          <dl>
-            <dt>P: Quina va ser la causa immediata de la Segona Guerra Mundial?</dt>
-            <dd>R: La invasió d’Alemanya a Polònia el 1939.</dd>
-            <dt>P: Quins dos bàndols es van enfrontar?</dt>
-            <dd>R: Els Aliats (Regne Unit, EUA, URSS) i les Potències de l’Eix (Alemanya, Itàlia, Japó).</dd>
-            <dt>P: Qui era Adolf Hitler?</dt>
-            <dd>R: El dictador nazi que governava Alemanya i va iniciar la guerra.</dd>
-            <dt>P: Quin fet va posar fi a la guerra al Pacífic?</dt>
-            <dd>R: Les bombes atòmiques sobre Hiroshima i Nagasaki (1945).</dd>
-            <dt>P: Quines conseqüències va tenir la guerra per al món?</dt>
-            <dd>R: Destrucció massiva, milions de morts i naixement de l’ONU.</dd>
-          </dl>
-        </article>
-
-        <article class="flashcard-topic">
-          <h3>❄️ Guerra Freda (1947–1991)</h3>
-          <dl>
-            <dt>P: Què era la Guerra Freda?</dt>
-            <dd>R: Un conflicte ideològic i polític entre els Estats Units i la URSS sense enfrontament directe.</dd>
-            <dt>P: Quins sistemes defensaven els dos blocs?</dt>
-            <dd>R: Els EUA el capitalisme; la URSS el comunisme.</dd>
-            <dt>P: Quin mur simbolitzava la divisió d’Europa?</dt>
-            <dd>R: El mur de Berlín.</dd>
-            <dt>P: Què va ser la cursa espacial?</dt>
-            <dd>R: La competició entre EUA i URSS per conquerir l’espai.</dd>
-            <dt>P: Quin esdeveniment va marcar el final de la Guerra Freda?</dt>
-            <dd>R: La caiguda del mur de Berlín el 1989 i la desaparició de la URSS el 1991.</dd>
-          </dl>
-        </article>
-
-        <article class="flashcard-topic">
-          <h3>🇪🇸 Dictadura i Transició a Espanya</h3>
-          <dl>
-            <dt>P: Qui va governar Espanya després de la Guerra Civil?</dt>
-            <dd>R: El dictador Francisco Franco (1939–1975).</dd>
-            <dt>P: Quines característiques tenia el franquisme?</dt>
-            <dd>R: Falta de llibertats, censura, persecució política i poder concentrat.</dd>
-            <dt>P: Què va passar després de la mort de Franco?</dt>
-            <dd>R: Es va iniciar la Transició Democràtica.</dd>
-            <dt>P: Quin rei va protagonitzar la Transició?</dt>
-            <dd>R: Joan Carles I.</dd>
-            <dt>P: Quin any es va aprovar la Constitució democràtica actual?</dt>
-            <dd>R: El 1978.</dd>
-          </dl>
-        </article>
-
-        <article class="flashcard-topic">
-          <h3>🇪🇺 Unió Europea i globalització</h3>
-          <dl>
-            <dt>P: Què és la Unió Europea?</dt>
-            <dd>R: Una organització de països europeus que cooperen econòmicament i políticament.</dd>
-            <dt>P: Quin és l’objectiu principal de la UE?</dt>
-            <dd>R: Garantir la pau, el progrés i la cooperació entre els estats membres.</dd>
-            <dt>P: Quin any va aparèixer l’euro com a moneda comuna?</dt>
-            <dd>R: El 2002.</dd>
-            <dt>P: Què és la globalització?</dt>
-            <dd>R: El procés d’interconnexió econòmica, cultural i tecnològica entre països.</dd>
-            <dt>P: Quins avantatges i inconvenients té la globalització?</dt>
-            <dd>R: Avantatges: més comunicació i comerç. Inconvenients: desigualtats i pèrdua de cultures locals.</dd>
-          </dl>
-        </article>
+    <section id="flashcard-game" class="game-section" aria-labelledby="game-title" hidden>
+      <div class="game-header">
+        <button id="back-button" class="pill pill-back" type="button">← Torna al menú</button>
+        <div>
+          <h2 id="game-title"></h2>
+          <p id="game-summary" class="subtitle"></p>
+        </div>
       </div>
+      <p id="game-instructions" class="game-instructions"></p>
+      <ol id="game-cards" class="flashcard-game" aria-label="Llista de flashcards"></ol>
     </section>
   </main>
+
+  <script>
+    const topics = [
+      {
+        id: 'ww1',
+        title: '🪖 Primera Guerra Mundial (1914–1918)',
+        summary: 'Explora les causes, els bàndols i les conseqüències del primer gran conflicte global.',
+        cards: [
+          {
+            question: 'Quina fou la causa principal de la Primera Guerra Mundial?',
+            answer: "Les rivalitats entre potències europees i l’assassinat de l’arxiduc Francesc Ferran d’Àustria.",
+          },
+          {
+            question: 'Quins dos bàndols principals es van enfrontar?',
+            answer: 'La Triple Entesa (França, Regne Unit i Rússia) contra la Triple Aliança (Alemanya, Àustria-Hongria i Itàlia).',
+          },
+          {
+            question: 'Quin nou tipus de guerra va aparèixer durant la Primera Guerra Mundial?',
+            answer: 'La guerra de trinxeres.',
+          },
+          {
+            question: 'Quin tractat va posar fi a la guerra?',
+            answer: 'El Tractat de Versalles (1919).',
+          },
+          {
+            question: 'Quines conseqüències va tenir per Alemanya?',
+            answer: 'Pèrdues territorials, indemnitzacions econòmiques i ressentiment social i polític.',
+          },
+        ],
+      },
+      {
+        id: 'ww2',
+        title: '💣 Segona Guerra Mundial (1939–1945)',
+        summary: 'Repassa els desencadenants, els aliats i els fets clau del conflicte més devastador del segle XX.',
+        cards: [
+          {
+            question: 'Quina va ser la causa immediata de la Segona Guerra Mundial?',
+            answer: 'La invasió d’Alemanya a Polònia el 1939.',
+          },
+          {
+            question: 'Quins dos bàndols es van enfrontar?',
+            answer: 'Els Aliats (Regne Unit, EUA, URSS) i les Potències de l’Eix (Alemanya, Itàlia, Japó).',
+          },
+          {
+            question: 'Qui era Adolf Hitler?',
+            answer: 'El dictador nazi que governava Alemanya i va iniciar la guerra.',
+          },
+          {
+            question: 'Quin fet va posar fi a la guerra al Pacífic?',
+            answer: 'Les bombes atòmiques sobre Hiroshima i Nagasaki (1945).',
+          },
+          {
+            question: 'Quines conseqüències va tenir la guerra per al món?',
+            answer: 'Destrucció massiva, milions de morts i naixement de l’ONU.',
+          },
+        ],
+      },
+      {
+        id: 'cold-war',
+        title: '❄️ Guerra Freda (1947–1991)',
+        summary: 'Entén la rivalitat entre blocs, els símbols de la divisió i el final del conflicte ideològic.',
+        cards: [
+          {
+            question: 'Què era la Guerra Freda?',
+            answer: 'Un conflicte ideològic i polític entre els Estats Units i la URSS sense enfrontament directe.',
+          },
+          {
+            question: 'Quins sistemes defensaven els dos blocs?',
+            answer: 'Els EUA el capitalisme; la URSS el comunisme.',
+          },
+          {
+            question: 'Quin mur simbolitzava la divisió d’Europa?',
+            answer: 'El mur de Berlín.',
+          },
+          {
+            question: 'Què va ser la cursa espacial?',
+            answer: 'La competició entre EUA i URSS per conquerir l’espai.',
+          },
+          {
+            question: 'Quin esdeveniment va marcar el final de la Guerra Freda?',
+            answer: 'La caiguda del mur de Berlín el 1989 i la desaparició de la URSS el 1991.',
+          },
+        ],
+      },
+      {
+        id: 'spain-transition',
+        title: '🇪🇸 Dictadura i Transició a Espanya',
+        summary: 'Repàs breu del franquisme i del camí cap a la democràcia actual.',
+        cards: [
+          {
+            question: 'Qui va governar Espanya després de la Guerra Civil?',
+            answer: 'El dictador Francisco Franco (1939–1975).',
+          },
+          {
+            question: 'Quines característiques tenia el franquisme?',
+            answer: 'Falta de llibertats, censura, persecució política i poder concentrat.',
+          },
+          {
+            question: 'Què va passar després de la mort de Franco?',
+            answer: 'Es va iniciar la Transició Democràtica.',
+          },
+          {
+            question: 'Quin rei va protagonitzar la Transició?',
+            answer: 'Joan Carles I.',
+          },
+          {
+            question: 'Quin any es va aprovar la Constitució democràtica actual?',
+            answer: 'El 1978.',
+          },
+        ],
+      },
+      {
+        id: 'eu-global',
+        title: '🇪🇺 Unió Europea i globalització',
+        summary: 'Descobreix com cooperen els països europeus i què implica viure en un món globalitzat.',
+        cards: [
+          {
+            question: 'Què és la Unió Europea?',
+            answer: 'Una organització de països europeus que cooperen econòmicament i políticament.',
+          },
+          {
+            question: 'Quin és l’objectiu principal de la UE?',
+            answer: 'Garantir la pau, el progrés i la cooperació entre els estats membres.',
+          },
+          {
+            question: 'Quin any va aparèixer l’euro com a moneda comuna?',
+            answer: 'El 2002.',
+          },
+          {
+            question: 'Què és la globalització?',
+            answer: 'El procés d’interconnexió econòmica, cultural i tecnològica entre països.',
+          },
+          {
+            question: 'Quins avantatges i inconvenients té la globalització?',
+            answer: 'Avantatges: més comunicació i comerç. Inconvenients: desigualtats i pèrdua de cultures locals.',
+          },
+        ],
+      },
+    ];
+
+    const topicsGrid = document.getElementById('topics-grid');
+    const menuSection = document.getElementById('topics-menu');
+    const gameSection = document.getElementById('flashcard-game');
+    const gameTitle = document.getElementById('game-title');
+    const gameSummary = document.getElementById('game-summary');
+    const gameInstructions = document.getElementById('game-instructions');
+    const gameCards = document.getElementById('game-cards');
+    const backButton = document.getElementById('back-button');
+
+    const instructionsBase = 'Clica o toca cada targeta per veure la resposta i torna-la a girar quan la vulguis repassar.';
+
+    function renderTopics() {
+      topics.forEach((topic) => {
+        const listItem = document.createElement('li');
+        listItem.className = 'topic-card-item';
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'topic-card';
+        button.dataset.topicId = topic.id;
+
+        const title = document.createElement('h3');
+        title.textContent = topic.title;
+
+        const summary = document.createElement('p');
+        summary.className = 'topic-summary';
+        summary.textContent = topic.summary;
+
+        const meta = document.createElement('span');
+        meta.className = 'topic-meta';
+        meta.textContent = `${topic.cards.length} targetes`;
+
+        button.append(title, summary, meta);
+        button.addEventListener('click', () => openTopic(topic.id));
+
+        listItem.appendChild(button);
+        topicsGrid.appendChild(listItem);
+      });
+    }
+
+    function openTopic(topicId) {
+      const topic = topics.find((item) => item.id === topicId);
+      if (!topic) return;
+
+      menuSection.setAttribute('hidden', '');
+      gameSection.removeAttribute('hidden');
+
+      gameTitle.textContent = topic.title;
+      gameSummary.textContent = topic.summary;
+      gameInstructions.textContent = `${instructionsBase} Tens ${topic.cards.length} targetes en aquest bloc.`;
+
+      gameCards.innerHTML = '';
+      topic.cards.forEach((card, index) => {
+        const cardItem = document.createElement('li');
+        cardItem.className = 'flashcard-item';
+        const cardButton = createFlashcard(card, index + 1, topic.cards.length);
+        cardItem.appendChild(cardButton);
+        gameCards.appendChild(cardItem);
+      });
+
+      backButton.focus({ preventScroll: true });
+      gameSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function createFlashcard(card, index, total) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'flashcard';
+      const baseLabel = `Targeta ${index} de ${total}.`;
+
+      const inner = document.createElement('span');
+      inner.className = 'flashcard-inner';
+
+      const front = document.createElement('span');
+      front.className = 'flashcard-face flashcard-front';
+
+      const frontBadge = document.createElement('span');
+      frontBadge.className = 'flashcard-number';
+      frontBadge.textContent = `#${index}`;
+
+      const frontLabel = document.createElement('span');
+      frontLabel.className = 'flashcard-label';
+      frontLabel.textContent = 'Pregunta';
+
+      const frontText = document.createElement('span');
+      frontText.className = 'flashcard-text';
+      frontText.textContent = card.question;
+
+      const frontHint = document.createElement('span');
+      frontHint.className = 'flashcard-hint';
+      frontHint.textContent = 'Clica per descobrir la resposta';
+
+      front.append(frontBadge, frontLabel, frontText, frontHint);
+
+      const back = document.createElement('span');
+      back.className = 'flashcard-face flashcard-back';
+
+      const backBadge = document.createElement('span');
+      backBadge.className = 'flashcard-number';
+      backBadge.textContent = `#${index}`;
+
+      const backLabel = document.createElement('span');
+      backLabel.className = 'flashcard-label';
+      backLabel.textContent = 'Resposta';
+
+      const backText = document.createElement('span');
+      backText.className = 'flashcard-text';
+      backText.textContent = card.answer;
+
+      const backHint = document.createElement('span');
+      backHint.className = 'flashcard-hint';
+      backHint.textContent = 'Torna a clicar per tornar a la pregunta';
+
+      back.append(backBadge, backLabel, backText, backHint);
+
+      inner.append(front, back);
+      button.appendChild(inner);
+
+      const updateAria = (isFlipped) => {
+        button.setAttribute('aria-expanded', isFlipped ? 'true' : 'false');
+        button.setAttribute(
+          'aria-label',
+          `${baseLabel} ${isFlipped ? 'Prem per tornar a la pregunta.' : 'Prem per veure la resposta.'}`
+        );
+      };
+
+      updateAria(false);
+
+      button.addEventListener('click', () => {
+        const isFlipped = button.classList.toggle('is-flipped');
+        updateAria(isFlipped);
+      });
+
+      button.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && button.classList.contains('is-flipped')) {
+          event.stopPropagation();
+          button.classList.remove('is-flipped');
+          updateAria(false);
+        }
+      });
+
+      return button;
+    }
+
+    function showMenu() {
+      gameSection.setAttribute('hidden', '');
+      menuSection.removeAttribute('hidden');
+      menuSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      const firstTopicButton = topicsGrid.querySelector('button');
+      if (firstTopicButton) {
+        firstTopicButton.focus({ preventScroll: true });
+      }
+    }
+
+    backButton.addEventListener('click', showMenu);
+
+    renderTopics();
+  </script>
 </body>
 </html>
