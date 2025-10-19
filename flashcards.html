@@ -53,8 +53,13 @@
     .topics-section,
     .game-section {
       display: grid;
-      gap: 20px;
+      gap: 24px;
       margin: 40px 0 70px;
+    }
+
+    #topics-menu,
+    #flashcard-game {
+      scroll-margin-top: 90px;
     }
 
     .topics-section header,
@@ -160,12 +165,17 @@
       margin: 0;
       color: var(--muted);
       font-size: 0.95rem;
+      max-width: 720px;
+      text-align: center;
+      margin-inline: auto;
     }
 
     .game-stage {
-      margin-top: 40px;
+      margin-top: 36px;
       display: flex;
       justify-content: center;
+      width: 100%;
+      padding-inline: clamp(8px, 3vw, 24px);
     }
 
     .main-card-wrapper {
@@ -174,6 +184,8 @@
       gap: 18px;
       align-items: center;
       width: min(100%, 620px);
+      margin: 0 auto;
+      text-align: center;
     }
 
     .card-progress {
@@ -184,6 +196,9 @@
       border-radius: 999px;
       padding: 8px 18px;
       font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .main-card-slot {
@@ -210,7 +225,8 @@
     }
 
     .flashcard-main {
-      width: min(100%, 560px);
+      width: min(100%, 580px);
+      margin: 0 auto;
     }
 
     .flashcard-inner {
@@ -223,7 +239,7 @@
     }
 
     .flashcard-main .flashcard-inner {
-      min-height: clamp(320px, 52vh, 420px);
+      min-height: clamp(340px, 52vh, 460px);
     }
 
     .flashcard.is-flipped .flashcard-inner {
@@ -238,7 +254,7 @@
       justify-content: space-between;
       gap: 16px;
       padding: clamp(24px, 3vw, 34px);
-      border-radius: 22px;
+      border-radius: 24px;
       border: 1px solid rgba(148, 163, 184, 0.35);
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.95));
       box-shadow: var(--shadow);
@@ -282,37 +298,42 @@
 
     .library-section {
       margin: 48px auto 0;
-      max-width: 900px;
+      width: min(100%, 960px);
       display: flex;
       flex-direction: column;
       gap: 18px;
       align-items: stretch;
+      padding-inline: clamp(8px, 3vw, 24px);
     }
 
     .library-section h3 {
       margin: 0;
       font-size: 1.1rem;
+      text-align: center;
     }
 
     .library-description {
       margin: 0;
       color: var(--muted);
       font-size: 0.95rem;
+      text-align: center;
+      max-width: 720px;
+      margin-inline: auto;
     }
 
     .library-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
       padding: 0;
       margin: 0;
       list-style: none;
-      justify-content: center;
     }
 
     .library-grid li {
       list-style: none;
       margin: 0;
+      height: 100%;
     }
 
     .library-card {
@@ -320,10 +341,9 @@
       flex-direction: column;
       gap: 10px;
       align-items: flex-start;
-      min-width: 180px;
-      max-width: 220px;
+      width: 100%;
       padding: 16px 18px;
-      border-radius: 16px;
+      border-radius: 18px;
       border: 1px solid rgba(148, 163, 184, 0.35);
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(236, 248, 255, 0.9));
       box-shadow: var(--shadow);
@@ -332,6 +352,7 @@
       font: inherit;
       text-align: left;
       transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      height: 100%;
     }
 
     .library-card:hover,
@@ -399,12 +420,7 @@
       }
 
       .library-grid {
-        justify-content: flex-start;
-      }
-
-      .library-card {
-        flex: 1 1 calc(50% - 14px);
-        max-width: none;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       }
     }
   </style>
@@ -457,8 +473,9 @@
       </div>
       <div class="library-section" aria-label="Biblioteca de targetes">
         <h3>Biblioteca de targetes</h3>
-        <p class="library-description">Selecciona una targeta per portar-la a l’escenari principal. Pots girar la targeta gran per
-          comprovar la resposta i tornar-la a girar quan vulguis repassar-la.</p>
+        <p class="library-description">
+          Selecciona una targeta per portar-la a l’escenari principal. Pots girar la targeta gran per comprovar la resposta i tornar-la a girar quan vulguis repassar-la.
+        </p>
         <ol id="game-library" class="library-grid" aria-label="Llista de preguntes"></ol>
       </div>
     </section>
