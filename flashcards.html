@@ -61,6 +61,93 @@
       margin-bottom: 32px;
     }
 
+    .user-section {
+      margin: 32px 0 12px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .user-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 18px;
+      padding: 20px 24px;
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(236, 248, 255, 0.92));
+      box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
+    }
+
+    .user-select-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: min(280px, 100%);
+      flex: 1 1 240px;
+    }
+
+    .user-label {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .user-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .user-select {
+      border-radius: 999px;
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      background: rgba(255, 255, 255, 0.96);
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 600;
+      color: #1e293b;
+      box-shadow: 0 12px 26px rgba(37, 99, 235, 0.14);
+      cursor: pointer;
+      min-width: 220px;
+    }
+
+    .user-select:focus-visible {
+      outline: 3px solid rgba(59, 130, 246, 0.45);
+      outline-offset: 3px;
+    }
+
+    .user-add {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font: inherit;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(59, 130, 246, 0.16);
+      color: #1d4ed8;
+      cursor: pointer;
+      box-shadow: 0 14px 26px rgba(37, 99, 235, 0.18);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .user-add:hover,
+    .user-add:focus-visible {
+      background: #1d4ed8;
+      color: #eff6ff;
+      transform: translateY(-1px);
+      box-shadow: 0 18px 36px rgba(37, 99, 235, 0.24);
+      outline: none;
+    }
+
+    .user-help {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
     #topics-menu,
     #flashcard-game {
       scroll-margin-top: 90px;
@@ -289,7 +376,7 @@
       gap: 16px;
       align-items: center;
       width: min(100%, 620px);
-      margin: clamp(20px, 4.5vh, 52px) auto 0;
+      margin: clamp(34px, 6vh, 64px) auto 0;
       padding: clamp(16px, 2.4vh, 26px) clamp(14px, 3vw, 28px) clamp(18px, 2.6vh, 28px);
       border-radius: 26px;
       border: 1px solid rgba(148, 163, 184, 0.28);
@@ -671,6 +758,21 @@
         margin: 28px 0 24px;
       }
 
+      .user-controls {
+        padding: 16px;
+        gap: 14px;
+      }
+
+      .user-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .user-select {
+        min-width: 0;
+        width: 100%;
+      }
+
       .flashcards-nav {
         justify-content: flex-start;
       }
@@ -731,6 +833,23 @@
       <h1>Flashcards d'estudi personalitzades</h1>
       <p>Escull l'assignatura i després el bloc temàtic per practicar preguntes i respostes amb efecte de gir. Marca el teu
         progrés i reprèn quan vulguis.</p>
+    </section>
+
+    <section id="user-menu" class="user-section" aria-labelledby="user-title">
+      <header>
+        <h2 id="user-title">Gestiona el teu usuari</h2>
+        <p class="subtitle">Cada usuari guarda automàticament el progrés de totes les targetes. Canvia quan vulguis per continuar on ho vas deixar.</p>
+      </header>
+      <div class="user-controls">
+        <div class="user-select-group">
+          <label class="user-label" for="user-select">Usuari actiu</label>
+          <select id="user-select" class="user-select" aria-describedby="user-help"></select>
+        </div>
+        <div class="user-actions">
+          <button id="add-user" class="user-add" type="button">+ Afegeix usuari</button>
+        </div>
+      </div>
+      <p id="user-help" class="user-help">Canvia d'usuari per carregar el seu progrés guardat o crea'n un de nou per començar des de zero.</p>
     </section>
 
     <section id="subjects-menu" class="topics-section subjects-section" aria-labelledby="subjects-title">
@@ -1476,6 +1595,86 @@
             question: 'Què són les cèl·lules eucariotes?',
             answer: 'Cèl·lules amb nucli ben definit, com les dels animals i plantes.',
           },
+          {
+            question: 'Què és un orgànul cel·lular?',
+            answer: 'Una estructura interna especialitzada que realitza una funció concreta dins la cèl·lula.',
+          },
+          {
+            question: 'Què és un teixit?',
+            answer: 'Un conjunt de cèl·lules semblants que treballen juntes per fer una funció.',
+          },
+          {
+            question: 'Què és un organisme unicel·lular?',
+            answer: 'Un ésser viu format per una sola cèl·lula que fa totes les funcions vitals.',
+          },
+          {
+            question: 'Què és un organisme pluricel·lular?',
+            answer: 'Un ésser viu format per moltes cèl·lules especialitzades que cooperen.',
+          },
+          {
+            question: 'Quina funció té el reticle endoplasmàtic rugós?',
+            answer: 'Fabricar i transportar proteïnes amb l’ajuda dels ribosomes adherits.',
+          },
+          {
+            question: 'Quina funció té el reticle endoplasmàtic llis?',
+            answer: 'Produeix lípids i ajuda a desintoxicar substàncies de la cèl·lula.',
+          },
+          {
+            question: "Quina funció té l’aparell de Golgi?",
+            answer: 'Modifica, empaqueta i reparteix proteïnes i altres substàncies.',
+          },
+          {
+            question: 'Què són els ribosomes?',
+            answer: 'Orgànuls que llegeixen l’ARN i fabriquen proteïnes.',
+          },
+          {
+            question: 'Què són els lisosomes?',
+            answer: 'Orgànuls que digereixen residus i partícules no desitjades.',
+          },
+          {
+            question: 'Què és la membrana nuclear?',
+            answer: 'La capa que envolta el nucli i regula què entra i surt d’ell.',
+          },
+          {
+            question: 'Què és el citosquelet?',
+            answer: 'Una xarxa de fibres que dóna forma a la cèl·lula i facilita el moviment intern.',
+          },
+          {
+            question: 'Què és un vacúol?',
+            answer: 'Un compartiment que emmagatzema aigua, nutrients o residus.',
+          },
+          {
+            question: 'Per què les cèl·lules vegetals tenen paret cel·lular?',
+            answer: 'Per protegir-se i mantenir una forma rígida i estable.',
+          },
+          {
+            question: 'Quina diferència hi ha entre ADN i ARN?',
+            answer: 'L’ADN guarda la informació genètica i l’ARN ajuda a fabricar proteïnes.',
+          },
+          {
+            question: 'Què és la mitosi?',
+            answer: 'Un tipus de divisió cel·lular que produeix dues cèl·lules idèntiques.',
+          },
+          {
+            question: 'Què és la meiosi?',
+            answer: 'La divisió que forma gàmetes amb la meitat de cromosomes.',
+          },
+          {
+            question: 'Què són les cèl·lules mare?',
+            answer: 'Cèl·lules que es poden transformar en altres tipus de cèl·lules del cos.',
+          },
+          {
+            question: 'Què és la respiració cel·lular?',
+            answer: 'El procés amb què els mitocondris transformen nutrients i oxigen en energia.',
+          },
+          {
+            question: 'Què necessita la respiració cel·lular per funcionar?',
+            answer: 'Oxigen i nutrients com la glucosa per produir energia.',
+          },
+          {
+            question: 'Què passa durant la interfase abans de dividir-se una cèl·lula?',
+            answer: 'La cèl·lula creix, copia el seu ADN i es prepara per dividir-se.',
+          },
         ],
       },
       {
@@ -1523,6 +1722,86 @@
           {
             question: 'Què és un descomponedor?',
             answer: 'Un organisme que transforma restes en nutrients per al sòl, com els fongs.',
+          },
+          {
+            question: 'Què és una espècie?',
+            answer: 'Un grup d’éssers vius que es poden reproduir entre ells i tenir descendència fèrtil.',
+          },
+          {
+            question: 'Què és una població?',
+            answer: 'El conjunt d’individus de la mateixa espècie que viuen en un lloc concret.',
+          },
+          {
+            question: 'Què és una comunitat?',
+            answer: 'El conjunt de poblacions diferents que conviuen en un mateix espai.',
+          },
+          {
+            question: "Què és l’hàbitat?",
+            answer: 'El lloc on viu un ésser viu i on troba les condicions necessàries.',
+          },
+          {
+            question: 'Què és la biodiversitat?',
+            answer: 'La varietat d’espècies i ecosistemes que hi ha en un lloc.',
+          },
+          {
+            question: 'Què és una adaptació?',
+            answer: 'Una característica que ajuda un ésser viu a sobreviure al seu medi.',
+          },
+          {
+            question: 'Quins són els principals grups de vertebrats?',
+            answer: 'Peixos, amfibis, rèptils, aus i mamífers.',
+          },
+          {
+            question: 'Quins són alguns grans grups d’invertebrats?',
+            answer: 'Insectes, aràcnids, mol·luscs, crustacis i cucs.',
+          },
+          {
+            question: 'Què és la metamorfosi?',
+            answer: 'El procés de transformació d’un animal durant el seu desenvolupament, com la papallona.',
+          },
+          {
+            question: 'Què és un herbívor?',
+            answer: 'Un animal que s’alimenta principalment de plantes.',
+          },
+          {
+            question: 'Què és un carnívor?',
+            answer: 'Un animal que menja altres animals.',
+          },
+          {
+            question: 'Què és un omnívor?',
+            answer: 'Un animal que pot menjar tant plantes com animals.',
+          },
+          {
+            question: 'Què és un depredador?',
+            answer: 'Un animal que caça un altre per alimentar-se.',
+          },
+          {
+            question: 'Què és una presa?',
+            answer: 'L’animal caçat pel depredador.',
+          },
+          {
+            question: 'Què és una espècie invasora?',
+            answer: 'Una espècie que arriba a un lloc nou i causa problemes a les espècies natives.',
+          },
+          {
+            question: 'Què són els nivells tròfics?',
+            answer: 'Cada graó de la cadena alimentària segons el tipus d’alimentació.',
+          },
+          {
+            question: 'Què és una xarxa tròfica?',
+            answer: 'Un conjunt de cadenes alimentàries connectades en un ecosistema.',
+          },
+          {
+            question: 'Què és la descomposició?',
+            answer: 'El procés pel qual els descomponedors transformen restes en nutrients.',
+          },
+          {
+            question: 'Quina funció fan els pol·linitzadors?',
+            answer: 'Transporten pol·len entre flors i ajuden a formar fruits i llavors.',
+          },
+          {
+            question: 'Per què és important conservar els ecosistemes?',
+            answer: 'Per mantenir la biodiversitat, els recursos i l’equilibri del planeta.',
           },
         ],
       },
@@ -1572,6 +1851,86 @@
             question: 'Què és un fòssil?',
             answer: 'El rest o empremta d’un ésser viu antic conservat a les roques.',
           },
+          {
+            question: 'Què és la deriva continental?',
+            answer: 'El moviment lent dels continents sobre les plaques tectòniques.',
+          },
+          {
+            question: 'Què és una falla geològica?',
+            answer: 'Una escletxa de l’escorça on dues plaques s’han mogut.',
+          },
+          {
+            question: 'Què és el magma?',
+            answer: 'Roca fosa que es troba a l’interior de la Terra.',
+          },
+          {
+            question: 'Què és la lava?',
+            answer: 'El magma que surt a l’exterior durant una erupció.',
+          },
+          {
+            question: 'Què és un tsunami?',
+            answer: 'Una ona gegant provocada sovint per un terratrèmol submarí.',
+          },
+          {
+            question: 'Què és un huracà?',
+            answer: 'Una tempesta molt forta amb vents giratoris sobre els oceans càlids.',
+          },
+          {
+            question: 'Què són els sediments?',
+            answer: 'Fragments de roca, sorra o restes que el vent i l’aigua transporten.',
+          },
+          {
+            question: 'Què és la sedimentació?',
+            answer: 'Quan els sediments es dipositen i formen noves capes.',
+          },
+          {
+            question: "Què és el cicle de l’aigua?",
+            answer: 'El recorregut de l’aigua evaporant-se, condensant-se i precipitant.',
+          },
+          {
+            question: 'Què és una glacera?',
+            answer: 'Una gran massa de gel que es mou lentament per la gravetat.',
+          },
+          {
+            question: 'Què és el temps atmosfèric?',
+            answer: 'Les condicions de l’atmosfera en un lloc i moment concrets.',
+          },
+          {
+            question: 'Què és el clima?',
+            answer: 'El conjunt de temps atmosfèrics habituals d’un lloc durant molts anys.',
+          },
+          {
+            question: "Què és l’erosió fluvial?",
+            answer: 'El desgast causat per l’aigua dels rius sobre el terreny.',
+          },
+          {
+            question: 'Què són els fòssils guia?',
+            answer: 'Restes d’espècies que ajuden a datar les capes de roques.',
+          },
+          {
+            question: 'Què és la paleontologia?',
+            answer: 'La ciència que estudia els fòssils i la vida del passat.',
+          },
+          {
+            question: 'Què és una era geològica?',
+            answer: 'Un període molt llarg de temps en la història de la Terra.',
+          },
+          {
+            question: 'Què és un meteorit?',
+            answer: 'Un fragment de roca espacial que arriba a la superfície terrestre.',
+          },
+          {
+            question: 'Què és la capa d’ozó?',
+            answer: 'Una zona de l’atmosfera que ens protegeix dels rajos ultraviolats.',
+          },
+          {
+            question: "Què és l’efecte hivernacle?",
+            answer: 'El procés pel qual alguns gasos atrapen la calor i escalfen el planeta.',
+          },
+          {
+            question: 'Com poden protegir-se les persones davant un terratrèmol?',
+            answer: 'Seguint plans d’emergència, buscant llocs segurs i preparant kits de supervivència.',
+          },
         ],
       },
       {
@@ -1619,6 +1978,86 @@
           {
             question: 'Quins hàbits mantenen un cos sa?',
             answer: 'Bona alimentació, exercici físic i descans suficient.',
+          },
+          {
+            question: 'Què és un nutrient?',
+            answer: 'Una substància dels aliments que el cos necessita per obtenir energia i construir-se.',
+          },
+          {
+            question: 'Què és la digestió?',
+            answer: 'El procés de transformar els aliments en nutrients aprofitables.',
+          },
+          {
+            question: 'Què són les articulacions?',
+            answer: 'Els punts on s’uneixen els ossos i permeten el moviment.',
+          },
+          {
+            question: 'Què és un múscul?',
+            answer: 'Un teixit que es contrau per moure els ossos o els òrgans.',
+          },
+          {
+            question: 'Què és el sistema endocrí?',
+            answer: 'El conjunt de glàndules que fabriquen hormones.',
+          },
+          {
+            question: 'Quina funció té el cor?',
+            answer: 'Bombar la sang perquè arribi a totes les parts del cos.',
+          },
+          {
+            question: 'Què fan els pulmons?',
+            answer: 'Intercanvien oxigen i diòxid de carboni amb la sang.',
+          },
+          {
+            question: 'Què són els glòbuls vermells?',
+            answer: 'Cèl·lules de la sang que transporten oxigen.',
+          },
+          {
+            question: 'Què són els glòbuls blancs?',
+            answer: 'Cèl·lules de defensa que ens protegeixen d’infeccions.',
+          },
+          {
+            question: 'Què és el plasma sanguini?',
+            answer: 'La part líquida de la sang que transporta nutrients i residus.',
+          },
+          {
+            question: 'Què és el sistema limfàtic?',
+            answer: 'Una xarxa de vasos i ganglis que ajuda a defensar el cos i retornar líquids.',
+          },
+          {
+            question: 'Què és un reflex?',
+            answer: 'Una resposta ràpida i involuntària del sistema nerviós.',
+          },
+          {
+            question: 'Què és el cervell?',
+            answer: 'L’òrgan que controla el pensament, els sentiments i els moviments.',
+          },
+          {
+            question: 'Què són els cinc sentits?',
+            answer: 'Vista, oïda, olfacte, gust i tacte, que ens informen del que passa al voltant.',
+          },
+          {
+            question: 'Què és el sistema immunitari?',
+            answer: 'El conjunt de defenses que protegeixen el cos dels agents nocius.',
+          },
+          {
+            question: 'Què és la pubertat?',
+            answer: 'L’etapa en què el cos canvia i es prepara per a la vida adulta.',
+          },
+          {
+            question: 'Què és la fecundació?',
+            answer: 'La unió d’un espermatozoide i un òvul que dóna lloc a un nou ésser.',
+          },
+          {
+            question: 'Què és l’ADN en les cèl·lules del cos?',
+            answer: 'El manual d’instruccions que indica com ha de funcionar cada cèl·lula.',
+          },
+          {
+            question: 'Què són els ossos?',
+            answer: 'Estructures dures que formen l’esquelet i protegeixen els òrgans.',
+          },
+          {
+            question: 'Quines mesures ajuden a tenir un sistema respiratori sa?',
+            answer: 'Evitar el tabac, fer exercici i respirar aire net.',
           },
         ],
       },
@@ -1668,6 +2107,86 @@
             question: 'Quines són les fonts d’energia renovables?',
             answer: 'Solar, eòlica, hidràulica, geotèrmica i biomassa.',
           },
+          {
+            question: 'Què és el volum?',
+            answer: 'L’espai que ocupa un cos.',
+          },
+          {
+            question: 'Què és la temperatura?',
+            answer: 'La mesura de com d’escalfada o freda està una substància.',
+          },
+          {
+            question: 'Què és una mescla homogènia?',
+            answer: 'Una mescla on no es poden distingir els components a simple vista.',
+          },
+          {
+            question: 'Què és una mescla heterogènia?',
+            answer: 'Una mescla on sí que es poden veure els diferents components.',
+          },
+          {
+            question: 'Què és una solució?',
+            answer: 'Una mescla homogènia formada per un solvent i un solut.',
+          },
+          {
+            question: 'Què és el solvent?',
+            answer: 'La substància que dissol el solut en una solució.',
+          },
+          {
+            question: 'Què és el solut?',
+            answer: 'La substància que es dissol dins del solvent.',
+          },
+          {
+            question: 'Què és la fusió?',
+            answer: 'El canvi d’estat de sòlid a líquid.',
+          },
+          {
+            question: 'Què és la vaporització?',
+            answer: 'El canvi de líquid a gas.',
+          },
+          {
+            question: 'Què és la condensació?',
+            answer: 'El canvi de gas a líquid.',
+          },
+          {
+            question: 'Què és la solidificació?',
+            answer: 'Quan un líquid passa a sòlid en refredar-se.',
+          },
+          {
+            question: 'Què és la sublimació?',
+            answer: 'El canvi directe de sòlid a gas o a l’inrevés.',
+          },
+          {
+            question: 'Què és la conductivitat tèrmica?',
+            answer: 'La capacitat d’un material per transmetre la calor.',
+          },
+          {
+            question: 'Què és un circuit elèctric?',
+            answer: 'Un camí tancat per on circulen els electrons.',
+          },
+          {
+            question: 'Què és la potència elèctrica?',
+            answer: 'La quantitat d’energia elèctrica que s’utilitza o es produeix per unitat de temps.',
+          },
+          {
+            question: "Què és l’energia potencial?",
+            answer: 'L’energia que té un cos per la seva posició o estat.',
+          },
+          {
+            question: "Què és l’energia cinètica?",
+            answer: 'L’energia que té un cos quan està en moviment.',
+          },
+          {
+            question: 'Què és una màquina simple?',
+            answer: 'Un dispositiu senzill com la palanca o la roda que facilita el treball.',
+          },
+          {
+            question: 'Què diu la llei de la conservació de l’energia?',
+            answer: 'Que l’energia no es crea ni es destrueix, només es transforma.',
+          },
+          {
+            question: 'Què podem fer per estalviar energia a casa?',
+            answer: 'Apagar llums innecessàries, utilitzar bombetes eficients i aprofitar la llum natural.',
+          },
         ],
       },
     ];
@@ -1700,6 +2219,8 @@
       }))
       .filter((subject) => subject.topics.length > 0);
 
+    const userSelect = document.getElementById('user-select');
+    const addUserButton = document.getElementById('add-user');
     const subjectsGrid = document.getElementById('subjects-grid');
     const subjectsSection = document.getElementById('subjects-menu');
     const topicsSection = document.getElementById('topics-menu');
@@ -1730,11 +2251,318 @@
 
     const subjectButtons = new Map();
 
+    const STORAGE_KEY = 'focusquiz.flashcards.progress';
+    const VALID_STATUSES = new Set(['known', 'partial', 'unknown']);
+
+    let storageState = loadStorageState();
+    let currentUserId = storageState.activeUserId || null;
+    const topicProgress = new Map();
+
     let currentSubject = null;
     let currentTopic = null;
     let currentCardIndex = 0;
     let cardStatuses = [];
-    const topicProgress = new Map();
+
+    function loadStorageState() {
+      if (typeof window === 'undefined' || !('localStorage' in window)) {
+        return { users: {}, userOrder: [], activeUserId: null };
+      }
+
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          return { users: {}, userOrder: [], activeUserId: null };
+        }
+
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') {
+          return { users: {}, userOrder: [], activeUserId: null };
+        }
+
+        const users = parsed.users && typeof parsed.users === 'object' ? parsed.users : {};
+        const userOrder = Array.isArray(parsed.userOrder) ? parsed.userOrder : Object.keys(users);
+        const activeUserId = typeof parsed.activeUserId === 'string' ? parsed.activeUserId : null;
+
+        return { users, userOrder, activeUserId };
+      } catch (error) {
+        return { users: {}, userOrder: [], activeUserId: null };
+      }
+    }
+
+    function saveStorageState() {
+      if (typeof window === 'undefined' || !('localStorage' in window)) {
+        return;
+      }
+
+      try {
+        window.localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            users: storageState.users || {},
+            userOrder: storageState.userOrder || [],
+            activeUserId: currentUserId || null,
+          })
+        );
+      } catch (error) {
+        // Ignore storage errors (e.g. private browsing)
+      }
+    }
+
+    function createUserId() {
+      return `user-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    }
+
+    function getCurrentUserData() {
+      if (!storageState.users || typeof storageState.users !== 'object') {
+        storageState.users = {};
+      }
+      return currentUserId && storageState.users[currentUserId] ? storageState.users[currentUserId] : null;
+    }
+
+    function ensureCurrentUser() {
+      if (!currentUserId) {
+        return null;
+      }
+
+      if (!storageState.users || typeof storageState.users !== 'object') {
+        storageState.users = {};
+      }
+
+      let user = storageState.users[currentUserId];
+      if (!user) {
+        user = { name: 'Alumne', topics: {} };
+        storageState.users[currentUserId] = user;
+      }
+
+      if (!user.topics || typeof user.topics !== 'object') {
+        user.topics = {};
+      }
+
+      if (!Array.isArray(storageState.userOrder)) {
+        storageState.userOrder = [];
+      }
+
+      if (!storageState.userOrder.includes(currentUserId)) {
+        storageState.userOrder.push(currentUserId);
+      }
+
+      return user;
+    }
+
+    function renderUserOptions() {
+      if (!userSelect) return;
+
+      if (!storageState.users || typeof storageState.users !== 'object') {
+        storageState.users = {};
+      }
+
+      const orderedIds = Array.isArray(storageState.userOrder)
+        ? storageState.userOrder.filter((id) => storageState.users[id])
+        : [];
+
+      Object.keys(storageState.users).forEach((id) => {
+        if (!orderedIds.includes(id)) {
+          orderedIds.push(id);
+        }
+      });
+
+      storageState.userOrder = orderedIds;
+
+      userSelect.innerHTML = '';
+      orderedIds.forEach((id) => {
+        const user = storageState.users[id];
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = user?.name || 'Usuari';
+        userSelect.appendChild(option);
+      });
+
+      if (currentUserId && storageState.users[currentUserId]) {
+        userSelect.value = currentUserId;
+      } else if (orderedIds.length) {
+        currentUserId = orderedIds[0];
+        userSelect.value = currentUserId;
+      }
+    }
+
+    function sanitizeStatus(value) {
+      return VALID_STATUSES.has(value) ? value : null;
+    }
+
+    function syncTopicProgressFromUser() {
+      topicProgress.clear();
+
+      const user = getCurrentUserData();
+      if (!user || !user.topics) {
+        return;
+      }
+
+      Object.entries(user.topics).forEach(([topicId, statuses]) => {
+        if (Array.isArray(statuses)) {
+          const sanitized = statuses.map((status) => sanitizeStatus(status));
+          topicProgress.set(topicId, sanitized);
+        }
+      });
+    }
+
+    function normalizeStatuses(existing, length) {
+      const normalized = Array(length).fill(null);
+      if (Array.isArray(existing)) {
+        const limit = Math.min(existing.length, length);
+        for (let index = 0; index < limit; index += 1) {
+          const sanitized = sanitizeStatus(existing[index]);
+          if (sanitized) {
+            normalized[index] = sanitized;
+          }
+        }
+      }
+      return normalized;
+    }
+
+    function persistTopicProgress(topicId, statuses = topicProgress.get(topicId)) {
+      if (!currentUserId) {
+        return;
+      }
+
+      const user = ensureCurrentUser();
+      if (!user) {
+        return;
+      }
+
+      if (!statuses) {
+        delete user.topics[topicId];
+      } else {
+        const sanitized = statuses.map((status) => sanitizeStatus(status));
+        const hasProgress = sanitized.some((status) => status !== null);
+        if (hasProgress) {
+          user.topics[topicId] = sanitized;
+        } else {
+          delete user.topics[topicId];
+        }
+      }
+
+      storageState.activeUserId = currentUserId;
+      saveStorageState();
+    }
+
+    function getOrCreateStatuses(topic) {
+      const existing = topicProgress.get(topic.id);
+      const normalized = normalizeStatuses(existing, topic.cards.length);
+
+      let changed = !existing || existing.length !== normalized.length;
+      if (existing) {
+        const limit = Math.max(existing.length, normalized.length);
+        for (let index = 0; index < limit; index += 1) {
+          const sanitized = sanitizeStatus(existing[index]);
+          if (sanitized !== normalized[index]) {
+            changed = true;
+            break;
+          }
+        }
+      }
+
+      topicProgress.set(topic.id, normalized);
+
+      if (changed) {
+        persistTopicProgress(topic.id, normalized);
+      }
+
+      return normalized;
+    }
+
+    function refreshCurrentTopicView() {
+      if (!currentTopic) {
+        updateGameControls();
+        return;
+      }
+
+      cardStatuses = getOrCreateStatuses(currentTopic);
+      currentCardIndex = Math.min(currentCardIndex, currentTopic.cards.length - 1);
+      renderMainCard(false);
+      renderLibrary();
+    }
+
+    function handleUserChange(event) {
+      const newUserId = event.target.value;
+      if (!newUserId || newUserId === currentUserId) {
+        return;
+      }
+
+      currentUserId = newUserId;
+      storageState.activeUserId = currentUserId;
+      syncTopicProgressFromUser();
+      refreshCurrentTopicView();
+      saveStorageState();
+    }
+
+    function handleAddUser() {
+      const name = window.prompt('Introdueix el nom del nou usuari:');
+      if (!name) {
+        return;
+      }
+
+      const trimmed = name.trim();
+      if (!trimmed) {
+        return;
+      }
+
+      const id = createUserId();
+
+      if (!storageState.users || typeof storageState.users !== 'object') {
+        storageState.users = {};
+      }
+
+      storageState.users[id] = { name: trimmed, topics: {} };
+
+      if (!Array.isArray(storageState.userOrder)) {
+        storageState.userOrder = [];
+      }
+
+      storageState.userOrder.push(id);
+
+      currentUserId = id;
+      storageState.activeUserId = id;
+
+      renderUserOptions();
+      if (userSelect) {
+        userSelect.value = id;
+      }
+      syncTopicProgressFromUser();
+      refreshCurrentTopicView();
+      saveStorageState();
+    }
+
+    function initializeUsers() {
+      if (!storageState || typeof storageState !== 'object') {
+        storageState = { users: {}, userOrder: [], activeUserId: null };
+      }
+
+      if (!storageState.users || typeof storageState.users !== 'object') {
+        storageState.users = {};
+      }
+
+      if (!Array.isArray(storageState.userOrder)) {
+        storageState.userOrder = Object.keys(storageState.users);
+      }
+
+      storageState.userOrder = storageState.userOrder.filter((id) => storageState.users[id]);
+
+      if (storageState.userOrder.length === 0) {
+        const defaultId = createUserId();
+        storageState.users[defaultId] = { name: 'Alumne 1', topics: {} };
+        storageState.userOrder.push(defaultId);
+      }
+
+      if (!currentUserId || !storageState.users[currentUserId]) {
+        currentUserId = storageState.userOrder[0];
+      }
+
+      storageState.activeUserId = currentUserId;
+
+      renderUserOptions();
+      syncTopicProgressFromUser();
+      saveStorageState();
+    }
 
     function renderSubjects() {
       subjectsGrid.innerHTML = '';
@@ -1865,13 +2693,7 @@
       gameInstructions.textContent = `${instructionsBase} Tens ${topic.cards.length} targetes en aquest bloc de ${subjectLabel}. Pots reiniciar el seguiment quan vulguis.`;
 
       currentTopic = topic;
-      let existingStatuses = topicProgress.get(topic.id);
-      if (!existingStatuses || existingStatuses.length !== topic.cards.length) {
-        existingStatuses = Array(topic.cards.length).fill(null);
-        topicProgress.set(topic.id, existingStatuses);
-      }
-
-      cardStatuses = existingStatuses;
+      cardStatuses = getOrCreateStatuses(topic);
       currentCardIndex = 0;
 
       goToCard(0, { focus: false, scroll: false });
@@ -2094,14 +2916,12 @@
     function setCardStatus(status) {
       if (!currentTopic) return;
 
-      if (!cardStatuses || cardStatuses.length !== currentTopic.cards.length) {
-        cardStatuses = Array(currentTopic.cards.length).fill(null);
-        topicProgress.set(currentTopic.id, cardStatuses);
-      }
+      cardStatuses = getOrCreateStatuses(currentTopic);
 
       const currentStatus = cardStatuses[currentCardIndex];
       cardStatuses[currentCardIndex] = currentStatus === status ? null : status;
       topicProgress.set(currentTopic.id, cardStatuses);
+      persistTopicProgress(currentTopic.id, cardStatuses);
 
       renderMainCard();
       renderLibrary();
@@ -2147,12 +2967,10 @@
     function resetProgress() {
       if (!currentTopic) return;
 
-      if (!cardStatuses || cardStatuses.length !== currentTopic.cards.length) {
-        cardStatuses = Array(currentTopic.cards.length).fill(null);
-      } else {
-        cardStatuses.fill(null);
-      }
+      cardStatuses = getOrCreateStatuses(currentTopic);
+      cardStatuses.fill(null);
       topicProgress.set(currentTopic.id, cardStatuses);
+      persistTopicProgress(currentTopic.id, cardStatuses);
       goToCard(0, { focus: true, scroll: true });
     }
 
@@ -2176,6 +2994,13 @@
       }
     }
 
+    if (userSelect) {
+      userSelect.addEventListener('change', handleUserChange);
+    }
+    if (addUserButton) {
+      addUserButton.addEventListener('click', handleAddUser);
+    }
+
     backButton.addEventListener('click', () => showMenu());
 
     prevButton.addEventListener('click', goPrev);
@@ -2185,6 +3010,8 @@
     });
     resetButton.addEventListener('click', resetProgress);
     document.addEventListener('keydown', handleKeyNavigation);
+
+    initializeUsers();
 
     renderSubjects();
     if (subjects.length) {
