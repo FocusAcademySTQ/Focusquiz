@@ -29,6 +29,20 @@
       max-width: 720px;
     }
 
+    .active-user-banner {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 18px 0 0;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.12);
+      color: #1d4ed8;
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.16);
+    }
+
     .flashcards-nav {
       display: flex;
       align-items: center;
@@ -59,93 +73,6 @@
 
     .subjects-section {
       margin-bottom: 32px;
-    }
-
-    .user-section {
-      margin: 32px 0 12px;
-      display: grid;
-      gap: 18px;
-    }
-
-    .user-controls {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 18px;
-      padding: 20px 24px;
-      border-radius: 24px;
-      border: 1px solid rgba(148, 163, 184, 0.28);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(236, 248, 255, 0.92));
-      box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
-    }
-
-    .user-select-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      min-width: min(280px, 100%);
-      flex: 1 1 240px;
-    }
-
-    .user-label {
-      font-weight: 600;
-      color: #0f172a;
-    }
-
-    .user-actions {
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .user-select {
-      border-radius: 999px;
-      border: 1px solid rgba(59, 130, 246, 0.35);
-      background: rgba(255, 255, 255, 0.96);
-      padding: 10px 18px;
-      font: inherit;
-      font-weight: 600;
-      color: #1e293b;
-      box-shadow: 0 12px 26px rgba(37, 99, 235, 0.14);
-      cursor: pointer;
-      min-width: 220px;
-    }
-
-    .user-select:focus-visible {
-      outline: 3px solid rgba(59, 130, 246, 0.45);
-      outline-offset: 3px;
-    }
-
-    .user-add {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 20px;
-      font: inherit;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(59, 130, 246, 0.16);
-      color: #1d4ed8;
-      cursor: pointer;
-      box-shadow: 0 14px 26px rgba(37, 99, 235, 0.18);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
-    }
-
-    .user-add:hover,
-    .user-add:focus-visible {
-      background: #1d4ed8;
-      color: #eff6ff;
-      transform: translateY(-1px);
-      box-shadow: 0 18px 36px rgba(37, 99, 235, 0.24);
-      outline: none;
-    }
-
-    .user-help {
-      margin: 0;
-      color: var(--muted);
-      font-size: 0.92rem;
     }
 
     #topics-menu,
@@ -376,7 +303,7 @@
       gap: 16px;
       align-items: center;
       width: min(100%, 620px);
-      margin: clamp(34px, 6vh, 64px) auto 0;
+      margin: clamp(52px, 8vh, 96px) auto 0;
       padding: clamp(16px, 2.4vh, 26px) clamp(14px, 3vw, 28px) clamp(18px, 2.6vh, 28px);
       border-radius: 26px;
       border: 1px solid rgba(148, 163, 184, 0.28);
@@ -833,23 +760,7 @@
       <h1>Flashcards d'estudi personalitzades</h1>
       <p>Escull l'assignatura i després el bloc temàtic per practicar preguntes i respostes amb efecte de gir. Marca el teu
         progrés i reprèn quan vulguis.</p>
-    </section>
-
-    <section id="user-menu" class="user-section" aria-labelledby="user-title">
-      <header>
-        <h2 id="user-title">Gestiona el teu usuari</h2>
-        <p class="subtitle">Cada usuari guarda automàticament el progrés de totes les targetes. Canvia quan vulguis per continuar on ho vas deixar.</p>
-      </header>
-      <div class="user-controls">
-        <div class="user-select-group">
-          <label class="user-label" for="user-select">Usuari actiu</label>
-          <select id="user-select" class="user-select" aria-describedby="user-help"></select>
-        </div>
-        <div class="user-actions">
-          <button id="add-user" class="user-add" type="button">+ Afegeix usuari</button>
-        </div>
-      </div>
-      <p id="user-help" class="user-help">Canvia d'usuari per carregar el seu progrés guardat o crea'n un de nou per començar des de zero.</p>
+      <p id="active-user-banner" class="active-user-banner" role="status" aria-live="polite">Sessió actual: ...</p>
     </section>
 
     <section id="subjects-menu" class="topics-section subjects-section" aria-labelledby="subjects-title">
@@ -2219,8 +2130,7 @@
       }))
       .filter((subject) => subject.topics.length > 0);
 
-    const userSelect = document.getElementById('user-select');
-    const addUserButton = document.getElementById('add-user');
+    const activeUserBanner = document.getElementById('active-user-banner');
     const subjectsGrid = document.getElementById('subjects-grid');
     const subjectsSection = document.getElementById('subjects-menu');
     const topicsSection = document.getElementById('topics-menu');
@@ -2253,9 +2163,10 @@
 
     const STORAGE_KEY = 'focusquiz.flashcards.progress';
     const VALID_STATUSES = new Set(['known', 'partial', 'unknown']);
+    const DEFAULT_USER_NAME = 'Anònim';
 
     let storageState = loadStorageState();
-    let currentUserId = storageState.activeUserId || null;
+    let currentUserName = readActiveStudentName();
     const topicProgress = new Map();
 
     let currentSubject = null;
@@ -2264,28 +2175,71 @@
     let cardStatuses = [];
 
     function loadStorageState() {
+      const empty = { users: {}, userOrder: [] };
       if (typeof window === 'undefined' || !('localStorage' in window)) {
-        return { users: {}, userOrder: [], activeUserId: null };
+        return empty;
       }
 
       try {
         const raw = window.localStorage.getItem(STORAGE_KEY);
         if (!raw) {
-          return { users: {}, userOrder: [], activeUserId: null };
+          return empty;
         }
 
         const parsed = JSON.parse(raw);
         if (!parsed || typeof parsed !== 'object') {
-          return { users: {}, userOrder: [], activeUserId: null };
+          return empty;
         }
 
-        const users = parsed.users && typeof parsed.users === 'object' ? parsed.users : {};
-        const userOrder = Array.isArray(parsed.userOrder) ? parsed.userOrder : Object.keys(users);
-        const activeUserId = typeof parsed.activeUserId === 'string' ? parsed.activeUserId : null;
+        const normalized = { users: {}, userOrder: [] };
+        const seenOrder = new Set();
 
-        return { users, userOrder, activeUserId };
+        const addUserTopics = (name, topics = {}) => {
+          if (!name) return;
+          if (!normalized.users[name]) {
+            normalized.users[name] = { topics: {} };
+          }
+          if (topics && typeof topics === 'object') {
+            Object.entries(topics).forEach(([topicId, statuses]) => {
+              if (Array.isArray(statuses)) {
+                normalized.users[name].topics[topicId] = statuses.slice();
+              }
+            });
+          }
+        };
+
+        const pushOrder = (name) => {
+          if (!name || seenOrder.has(name)) return;
+          normalized.userOrder.push(name);
+          seenOrder.add(name);
+        };
+
+        const users = parsed.users && typeof parsed.users === 'object' ? parsed.users : {};
+
+        Object.entries(users).forEach(([key, data]) => {
+          const storedName = typeof data?.name === 'string' ? data.name.trim() : '';
+          const fallbackName = typeof key === 'string' && key && !key.startsWith('user-') ? key : '';
+          const name = storedName || fallbackName || DEFAULT_USER_NAME;
+          addUserTopics(name, data && data.topics);
+        });
+
+        if (Array.isArray(parsed.userOrder)) {
+          parsed.userOrder.forEach((key) => {
+            const data = users[key];
+            const storedName = typeof data?.name === 'string' ? data.name.trim() : '';
+            const fallbackName = typeof key === 'string' && key && !key.startsWith('user-') ? key : '';
+            const name = storedName || fallbackName;
+            if (name && normalized.users[name]) {
+              pushOrder(name);
+            }
+          });
+        }
+
+        Object.keys(normalized.users).forEach((name) => pushOrder(name));
+
+        return normalized;
       } catch (error) {
-        return { users: {}, userOrder: [], activeUserId: null };
+        return empty;
       }
     }
 
@@ -2298,40 +2252,57 @@
         window.localStorage.setItem(
           STORAGE_KEY,
           JSON.stringify({
+            version: 2,
             users: storageState.users || {},
             userOrder: storageState.userOrder || [],
-            activeUserId: currentUserId || null,
           })
         );
       } catch (error) {
-        // Ignore storage errors (e.g. private browsing)
+        // Ignore storage errors (per exemple, navegació privada)
       }
     }
 
-    function createUserId() {
-      return `user-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+    function readActiveStudentName() {
+      if (typeof window === 'undefined' || !('localStorage' in window)) {
+        return DEFAULT_USER_NAME;
+      }
+
+      try {
+        const stored = window.localStorage.getItem('lastStudent');
+        if (!stored) return DEFAULT_USER_NAME;
+        const trimmed = stored.trim();
+        return trimmed || DEFAULT_USER_NAME;
+      } catch (error) {
+        return DEFAULT_USER_NAME;
+      }
+    }
+
+    function updateActiveUserBanner(name = currentUserName) {
+      if (!activeUserBanner) return;
+      const label = name || DEFAULT_USER_NAME;
+      activeUserBanner.textContent = `Sessió actual: ${label}`;
     }
 
     function getCurrentUserData() {
       if (!storageState.users || typeof storageState.users !== 'object') {
         storageState.users = {};
       }
-      return currentUserId && storageState.users[currentUserId] ? storageState.users[currentUserId] : null;
+      return currentUserName && storageState.users[currentUserName]
+        ? storageState.users[currentUserName]
+        : null;
     }
 
     function ensureCurrentUser() {
-      if (!currentUserId) {
-        return null;
-      }
+      const name = currentUserName || DEFAULT_USER_NAME;
 
       if (!storageState.users || typeof storageState.users !== 'object') {
         storageState.users = {};
       }
 
-      let user = storageState.users[currentUserId];
-      if (!user) {
-        user = { name: 'Alumne', topics: {} };
-        storageState.users[currentUserId] = user;
+      let user = storageState.users[name];
+      if (!user || typeof user !== 'object') {
+        user = { topics: {} };
+        storageState.users[name] = user;
       }
 
       if (!user.topics || typeof user.topics !== 'object') {
@@ -2342,47 +2313,24 @@
         storageState.userOrder = [];
       }
 
-      if (!storageState.userOrder.includes(currentUserId)) {
-        storageState.userOrder.push(currentUserId);
+      if (!storageState.userOrder.includes(name)) {
+        storageState.userOrder.push(name);
       }
 
       return user;
     }
 
-    function renderUserOptions() {
-      if (!userSelect) return;
-
-      if (!storageState.users || typeof storageState.users !== 'object') {
-        storageState.users = {};
+    function syncActiveUser({ refreshView = true } = {}) {
+      currentUserName = readActiveStudentName();
+      ensureCurrentUser();
+      updateActiveUserBanner(currentUserName);
+      syncTopicProgressFromUser();
+      if (refreshView) {
+        refreshCurrentTopicView();
+      } else {
+        updateGameControls();
       }
-
-      const orderedIds = Array.isArray(storageState.userOrder)
-        ? storageState.userOrder.filter((id) => storageState.users[id])
-        : [];
-
-      Object.keys(storageState.users).forEach((id) => {
-        if (!orderedIds.includes(id)) {
-          orderedIds.push(id);
-        }
-      });
-
-      storageState.userOrder = orderedIds;
-
-      userSelect.innerHTML = '';
-      orderedIds.forEach((id) => {
-        const user = storageState.users[id];
-        const option = document.createElement('option');
-        option.value = id;
-        option.textContent = user?.name || 'Usuari';
-        userSelect.appendChild(option);
-      });
-
-      if (currentUserId && storageState.users[currentUserId]) {
-        userSelect.value = currentUserId;
-      } else if (orderedIds.length) {
-        currentUserId = orderedIds[0];
-        userSelect.value = currentUserId;
-      }
+      saveStorageState();
     }
 
     function sanitizeStatus(value) {
@@ -2420,7 +2368,7 @@
     }
 
     function persistTopicProgress(topicId, statuses = topicProgress.get(topicId)) {
-      if (!currentUserId) {
+      if (!currentUserName) {
         return;
       }
 
@@ -2441,7 +2389,6 @@
         }
       }
 
-      storageState.activeUserId = currentUserId;
       saveStorageState();
     }
 
@@ -2482,59 +2429,9 @@
       renderLibrary();
     }
 
-    function handleUserChange(event) {
-      const newUserId = event.target.value;
-      if (!newUserId || newUserId === currentUserId) {
-        return;
-      }
-
-      currentUserId = newUserId;
-      storageState.activeUserId = currentUserId;
-      syncTopicProgressFromUser();
-      refreshCurrentTopicView();
-      saveStorageState();
-    }
-
-    function handleAddUser() {
-      const name = window.prompt('Introdueix el nom del nou usuari:');
-      if (!name) {
-        return;
-      }
-
-      const trimmed = name.trim();
-      if (!trimmed) {
-        return;
-      }
-
-      const id = createUserId();
-
-      if (!storageState.users || typeof storageState.users !== 'object') {
-        storageState.users = {};
-      }
-
-      storageState.users[id] = { name: trimmed, topics: {} };
-
-      if (!Array.isArray(storageState.userOrder)) {
-        storageState.userOrder = [];
-      }
-
-      storageState.userOrder.push(id);
-
-      currentUserId = id;
-      storageState.activeUserId = id;
-
-      renderUserOptions();
-      if (userSelect) {
-        userSelect.value = id;
-      }
-      syncTopicProgressFromUser();
-      refreshCurrentTopicView();
-      saveStorageState();
-    }
-
     function initializeUsers() {
       if (!storageState || typeof storageState !== 'object') {
-        storageState = { users: {}, userOrder: [], activeUserId: null };
+        storageState = { users: {}, userOrder: [] };
       }
 
       if (!storageState.users || typeof storageState.users !== 'object') {
@@ -2545,23 +2442,15 @@
         storageState.userOrder = Object.keys(storageState.users);
       }
 
-      storageState.userOrder = storageState.userOrder.filter((id) => storageState.users[id]);
+      const uniqueOrder = [];
+      storageState.userOrder.forEach((name) => {
+        if (storageState.users[name] && !uniqueOrder.includes(name)) {
+          uniqueOrder.push(name);
+        }
+      });
+      storageState.userOrder = uniqueOrder;
 
-      if (storageState.userOrder.length === 0) {
-        const defaultId = createUserId();
-        storageState.users[defaultId] = { name: 'Alumne 1', topics: {} };
-        storageState.userOrder.push(defaultId);
-      }
-
-      if (!currentUserId || !storageState.users[currentUserId]) {
-        currentUserId = storageState.userOrder[0];
-      }
-
-      storageState.activeUserId = currentUserId;
-
-      renderUserOptions();
-      syncTopicProgressFromUser();
-      saveStorageState();
+      syncActiveUser({ refreshView: false });
     }
 
     function renderSubjects() {
@@ -2994,12 +2883,24 @@
       }
     }
 
-    if (userSelect) {
-      userSelect.addEventListener('change', handleUserChange);
-    }
-    if (addUserButton) {
-      addUserButton.addEventListener('click', handleAddUser);
-    }
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'lastStudent') {
+        syncActiveUser({ refreshView: true });
+      } else if (event.key === STORAGE_KEY) {
+        storageState = loadStorageState();
+        syncActiveUser({ refreshView: true });
+      }
+    });
+
+    document.addEventListener('focusquiz:user-login', () => {
+      storageState = loadStorageState();
+      syncActiveUser({ refreshView: true });
+    });
+
+    document.addEventListener('focusquiz:user-logout', () => {
+      storageState = loadStorageState();
+      syncActiveUser({ refreshView: true });
+    });
 
     backButton.addEventListener('click', () => showMenu());
 
