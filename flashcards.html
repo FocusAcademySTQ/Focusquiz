@@ -303,7 +303,7 @@
       gap: 16px;
       align-items: center;
       width: min(100%, 620px);
-      margin: clamp(52px, 8vh, 96px) auto 0;
+      margin: clamp(74px, 9vh, 120px) auto 0;
       padding: clamp(16px, 2.4vh, 26px) clamp(14px, 3vw, 28px) clamp(18px, 2.6vh, 28px);
       border-radius: 26px;
       border: 1px solid rgba(148, 163, 184, 0.28);
@@ -820,6 +820,936 @@
 
   <script>
     const topics = [
+      {
+        id: 'borbonic-reforms',
+        title: '🏰 Antic Règim i reformes borbòniques (s. XVIII)',
+        subject: 'history',
+        summary:
+          'Analitza com els Borbons van modernitzar la monarquia hispànica després de la Guerra de Successió.',
+        cards: [
+          {
+            question: 'Què era l’Antic Règim?',
+            answer:
+              'Un sistema social, econòmic i polític basat en la monarquia absoluta, els estaments i l’economia agrària.',
+          },
+          {
+            question: 'Quin conflicte portà els Borbons al tron hispànic?',
+            answer:
+              'La Guerra de Successió (1701–1714), que enfrontà els partidaris dels Borbons i dels Habsburg.',
+          },
+          {
+            question: 'Quin tractat va reconèixer Felip V com a rei?',
+            answer: 'El Tractat d’Utrecht de 1713, que tancà la Guerra de Successió.',
+          },
+          {
+            question: 'Què establiren els Decrets de Nova Planta?',
+            answer:
+              'L’abolició dels furs i institucions pròpies de la Corona d’Aragó per imposar l’administració castellana.',
+          },
+          {
+            question: 'Què eren les intendències borbòniques?',
+            answer:
+              'Divisions administratives dirigides per intendents per controlar impostos i govern local.',
+          },
+          {
+            question: 'Quin objectiu tenia el Cadastre de Patiño a Catalunya?',
+            answer: 'Crear un impost directe més just que substituís tributs medievals.',
+          },
+          {
+            question: 'Quin ministre destacà per les reformes fiscals i navals?',
+            answer: 'El marquès de la Ensenada, que reorganitzà la hisenda i impulsà la flota.',
+          },
+          {
+            question: 'Què fou el regalismo?',
+            answer:
+              'La política de reforçar el control reial sobre l’Església i limitar els privilegis papals.',
+          },
+          {
+            question: 'Quina funció tenien les Societats Econòmiques d’Amics del País?',
+            answer:
+              'Difondre idees il·lustrades i promoure millores agrícoles i artesanals.',
+          },
+          {
+            question: 'Com definien els Borbons el despotisme il·lustrat?',
+            answer:
+              'Un govern absolut que volia reformar per al progrés resumit en “Tot per al poble, però sense el poble”.',
+          },
+          {
+            question: 'Quin monarca il·lustrat impulsà grans obres urbanes?',
+            answer: 'Carles III, que modernitzà Madrid i fomentà infraestructures.',
+          },
+          {
+            question: 'Què va desencadenar el motí d’Esquilache de 1766?',
+            answer:
+              'El malestar popular per reformes de vestimenta i impostos imposades pel ministre Esquilache.',
+          },
+          {
+            question: 'Què eren les manufactures reials?',
+            answer:
+              'Fàbriques promogudes per la Corona per produir teixits, tapissos o porcellana de luxe.',
+          },
+          {
+            question: 'Quin paper tenien les colònies americanes en l’economia borbònica?',
+            answer:
+              'Aportaven metalls, matèries primeres i mercats protegits per a la metròpoli.',
+          },
+          {
+            question: 'Què establí el reglament de lliure comerç de 1778?',
+            answer:
+              'Permeté comerciar directament entre ports peninsulars i americans sense passar per Cadis.',
+          },
+          {
+            question: 'Com estava estructurada la societat estamental?',
+            answer:
+              'En noblesa i clergat privilegiats i un tercer estat format per camperols i burgesos.',
+          },
+          {
+            question: 'Quina reforma municipal controlava els ajuntaments?',
+            answer:
+              'La imposició de corregidors i regidors designats per la Corona per vigilar els municipis.',
+          },
+          {
+            question: 'Què pretenien les reformes agràries il·lustrades?',
+            answer:
+              'Roturar terres ermes, millorar regadius i introduir noves tècniques per augmentar la producció.',
+          },
+          {
+            question: 'Quin pensador asturià defensà canvis econòmics?',
+            answer: 'Gaspar Melchor de Jovellanos, autor de l’Informe sobre la Llei Agrària.',
+          },
+          {
+            question: 'Per què moltes reformes borbòniques tingueren límits?',
+            answer:
+              'Per la resistència de noblesa, Església i corporacions que defensaven els seus privilegis.',
+          },
+        ],
+      },
+      {
+        id: 'crisi-antic-regim',
+        title:
+          '⚔️ La crisi de l’Antic Règim (1808–1833): Guerra del Francès i regnat de Ferran VII',
+        subject: 'history',
+        summary:
+          'Entén com la invasió napoleònica i el retorn de Ferran VII van transformar la política i la societat.',
+        cards: [
+          {
+            question: 'Quina invasió desencadenà la Guerra del Francès?',
+            answer: 'L’entrada de les tropes napoleòniques a Espanya el 1808.',
+          },
+          {
+            question: 'Què va ser el motí d’Aranjuez?',
+            answer:
+              'La revolta que forçà Carles IV a abdicar a favor de Ferran VII el març de 1808.',
+          },
+          {
+            question: 'On obligà Napoleó la família reial a renunciar al tron?',
+            answer: 'A Baiona, on cediren la corona a Josep Bonaparte.',
+          },
+          {
+            question: 'Qui era Josep I?',
+            answer: 'El germà de Napoleó imposat com a rei d’Espanya el 1808.',
+          },
+          {
+            question: 'Què commemoram cada 2 de maig?',
+            answer: 'L’alçament popular de Madrid contra l’ocupació francesa.',
+          },
+          {
+            question: 'Què eren les juntes provincials?',
+            answer:
+              'Organismes locals que assumiren el poder per coordinar la resistència anti francesa.',
+          },
+          {
+            question: 'On es reuniren les Corts que redactaren la Constitució de 1812?',
+            answer: 'A Cadis, ciutat resistent sota setge francès.',
+          },
+          {
+            question: 'Quina idea central tenia la Constitució de 1812?',
+            answer: 'La sobirania nacional i la separació de poders amb sufragi masculí indirecte.',
+          },
+          {
+            question: 'Què eren les guerilles?',
+            answer:
+              'Grups armats irregulars que atacaven l’exèrcit francès amb tàctiques de sorpresa.',
+          },
+          {
+            question: 'Quina batalla de 1813 obrí la porta a l’expulsió francesa?',
+            answer: 'La batalla de Vitòria, guanyada per les forces aliades.',
+          },
+          {
+            question: 'Quin tractat retornà la corona a Ferran VII?',
+            answer: 'El Tractat de Valençay, signat el desembre de 1813.',
+          },
+          {
+            question: 'Què feu Ferran VII en tornar el 1814?',
+            answer:
+              'Abolí la Constitució i restablí l’absolutisme amb el Manifest dels Perses.',
+          },
+          {
+            question: 'Com s’anomena el període absolutista de 1814 a 1820?',
+            answer: 'El Sexenni absolutista, marcat per la repressió liberal.',
+          },
+          {
+            question: 'Quin militar es revoltà a Las Cabezas de San Juan el 1820?',
+            answer: 'Rafael del Riego, iniciant el Trienni Liberal.',
+          },
+          {
+            question: 'Quines reformes aprovà el Trienni Liberal?',
+            answer:
+              'Restaurà la Constitució, desamortitzà béns eclesiàstics i reformà l’administració.',
+          },
+          {
+            question: 'Qui acabà amb el Trienni Liberal el 1823?',
+            answer:
+              'Els Cent Mil Fills de Sant Lluís, un exèrcit francès enviat per la Santa Aliança.',
+          },
+          {
+            question: 'Què caracteritza la Dècada Ominosa (1823–1833)?',
+            answer: 'El retorn de l’absolutisme dur, censura i persecució dels liberals.',
+          },
+          {
+            question: 'Quina llei successòria promulgà Ferran VII el 1830?',
+            answer: 'La Pragmàtica Sanció que permetia heretar a la seva filla Isabel.',
+          },
+          {
+            question: 'Qui s’oposà a la Pragmàtica Sanció?',
+            answer:
+              'El germà del rei, Carles Maria Isidre, que encapçalà el carlisme.',
+          },
+          {
+            question: 'Quina guerra civil començà el 1833 arran del conflicte successori?',
+            answer:
+              'La Primera Guerra Carlina entre isabelins liberals i carlins absolutistes.',
+          },
+        ],
+      },
+      {
+        id: 'estat-liberal',
+        title:
+          '🏛️ Construcció de l’Estat liberal (1833–1874): Isabel II, revolucions i Sexenni Democràtic',
+        subject: 'history',
+        summary:
+          'Segueix les guerres carlines, les desamortitzacions i les constitucions que van definir el liberalisme espanyol.',
+        cards: [
+          {
+            question: 'Qui fou la regent després de la mort de Ferran VII?',
+            answer: 'Maria Cristina de Borbó, mare d’Isabel II.',
+          },
+          {
+            question: 'Què inicià la Primera Guerra Carlina?',
+            answer:
+              'La disputa pel tron entre isabelins i carlins el 1833.',
+          },
+          {
+            question: 'Quina constitució es promulgà el 1837?',
+            answer: 'La Constitució liberal avançada aprovada per les Corts progressistes.',
+          },
+          {
+            question: 'Quina desamortització aprovà Mendizábal?',
+            answer:
+              'La venda de béns eclesiàstics per finançar la guerra i ampliar la propietat privada.',
+          },
+          {
+            question: 'Qui substituí Maria Cristina en la regència el 1840?',
+            answer: 'El general progressista Baldomero Espartero.',
+          },
+          {
+            question: 'Què fou la Constitució de 1845?',
+            answer: 'El text moderat que reforçà la corona i limità el sufragi.',
+          },
+          {
+            question: 'Quin partit governava durant la Dècada Moderada?',
+            answer: 'El Partit Moderat liderat per Narváez.',
+          },
+          {
+            question: 'Què establia el Concordat de 1851?',
+            answer:
+              'La reconciliació amb la Santa Seu i el reconeixement de la desamortització parcial.',
+          },
+          {
+            question: 'Què fou el Bienni Progressista (1854–1856)?',
+            answer:
+              'Un període de govern progressista iniciat pel pronunciament de Vicálvaro.',
+          },
+          {
+            question: 'Quina llei educativa es va aprovar el 1857?',
+            answer: 'La Llei Moyano que organitzà el sistema educatiu espanyol.',
+          },
+          {
+            question: 'Quina importància tingué el ferrocarril en aquests anys?',
+            answer:
+              'Impulsà la integració del mercat i la industrialització, especialment a Catalunya.',
+          },
+          {
+            question: 'Què fou la Revolució de 1868?',
+            answer:
+              'L’alçament anomenat La Gloriosa que destronà Isabel II.',
+          },
+          {
+            question: 'Qui dirigí el govern provisional després de 1868?',
+            answer:
+              'Un triumvirat amb Serrano, Prim i Topete que convocà Corts constituents.',
+          },
+          {
+            question: 'Quin text constitucional aprovà el 1869?',
+            answer: 'La Constitució democràtica que reconeixia àmplies llibertats i sufragi universal masculí.',
+          },
+          {
+            question: 'Quin rei es va escollir després de la revolució?',
+            answer: 'Amadeu I de Savoia, monarca constitucional elegit el 1870.',
+          },
+          {
+            question: 'Per què abdicà Amadeu I el 1873?',
+            answer:
+              'Per la manca de suport polític i l’inici de la tercera guerra carlina.',
+          },
+          {
+            question: 'Què proclamaren les Corts el febrer de 1873?',
+            answer: 'La Primera República espanyola.',
+          },
+          {
+            question: 'Quines tensions patí la Primera República?',
+            answer:
+              'Divisió entre federalistes i unitaris, revoltes cantonals i guerres carlines.',
+          },
+          {
+            question: 'Qui protagonitzà el cop d’estat de 1874?',
+            answer: 'El general Arsenio Martínez Campos a Sagunt, que restaurà els Borbons.',
+          },
+          {
+            question: 'Quin monarca pujà al tron amb la Restauració?',
+            answer: 'Alfons XII, fill d’Isabel II, amb suport dels moderats.',
+          },
+        ],
+      },
+      {
+        id: 'restauracio-borbonica',
+        title: '👑 Restauració borbònica (1875–1923): sistema canovista i societat en canvi',
+        subject: 'history',
+        summary:
+          'Descobreix el torn pacífic, el caciquisme i els moviments socials que posaren fi a la Restauració.',
+        cards: [
+          {
+            question: 'Qui era Antonio Cánovas del Castillo?',
+            answer:
+              'El líder conservador que impulsà la Restauració i el sistema del torn pacífic.',
+          },
+          {
+            question: 'Quin text legal s’aprovà el 1876?',
+            answer: 'La Constitució de 1876, flexible per adaptar-se a conservadors i liberals.',
+          },
+          {
+            question: 'Què significava el torn pacífic?',
+            answer:
+              'L’alternança pactada entre conservadors i liberals per evitar cops d’estat.',
+          },
+          {
+            question: 'Què era l’encasellat?',
+            answer:
+              'La manipulació prèvia dels resultats electorals per garantir la victòria del partit designat.',
+          },
+          {
+            question: 'Quin paper tenien els cacics?',
+            answer:
+              'Intermediaris locals que controlaven el vot mitjançant favors i pressions.',
+          },
+          {
+            question: 'Quin conflicte colonial continuà fins al 1898?',
+            answer:
+              'La lluita per la independència de Cuba contra el domini espanyol.',
+          },
+          {
+            question: 'Quina guerra finalitzà amb el desastre del 1898?',
+            answer:
+              'La guerra hispano-nord-americana que provocà la pèrdua de Cuba, Filipines i Puerto Rico.',
+          },
+          {
+            question: 'Quina repercussió tingué el 1898 en la societat espanyola?',
+            answer:
+              'Una crisi moral i política que generà el regeneracionisme.',
+          },
+          {
+            question: 'Què proposava el regeneracionisme?',
+            answer:
+              'Reformes per modernitzar l’estat, acabar amb el caciquisme i impulsar l’educació.',
+          },
+          {
+            question: 'Qui liderà el regeneracionisme polític des del govern?',
+            answer: 'Antonio Maura amb el seu programa de revolució des de dalt.',
+          },
+          {
+            question: 'Què fou la Llei de Jurisdiccions de 1906?',
+            answer:
+              'Una norma que posava insults a l’exèrcit o a la pàtria sota tribunals militars.',
+          },
+          {
+            question: 'Què va desencadenar la Setmana Tràgica de 1909?',
+            answer:
+              'L’embarcament de reservistes catalans cap a la guerra del Marroc.',
+          },
+          {
+            question: 'Quina importància tingué el moviment obrer durant la Restauració?',
+            answer:
+              'El creixement de sindicats socialistes (UGT) i anarquistes (CNT) i de vagues.',
+          },
+          {
+            question: 'Quin govern aprovà la Llei de Mancomunitats?',
+            answer:
+              'El govern liberal de Canalejas el 1914, permetent cooperacions provincials.',
+          },
+          {
+            question: 'Quina institució catalana nasqué el 1914?',
+            answer: 'La Mancomunitat de Catalunya presidida per Enric Prat de la Riba.',
+          },
+          {
+            question: 'Què fou la crisi de 1917?',
+            answer:
+              'Una triple agitació militar, política i obrera que qüestionà el sistema.',
+          },
+          {
+            question: 'Quin paper tingueren les Juntes de Defensa?',
+            answer:
+              'Associacions d’oficials que protestaven per condicions i reclamaven poder polític.',
+          },
+          {
+            question: 'Què provocà la vaga general de 1917?',
+            answer:
+              'La coordinació de UGT i CNT per reclamar reformes democràtiques i millores laborals.',
+          },
+          {
+            question: 'Per què el sistema de la Restauració es debilitava el 1920?',
+            answer:
+              'Per la conflictivitat social, l’auge del nacionalisme i la guerra del Marroc.',
+          },
+          {
+            question: 'Quin desastre militar precipità la crisi final?',
+            answer: 'La derrota d’Annual de 1921, amb milers de soldats morts al Rif.',
+          },
+        ],
+      },
+      {
+        id: 'primo-rivera',
+        title: '🛡️ Dictadura de Primo de Rivera (1923–1930)',
+        subject: 'history',
+        summary:
+          'Examina el cop militar, les reformes econòmiques i la crisi que conduí a la fi de la monarquia d’Alfons XIII.',
+        cards: [
+          {
+            question: 'Quin esdeveniment inicià la dictadura de Primo de Rivera?',
+            answer: 'El cop d’estat militar del 13 de setembre de 1923 amb suport d’Alfons XIII.',
+          },
+          {
+            question: 'Quin càrrec ocupà Primo de Rivera?',
+            answer:
+              'Cap del Directori Militar i després del Directori Civil governant com a dictador.',
+          },
+          {
+            question: 'Quina justificació donava al cop?',
+            answer:
+              'Acabar amb el desordre social, el caciquisme i la guerra del Marroc.',
+          },
+          {
+            question: 'Què eren els somatents?',
+            answer:
+              'Milícies civils utilitzades per mantenir l’ordre públic durant la dictadura.',
+          },
+          {
+            question: 'Quina mesura adoptà respecte als partits polítics?',
+            answer: 'Els suspengué i prohibí l’activitat parlamentària.',
+          },
+          {
+            question: 'Quin organisme substituí els partits?',
+            answer: 'La Unió Patriòtica, partit únic creat per donar suport al règim.',
+          },
+          {
+            question: 'Quines institucions locals foren intervenides?',
+            answer: 'Ajuntaments i diputacions, dirigits per gestors nomenats pel govern.',
+          },
+          {
+            question: 'Què pretenia l’Assemblea Nacional Consultiva de 1927?',
+            answer:
+              'Elaborar una nova constitució corporativa sense sufragi universal.',
+          },
+          {
+            question: 'Com es resolgué la guerra del Marroc durant la dictadura?',
+            answer:
+              'Amb el desembarcament d’Alhucemas el 1925 i la col·laboració amb França.',
+          },
+          {
+            question: 'Quina política econòmica impulsà?',
+            answer:
+              'Obres públiques, plans hidràulics i proteccionisme per industrialitzar el país.',
+          },
+          {
+            question: 'Quin organisme regulava el treball?',
+            answer: 'Els comitès paritaris, que mediaven conflictes entre patrons i obrers.',
+          },
+          {
+            question: 'Quina postura adoptà envers el catalanisme?',
+            answer:
+              'Suspengué la Mancomunitat i perseguí l’ús oficial del català.',
+          },
+          {
+            question: 'Com reaccionaren els intel·lectuals?',
+            answer:
+              'Molts, com Unamuno, criticaren la censura i foren exiliats o destituïts.',
+          },
+          {
+            question: 'Què va passar amb les finances públiques?',
+            answer: 'El dèficit augmentà per la despesa d’obres i la inflació.',
+          },
+          {
+            question: 'Quin impacte tingué la crisi de 1929?',
+            answer:
+              'Va agreujar la situació econòmica i restà suport al règim.',
+          },
+          {
+            question: 'Per què perdé suport l’exèrcit?',
+            answer:
+              'Per la falta de reformes reals i el malestar dels oficials africanistes.',
+          },
+          {
+            question: 'Quan dimití Primo de Rivera?',
+            answer: 'El gener de 1930, sense suport del rei ni de l’exèrcit.',
+          },
+          {
+            question: 'Qui el substituí provisionalment?',
+            answer: 'El general Dámaso Berenguer amb el període anomenat Dictablanda.',
+          },
+          {
+            question: 'Què va demostrar el pacte de Sant Sebastià de 1930?',
+            answer:
+              'La unitat de republicans i socialistes per acabar amb la monarquia.',
+          },
+          {
+            question: 'Quina conseqüència tingueren les eleccions municipals d’abril de 1931?',
+            answer:
+              'La victòria republicana a les ciutats precipità la proclamació de la Segona República.',
+          },
+        ],
+      },
+      {
+        id: 'segunda-republica',
+        title: '🗳️ Segona República (1931–1936): reformes i conflictes',
+        subject: 'history',
+        summary:
+          'Explora les reformes socials, les tensions polítiques i els motius que van precedir la Guerra Civil.',
+        cards: [
+          {
+            question: 'Quan es proclamà la Segona República?',
+            answer: 'El 14 d’abril de 1931 després de les eleccions municipals.',
+          },
+          {
+            question: 'Quin document fixà les bases del nou règim?',
+            answer: 'La Constitució de 1931, laica i democràtica.',
+          },
+          {
+            question: 'Quina reforma educativa impulsà la República?',
+            answer:
+              'La creació d’escoles laiques i l’extensió de l’educació obligatòria.',
+          },
+          {
+            question: 'Què establia la reforma agrària de 1932?',
+            answer:
+              'Expropiar grans latifundis per repartir terres als jornalers.',
+          },
+          {
+            question: 'Quina reforma afectà l’exèrcit?',
+            answer:
+              'La reducció de comandaments i la creació de l’Acadèmia Militar amb Manuel Azaña.',
+          },
+          {
+            question: 'Què és l’Estatut d’Autonomia de Catalunya de 1932?',
+            answer:
+              'La norma que reconeixia l’autogovern de la Generalitat republicana.',
+          },
+          {
+            question: 'Quin paper tingué la Llei de Congregacions?',
+            answer:
+              'Regulà l’activitat de l’Església i secularitzà l’ensenyament.',
+          },
+          {
+            question: 'Què és la Sanjurjada?',
+            answer: 'L’intent de cop militar del general Sanjurjo el 1932, que fracassà.',
+          },
+          {
+            question: 'Què va ser el Bienni Reformista?',
+            answer:
+              'Els primers governs republicano-socialistes (1931–1933) centrats en reformes.',
+          },
+          {
+            question: 'Quin partit guanyà les eleccions de 1933?',
+            answer:
+              'La Confederació Espanyola de Dretes Autònomes (CEDA) amb suport de radicals.',
+          },
+          {
+            question: 'Què caracteritza el Bienni Conservador (1933–1935)?',
+            answer:
+              'La paralització de reformes i la repressió de moviments obrers.',
+          },
+          {
+            question: 'Què va ser la revolta d’Astúries de 1934?',
+            answer:
+              'Una insurrecció obrera i minera contra l’entrada de la CEDA al govern.',
+          },
+          {
+            question: 'Com actuà el govern a la revolta d’Astúries?',
+            answer:
+              'Envià l’exèrcit colonial que reprimí durament l’alçament.',
+          },
+          {
+            question: 'Què era la Llei de Contractes de Conreu?',
+            answer:
+              'Una norma catalana per protegir arrendataris i rabassaires.',
+          },
+          {
+            question: 'Què va provocar el conflicte de Casas Viejas?',
+            answer:
+              'Una insurrecció anarquista el 1933 reprimida amb violència per la Guàrdia d’Assalt.',
+          },
+          {
+            question: 'Quin front polític es creà per a les eleccions de febrer de 1936?',
+            answer:
+              'El Front Popular, coalició de partits d’esquerra i republicans.',
+          },
+          {
+            question: 'Quina fou la resposta del Front Popular en guanyar?',
+            answer:
+              'Restaurà reformes, amnistia als presos d’Astúries i reobrí l’autonomia catalana.',
+          },
+          {
+            question: 'Quin clima polític hi havia a mitjan 1936?',
+            answer:
+              'Gran polarització, violència al carrer i conspiracions militars.',
+          },
+          {
+            question: 'Quin esdeveniment desencadenà el cop de juliol de 1936?',
+            answer:
+              'L’assassinat del líder monàrquic Calvo Sotelo i el temor a la revolució.',
+          },
+          {
+            question: 'Qui era el president de la República el 1936?',
+            answer: 'Manuel Azaña, elegit per les Corts.',
+          },
+        ],
+      },
+      {
+        id: 'guerra-civil',
+        title: '🔥 Guerra Civil Espanyola (1936–1939): causes, desenvolupament i conseqüències',
+        subject: 'history',
+        summary:
+          'Segueix el conflicte des del cop militar fins a l’exili, amb batalles, aliats i impacte social.',
+        cards: [
+          {
+            question: 'Quan va començar la Guerra Civil Espanyola?',
+            answer: 'El juliol de 1936 amb el cop militar contra la República.',
+          },
+          {
+            question: 'Qui dirigia la sublevació inicial?',
+            answer:
+              'Generals com Franco, Mola i Sanjurjo que buscaven un govern autoritari.',
+          },
+          {
+            question: 'Quin bàndol defensava la legalitat republicana?',
+            answer:
+              'El bàndol republicà, format per partits d’esquerra, sindicats i voluntaris.',
+          },
+          {
+            question: 'Quin bàndol fou conegut com a nacional?',
+            answer:
+              'El bàndol sublevat integrat per militars, conservadors i falangistes.',
+          },
+          {
+            question: 'Quin objectiu tenia el pont aeri del Marroc?',
+            answer:
+              'Traslladar les tropes africanistes de Franco a la península amb suport nazi.',
+          },
+          {
+            question: 'Quina batalla va ser clau per defensar Madrid el 1936?',
+            answer:
+              'La batalla de Madrid, amb resistència popular i Brigades Internacionals.',
+          },
+          {
+            question: 'Què eren les Brigades Internacionals?',
+            answer:
+              'Voluntaris estrangers que lluitaven al costat de la República contra el feixisme.',
+          },
+          {
+            question: 'Quin suport extern rebé el bàndol nacional?',
+            answer: 'Ajuda militar d’Alemanya nazi i Itàlia feixista.',
+          },
+          {
+            question: 'Quin país ajudà més la República?',
+            answer:
+              'La Unió Soviètica, tot i el bloqueig internacional.',
+          },
+          {
+            question: 'Què fou la batalla de Jarama?',
+            answer:
+              'Una ofensiva nacional el 1937 per tallar la carretera a València, aturada pels republicans.',
+          },
+          {
+            question: 'Què simbolitza el bombardeig de Guernica?',
+            answer:
+              'L’atac aeri nazi contra la població basca, immortalitzat per Picasso.',
+          },
+          {
+            question: 'Què fou la batalla de l’Ebre?',
+            answer:
+              'L’última gran ofensiva republicana el 1938, que acabà en derrota.',
+          },
+          {
+            question: 'Quin paper tingué la propaganda durant la guerra?',
+            answer:
+              'Mobilitzà la població i justificà les accions de cada bàndol.',
+          },
+          {
+            question: 'Què va suposar la caiguda de Barcelona el gener de 1939?',
+            answer:
+              'La fi de la resistència catalana i el camí obert cap a la victòria nacional.',
+          },
+          {
+            question: 'Quin govern es formà a Burgos?',
+            answer:
+              'La Junta de Defensa Nacional i després el govern de Franco.',
+          },
+          {
+            question: 'Què eren les col·lectivitzacions?',
+            answer:
+              'La gestió obrera de fàbriques i terres en zones republicanes, especialment a Catalunya i Aragó.',
+          },
+          {
+            question: 'Quin paper va tenir l’Església catòlica?',
+            answer:
+              'En gran part donà suport al bàndol nacional i legitimà la croada.',
+          },
+          {
+            question: 'Quines conseqüències humanes tingué la guerra?',
+            answer:
+              'Centenars de milers de morts, exili massiu i repressió posterior.',
+          },
+          {
+            question: 'Quan acabà la guerra?',
+            answer: 'L’1 d’abril de 1939 amb el triomf franquista.',
+          },
+          {
+            question: 'Què passà amb els exiliats republicans?',
+            answer:
+              'Molts fugiren a França, Mèxic o altres països, formant la diàspora.',
+          },
+        ],
+      },
+      {
+        id: 'franquisme',
+        title: '⚙️ Franquisme (1939–1975): política, economia i societat',
+        subject: 'history',
+        summary:
+          'Analitza la dictadura de Franco des de la repressió inicial fins al desenvolupisme i l’oposició democràtica.',
+        cards: [
+          {
+            question: 'Quina forma de govern instaurà Franco el 1939?',
+            answer:
+              'Una dictadura personal autoritària, nacionalcatòlica i anticomunista.',
+          },
+          {
+            question: 'Què eren les lleis fonamentals del règim?',
+            answer:
+              'Un conjunt de lleis orgàniques que substituïen la constitució i consolidaven el poder de Franco.',
+          },
+          {
+            question: 'Quina funció tenia la Falange?',
+            answer:
+              'Ser el partit únic oficial, FET y de las JONS, integrat amb carlins i falangistes.',
+          },
+          {
+            question: 'Què caracteritzà la repressió inicial?',
+            answer:
+              'Afusellaments, presons i depuracions contra republicans i dissidents.',
+          },
+          {
+            question: 'Què fou la política d’autarquia?',
+            answer:
+              'L’intent d’autosuficiència econòmica amb control estatal i racionament.',
+          },
+          {
+            question: 'Què era la cartilla de racionament?',
+            answer:
+              'Document per distribuir aliments bàsics durant els anys quaranta.',
+          },
+          {
+            question: 'Què significà l’aïllament internacional dels anys quaranta?',
+            answer:
+              'La manca de reconeixement i ajudes després de la Segona Guerra Mundial.',
+          },
+          {
+            question: 'Quin acord apropà Espanya als EUA el 1953?',
+            answer:
+              'Els pactes bilaterals que permetien bases nord-americanes a canvi d’ajuda econòmica.',
+          },
+          {
+            question: 'Què és el Concordat de 1953?',
+            answer:
+              'Un acord amb el Vaticà que reforçava el paper de l’Església en l’Estat.',
+          },
+          {
+            question: 'Quins organismes impulsaren el desenvolupisme dels anys seixanta?',
+            answer:
+              'Els Plans d’Estabilització de 1959 i els Plans de Desenvolupament tecnocràtics.',
+          },
+          {
+            question: 'Quin canvi econòmic aportà el Pla d’Estabilització?',
+            answer:
+              'L’obertura al capital estranger i la liberalització parcial de l’economia.',
+          },
+          {
+            question: 'Quina conseqüència social tingué el desenvolupisme?',
+            answer:
+              'L’emigració interior cap a ciutats i l’arribada de turisme de masses.',
+          },
+          {
+            question: 'Quina oposició aparegué als anys seixanta?',
+            answer:
+              'Moviments estudiantils, obrers, nacionalistes i democristians clandestins.',
+          },
+          {
+            question: 'Què era el Tribunal d’Ordre Públic?',
+            answer:
+              'Un tribunal especial creat el 1963 per jutjar delictes polítics.',
+          },
+          {
+            question: 'Quina importància tingué l’Executiu de Carrero Blanco?',
+            answer:
+              'Consolidà el sector immobilista i fou assassinat per ETA el 1973.',
+          },
+          {
+            question: 'Què és la Llei de Successió de 1947?',
+            answer:
+              'Declarava Espanya regne i permetia a Franco designar successor.',
+          },
+          {
+            question: 'Qui fou nombrat successor el 1969?',
+            answer:
+              'El príncep Joan Carles de Borbó amb el títol de rei.',
+          },
+          {
+            question: 'Què va ser el Procés de Burgos?',
+            answer:
+              'Un judici militar de 1970 contra militants d’ETA que generà rebuig internacional.',
+          },
+          {
+            question: 'Quin paper tingué la censura durant el franquisme?',
+            answer:
+              'Controlà premsa, cinema i cultura, limitant la llibertat d’expressió.',
+          },
+          {
+            question: 'Quan morí Franco?',
+            answer: 'El 20 de novembre de 1975, obrint la porta a la Transició.',
+          },
+        ],
+      },
+      {
+        id: 'espanya-democratica',
+        title: '🌟 Espanya democràtica (1982–actualitat): governs i reptes',
+        subject: 'history',
+        summary:
+          'Repàs als governs democràtics, la integració europea i els principals desafiaments contemporanis.',
+        cards: [
+          {
+            question: 'Quin partit guanyà les eleccions generals de 1982?',
+            answer: 'El PSOE liderat per Felipe González amb una majoria absoluta.',
+          },
+          {
+            question: 'Quan va entrar Espanya a la Comunitat Econòmica Europea?',
+            answer: 'L’1 de gener de 1986, juntament amb Portugal.',
+          },
+          {
+            question: 'Què es va decidir al referèndum de l’OTAN de 1986?',
+            answer:
+              'La permanència d’Espanya a l’Aliança Atlàntica amb condicions de reducció militar.',
+          },
+          {
+            question: 'Quin esdeveniment internacional es celebrà a Barcelona el 1992?',
+            answer:
+              'Els Jocs Olímpics, símbol de modernització i projecció exterior.',
+          },
+          {
+            question: 'Quina mostra universal acollí Sevilla el 1992?',
+            answer:
+              'L’Expo 92, dedicada al cinquè centenari del descobriment d’Amèrica.',
+          },
+          {
+            question: 'Quin partit arribà al govern el 1996?',
+            answer: 'El Partit Popular amb José María Aznar després de les eleccions generals.',
+          },
+          {
+            question: 'Quan es va introduir l’euro com a moneda física?',
+            answer: 'El 2002, substituint la pesseta.',
+          },
+          {
+            question: 'Quin atemptat va commocionar Madrid el 2004?',
+            answer:
+              'Els atacs jihadistes de l’11 de març als trens de rodalies.',
+          },
+          {
+            question: 'Quin govern sorgí després de les eleccions de 2004?',
+            answer:
+              'Un executiu del PSOE liderat per José Luis Rodríguez Zapatero.',
+          },
+          {
+            question: 'Quina llei social destacada aprovà Zapatero el 2005?',
+            answer:
+              'La llei que reconegué el matrimoni igualitari entre persones del mateix sexe.',
+          },
+          {
+            question: 'Quin moviment ciutadà esclatà el 2011?',
+            answer:
+              'El 15-M o moviment dels indignats reclamant democràcia real i justícia social.',
+          },
+          {
+            question: 'Quin partit guanyà les eleccions del 2011?',
+            answer:
+              'El Partit Popular amb Mariano Rajoy, que governà en plena crisi.',
+          },
+          {
+            question: 'Quina crisi marcà la dècada del 2000?',
+            answer:
+              'La crisi financera i immobiliària del 2008 amb fort impacte en l’atur.',
+          },
+          {
+            question: 'Quin acord autonòmic destacà a Catalunya el 2006?',
+            answer:
+              'L’aprovació del nou Estatut d’Autonomia, després retallat pel Tribunal Constitucional.',
+          },
+          {
+            question: 'Què va passar el 1 d’octubre de 2017 a Catalunya?',
+            answer:
+              'El referèndum unilateral d’independència i la posterior aplicació de l’article 155.',
+          },
+          {
+            question: 'Quan abdicà el rei Joan Carles I?',
+            answer: 'El juny de 2014, cedint la corona al seu fill Felip VI.',
+          },
+          {
+            question: 'Quin govern de coalició es formà el gener de 2020?',
+            answer:
+              'La coalició entre PSOE i Unidas Podemos presidida per Pedro Sánchez.',
+          },
+          {
+            question: 'Quin repte sanitari global va afrontar Espanya el 2020?',
+            answer:
+              'La pandèmia de la COVID-19 amb confinaments i pressió sanitària.',
+          },
+          {
+            question: 'Quines transformacions econòmiques impulsa el Pla de Recuperació?',
+            answer:
+              'La digitalització, la transició ecològica i la cohesió social finançades amb fons europeus.',
+          },
+          {
+            question: 'Quins reptes polítics continuen oberts?',
+            answer:
+              'La gestió del model territorial, la desigualtat social i l’adaptació al canvi climàtic.',
+          },
+        ],
+      },
       {
         id: 'ww1',
         title: '🪖 Primera Guerra Mundial (1914–1918)',
