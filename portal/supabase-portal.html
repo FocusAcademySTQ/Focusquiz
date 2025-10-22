@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Focus Academy · Gestor de tasques Supabase</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="./portal.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap row header-bar">
+      <div class="brand">
+        <div class="logo">FQ</div>
+        <h1>Focus Academy</h1>
+      </div>
+      <nav class="main-nav" aria-label="Navegació principal">
+        <a class="pill" href="../index.html">🏠 Inici</a>
+        <a class="pill" href="../capsules.html">🎓 Càpsules</a>
+        <a class="pill" href="./supabase-portal.html" aria-current="page">Accés professor/alumne</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap portal-main">
+    <section class="panel card portal-hero">
+      <h1>Gestor de tasques (Supabase)</h1>
+      <p class="subtitle">Autentica't amb el teu compte per gestionar assignacions entre mestres i alumnes amb la mateixa experiència FocusQuiz.</p>
+      <div id="configWarning" class="portal-alert hidden">Configura les claus Supabase a <code>SUPABASE_URL</code> i <code>SUPABASE_ANON_KEY</code> mitjançant variables d'entorn.</div>
+    </section>
+
+    <section id="authPanel" class="panel card">
+      <h2 style="margin-bottom:0.75rem">Inicia sessió</h2>
+      <form id="loginForm" class="portal-form" autocomplete="on">
+        <label>
+          <span class="portal-field-label">Correu electrònic</span>
+          <input class="input" name="email" type="email" required placeholder="docent@centre.cat" autocomplete="username" />
+        </label>
+        <label>
+          <span class="portal-field-label">Contrasenya</span>
+          <input class="input" name="password" type="password" required placeholder="••••••" autocomplete="current-password" />
+        </label>
+        <button class="btn-primary" type="submit">Entrar</button>
+      </form>
+      <p class="portal-muted" style="margin-top:0.75rem">Els comptes s'han de crear prèviament a Supabase Auth.</p>
+      <div id="authError" class="portal-error hidden"></div>
+    </section>
+
+    <section id="sessionPanel" class="panel card hidden">
+      <div class="portal-section-header">
+        <div>
+          <p class="portal-section-title" style="margin-bottom:0">Sessió iniciada</p>
+          <h2 style="margin:0" id="sessionName"></h2>
+          <p id="sessionRole" class="portal-muted" style="margin-top:0.25rem"></p>
+        </div>
+        <button id="logoutBtn" class="btn-secondary" type="button">Tanca la sessió</button>
+      </div>
+    </section>
+
+    <section id="teacherView" class="panel card hidden">
+      <h2>Panell de mestre/a</h2>
+      <p class="portal-muted">Crea noves tasques i assigna-les als alumnes seleccionats.</p>
+      <form id="assignmentForm" class="portal-form" style="margin-top:1rem">
+        <div class="portal-form portal-form--two">
+          <label>
+            <span class="portal-field-label">Títol</span>
+            <input class="input" name="title" required placeholder="Ex: Fraccions equivalents" />
+          </label>
+          <label>
+            <span class="portal-field-label">Data límit</span>
+            <input class="input" name="due_date" type="date" />
+          </label>
+        </div>
+        <label>
+          <span class="portal-field-label">Descripció</span>
+          <textarea class="input" name="description" placeholder="Instruccions o materials addicionals..."></textarea>
+        </label>
+        <section>
+          <p class="portal-section-title" style="margin-bottom:0.5rem">Selecciona alumnes per assignar la tasca</p>
+          <div id="studentChecklist" class="portal-assignees"></div>
+        </section>
+        <div class="portal-actions">
+          <button class="btn-primary" type="submit">Publica la tasca</button>
+          <button class="btn-secondary" type="button" id="refreshStudents">Actualitza alumnes</button>
+        </div>
+      </form>
+      <div id="assignmentFeedback" class="portal-success hidden" style="margin-top:1rem"></div>
+      <div id="assignmentError" class="portal-error hidden" style="margin-top:1rem"></div>
+    </section>
+
+    <section id="teacherAssignments" class="panel card hidden">
+      <div class="portal-section-header">
+        <h2 style="margin:0">Assignacions publicades</h2>
+        <button id="reloadAssignments" type="button" class="btn-secondary">Actualitza llistat</button>
+      </div>
+      <div id="assignmentList" class="portal-list list" aria-live="polite"></div>
+    </section>
+
+    <section id="studentView" class="panel card hidden">
+      <h2>Panell d'alumne/a</h2>
+      <p class="portal-muted">Consulta les tasques assignades i marca el progrés.</p>
+      <div id="studentAssignmentList" class="portal-list list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script type="module" src="./supabase-portal.js"></script>
+</body>
+</html>
