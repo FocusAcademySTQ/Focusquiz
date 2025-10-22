@@ -105,18 +105,18 @@ function renderTeacherAssignments(assignments) {
       return `
         <li>
           ${name}
-          <span class="status-chip" data-status="${row.status}">${statusLabels[row.status] || row.status}</span>
+          <span class="portal-status-chip" data-status="${row.status}">${statusLabels[row.status] || row.status}</span>
         </li>
       `;
     });
 
     item.innerHTML = `
       <h4>${assignment.title}</h4>
-      <p class="muted" style="margin-top:0.35rem">${assignment.description || 'Sense descripció'}</p>
-      <p class="muted" style="margin-top:0.35rem">Data límit: <strong>${dueDate}</strong></p>
+      <p class="portal-muted" style="margin-top:0.35rem">${assignment.description || 'Sense descripció'}</p>
+      <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${dueDate}</strong></p>
       <div>
-        <p class="muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
-        <ul class="muted" style="display:grid; gap:0.35rem; padding-left:1.25rem;">
+        <p class="portal-muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
+        <ul class="portal-meta-list portal-muted">
           ${assignees.join('') || '<li>Sense alumnes assignats</li>'}
         </ul>
       </div>
@@ -155,14 +155,14 @@ function renderStudentAssignments(rows) {
     item.className = 'list-item';
     item.innerHTML = `
       <h4>${assignment.title}</h4>
-      <p class="muted" style="margin-top:0.35rem">${assignment.description || 'Sense descripció'}</p>
-      <p class="muted" style="margin-top:0.35rem">Data límit: <strong>${dueDate}</strong></p>
+      <p class="portal-muted" style="margin-top:0.35rem">${assignment.description || 'Sense descripció'}</p>
+      <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${dueDate}</strong></p>
       <p style="margin-top:0.35rem;">
-        Estat actual: <span class="status-chip" data-status="${row.status}">${statusLabels[row.status] || row.status}</span>
+        Estat actual: <span class="portal-status-chip" data-status="${row.status}">${statusLabels[row.status] || row.status}</span>
       </p>
       <label style="margin-top:0.75rem; display:block;">
         <span style="display:block; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; margin-bottom:0.25rem;">Canvia l'estat</span>
-        <select class="status-select" data-row="${row.id}">
+        <select class="input status-select" data-row="${row.id}">
           ${Object.entries(statusLabels)
             .map(([value, label]) => `<option value="${value}" ${value === row.status ? 'selected' : ''}>${label}</option>`)
             .join('')}
@@ -171,15 +171,15 @@ function renderStudentAssignments(rows) {
       <form class="submission-form" data-assignment="${assignment.id}" data-row="${row.id}" style="margin-top:1rem; display:grid; gap:0.5rem;">
         <label>
           <span style="display:block; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; margin-bottom:0.25rem;">Enllaç o comentaris</span>
-          <textarea name="content" placeholder="Afegeix informació de l'entrega">${submission?.content || ''}</textarea>
+          <textarea class="input" name="content" placeholder="Afegeix informació de l'entrega">${submission?.content || ''}</textarea>
         </label>
-        <div class="actions">
-          <button type="submit">Envia resposta</button>
+        <div class="portal-actions">
+          <button class="btn-primary" type="submit">Envia resposta</button>
         </div>
       </form>
-      ${submittedAt ? `<p class="muted">Darrera entrega: ${submittedAt}</p>` : ''}
+      ${submittedAt ? `<p class="portal-muted">Darrera entrega: ${submittedAt}</p>` : ''}
       ${submission?.grade !== null && submission?.grade !== undefined
-        ? `<p class="muted">Nota: <strong>${submission.grade}</strong> · ${submission.feedback || ''}</p>`
+        ? `<p class="portal-muted">Nota: <strong>${submission.grade}</strong> · ${submission.feedback || ''}</p>`
         : ''}
     `;
     el.studentAssignmentList.appendChild(item);
