@@ -1,10 +1,25 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { MODULES, CATEGORY_LABELS } from './modules-data.js';
+
+const sortedModules = [...MODULES].sort((a, b) => {
+  const catA = a.category || '';
+  const catB = b.category || '';
+  if (catA === catB) {
+    return a.name.localeCompare(b.name, 'ca', { sensitivity: 'base' });
+  }
+  return catA.localeCompare(catB, 'ca', { sensitivity: 'base' });
+});
 
 const state = {
   supabase: null,
   session: null,
   profile: null,
   students: [],
+  modules: sortedModules,
+  moduleIndex: new Map(sortedModules.map((module) => [module.id, module])),
+  selectedModules: new Set(),
+  moduleFilter: 'all',
+  moduleSearch: '',
 };
 
 const el = {
@@ -22,6 +37,11 @@ const el = {
   refreshStudents: document.getElementById('refreshStudents'),
   assignmentFeedback: document.getElementById('assignmentFeedback'),
   assignmentError: document.getElementById('assignmentError'),
+  modulePicker: document.getElementById('modulePicker'),
+  moduleEmptyState: document.getElementById('moduleEmptyState'),
+  moduleFilter: document.getElementById('moduleFilter'),
+  moduleSearch: document.getElementById('moduleSearch'),
+  moduleSelectedInfo: document.getElementById('moduleSelectedInfo'),
   studentChecklist: document.getElementById('studentChecklist'),
   assignmentList: document.getElementById('assignmentList'),
   reloadAssignments: document.getElementById('reloadAssignments'),
@@ -58,6 +78,141 @@ function showSuccess(container, message) {
   container.classList.remove('hidden');
 }
 
+function escapeHTML(value) {
+  if (value === null || value === undefined) return '';
+  return String(value).replace(/[&<>"']/g, (char) => {
+    switch (char) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      case '\'':
+        return '&#39;';
+      default:
+        return char;
+    }
+  });
+}
+
+function formatDescription(value) {
+  const safe = escapeHTML(value || '');
+  return safe.replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
+}
+
+function getCategoryLabel(category) {
+  return CATEGORY_LABELS[category] || 'Mòdul FocusQuiz';
+}
+
+function updateSelectedModulesInfo() {
+  if (!el.moduleSelectedInfo) return;
+  const count = state.selectedModules.size;
+  let text = 'Cap mòdul seleccionat';
+  if (count === 1) {
+    text = '1 mòdul seleccionat';
+  } else if (count > 1) {
+    text = `${count} mòduls seleccionats`;
+  }
+  el.moduleSelectedInfo.textContent = text;
+  el.moduleSelectedInfo.classList.toggle('portal-chip--muted', count === 0);
+  el.moduleSelectedInfo.classList.toggle('portal-chip--positive', count > 0);
+}
+
+function getFilteredModules() {
+  const search = state.moduleSearch.trim().toLowerCase();
+  return state.modules.filter((module) => {
+    const matchesCategory = state.moduleFilter === 'all' || module.category === state.moduleFilter;
+    if (!matchesCategory) return false;
+    if (!search) return true;
+    const haystack = `${module.name} ${module.desc} ${module.id}`.toLowerCase();
+    return haystack.includes(search);
+  });
+}
+
+function renderModulePicker() {
+  if (!el.modulePicker) return;
+  const modules = getFilteredModules();
+  el.modulePicker.innerHTML = '';
+  toggle(el.moduleEmptyState, modules.length === 0);
+
+  modules.forEach((module) => {
+    const isSelected = state.selectedModules.has(module.id);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `portal-module-card${isSelected ? ' is-selected' : ''}`;
+    button.dataset.moduleId = module.id;
+    button.setAttribute('role', 'option');
+    button.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+    button.innerHTML = `
+      <span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>
+      <h3>${escapeHTML(module.name)}</h3>
+      <p>${escapeHTML(module.desc)}</p>
+    `;
+    el.modulePicker.appendChild(button);
+  });
+}
+
+function populateModuleFilter() {
+  if (!el.moduleFilter) return;
+  const categories = Array.from(
+    new Set(state.modules.map((module) => module.category).filter(Boolean))
+  );
+  const options = ['<option value="all">Tots els mòduls</option>']
+    .concat(
+      categories.map((category) => `
+        <option value="${category}">${escapeHTML(getCategoryLabel(category))}</option>
+      `)
+    )
+    .join('');
+  el.moduleFilter.innerHTML = options;
+  const hasCurrent = categories.includes(state.moduleFilter);
+  el.moduleFilter.value = hasCurrent ? state.moduleFilter : 'all';
+  if (!hasCurrent) {
+    state.moduleFilter = 'all';
+  }
+}
+
+function resetModulePicker() {
+  state.selectedModules.clear();
+  state.moduleFilter = 'all';
+  state.moduleSearch = '';
+  if (el.moduleFilter) el.moduleFilter.value = 'all';
+  if (el.moduleSearch) el.moduleSearch.value = '';
+  renderModulePicker();
+  updateSelectedModulesInfo();
+}
+
+function handleModuleClick(event) {
+  const button = event.target.closest('.portal-module-card');
+  if (!button) return;
+  const moduleId = button.dataset.moduleId;
+  if (!moduleId) return;
+
+  const willSelect = !state.selectedModules.has(moduleId);
+  if (willSelect) {
+    state.selectedModules.add(moduleId);
+  } else {
+    state.selectedModules.delete(moduleId);
+  }
+
+  button.classList.toggle('is-selected', willSelect);
+  button.setAttribute('aria-selected', willSelect ? 'true' : 'false');
+  updateSelectedModulesInfo();
+}
+
+function handleModuleFilterChange(event) {
+  state.moduleFilter = event.target.value || 'all';
+  renderModulePicker();
+}
+
+function handleModuleSearch(event) {
+  state.moduleSearch = event.target.value || '';
+  renderModulePicker();
+}
+
 function renderStudents() {
   if (!el.studentChecklist) return;
   el.studentChecklist.innerHTML = '';
@@ -71,9 +226,11 @@ function renderStudents() {
 
   state.students.forEach((student) => {
     const label = document.createElement('label');
+    const fullName = escapeHTML(student.full_name || 'Alumne sense nom');
+    const email = student.email ? ` · ${escapeHTML(student.email)}` : '';
     label.innerHTML = `
       <input type="checkbox" value="${student.id}" />
-      <span>${student.full_name || 'Alumne sense nom'} · ${student.email || ''}</span>
+      <span>${fullName}${email}</span>
     `;
     el.studentChecklist.appendChild(label);
   });
@@ -99,26 +256,48 @@ function renderTeacherAssignments(assignments) {
       ? new Date(assignment.due_date + 'T00:00:00').toLocaleDateString('ca-ES')
       : 'Sense data límit';
 
+    const assignmentId = escapeHTML(assignment.id);
+    const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
+    const moduleName = escapeHTML(module?.name || assignment.title || 'Tasca');
+    const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
+    const descriptionHTML = formatDescription(descriptionSource);
+    const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
+    const moduleLink = module
+      ? `../index.html?module=${encodeURIComponent(module.id)}`
+      : '';
+
     const assignees = (assignment.assignment_assignees || []).map((row) => {
       const student = state.students.find((s) => s.id === row.profile_id);
-      const name = student?.full_name || 'Alumne';
+      const name = escapeHTML(student?.full_name || 'Alumne');
       return `
         <li>
           ${name}
-          <span class="status-chip" data-status="${row.status}">${statusLabels[row.status] || row.status}</span>
+          <span class="portal-status-chip" data-status="${row.status}">${escapeHTML(statusLabels[row.status] || row.status)}</span>
         </li>
       `;
     });
 
+    const actions = [];
+    if (moduleLink) {
+      actions.push(`<a class="btn-secondary" href="${moduleLink}" target="_blank" rel="noopener">Obre el mòdul</a>`);
+    }
+    actions.push(`<button class="btn-ghost portal-delete-assignment" type="button" data-assignment-delete="${assignmentId}">🗑️ Elimina</button>`);
+
     item.innerHTML = `
-      <h4>${assignment.title}</h4>
-      <p class="muted" style="margin-top:0.35rem">${assignment.description || 'Sense descripció'}</p>
-      <p class="muted" style="margin-top:0.35rem">Data límit: <strong>${dueDate}</strong></p>
+      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
+        <h4 style="margin:0;">${moduleName}</h4>
+        ${moduleTag}
+      </div>
+      <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
+      <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       <div>
-        <p class="muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
-        <ul class="muted" style="display:grid; gap:0.35rem; padding-left:1.25rem;">
+        <p class="portal-muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
+        <ul class="portal-meta-list portal-muted">
           ${assignees.join('') || '<li>Sense alumnes assignats</li>'}
         </ul>
+      </div>
+      <div class="portal-assignment-actions">
+        ${actions.join('')}
       </div>
     `;
 
@@ -151,35 +330,54 @@ function renderStudentAssignments(rows) {
       ? new Date(submission.submitted_at).toLocaleString('ca-ES')
       : null;
 
+    const rowId = escapeHTML(row.id);
+    const assignmentId = escapeHTML(assignment.id);
+    const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
+    const moduleName = escapeHTML(module?.name || assignment.title || 'Tasca');
+    const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
+    const moduleLink = module
+      ? `../index.html?module=${encodeURIComponent(module.id)}`
+      : '';
+    const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
+    const descriptionHTML = formatDescription(descriptionSource);
+    const safeStatus = escapeHTML(row.status);
+    const statusChip = `<span class="portal-status-chip" data-status="${safeStatus}">${escapeHTML(statusLabels[row.status] || row.status)}</span>`;
+    const statusOptions = Object.entries(statusLabels)
+      .map(([value, label]) => `<option value="${escapeHTML(value)}" ${value === row.status ? 'selected' : ''}>${escapeHTML(label)}</option>`)
+      .join('');
+    const submissionContent = escapeHTML(submission?.content || '');
+
     const item = document.createElement('article');
     item.className = 'list-item';
     item.innerHTML = `
-      <h4>${assignment.title}</h4>
-      <p class="muted" style="margin-top:0.35rem">${assignment.description || 'Sense descripció'}</p>
-      <p class="muted" style="margin-top:0.35rem">Data límit: <strong>${dueDate}</strong></p>
+      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
+        <h4 style="margin:0;">${moduleName}</h4>
+        ${moduleTag}
+      </div>
+      <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
+      <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
+      ${moduleLink ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${moduleLink}" target="_blank" rel="noopener">Comença el mòdul</a></div>` : ''}
       <p style="margin-top:0.35rem;">
-        Estat actual: <span class="status-chip" data-status="${row.status}">${statusLabels[row.status] || row.status}</span>
+        Estat actual: ${statusChip}
       </p>
       <label style="margin-top:0.75rem; display:block;">
         <span style="display:block; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; margin-bottom:0.25rem;">Canvia l'estat</span>
-        <select class="status-select" data-row="${row.id}">
-          ${Object.entries(statusLabels)
-            .map(([value, label]) => `<option value="${value}" ${value === row.status ? 'selected' : ''}>${label}</option>`)
-            .join('')}
+        <select class="input status-select" data-row="${rowId}">
+          ${statusOptions}
         </select>
       </label>
-      <form class="submission-form" data-assignment="${assignment.id}" data-row="${row.id}" style="margin-top:1rem; display:grid; gap:0.5rem;">
+      <form class="submission-form" data-assignment="${assignmentId}" data-row="${rowId}" style="margin-top:1rem; display:grid; gap:0.5rem;">
         <label>
           <span style="display:block; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; margin-bottom:0.25rem;">Enllaç o comentaris</span>
-          <textarea name="content" placeholder="Afegeix informació de l'entrega">${submission?.content || ''}</textarea>
+          <textarea class="input" name="content" placeholder="Afegeix informació de l'entrega">${submissionContent}</textarea>
         </label>
-        <div class="actions">
-          <button type="submit">Envia resposta</button>
+        <div class="portal-actions">
+          <button class="btn-primary" type="submit">Envia resposta</button>
         </div>
       </form>
-      ${submittedAt ? `<p class="muted">Darrera entrega: ${submittedAt}</p>` : ''}
+      ${submittedAt ? `<p class="portal-muted">Darrera entrega: ${escapeHTML(submittedAt)}</p>` : ''}
       ${submission?.grade !== null && submission?.grade !== undefined
-        ? `<p class="muted">Nota: <strong>${submission.grade}</strong> · ${submission.feedback || ''}</p>`
+        ? `<p class="portal-muted">Nota: <strong>${escapeHTML(submission.grade)}</strong>${submission.feedback ? ` · ${escapeHTML(submission.feedback)}` : ''}</p>`
         : ''}
     `;
     el.studentAssignmentList.appendChild(item);
@@ -254,6 +452,7 @@ async function loadTeacherAssignments() {
       id,
       title,
       description,
+      module_id,
       due_date,
       created_at,
       assignment_assignees (
@@ -284,6 +483,7 @@ async function loadStudentAssignments() {
         id,
         title,
         description,
+        module_id,
         due_date,
         created_at
       ),
@@ -334,45 +534,89 @@ async function handleAssignmentSubmit(event) {
   resetAlerts();
 
   const formData = new FormData(event.currentTarget);
-  const title = formData.get('title');
-  const description = formData.get('description');
   const dueDate = formData.get('due_date') || null;
+  const note = (formData.get('note') || '').toString().trim();
+  const selectedModuleIds = Array.from(state.selectedModules);
 
   const selectedStudents = Array.from(el.studentChecklist?.querySelectorAll('input[type="checkbox"]:checked') || [])
     .map((input) => input.value);
 
-  const { data, error } = await state.supabase
-    .from('assignments')
-    .insert({
-      title,
+  if (!selectedModuleIds.length) {
+    showError(el.assignmentError, 'Selecciona com a mínim un mòdul per crear les tasques.');
+    return;
+  }
+
+  if (!selectedStudents.length) {
+    showError(el.assignmentError, 'Selecciona com a mínim un alumne per assignar els mòduls.');
+    return;
+  }
+
+  const modulesToAssign = selectedModuleIds
+    .map((moduleId) => state.moduleIndex.get(moduleId))
+    .filter(Boolean);
+
+  if (!modulesToAssign.length) {
+    showError(el.assignmentError, 'Cap dels mòduls seleccionats és vàlid.');
+    return;
+  }
+
+  const inserts = modulesToAssign.map((module) => {
+    const baseDescription = module.desc || 'Sense descripció';
+    const description = note
+      ? `${baseDescription}\n\n— Nota del docent —\n${note}`
+      : baseDescription;
+    return {
+      title: module.name,
       description,
       due_date: dueDate,
       created_by: state.profile.id,
-    })
-    .select('id')
-    .maybeSingle();
+      module_id: module.id,
+    };
+  });
+
+  const { data: insertedAssignments, error } = await state.supabase
+    .from('assignments')
+    .insert(inserts)
+    .select('id');
 
   if (error) {
     showError(el.assignmentError, error.message);
     return;
   }
 
-  if (selectedStudents.length) {
-    const rows = selectedStudents.map((profileId) => ({
-      assignment_id: data.id,
-      profile_id: profileId,
-    }));
+  const assignmentRows = Array.isArray(insertedAssignments) ? insertedAssignments : [];
+
+  if (assignmentRows.length && selectedStudents.length) {
+    const rows = [];
+    assignmentRows.forEach((assignmentRow) => {
+      selectedStudents.forEach((profileId) => {
+        rows.push({
+          assignment_id: assignmentRow.id,
+          profile_id: profileId,
+        });
+      });
+    });
+
     const { error: assignError } = await state.supabase
       .from('assignment_assignees')
       .insert(rows);
     if (assignError) {
       showError(el.assignmentError, assignError.message);
+      loadTeacherAssignments();
+      return;
     }
   }
 
   event.currentTarget.reset();
+  resetModulePicker();
   renderStudents();
-  showSuccess(el.assignmentFeedback, 'Tasca creada correctament.');
+
+  const moduleCount = modulesToAssign.length;
+  const studentCount = selectedStudents.length;
+  const moduleLabel = moduleCount === 1 ? '1 mòdul' : `${moduleCount} mòduls`;
+  const studentLabel = studentCount === 1 ? '1 alumne' : `${studentCount} alumnes`;
+  showSuccess(el.assignmentFeedback, `${moduleLabel} assignat(s) a ${studentLabel}.`);
+
   loadTeacherAssignments();
 }
 
@@ -396,6 +640,35 @@ async function handleStatusChange(event) {
   }
 
   loadStudentAssignments();
+}
+
+async function handleAssignmentListClick(event) {
+  const button = event.target.closest('.portal-delete-assignment');
+  if (!button) return;
+  event.preventDefault();
+  if (!state.supabase) return;
+
+  const assignmentId = button.dataset.assignmentDelete;
+  if (!assignmentId) return;
+
+  const confirmed = window.confirm('Vols eliminar aquesta tasca? Aquesta acció no es pot desfer.');
+  if (!confirmed) return;
+
+  button.disabled = true;
+  const { error } = await state.supabase
+    .from('assignments')
+    .delete()
+    .eq('id', assignmentId);
+  button.disabled = false;
+
+  if (error) {
+    alert('No s\'ha pogut eliminar la tasca: ' + error.message);
+    return;
+  }
+
+  resetAlerts();
+  showSuccess(el.assignmentFeedback, 'Tasca eliminada correctament.');
+  loadTeacherAssignments();
 }
 
 async function handleSubmission(event) {
@@ -430,8 +703,12 @@ function wireEvents() {
   if (el.loginForm) el.loginForm.addEventListener('submit', handleLogin);
   if (el.logoutBtn) el.logoutBtn.addEventListener('click', handleLogout);
   if (el.assignmentForm) el.assignmentForm.addEventListener('submit', handleAssignmentSubmit);
+  if (el.assignmentList) el.assignmentList.addEventListener('click', handleAssignmentListClick);
   if (el.refreshStudents) el.refreshStudents.addEventListener('click', loadStudents);
   if (el.reloadAssignments) el.reloadAssignments.addEventListener('click', loadTeacherAssignments);
+  if (el.modulePicker) el.modulePicker.addEventListener('click', handleModuleClick);
+  if (el.moduleFilter) el.moduleFilter.addEventListener('change', handleModuleFilterChange);
+  if (el.moduleSearch) el.moduleSearch.addEventListener('input', handleModuleSearch);
   document.addEventListener('change', handleStatusChange);
   document.addEventListener('submit', handleSubmission, true);
 }
@@ -445,6 +722,10 @@ function disableUI() {
 }
 
 async function init() {
+  populateModuleFilter();
+  renderModulePicker();
+  updateSelectedModulesInfo();
+
   const config = await import('./supabase-config.js').catch(() => null);
 
   if (!config || !config.SUPABASE_URL || !config.SUPABASE_ANON_KEY || config.SUPABASE_URL.includes('your-project')) {
