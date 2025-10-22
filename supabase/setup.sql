@@ -46,7 +46,7 @@ create table if not exists public.submissions (
 );
 
 -- Helper view for quickly checking assignments with assignees
-create view if not exists public.assignment_summary as
+create or replace view public.assignment_summary as
   select
     a.id,
     a.title,
