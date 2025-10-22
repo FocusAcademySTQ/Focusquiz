@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Focus Academy · Gestor de tasques Supabase</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="./portal.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap row header-bar">
+      <div class="brand">
+        <div class="logo">FQ</div>
+        <h1>Focus Academy</h1>
+      </div>
+      <nav class="main-nav" aria-label="Navegació principal">
+        <a class="pill" href="../index.html">🏠 Inici</a>
+        <a class="pill" href="../capsules.html">🎓 Càpsules</a>
+        <a class="pill" href="./supabase-portal.html" aria-current="page">Accés professor/alumne</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap portal-main">
+    <section class="panel card portal-hero">
+      <h1>Gestor de tasques (Supabase)</h1>
+      <p class="subtitle">Autentica't amb el teu compte per gestionar assignacions entre mestres i alumnes amb la mateixa experiència FocusQuiz.</p>
+      <div id="configWarning" class="portal-alert hidden">Configura les claus Supabase a <code>SUPABASE_URL</code> i <code>SUPABASE_ANON_KEY</code> mitjançant variables d'entorn.</div>
+    </section>
+
+    <section id="authPanel" class="panel card">
+      <h2 style="margin-bottom:0.75rem">Inicia sessió</h2>
+      <form id="loginForm" class="portal-form" autocomplete="on">
+        <label>
+          <span class="portal-field-label">Correu electrònic</span>
+          <input class="input" name="email" type="email" required placeholder="docent@centre.cat" autocomplete="username" />
+        </label>
+        <label>
+          <span class="portal-field-label">Contrasenya</span>
+          <input class="input" name="password" type="password" required placeholder="••••••" autocomplete="current-password" />
+        </label>
+        <button class="btn-primary" type="submit">Entrar</button>
+      </form>
+      <p class="portal-muted" style="margin-top:0.75rem">Els comptes s'han de crear prèviament a Supabase Auth.</p>
+      <div id="authError" class="portal-error hidden"></div>
+    </section>
+
+    <section id="sessionPanel" class="panel card hidden">
+      <div class="portal-section-header">
+        <div>
+          <p class="portal-section-title" style="margin-bottom:0">Sessió iniciada</p>
+          <h2 style="margin:0" id="sessionName"></h2>
+          <p id="sessionRole" class="portal-muted" style="margin-top:0.25rem"></p>
+        </div>
+        <button id="logoutBtn" class="btn-secondary" type="button">Tanca la sessió</button>
+      </div>
+    </section>
+
+    <section id="teacherView" class="panel card hidden">
+      <h2>Panell de mestre/a</h2>
+      <p class="portal-muted">Tria mòduls FocusQuiz i assigna'ls als alumnes seleccionats.</p>
+      <form id="assignmentForm" class="portal-form" style="margin-top:1rem">
+        <section class="portal-module-section">
+          <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
+            <div>
+              <p class="portal-section-title" style="margin-bottom:0.35rem">Selecciona un mòdul FocusQuiz</p>
+              <p class="portal-muted" style="margin:0">Escull un mòdul, configura una prova concreta i assigna-la a l'alumnat seleccionat.</p>
+            </div>
+            <span id="moduleSelectedChip" class="portal-chip portal-chip--muted">Cap mòdul seleccionat</span>
+          </div>
+          <div class="portal-module-toolbar">
+            <label class="chip portal-chip-input">
+              Categoria
+              <select id="moduleFilter" class="input"></select>
+            </label>
+            <label class="chip portal-chip-input">
+              Cerca
+              <input id="moduleSearch" class="input" type="search" placeholder="Escriu per filtrar mòduls" />
+            </label>
+          </div>
+          <div id="modulePicker" class="portal-module-grid" role="listbox" aria-multiselectable="false" aria-label="Mòduls FocusQuiz"></div>
+          <p id="moduleEmptyState" class="portal-muted portal-module-empty hidden">Cap mòdul coincideix amb la cerca o el filtre aplicat.</p>
+          <div id="modulePreview" class="card portal-module-preview">
+            <div class="portal-module-preview__header">
+              <h3 id="selectedModuleTitle">Cap prova seleccionada</h3>
+              <p id="selectedModuleDescription" class="portal-muted">Clica un mòdul per obrir el configurador FocusQuiz i escollir la prova exacta que vols assignar.</p>
+            </div>
+            <div id="moduleSummaryBadges" class="portal-summary-badges"></div>
+            <ul id="moduleSummaryDetails" class="portal-meta-list portal-muted"></ul>
+            <div class="portal-actions portal-module-preview__actions">
+              <button id="configureModuleBtn" class="btn-secondary" type="button" disabled>Obre el configurador</button>
+              <button id="clearModuleBtn" class="btn-ghost" type="button" disabled>Canvia de mòdul</button>
+            </div>
+          </div>
+        </section>
+        <label>
+          <span class="portal-field-label">Data límit</span>
+          <input class="input" name="due_date" type="date" />
+        </label>
+        <label>
+          <span class="portal-field-label">Comentaris addicionals (opcional)</span>
+          <textarea class="input" name="note" rows="3" placeholder="Instruccions extra per a l'alumnat..."></textarea>
+        </label>
+        <section>
+          <p class="portal-section-title" style="margin-bottom:0.5rem">Selecciona alumnes per assignar la tasca</p>
+          <div id="studentChecklist" class="portal-assignees"></div>
+        </section>
+        <div class="portal-actions">
+          <button class="btn-primary" type="submit">Assigna la prova</button>
+          <button class="btn-secondary" type="button" id="refreshStudents">Actualitza alumnes</button>
+        </div>
+      </form>
+      <div id="assignmentFeedback" class="portal-success hidden" style="margin-top:1rem"></div>
+      <div id="assignmentError" class="portal-error hidden" style="margin-top:1rem"></div>
+    </section>
+
+    <section id="teacherAssignments" class="panel card hidden">
+      <div class="portal-section-header">
+        <h2 style="margin:0">Assignacions publicades</h2>
+        <button id="reloadAssignments" type="button" class="btn-secondary">Actualitza llistat</button>
+      </div>
+      <div id="assignmentList" class="portal-list list" aria-live="polite"></div>
+    </section>
+
+    <section id="studentView" class="panel card hidden">
+      <h2>Panell d'alumne/a</h2>
+      <p class="portal-muted">Consulta les tasques assignades i obre les proves configurades pel professorat sense sortir del portal.</p>
+      <div id="studentAssignmentList" class="portal-list list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div id="moduleConfigOverlay" class="portal-config-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="moduleConfigTitle">
+    <div class="portal-config-shell">
+      <header class="portal-config-shell__header">
+        <h3 id="moduleConfigTitle">Configura la prova</h3>
+        <button id="closeConfigOverlay" class="portal-overlay-close" type="button" aria-label="Tanca el configurador">✕</button>
+      </header>
+      <iframe id="moduleConfigFrame" title="Configurador de proves FocusQuiz" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <div id="assignmentLaunchOverlay" class="portal-config-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="assignmentLaunchTitle">
+    <div class="portal-config-shell portal-config-shell--full">
+      <header class="portal-config-shell__header">
+        <h3 id="assignmentLaunchTitle">Prova FocusQuiz</h3>
+        <button id="closeLaunchOverlay" class="portal-overlay-close" type="button" aria-label="Tanca la prova assignada">✕</button>
+      </header>
+      <iframe id="assignmentLaunchFrame" title="Prova FocusQuiz assignada" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <script type="module" src="./supabase-portal.js"></script>
+</body>
+</html>
