@@ -52,3 +52,33 @@ modalitats diferenciades:
 - **Mapa interactiu**: localitza el país sobre un mapa d'Europa fent clic al punt corresponent.
 
 Els nivells 1 a 4 desbloquegen progressivament països i dificultats (microestats, península balcànica, etc.).
+
+## Gestor de tasques amb Supabase
+
+Aquest projecte inclou un panell opcional per connectar Focusquiz amb un backend Supabase. Segueix els passos següents per tenir-lo en funcionament:
+
+1. **Crear el projecte Supabase**
+   - Accedeix a [supabase.com](https://supabase.com/), crea un projecte nou i apunta't l'URL i la `anon key` disponibles a `Settings → API`.
+2. **Definir l'esquema**
+   - Obre l'apartat `SQL Editor` i enganxa el contingut de `supabase/setup.sql` per crear les taules `profiles`, `assignments`, `assignment_assignees` i `submissions`, a més de les polítiques RLS necessàries.
+3. **Configurar RLS i polítiques**
+   - Confirma que RLS està activat a totes les taules (el script ja inclou `alter table ... enable row level security`).
+   - Revisa que les polítiques generades permeten als mestres gestionar les seves tasques i als alumnes veure i actualitzar només les seves dades.
+4. **Configurar Supabase Auth**
+   - A `Settings → Auth`, activa el mètode d'email i crea manualment els usuaris mestres/alumnes. Recorda afegir el seu `full_name`, `email` i `role` (`teacher` o `student`) a la taula `profiles` amb el mateix `id` (`uuid`) que el compte d'`auth.users`.
+5. **Preparar el frontend**
+   - Duplica `supabase-config.example.js` amb el nom `supabase-config.js` i enganxa-hi l'URL i la `anon key` del projecte.
+   - Obre `supabase-portal.html` en un navegador per accedir al panell. Els mestres poden crear tasques i assignar-les als alumnes seleccionats; els alumnes poden veure les tasques i enviar les respostes.
+6. **(Opcional) Edge Functions o backend extra**
+   - Si necessites lògica avançada (per exemple, notificacions o correcció automàtica), implementa-la amb Edge Functions des del mateix projecte Supabase.
+7. **Proves i validació**
+   - Accedeix amb usuaris de prova (mestres i alumnes) per validar que les polítiques RLS funcionen segons el rol.
+8. **Desplegament**
+   - Desplega el frontend en el domini que necessitis i assegura't que `supabase-config.js` es carrega des d'un entorn segur (per exemple, variables d'entorn inyectades en temps de build o secrets del proveïdor d'hosting).
+
+### Flux d'ús ràpid
+
+1. Inicia sessió com a mestre a `supabase-portal.html`.
+2. Recarrega el llistat d'alumnes i selecciona'ls al formulari.
+3. Publica una tasca; apareixerà a "Assignacions publicades" amb l'estat de cada alumne.
+4. Inicia sessió com a alumne per veure la tasca, actualitzar l'estat i enviar la resposta.
