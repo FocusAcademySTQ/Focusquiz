@@ -327,6 +327,7 @@ window.addModules = function(mods){
   });
 
 let pendingModule = null; // mòdul seleccionat per configurar
+let urlModuleHandled = false;
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
 let timerHandle = null;
@@ -342,7 +343,7 @@ function showView(name){
 }
 
 function buildHome(){
-  const grid = $('#moduleGrid'); 
+  const grid = $('#moduleGrid');
   grid.innerHTML = '';
 
   // Helper per pintar seccions per categories
@@ -384,6 +385,34 @@ function buildHome(){
   const sl = $('#cfg-level');
   sl.innerHTML = Array.from({length:4},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
   sl.value = DEFAULTS.level;
+
+  openModuleFromURL();
+}
+
+function openModuleFromURL(){
+  if (urlModuleHandled) return;
+  let moduleId = null;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    moduleId = params.get('module');
+  } catch {}
+
+  if (!moduleId && window.location.hash) {
+    try {
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      moduleId = hashParams.get('module');
+    } catch {}
+  }
+
+  if (!moduleId) return;
+  moduleId = moduleId.trim();
+  if (!moduleId) return;
+
+  const target = MODULES.find(m => m.id === moduleId);
+  if (!target) return;
+
+  urlModuleHandled = true;
+  openConfig(target.id);
 }
 
 function openConfig(moduleId){

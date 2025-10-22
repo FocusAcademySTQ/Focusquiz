@@ -18,10 +18,14 @@ create table if not exists public.assignments (
   id uuid primary key default uuid_generate_v4(),
   title text not null,
   description text,
+  module_id text,
   due_date date,
   created_by uuid not null references public.profiles (id) on delete cascade,
   created_at timestamptz not null default now()
 );
+
+alter table if exists public.assignments
+  add column if not exists module_id text;
 
 -- Relation between assignments and students
 create table if not exists public.assignment_assignees (
@@ -50,6 +54,7 @@ create or replace view public.assignment_summary as
   select
     a.id,
     a.title,
+    a.module_id,
     a.due_date,
     a.created_at,
     a.created_by,
