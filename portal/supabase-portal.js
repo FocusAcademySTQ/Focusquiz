@@ -484,6 +484,7 @@ async function loadStudentAssignments() {
     .select(`
       id,
       status,
+      assigned_at,
       assignment_id,
       assignment:assignments (
         id,
@@ -492,13 +493,6 @@ async function loadStudentAssignments() {
         module_id,
         due_date,
         created_at
-      ),
-      submission:submissions (
-        id,
-        content,
-        submitted_at,
-        grade,
-        feedback
       )
     `)
     .eq('profile_id', state.profile.id)
@@ -509,7 +503,36 @@ async function loadStudentAssignments() {
     return;
   }
 
-  const rows = data || [];
+  const rows = Array.isArray(data) ? data : [];
+
+  const assignmentIds = rows
+    .map((row) => row.assignment_id || row.assignment?.id)
+    .filter(Boolean);
+
+  if (assignmentIds.length) {
+    const uniqueAssignmentIds = Array.from(new Set(assignmentIds));
+    const { data: submissionRows, error: submissionError } = await state.supabase
+      .from('submissions')
+      .select('id, assignment_id, profile_id, content, submitted_at, grade, feedback')
+      .eq('profile_id', state.profile.id)
+      .in('assignment_id', uniqueAssignmentIds);
+
+    if (submissionError) {
+      showError(el.assignmentError, submissionError.message);
+      return;
+    }
+
+    const submissionMap = new Map(
+      (submissionRows || []).map((submission) => [submission.assignment_id, submission])
+    );
+
+    rows.forEach((row) => {
+      const submission = submissionMap.get(row.assignment_id || row.assignment?.id);
+      if (submission) {
+        row.submission = submission;
+      }
+    });
+  }
 
   const missingAssignments = rows
     .filter((row) => !row.assignment && row.assignment_id)
