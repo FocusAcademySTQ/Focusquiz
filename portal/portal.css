@@ -141,7 +141,6 @@
 }
 
 .portal-module-card::after {
-  content: 'Seleccionat';
   content: 'Assignat';
   position: absolute;
   top: 12px;
@@ -198,123 +197,6 @@
 .portal-module-card:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
-}
-
-.portal-module-preview {
-  margin-top: 1.25rem;
-  display: grid;
-  gap: 0.75rem;
-  padding: clamp(16px, 2vw, 22px);
-  border: 1px solid var(--hair);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: var(--shadow);
-}
-
-.portal-module-preview__header h3 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.portal-module-preview__header p {
-  margin: 0;
-}
-
-.portal-module-preview__actions {
-  justify-content: flex-start;
-}
-
-.portal-summary-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.25rem;
-}
-
-.portal-summary-badges .portal-chip {
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.35);
-  color: #1d4ed8;
-  font-size: 0.75rem;
-  text-transform: none;
-  letter-spacing: normal;
-}
-
-.portal-config-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.78);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(16px, 4vw, 32px);
-  z-index: 1050;
-}
-
-.portal-config-shell {
-  width: min(960px, 94vw);
-  height: min(92vh, 760px);
-  background: #0f172a;
-  color: #f8fafc;
-  border-radius: 20px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  box-shadow: 0 30px 80px -40px rgba(15, 23, 42, 0.8);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  position: relative;
-}
-
-.portal-config-shell--full {
-  width: min(1080px, 96vw);
-  height: min(96vh, 880px);
-}
-
-.portal-config-shell--full iframe {
-  background: #0b1220;
-}
-
-.portal-config-shell__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.9rem 1.25rem;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
-}
-
-.portal-config-shell__header h3 {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.portal-overlay-close {
-  border: none;
-  background: rgba(15, 23, 42, 0.6);
-  color: #f8fafc;
-  border-radius: 999px;
-  width: 2.25rem;
-  height: 2.25rem;
-  font-size: 1.15rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s ease, transform 0.15s ease;
-}
-
-.portal-overlay-close:hover,
-.portal-overlay-close:focus-visible {
-  background: rgba(59, 130, 246, 0.35);
-  transform: scale(1.03);
-  outline: none;
-}
-
-.portal-config-shell iframe {
-  border: 0;
-  flex: 1;
-  width: 100%;
-  background: #0f172a;
 }
 
 .portal-assignees {
@@ -442,11 +324,5 @@
   .portal-section-header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .portal-config-shell {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
   }
 }
