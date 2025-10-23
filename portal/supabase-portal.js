@@ -229,7 +229,7 @@ function renderStudents() {
     const fullName = escapeHTML(student.full_name || 'Alumne sense nom');
     const email = student.email ? ` · ${escapeHTML(student.email)}` : '';
     label.innerHTML = `
-      <input type="checkbox" value="${student.id}" />
+      <input type="checkbox" name="students" value="${student.id}" />
       <span>${fullName}${email}</span>
     `;
     el.studentChecklist.appendChild(label);
@@ -318,8 +318,13 @@ function renderStudentAssignments(rows) {
   }
 
   rows.forEach((row) => {
-    const assignment = row.assignment;
-    if (!assignment) return;
+    const assignment = row.assignment || {
+      id: row.assignment_id,
+      title: 'Tasca assignada',
+      description: '',
+      module_id: null,
+      due_date: null,
+    };
 
     const dueDate = assignment.due_date
       ? new Date(assignment.due_date + 'T00:00:00').toLocaleDateString('ca-ES')
@@ -479,6 +484,8 @@ async function loadStudentAssignments() {
     .select(`
       id,
       status,
+      assigned_at,
+      assignment_id,
       assignment:assignments (
         id,
         title,
@@ -486,13 +493,6 @@ async function loadStudentAssignments() {
         module_id,
         due_date,
         created_at
-      ),
-      submission:submissions (
-        id,
-        content,
-        submitted_at,
-        grade,
-        feedback
       )
     `)
     .eq('profile_id', state.profile.id)
@@ -503,7 +503,62 @@ async function loadStudentAssignments() {
     return;
   }
 
-  renderStudentAssignments(data || []);
+  const rows = Array.isArray(data) ? data : [];
+
+  const assignmentIds = rows
+    .map((row) => row.assignment_id || row.assignment?.id)
+    .filter(Boolean);
+
+  if (assignmentIds.length) {
+    const uniqueAssignmentIds = Array.from(new Set(assignmentIds));
+    const { data: submissionRows, error: submissionError } = await state.supabase
+      .from('submissions')
+      .select('id, assignment_id, profile_id, content, submitted_at, grade, feedback')
+      .eq('profile_id', state.profile.id)
+      .in('assignment_id', uniqueAssignmentIds);
+
+    if (submissionError) {
+      showError(el.assignmentError, submissionError.message);
+      return;
+    }
+
+    const submissionMap = new Map(
+      (submissionRows || []).map((submission) => [submission.assignment_id, submission])
+    );
+
+    rows.forEach((row) => {
+      const submission = submissionMap.get(row.assignment_id || row.assignment?.id);
+      if (submission) {
+        row.submission = submission;
+      }
+    });
+  }
+
+  const missingAssignments = rows
+    .filter((row) => !row.assignment && row.assignment_id)
+    .map((row) => row.assignment_id);
+
+  if (missingAssignments.length) {
+    const uniqueIds = Array.from(new Set(missingAssignments));
+    const { data: fallbackAssignments } = await state.supabase
+      .from('assignments')
+      .select('id, title, description, module_id, due_date, created_at')
+      .in('id', uniqueIds);
+
+    if (Array.isArray(fallbackAssignments) && fallbackAssignments.length) {
+      const fallbackMap = new Map(fallbackAssignments.map((assignment) => [assignment.id, assignment]));
+      rows.forEach((row) => {
+        if (!row.assignment && row.assignment_id) {
+          const assignment = fallbackMap.get(row.assignment_id);
+          if (assignment) {
+            row.assignment = assignment;
+          }
+        }
+      });
+    }
+  }
+
+  renderStudentAssignments(rows);
 }
 
 async function handleLogin(event) {
@@ -524,7 +579,28 @@ async function handleLogin(event) {
 
 async function handleLogout() {
   if (!state.supabase) return;
-  await state.supabase.auth.signOut();
+
+  if (el.logoutBtn) {
+    el.logoutBtn.disabled = true;
+  }
+
+  const { error } = await state.supabase.auth.signOut();
+
+  if (error) {
+    alert('No s\'ha pogut tancar la sessió: ' + error.message);
+    if (el.logoutBtn) {
+      el.logoutBtn.disabled = false;
+    }
+    return;
+  }
+
+  state.session = null;
+  state.profile = null;
+  updateSessionUI();
+
+  if (el.logoutBtn) {
+    el.logoutBtn.disabled = false;
+  }
 }
 
 async function handleAssignmentSubmit(event) {
@@ -538,8 +614,7 @@ async function handleAssignmentSubmit(event) {
   const note = (formData.get('note') || '').toString().trim();
   const selectedModuleIds = Array.from(state.selectedModules);
 
-  const selectedStudents = Array.from(el.studentChecklist?.querySelectorAll('input[type="checkbox"]:checked') || [])
-    .map((input) => input.value);
+  const selectedStudents = formData.getAll('students').filter((value) => Boolean(value));
 
   if (!selectedModuleIds.length) {
     showError(el.assignmentError, 'Selecciona com a mínim un mòdul per crear les tasques.');
@@ -672,30 +747,65 @@ async function handleAssignmentListClick(event) {
 }
 
 async function handleSubmission(event) {
-  if (!event.target.matches('.submission-form')) return;
+  const form = event.target;
+  if (!form.matches('.submission-form')) return;
   event.preventDefault();
   if (!state.supabase || !state.profile) return;
 
-  const formData = new FormData(event.target);
-  const content = formData.get('content');
-  const assignmentId = event.target.dataset.assignment;
+  const formData = new FormData(form);
+  const assignmentId = form.dataset.assignment;
+  const rowId = form.dataset.row;
+  const rawContent = formData.get('content');
+  const content = rawContent ? rawContent.toString().trim() : '';
+
+  if (!assignmentId) {
+    alert('No s\'ha pogut identificar la tasca.');
+    return;
+  }
+
+  const submitButton = form.querySelector('button[type="submit"]');
+  const originalLabel = submitButton ? submitButton.textContent : '';
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = 'Guardant…';
+  }
+
+  const payload = {
+    assignment_id: assignmentId,
+    profile_id: state.profile.id,
+    content: content || null,
+    submitted_at: new Date().toISOString(),
+  };
 
   const { error } = await state.supabase
     .from('submissions')
-    .upsert({
-      assignment_id: assignmentId,
-      profile_id: state.profile.id,
-      content,
-    }, {
+    .upsert(payload, {
       onConflict: 'assignment_id,profile_id',
     });
+
+  if (submitButton) {
+    submitButton.disabled = false;
+    submitButton.textContent = originalLabel || 'Envia resposta';
+  }
 
   if (error) {
     alert('Error en desar la resposta: ' + error.message);
     return;
   }
 
+  if (rowId) {
+    const { error: statusError } = await state.supabase
+      .from('assignment_assignees')
+      .update({ status: 'submitted' })
+      .eq('id', rowId);
+
+    if (statusError) {
+      alert('La resposta s\'ha desat però no s\'ha pogut actualitzar l\'estat: ' + statusError.message);
+    }
+  }
+
   alert('Resposta desada correctament.');
+  form.reset();
   loadStudentAssignments();
 }
 
