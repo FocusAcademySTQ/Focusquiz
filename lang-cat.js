@@ -54,7 +54,7 @@
     { text: `Escriu correctament (g/j): ima__inari`, answer: `imaginari` },
     { text: `Escriu correctament (g/j): obli__ar (forçar)`, answer: `obligar` },
     { text: `Escriu correctament (g/j): prodi__i`, answer: `prodigi` },
-    { text: `Escriu correctament (g/j): ma__ia (encanteri)`, answer: `màgia` },
+    { text: `Escriu correctament (g/j): mà__ia (encanteri)`, answer: `màgia` },
     { text: `Escriu correctament (g/j): __ove (adolescent)`, answer: `jove` },
     { text: `Escriu correctament (g/j): __utjar (valorar)`, answer: `jutjar` },
     { text: `Escriu correctament (g/j): di__ital (numèric)`, answer: `digital` },
@@ -62,7 +62,6 @@
     { text: `Escriu correctament (g/j): lle__ió (grup de soldats)`, answer: `llegió` },
     { text: `Escriu correctament (g/j): re__ió (territori)`, answer: `regió` },
     { text: `Escriu correctament (g/j): re__istre`, answer: `registre` },
-    { text: `Escriu correctament (g/j): di__erir (separar)`, answer: `digerir` },
     { text: `Escriu correctament (g/j): di__it (numèric)`, answer: `dígit` },
     { text: `Escriu correctament (g/j): ener__ia`, answer: `energia` },
     { text: `Escriu correctament (g/j): pa__ina (web)`, answer: `pàgina` },
@@ -93,7 +92,7 @@
     { text: `Escriu correctament (x/ix): refle__`, answer: `reflex` },
     { text: `Escriu correctament (s/ss): depre__ió`, answer: `depressió` },
     { text: `Escriu correctament (c/ç): bra__alet (de natació)`, answer: `braçalet` },
-    { text: `Escriu correctament (z/s): pa__sar (transcórrer)`, answer: `passar` }
+    { text: `Escriu correctament (s/ss): pa__ar (transcórrer)`, answer: `passar` }
   ];
 
   // Correccions lliures
@@ -236,7 +235,7 @@
     { text: `Escriu correctament, R o RR: te__a (sòl).`, answer: `terra` },
     { text: `Escriu correctament, R o RR: ca__il (vial).`, answer: `carril` }, 
     { text: `Escriu correctament, R o RR: co_eu (casc urbà).`, answer: `carrer` },
-   { text: `Escriu correctament, R o RR: ba_a (animal de granja).`, answer: `barra` },
+   { text: `Escriu correctament, R o RR: bu__o (animal de granja).`, answer: `burro` },
    { text: `Escriu correctament, R o RR: co__eus (cos humà).`, answer: `còrreus` },
    { text: `Escriu correctament, R o RR: se__a (eina).`, answer: `serra` }, 
    { text: `Escriu correctament, R o RR: fe__o (material).`, answer: `ferro` },
@@ -248,48 +247,23 @@
 
   // L / L·L
   const BANK_LLG = [
-    { text: `Escriu correctament, L o L·L: co__egi`, answer: `col·legi` },
-    { text: `Escriu correctament, L o L·L: inte__igent`, answer: `intel·ligent` },
-    { text: `Escriu correctament, L o L·L: para__el`, answer: `paral·lel` },
-     { text: `Escriu correctament, L o L·L L o L·L: inte__igent`,      answer: `intel·ligent` },
-    { text: `Escriu correctament, L o L·L L o L·L: para__el`,         answer: `paral·lel` },
-    { text: `Escriu correctament, L o L·L L o L·L: i__lusió`,         answer: `il·lusió` },
-    { text: `Escriu correctament, L o L·L L o L·L: a__lot`,           answer: `al·lot` },
-    { text: `Escriu correctament, L o L·L L o L·L: mi__lenni`,        answer: `mil·lenni` },
-    { text: `Escriu correctament, L o L·L L o L·L: co__lecció`,       answer: `col·lecció` },
-    { text: `Escriu correctament, L o L·L L o L·L: co__lapse`,        answer: `col·lapse` },
-    { text: `Escriu correctament, L o L·L L o L·L: a__legoria`,       answer: `al·legoria` },
-    { text: `Escriu correctament, L o L·L L o L·L: a__lèrgia`,        answer: `al·lèrgia` },
-    { text: `Escriu correctament, L o L·L L o L·L: pe__lícula`,       answer: `pel·lícula` },
-    { text: `Escriu correctament, L o L·L L o L·L: co__locar`,        answer: `col·locar` },
-    { text: `Escriu correctament, L o L·L L o L·L: il__lustrar`,      answer: `il·lustrar` },
-    { text: `Escriu correctament, L o L·L L o L·L: co__laborar`,      answer: `col·laborar` },
-    { text: `Escriu correctament, L o L·L L o L·L: intel__lecte`,     answer: `intel·lecte` },
-    { text: `Escriu correctament, L o L·L L o L·L: intel__lectual`,   answer: `intel·lectual` },
-    { text: `Escriu correctament, L o L·L L o L·L: par__lelisme`,     answer: `paral·lelisme` },
-    { text: `Escriu correctament, L o L·L L o L·L: a__ternatiu`,      answer: `al·ternatiu` },
-    { text: `Escriu correctament, L o L·L L o L·L: ce__lular`,        answer: `cel·lular` },
-    { text: `Escriu correctament, L o L·L L o L·L: a__lusió`,         answer: `al·lusió` }, 
-     { text: `Escriu correctament, L o L·L: a__a (part del cos d’un ocell)`, answer: `ala` },
-{ text: `Escriu correctament, L o L·L: fi__a (cua ordenada)`, answer: `fila` },
-{ text: `Escriu correctament, L o L·L: so__a (única, sense ningú)`, answer: `sola` },
-{ text: `Escriu correctament, L o L·L: ve__a (per navegar)`, answer: `vela` },
-{ text: `Escriu correctament, L o L·L: ca__a (indret de la costa)`, answer: `cala` },
-{ text: `Escriu correctament, L o L·L: ma__a (dolenta)`, answer: `mala` },
-{ text: `Escriu correctament, L o L·L: sa__at (amb sal)`, answer: `salat` },
-{ text: `Escriu correctament, L o L·L: co__or (pigment, tonalitat)`, answer: `color` },
-{ text: `Escriu correctament, L o L·L: me__ó (fruit)`, answer: `meló` },
-{ text: `Escriu correctament, L o L·L: vo__er (tenir intenció de fer)`, answer: `voler` },
-{ text: `Escriu correctament, L o L·L: ca__aix (moble o cala petita)`, answer: `calaix` },
-{ text: `Escriu correctament, L o L·L: pa__eta (ofici de la construcció)`, answer: `paleta` },
-{ text: `Escriu correctament, L o L·L: esca__a (per pujar pisos)`, answer: `escala` },
-{ text: `Escriu correctament, L o L·L: so__ar (relatiu al sol)`, answer: `solar` },
-{ text: `Escriu correctament, L o L·L: ga__eta (galeta dolça)`, answer: `galeta` },
-{ text: `Escriu correctament, L o L·L: ba__ança (per mesurar pes)`, answer: `balança` },
-{ text: `Escriu correctament, L o L·L: ca__amar (animal marí)`, answer: `calamar` },
-{ text: `Escriu correctament, L o L·L: co__oma (ocell blanc)`, answer: `coloma` },
-{ text: `Escriu correctament, L o L·L: li__a (color entre blau i violeta)`, answer: `lila` },
-{ text: `Escriu correctament, L o L·L: va__enta (valerosa)`, answer: `valenta` }
+    [
+  { text: `Escriu correctament, L o L·L: co__ar (unir dues peces)`, answer: `collar` },
+  { text: `Escriu correctament, L o L·L: so__icitud (petició formal)`, answer: `sol·licitud` },
+  { text: `Escriu correctament, L o L·L: mi__or (de més petita mida)`, answer: `millor` },
+  { text: `Escriu correctament, L o L·L: exce__ent (molt bo)`, answer: `excel·lent` },
+  { text: `Escriu correctament, L o L·L: a__umne (estudiant)`, answer: `alumne` },
+  { text: `Escriu correctament, L o L·L: po__ució (contaminació)`, answer: `pol·lució` },
+  { text: `Escriu correctament, L o L·L: ce__òfana (plàstic transparent)`, answer: `cel·lofana` },
+  { text: `Escriu correctament, L o L·L: co__egi (institució educativa)`, answer: `col·legi` },
+  { text: `Escriu correctament, L o L·L: be__igerant (agressiu o combatiu)`, answer: `bel·ligerant` },
+  { text: `Escriu correctament, L o L·L: vi__a (camí o direcció)`, answer: `villa` },
+  { text: `Escriu correctament, L o L·L: mo__í (aparell per moldre)`, answer: `molí` },
+  { text: `Escriu correctament, L o L·L: te__efonista (persona que atén trucades)`, answer: `telefònista` },
+  { text: `Escriu correctament, L o L·L: co__ector (que recull o agrupa)`, answer: `col·lector` },
+  { text: `Escriu correctament, L o L·L: a__ucinant (sorprenent)`, answer: `al·lucinant` },
+  { text: `Escriu correctament, L o L·L: mo__estia (actitud humil)`, answer: `modèstia` }
+]
   ];
 
   // Catàleg de subtemes Ortografia
