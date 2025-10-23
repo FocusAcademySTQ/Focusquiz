@@ -229,7 +229,7 @@ function renderStudents() {
     const fullName = escapeHTML(student.full_name || 'Alumne sense nom');
     const email = student.email ? ` · ${escapeHTML(student.email)}` : '';
     label.innerHTML = `
-      <input type="checkbox" value="${student.id}" />
+      <input type="checkbox" name="students" value="${student.id}" />
       <span>${fullName}${email}</span>
     `;
     el.studentChecklist.appendChild(label);
@@ -538,8 +538,7 @@ async function handleAssignmentSubmit(event) {
   const note = (formData.get('note') || '').toString().trim();
   const selectedModuleIds = Array.from(state.selectedModules);
 
-  const selectedStudents = Array.from(el.studentChecklist?.querySelectorAll('input[type="checkbox"]:checked') || [])
-    .map((input) => input.value);
+  const selectedStudents = formData.getAll('students').filter((value) => Boolean(value));
 
   if (!selectedModuleIds.length) {
     showError(el.assignmentError, 'Selecciona com a mínim un mòdul per crear les tasques.');
