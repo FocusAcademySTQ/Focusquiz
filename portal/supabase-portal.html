@@ -64,10 +64,10 @@
         <section class="portal-module-section">
           <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
             <div>
-              <p class="portal-section-title" style="margin-bottom:0.35rem">Selecciona un mòdul FocusQuiz</p>
-              <p class="portal-muted" style="margin:0">Escull un mòdul, configura una prova concreta i assigna-la a l'alumnat seleccionat.</p>
+              <p class="portal-section-title" style="margin-bottom:0.35rem">Selecciona mòduls per convertir-los en tasques</p>
+              <p class="portal-muted" style="margin:0">Pots triar diversos mòduls a la vegada. Cada mòdul es crearà com una tasca separada.</p>
             </div>
-            <span id="moduleSelectedChip" class="portal-chip portal-chip--muted">Cap mòdul seleccionat</span>
+            <span id="moduleSelectedInfo" class="portal-chip portal-chip--muted">Cap mòdul seleccionat</span>
           </div>
           <div class="portal-module-toolbar">
             <label class="chip portal-chip-input">
@@ -79,20 +79,8 @@
               <input id="moduleSearch" class="input" type="search" placeholder="Escriu per filtrar mòduls" />
             </label>
           </div>
-          <div id="modulePicker" class="portal-module-grid" role="listbox" aria-multiselectable="false" aria-label="Mòduls FocusQuiz"></div>
+          <div id="modulePicker" class="portal-module-grid" role="listbox" aria-multiselectable="true"></div>
           <p id="moduleEmptyState" class="portal-muted portal-module-empty hidden">Cap mòdul coincideix amb la cerca o el filtre aplicat.</p>
-          <div id="modulePreview" class="card portal-module-preview">
-            <div class="portal-module-preview__header">
-              <h3 id="selectedModuleTitle">Cap prova seleccionada</h3>
-              <p id="selectedModuleDescription" class="portal-muted">Clica un mòdul per obrir el configurador FocusQuiz i escollir la prova exacta que vols assignar.</p>
-            </div>
-            <div id="moduleSummaryBadges" class="portal-summary-badges"></div>
-            <ul id="moduleSummaryDetails" class="portal-meta-list portal-muted"></ul>
-            <div class="portal-actions portal-module-preview__actions">
-              <button id="configureModuleBtn" class="btn-secondary" type="button" disabled>Obre el configurador</button>
-              <button id="clearModuleBtn" class="btn-ghost" type="button" disabled>Canvia de mòdul</button>
-            </div>
-          </div>
         </section>
         <label>
           <span class="portal-field-label">Data límit</span>
@@ -107,7 +95,7 @@
           <div id="studentChecklist" class="portal-assignees"></div>
         </section>
         <div class="portal-actions">
-          <button class="btn-primary" type="submit">Assigna la prova</button>
+          <button class="btn-primary" type="submit">Assigna els mòduls</button>
           <button class="btn-secondary" type="button" id="refreshStudents">Actualitza alumnes</button>
         </div>
       </form>
@@ -125,30 +113,10 @@
 
     <section id="studentView" class="panel card hidden">
       <h2>Panell d'alumne/a</h2>
-      <p class="portal-muted">Consulta les tasques assignades i obre les proves configurades pel professorat sense sortir del portal.</p>
+      <p class="portal-muted">Consulta les tasques assignades i marca el progrés.</p>
       <div id="studentAssignmentList" class="portal-list list" aria-live="polite"></div>
     </section>
   </main>
-
-  <div id="moduleConfigOverlay" class="portal-config-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="moduleConfigTitle">
-    <div class="portal-config-shell">
-      <header class="portal-config-shell__header">
-        <h3 id="moduleConfigTitle">Configura la prova</h3>
-        <button id="closeConfigOverlay" class="portal-overlay-close" type="button" aria-label="Tanca el configurador">✕</button>
-      </header>
-      <iframe id="moduleConfigFrame" title="Configurador de proves FocusQuiz" loading="lazy"></iframe>
-    </div>
-  </div>
-
-  <div id="assignmentLaunchOverlay" class="portal-config-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="assignmentLaunchTitle">
-    <div class="portal-config-shell portal-config-shell--full">
-      <header class="portal-config-shell__header">
-        <h3 id="assignmentLaunchTitle">Prova FocusQuiz</h3>
-        <button id="closeLaunchOverlay" class="portal-overlay-close" type="button" aria-label="Tanca la prova assignada">✕</button>
-      </header>
-      <iframe id="assignmentLaunchFrame" title="Prova FocusQuiz assignada" loading="lazy"></iframe>
-    </div>
-  </div>
 
   <script type="module" src="./supabase-portal.js"></script>
 </body>

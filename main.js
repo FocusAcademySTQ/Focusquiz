@@ -329,30 +329,8 @@ window.addModules = function(mods){
 let pendingModule = null; // mòdul seleccionat per configurar
 let urlModuleHandled = false;
 const DEFAULTS = { count: 10, time: 0, level: 1 };
-const INITIAL_QUERY = (() => {
-  try {
-    return new URLSearchParams(window.location.search);
-  } catch (error) {
-    console.warn('No s\'han pogut analitzar els paràmetres de la URL', error);
-    return new URLSearchParams();
-  }
-})();
-const ASSIGN_MODE = (() => {
-  if (!INITIAL_QUERY.has('assign')) return false;
-  const raw = INITIAL_QUERY.get('assign');
-  if (raw === null) return true;
-  const normalized = String(raw).toLowerCase();
-  return normalized === '' || normalized === '1' || normalized === 'true' || normalized === 'yes';
-})();
-const ASSIGNMENT_TOKEN = INITIAL_QUERY.get('assignment') || null;
-const ASSIGN_STORAGE_PREFIX = 'focusquiz.assignment.';
-let assignmentAutoStartAttempted = false;
 let session = null;
 let timerHandle = null;
-
-if (ASSIGN_MODE) {
-  document.documentElement.classList.add('assign-mode');
-}
 
 /* ===================== VIEWS ===================== */
 
@@ -409,7 +387,6 @@ function buildHome(){
   sl.value = DEFAULTS.level;
 
   openModuleFromURL();
-  maybeStartAssignmentFromStorage();
 }
 
 function openModuleFromURL(){
@@ -438,87 +415,10 @@ function openModuleFromURL(){
   openConfig(target.id);
 }
 
-function maybeStartAssignmentFromStorage(){
-  if (!ASSIGNMENT_TOKEN || assignmentAutoStartAttempted) return;
-
-  const storageKey = `${ASSIGN_STORAGE_PREFIX}${ASSIGNMENT_TOKEN}`;
-  let raw = null;
-  try {
-    raw = sessionStorage.getItem(storageKey) || localStorage.getItem(storageKey);
-  } catch (error) {
-    console.warn('No s\'ha pogut accedir a sessionStorage/localStorage', error);
-  }
-
-  if (!raw) return;
-
-  let bundle = null;
-  try {
-    bundle = JSON.parse(raw);
-  } catch (error) {
-    console.warn('Configuració d\'assignació malformada', error);
-  }
-
-  if (!bundle || typeof bundle !== 'object') {
-    assignmentAutoStartAttempted = true;
-    try {
-      sessionStorage.removeItem(storageKey);
-      localStorage.removeItem(storageKey);
-    } catch {}
-    alert('No s\'ha pogut carregar la configuració de la prova assignada.');
-    return;
-  }
-
-  const moduleId = bundle.module || bundle.moduleId || bundle.module_id || (bundle.config && (bundle.config.module || bundle.config.moduleId));
-  const cfg = bundle.config || bundle.settings || null;
-
-  if (!moduleId) {
-    assignmentAutoStartAttempted = true;
-    try {
-      sessionStorage.removeItem(storageKey);
-      localStorage.removeItem(storageKey);
-    } catch {}
-    alert('La prova assignada no especifica cap mòdul.');
-    return;
-  }
-
-  const module = MODULES.find((m) => m.id === moduleId);
-  if (!module) {
-    // Espera fins que el mòdul estigui registrat
-    return;
-  }
-
-  if (!cfg) {
-    assignmentAutoStartAttempted = true;
-    try {
-      sessionStorage.removeItem(storageKey);
-      localStorage.removeItem(storageKey);
-    } catch {}
-    alert('No s\'han trobat els paràmetres de la prova assignada.');
-    return;
-  }
-
-  assignmentAutoStartAttempted = true;
-  pendingModule = module;
-
-  try {
-    sessionStorage.removeItem(storageKey);
-    localStorage.removeItem(storageKey);
-  } catch {}
-
-  setTimeout(() => {
-    launchConfiguredModule(module.id, cfg);
-  }, 0);
-}
-
 function openConfig(moduleId){
   pendingModule = MODULES.find(m=>m.id===moduleId) || MODULES[0];
   $('#cfg-title').textContent = `Configura: ${pendingModule.name}`;
   $('#cfg-desc').textContent = pendingModule.desc;
-
-  const startBtn = $('#cfg-start');
-  if (startBtn) {
-    startBtn.textContent = ASSIGN_MODE ? 'Assigna la prova' : 'Comença';
-  }
 
   // valors per defecte
   $('#cfg-count').value = DEFAULTS.count;
@@ -851,328 +751,28 @@ function collectConfigValues(){
   return { count, time, level, options };
 }
 
-function summarizeAssignmentConfig(module, cfg){
-  const summary = {
-    moduleId: module?.id || null,
-    moduleName: module?.name || '',
-    headline: '',
-    badges: [],
-    details: [],
-  };
-
-  if (!cfg || typeof cfg !== 'object') {
-    return summary;
-  }
-
-  const badges = summary.badges;
-  const details = summary.details;
-  const opts = cfg.options || {};
-
-  const count = Number.parseInt(cfg.count, 10);
-  if (Number.isFinite(count) && count > 0) {
-    badges.push(`${count} preguntes`);
-  }
-
-  const usesLevels = module?.usesLevels !== false;
-  const level = Number.parseInt(cfg.level, 10);
-  if (usesLevels) {
-    if (Number.isFinite(level)) {
-      badges.push(`Nivell ${level}`);
-    }
-  } else {
-    if (module?.levelLabel) {
-      badges.push(module.levelLabel);
-    } else {
-      badges.push('Mode lliure');
-    }
-  }
-
-  const time = Number.parseInt(cfg.time, 10);
-  badges.push(time > 0 ? `${time} minuts` : 'Sense límit de temps');
-
-  switch (module?.id) {
-    case 'arith': {
-      const opLabels = { '+': 'Sumes', '-': 'Restes', '×': 'Multiplicacions', '÷': 'Divisions' };
-      const operations = Array.isArray(opts.ops)
-        ? opts.ops.map((op) => opLabels[op] || op).filter(Boolean)
-        : [];
-      if (operations.length) {
-        summary.headline = `Operacions: ${operations.join(', ')}`;
-      }
-      if (opts.allowNeg) details.push('Permet nombres negatius');
-      if (opts.tri) details.push('Inclou operacions amb tres nombres');
-      break;
-    }
-    case 'frac': {
-      const subLabels = {
-        identify: 'Identificar fraccions amb imatges',
-        arith: 'Aritmètica de fraccions',
-        simplify: 'Simplificar fraccions',
-      };
-      summary.headline = subLabels[opts.sub] || 'Fraccions';
-      if (opts.mixedGrids) details.push('Figures i graelles variades');
-      if (opts.forceSimplest) details.push('Resposta en fracció simplificada');
-      break;
-    }
-    case 'geom': {
-      const scopeLabels = {
-        area: 'Àrees',
-        perim: 'Perímetres',
-        both: 'Àrees i perímetres',
-        vol: 'Volums',
-      };
-      summary.headline = scopeLabels[opts.scope] || 'Geometria';
-      const figLabels = {
-        rect: 'Rectangles i quadrats',
-        tri: 'Triangles',
-        circ: 'Cercles',
-        poly: 'Polígons regulars',
-        grid: 'Graelles',
-        comp: 'Figures compostes',
-        cube: 'Cubs i cuboides',
-        cylinder: 'Cilindres',
-      };
-      const figures = Object.entries(opts.fig || {})
-        .filter(([, value]) => Boolean(value))
-        .map(([key]) => figLabels[key])
-        .filter(Boolean);
-      if (figures.length) details.push(`Figures: ${figures.join(', ')}`);
-      if (opts.units) details.push(`Unitats: ${opts.units}`);
-      if (Number.isFinite(opts.round)) details.push(`Arrodoniment: ${opts.round} decimals`);
-      if (opts.circleMode === 'pi-exacte') details.push('Cercles en mode π exacte');
-      if (opts.requireUnits) details.push('Exigeix unitats a la resposta');
-      break;
-    }
-    case 'stats': {
-      const statsLabels = {
-        mmm: 'Mitjana · Mediana · Moda',
-        'range-dev': 'Rang i desviació',
-        graphs: 'Representació gràfica',
-      };
-      summary.headline = statsLabels[opts.sub] || 'Estadística bàsica';
-      if (Number.isFinite(opts.round)) details.push(`Arrodoniment: ${opts.round} decimals`);
-      break;
-    }
-    case 'units': {
-      const unitsLabels = {
-        length: 'Longitud',
-        mass: 'Massa',
-        volume: 'Volum',
-        area: 'Superfície',
-        time: 'Temps',
-      };
-      const subLabel = unitsLabels[opts.sub];
-      summary.headline = subLabel ? `Conversió de ${subLabel.toLowerCase()}` : 'Unitats i conversions';
-      if (Number.isFinite(opts.round)) details.push(`Arrodoniment: ${opts.round} decimals`);
-      break;
-    }
-    case 'eq': {
-      const formatLabels = {
-        normal: 'Equacions normals',
-        frac: 'Equacions amb fraccions',
-        par: 'Equacions amb parèntesis',
-        sys: 'Sistemes d\'equacions',
-      };
-      const degreeLabels = {
-        '1': '1r grau',
-        '2': '2n grau',
-        mixed: 'Graus barrejats',
-      };
-      const rangeLabels = {
-        small: 'Coeficients petits (−9…9)',
-        med: 'Coeficients mitjans (−20…20)',
-        big: 'Coeficients grans (−60…60)',
-      };
-      const formatLabel = formatLabels[opts.format] || 'Equacions';
-      const degreeLabel = degreeLabels[opts.degree] || '';
-      summary.headline = degreeLabel ? `${formatLabel} · ${degreeLabel}` : formatLabel;
-      const rangeLabel = rangeLabels[opts.range];
-      if (rangeLabel) details.push(rangeLabel);
-      if (opts.forceInt) details.push('Força solucions enteres');
-      if (opts.allowIncomplete) details.push('Inclou equacions incompletes');
-      if (opts.hints) details.push('Mostra pistes d\'ajuda');
-      break;
-    }
-    case 'func': {
-      const typeLabels = {
-        lin: 'Lineals',
-        quad: 'Quadràtiques',
-        poly: 'Polinòmiques',
-        rac: 'Racionals',
-        rad: 'Radicals',
-        exp: 'Exponencials',
-        log: 'Logarítmiques',
-      };
-      const types = Object.entries(opts.types || {})
-        .filter(([, value]) => Boolean(value))
-        .map(([key]) => typeLabels[key])
-        .filter(Boolean);
-      if (types.length) {
-        summary.headline = `Funcions ${types.join(', ')}`;
-      }
-      const aspectLabels = {
-        type: 'Identificar el tipus',
-        domain: 'Domini i recorregut',
-        intercepts: 'Punts de tall',
-        symmetry: 'Simetria',
-        limits: 'Límits',
-        extrema: 'Extrems relatius',
-        monotony: 'Monotonia',
-      };
-      const aspects = Object.entries(opts.aspects || {})
-        .filter(([, value]) => Boolean(value))
-        .map(([key]) => aspectLabels[key])
-        .filter(Boolean);
-      if (aspects.length) {
-        details.push(`Aspectes: ${aspects.join(', ')}`);
-      }
-      const diffLabels = {
-        1: 'Dificultat bàsica',
-        2: 'Dificultat intermèdia',
-        3: 'Dificultat avançada',
-        4: 'Dificultat experta',
-      };
-      const diffLabel = diffLabels[opts.difficulty];
-      if (diffLabel) badges.push(diffLabel);
-      break;
-    }
-    case 'geo-europe':
-    case 'geo-america':
-    case 'geo-africa':
-    case 'geo-asia': {
-      const modeLabels = {
-        quiz: 'Qüestionari de països',
-        flag: 'Banderes',
-        map: 'Mapa interactiu',
-      };
-      summary.headline = modeLabels[opts.mode] || 'Geografia del món';
-      break;
-    }
-    case 'chem': {
-      const chemLabels = {
-        speed: 'Quiz ràpid de símbols',
-        compounds: 'Construcció de compostos',
-        map: 'Mapa de la taula periòdica',
-        classify: 'Classificació de famílies',
-      };
-      summary.headline = chemLabels[opts.sub] || 'Química general';
-      const dirLabels = {
-        sym2name: 'Símbol → Nom',
-        name2sym: 'Nom → Símbol',
-      };
-      const dirLabel = dirLabels[opts.dir];
-      if (dirLabel) details.push(dirLabel);
-      break;
-    }
-    case 'chem-compounds': {
-      const compLabels = {
-        valence: 'Valències',
-        formulas: 'Escriure fórmules',
-        molecular: 'Compostos moleculars',
-      };
-      summary.headline = compLabels[opts.sub] || 'Fórmules i compostos';
-      break;
-    }
-    case 'cat-ort': {
-      const ortLabels = {
-        bv: 'b/v',
-        jg: 'j/g',
-        scczx: 's / c / ç / z / x',
-        corregir: 'Correcció de textos',
-        rr: 'r / rr',
-        llg: 'l / l·l',
-      };
-      const ortLabel = ortLabels[opts.sub];
-      summary.headline = ortLabel ? `Ortografia: ${ortLabel}` : 'Ortografia catalana';
-      break;
-    }
-    case 'cat-morf': {
-      const morfLabels = {
-        categories: 'Categories gramaticals',
-        temps: 'Temps verbals',
-        concordanca: 'Concordança',
-        funcions: 'Funcions sintàctiques',
-        subjecte: 'Subjecte i predicat',
-      };
-      summary.headline = morfLabels[opts.sub] || 'Morfologia catalana';
-      break;
-    }
-    default: {
-      if (opts.mode === 'map') {
-        summary.headline = 'Mode mapa interactiu';
-      }
-      break;
-    }
-  }
-
-  summary.badges = Array.from(new Set(badges.filter(Boolean)));
-  summary.details = Array.from(new Set(details.filter(Boolean)));
-  if (summary.headline) {
-    summary.headline = summary.headline.trim();
-  }
-
-  return summary;
-}
-
-function launchConfiguredModule(moduleId, cfg){
-  if (!cfg) return;
-  const mode = cfg?.options?.mode;
-  if (mode === 'map') {
-    if (moduleId === 'geo-europe') {
+function startFromConfig(){
+  const cfg = collectConfigValues();
+  if(!cfg) return;
+  if (cfg.options?.mode === 'map') {
+    if (pendingModule?.id === 'geo-europe') {
       openEuropeMap();
       return;
     }
-    if (moduleId === 'geo-america') {
+    if (pendingModule?.id === 'geo-america') {
       openAmericaMap();
       return;
     }
-    if (moduleId === 'geo-africa') {
+    if (pendingModule?.id === 'geo-africa') {
       openAfricaMap();
       return;
     }
-    if (moduleId === 'geo-asia') {
+    if (pendingModule?.id === 'geo-asia') {
       openAsiaMap();
       return;
     }
   }
-  startQuiz(moduleId, cfg);
-}
-
-function startFromConfig(){
-  const cfg = collectConfigValues();
-  if(!cfg) return;
-  if (ASSIGN_MODE) {
-    if (window === window.parent) {
-      alert('Obre aquest mode des del portal FocusQuiz per assignar la prova.');
-      return;
-    }
-    const configPayload = JSON.parse(JSON.stringify(cfg));
-    const summary = summarizeAssignmentConfig(pendingModule, configPayload);
-    const payload = {
-      type: 'focusquiz:assignment-config',
-      moduleId: pendingModule?.id || null,
-      moduleName: pendingModule?.name || null,
-      config: configPayload,
-      summary,
-    };
-    try {
-      window.parent.postMessage(payload, '*');
-    } catch (error) {
-      console.warn('No s\'ha pogut enviar la configuració al portal', error);
-    }
-    const startBtn = $('#cfg-start');
-    if (startBtn) {
-      startBtn.blur?.();
-      startBtn.textContent = 'Assignada!';
-      setTimeout(() => {
-        if (startBtn) {
-          startBtn.textContent = 'Assigna la prova';
-        }
-      }, 2000);
-    }
-    return;
-  }
-  launchConfiguredModule(pendingModule.id, cfg);
+  startQuiz(pendingModule.id, cfg);
 }
 
 /* ===================== QUIZ ENGINE ===================== */
