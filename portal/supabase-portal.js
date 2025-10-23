@@ -318,8 +318,13 @@ function renderStudentAssignments(rows) {
   }
 
   rows.forEach((row) => {
-    const assignment = row.assignment;
-    if (!assignment) return;
+    const assignment = row.assignment || {
+      id: row.assignment_id,
+      title: 'Tasca assignada',
+      description: '',
+      module_id: null,
+      due_date: null,
+    };
 
     const dueDate = assignment.due_date
       ? new Date(assignment.due_date + 'T00:00:00').toLocaleDateString('ca-ES')
@@ -479,6 +484,7 @@ async function loadStudentAssignments() {
     .select(`
       id,
       status,
+      assignment_id,
       assignment:assignments (
         id,
         title,
@@ -503,7 +509,33 @@ async function loadStudentAssignments() {
     return;
   }
 
-  renderStudentAssignments(data || []);
+  const rows = data || [];
+
+  const missingAssignments = rows
+    .filter((row) => !row.assignment && row.assignment_id)
+    .map((row) => row.assignment_id);
+
+  if (missingAssignments.length) {
+    const uniqueIds = Array.from(new Set(missingAssignments));
+    const { data: fallbackAssignments } = await state.supabase
+      .from('assignments')
+      .select('id, title, description, module_id, due_date, created_at')
+      .in('id', uniqueIds);
+
+    if (Array.isArray(fallbackAssignments) && fallbackAssignments.length) {
+      const fallbackMap = new Map(fallbackAssignments.map((assignment) => [assignment.id, assignment]));
+      rows.forEach((row) => {
+        if (!row.assignment && row.assignment_id) {
+          const assignment = fallbackMap.get(row.assignment_id);
+          if (assignment) {
+            row.assignment = assignment;
+          }
+        }
+      });
+    }
+  }
+
+  renderStudentAssignments(rows);
 }
 
 async function handleLogin(event) {
