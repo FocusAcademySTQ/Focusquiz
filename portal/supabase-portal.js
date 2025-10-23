@@ -579,7 +579,28 @@ async function handleLogin(event) {
 
 async function handleLogout() {
   if (!state.supabase) return;
-  await state.supabase.auth.signOut();
+
+  if (el.logoutBtn) {
+    el.logoutBtn.disabled = true;
+  }
+
+  const { error } = await state.supabase.auth.signOut();
+
+  if (error) {
+    alert('No s\'ha pogut tancar la sessió: ' + error.message);
+    if (el.logoutBtn) {
+      el.logoutBtn.disabled = false;
+    }
+    return;
+  }
+
+  state.session = null;
+  state.profile = null;
+  updateSessionUI();
+
+  if (el.logoutBtn) {
+    el.logoutBtn.disabled = false;
+  }
 }
 
 async function handleAssignmentSubmit(event) {
@@ -726,30 +747,65 @@ async function handleAssignmentListClick(event) {
 }
 
 async function handleSubmission(event) {
-  if (!event.target.matches('.submission-form')) return;
+  const form = event.target;
+  if (!form.matches('.submission-form')) return;
   event.preventDefault();
   if (!state.supabase || !state.profile) return;
 
-  const formData = new FormData(event.target);
-  const content = formData.get('content');
-  const assignmentId = event.target.dataset.assignment;
+  const formData = new FormData(form);
+  const assignmentId = form.dataset.assignment;
+  const rowId = form.dataset.row;
+  const rawContent = formData.get('content');
+  const content = rawContent ? rawContent.toString().trim() : '';
+
+  if (!assignmentId) {
+    alert('No s\'ha pogut identificar la tasca.');
+    return;
+  }
+
+  const submitButton = form.querySelector('button[type="submit"]');
+  const originalLabel = submitButton ? submitButton.textContent : '';
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = 'Guardant…';
+  }
+
+  const payload = {
+    assignment_id: assignmentId,
+    profile_id: state.profile.id,
+    content: content || null,
+    submitted_at: new Date().toISOString(),
+  };
 
   const { error } = await state.supabase
     .from('submissions')
-    .upsert({
-      assignment_id: assignmentId,
-      profile_id: state.profile.id,
-      content,
-    }, {
+    .upsert(payload, {
       onConflict: 'assignment_id,profile_id',
     });
+
+  if (submitButton) {
+    submitButton.disabled = false;
+    submitButton.textContent = originalLabel || 'Envia resposta';
+  }
 
   if (error) {
     alert('Error en desar la resposta: ' + error.message);
     return;
   }
 
+  if (rowId) {
+    const { error: statusError } = await state.supabase
+      .from('assignment_assignees')
+      .update({ status: 'submitted' })
+      .eq('id', rowId);
+
+    if (statusError) {
+      alert('La resposta s\'ha desat però no s\'ha pogut actualitzar l\'estat: ' + statusError.message);
+    }
+  }
+
   alert('Resposta desada correctament.');
+  form.reset();
   loadStudentAssignments();
 }
 
