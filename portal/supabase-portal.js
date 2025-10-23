@@ -10,8 +10,6 @@ const sortedModules = [...MODULES].sort((a, b) => {
   return catA.localeCompare(catB, 'ca', { sensitivity: 'base' });
 });
 
-const ASSIGNMENT_STORAGE_PREFIX = 'focusquiz.assignment.';
-
 const state = {
   supabase: null,
   session: null,
@@ -19,12 +17,9 @@ const state = {
   students: [],
   modules: sortedModules,
   moduleIndex: new Map(sortedModules.map((module) => [module.id, module])),
-  selectedModuleId: null,
-  moduleConfigBundle: null,
+  selectedModules: new Set(),
   moduleFilter: 'all',
   moduleSearch: '',
-  studentAssignments: [],
-  teacherAssignments: [],
 };
 
 const el = {
@@ -46,26 +41,12 @@ const el = {
   moduleEmptyState: document.getElementById('moduleEmptyState'),
   moduleFilter: document.getElementById('moduleFilter'),
   moduleSearch: document.getElementById('moduleSearch'),
-  moduleSelectedChip: document.getElementById('moduleSelectedChip'),
-  selectedModuleTitle: document.getElementById('selectedModuleTitle'),
-  selectedModuleDescription: document.getElementById('selectedModuleDescription'),
-  moduleSummaryBadges: document.getElementById('moduleSummaryBadges'),
-  moduleSummaryDetails: document.getElementById('moduleSummaryDetails'),
-  configureModuleBtn: document.getElementById('configureModuleBtn'),
-  clearModuleBtn: document.getElementById('clearModuleBtn'),
-  moduleConfigOverlay: document.getElementById('moduleConfigOverlay'),
-  moduleConfigFrame: document.getElementById('moduleConfigFrame'),
-  moduleConfigTitle: document.getElementById('moduleConfigTitle'),
-  closeConfigOverlay: document.getElementById('closeConfigOverlay'),
+  moduleSelectedInfo: document.getElementById('moduleSelectedInfo'),
   studentChecklist: document.getElementById('studentChecklist'),
   assignmentList: document.getElementById('assignmentList'),
   reloadAssignments: document.getElementById('reloadAssignments'),
   studentView: document.getElementById('studentView'),
   studentAssignmentList: document.getElementById('studentAssignmentList'),
-  assignmentLaunchOverlay: document.getElementById('assignmentLaunchOverlay'),
-  assignmentLaunchFrame: document.getElementById('assignmentLaunchFrame'),
-  assignmentLaunchTitle: document.getElementById('assignmentLaunchTitle'),
-  closeLaunchOverlay: document.getElementById('closeLaunchOverlay'),
 };
 
 const statusLabels = {
@@ -126,123 +107,18 @@ function getCategoryLabel(category) {
   return CATEGORY_LABELS[category] || 'Mòdul FocusQuiz';
 }
 
-function normalizeSummary(summary, module) {
-  const safe = summary && typeof summary === 'object' ? summary : {};
-  const headline = typeof safe.headline === 'string' ? safe.headline.trim() : '';
-  const badges = Array.isArray(safe.badges) ? safe.badges.filter(Boolean) : [];
-  const details = Array.isArray(safe.details) ? safe.details.filter(Boolean) : [];
-  const fallback = module?.desc || '';
-  return { headline, badges, details, fallback };
-}
-
-function summaryBadgesHTML(normalized) {
-  if (!normalized.badges.length) return '';
-  return normalized.badges
-    .map((badge) => `<span class="portal-chip">${escapeHTML(badge)}</span>`)
-    .join('');
-}
-
-function summaryDetailsHTML(normalized) {
-  if (!normalized.details.length) return '';
-  return normalized.details.map((detail) => `<li>${escapeHTML(detail)}</li>`).join('');
-}
-
-function buildAssignmentTitle(module, summary) {
-  const normalized = normalizeSummary(summary, module);
-  const moduleName = module?.name || 'Prova FocusQuiz';
-  if (normalized.headline) {
-    return `${moduleName} · ${normalized.headline}`;
+function updateSelectedModulesInfo() {
+  if (!el.moduleSelectedInfo) return;
+  const count = state.selectedModules.size;
+  let text = 'Cap mòdul seleccionat';
+  if (count === 1) {
+    text = '1 mòdul seleccionat';
+  } else if (count > 1) {
+    text = `${count} mòduls seleccionats`;
   }
-  return moduleName;
-}
-
-function buildAssignmentDescription(module, summary, note) {
-  const normalized = normalizeSummary(summary, module);
-  const lines = [];
-  if (normalized.headline) {
-    lines.push(normalized.headline);
-  } else if (normalized.fallback) {
-    lines.push(normalized.fallback);
-  }
-  if (normalized.badges.length) {
-    lines.push(normalized.badges.join(' · '));
-  }
-  normalized.details.forEach((detail) => {
-    lines.push(`• ${detail}`);
-  });
-  if (note) {
-    if (lines.length) lines.push('');
-    lines.push('— Nota del docent —');
-    lines.push(note);
-  }
-  if (!lines.length) {
-    lines.push('Prova configurada al portal FocusQuiz.');
-  }
-  return lines.join('\n');
-}
-
-function updateModuleSelectionUI() {
-  const module = state.selectedModuleId ? state.moduleIndex.get(state.selectedModuleId) : null;
-  const bundle = state.moduleConfigBundle;
-
-  if (el.moduleSelectedChip) {
-    el.moduleSelectedChip.textContent = module ? `Mòdul: ${module.name}` : 'Cap mòdul seleccionat';
-    el.moduleSelectedChip.classList.toggle('portal-chip--muted', !module);
-    el.moduleSelectedChip.classList.toggle('portal-chip--positive', Boolean(module));
-  }
-
-  if (el.configureModuleBtn) {
-    el.configureModuleBtn.disabled = !module;
-    el.configureModuleBtn.textContent = bundle ? 'Torna a configurar' : 'Obre el configurador';
-  }
-  if (el.clearModuleBtn) {
-    el.clearModuleBtn.disabled = !module;
-  }
-
-  if (!module) {
-    if (el.selectedModuleTitle) el.selectedModuleTitle.textContent = 'Cap prova seleccionada';
-    if (el.selectedModuleDescription) {
-      el.selectedModuleDescription.textContent = 'Selecciona un mòdul per preparar una prova personalitzada per a l\'alumnat.';
-    }
-    if (el.moduleSummaryBadges) el.moduleSummaryBadges.innerHTML = '';
-    if (el.moduleSummaryDetails) el.moduleSummaryDetails.innerHTML = '';
-    return;
-  }
-
-  if (el.selectedModuleTitle) {
-    el.selectedModuleTitle.textContent = module.name;
-  }
-
-  if (bundle) {
-    const normalized = normalizeSummary(bundle.summary, module);
-    if (el.selectedModuleDescription) {
-      const description = normalized.headline || normalized.fallback || 'Prova configurada a mida.';
-      el.selectedModuleDescription.textContent = description;
-    }
-    if (el.moduleSummaryBadges) {
-      el.moduleSummaryBadges.innerHTML = summaryBadgesHTML(normalized);
-    }
-    if (el.moduleSummaryDetails) {
-      const detailHTML = summaryDetailsHTML(normalized);
-      if (detailHTML) {
-        el.moduleSummaryDetails.innerHTML = detailHTML;
-      } else if (normalized.fallback) {
-        el.moduleSummaryDetails.innerHTML = `<li>${escapeHTML(normalized.fallback)}</li>`;
-      } else {
-        el.moduleSummaryDetails.innerHTML = '';
-      }
-    }
-  } else {
-    if (el.selectedModuleDescription) {
-      el.selectedModuleDescription.textContent = 'Obre el configurador FocusQuiz per escollir el subtema i els paràmetres exactes de la prova.';
-    }
-    if (el.moduleSummaryBadges) {
-      el.moduleSummaryBadges.innerHTML = '';
-    }
-    if (el.moduleSummaryDetails) {
-      el.moduleSummaryDetails.innerHTML = module.desc ? `<li>${escapeHTML(module.desc)}</li>` : '';
-    }
-  }
+  el.moduleSelectedInfo.textContent = text;
+  el.moduleSelectedInfo.classList.toggle('portal-chip--muted', count === 0);
+  el.moduleSelectedInfo.classList.toggle('portal-chip--positive', count > 0);
 }
 
 function getFilteredModules() {
@@ -263,7 +139,7 @@ function renderModulePicker() {
   toggle(el.moduleEmptyState, modules.length === 0);
 
   modules.forEach((module) => {
-    const isSelected = state.selectedModuleId === module.id;
+    const isSelected = state.selectedModules.has(module.id);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `portal-module-card${isSelected ? ' is-selected' : ''}`;
@@ -277,8 +153,6 @@ function renderModulePicker() {
     `;
     el.modulePicker.appendChild(button);
   });
-
-  updateModuleSelectionUI();
 }
 
 function populateModuleFilter() {
@@ -301,17 +175,14 @@ function populateModuleFilter() {
   }
 }
 
-function resetModulePicker(event) {
-  if (event) event.preventDefault();
-  closeModuleConfigurator();
-  state.selectedModuleId = null;
-  state.moduleConfigBundle = null;
+function resetModulePicker() {
+  state.selectedModules.clear();
   state.moduleFilter = 'all';
   state.moduleSearch = '';
   if (el.moduleFilter) el.moduleFilter.value = 'all';
   if (el.moduleSearch) el.moduleSearch.value = '';
   renderModulePicker();
-  updateModuleSelectionUI();
+  updateSelectedModulesInfo();
 }
 
 function handleModuleClick(event) {
@@ -320,14 +191,16 @@ function handleModuleClick(event) {
   const moduleId = button.dataset.moduleId;
   if (!moduleId) return;
 
-  const changed = state.selectedModuleId !== moduleId;
-  state.selectedModuleId = moduleId;
-  if (changed) {
-    state.moduleConfigBundle = null;
+  const willSelect = !state.selectedModules.has(moduleId);
+  if (willSelect) {
+    state.selectedModules.add(moduleId);
+  } else {
+    state.selectedModules.delete(moduleId);
   }
 
-  renderModulePicker();
-  triggerModuleConfigurator(true);
+  button.classList.toggle('is-selected', willSelect);
+  button.setAttribute('aria-selected', willSelect ? 'true' : 'false');
+  updateSelectedModulesInfo();
 }
 
 function handleModuleFilterChange(event) {
@@ -338,135 +211,6 @@ function handleModuleFilterChange(event) {
 function handleModuleSearch(event) {
   state.moduleSearch = event.target.value || '';
   renderModulePicker();
-}
-
-function handleConfiguratorEscape(event) {
-  if (event.key === 'Escape') {
-    closeModuleConfigurator();
-  }
-}
-
-function handleConfiguratorBackdrop(event) {
-  if (event.target === el.moduleConfigOverlay) {
-    closeModuleConfigurator();
-  }
-}
-
-function triggerModuleConfigurator(auto = false) {
-  if (!state.selectedModuleId) {
-    if (!auto) {
-      showError(el.assignmentError, 'Selecciona un mòdul abans de configurar la prova.');
-    }
-    return;
-  }
-
-  const module = state.moduleIndex.get(state.selectedModuleId);
-  if (!module || !el.moduleConfigOverlay || !el.moduleConfigFrame) return;
-
-  const query = new URLSearchParams({ module: state.selectedModuleId, assign: '1' });
-  const frameUrl = `../index.html?${query.toString()}`;
-  el.moduleConfigFrame.src = frameUrl;
-  if (el.moduleConfigTitle) {
-    el.moduleConfigTitle.textContent = `Configura: ${module.name}`;
-  }
-
-  el.moduleConfigOverlay.classList.remove('hidden');
-  document.addEventListener('keydown', handleConfiguratorEscape);
-  el.moduleConfigOverlay.addEventListener('click', handleConfiguratorBackdrop);
-  setTimeout(() => {
-    if (el.closeConfigOverlay) {
-      el.closeConfigOverlay.focus?.();
-    }
-  }, 150);
-}
-
-function openModuleConfigurator(event) {
-  if (event && typeof event.preventDefault === 'function') {
-    event.preventDefault();
-  }
-  triggerModuleConfigurator(false);
-}
-
-function closeModuleConfigurator() {
-  if (!el.moduleConfigOverlay) return;
-  el.moduleConfigOverlay.classList.add('hidden');
-  document.removeEventListener('keydown', handleConfiguratorEscape);
-  el.moduleConfigOverlay.removeEventListener('click', handleConfiguratorBackdrop);
-  if (el.moduleConfigFrame) {
-    el.moduleConfigFrame.src = 'about:blank';
-  }
-}
-
-function handleLaunchEscape(event) {
-  if (event.key === 'Escape') {
-    closeAssignmentLaunchOverlay();
-  }
-}
-
-function handleLaunchBackdrop(event) {
-  if (event.target === el.assignmentLaunchOverlay) {
-    closeAssignmentLaunchOverlay();
-  }
-}
-
-function openAssignmentLaunchOverlay(assignmentId, moduleName) {
-  if (!el.assignmentLaunchOverlay || !el.assignmentLaunchFrame) {
-    window.location.href = `../index.html?assignment=${encodeURIComponent(assignmentId)}`;
-    return;
-  }
-
-  const query = new URLSearchParams({ assignment: assignmentId });
-  el.assignmentLaunchFrame.src = `../index.html?${query.toString()}`;
-  if (el.assignmentLaunchTitle) {
-    el.assignmentLaunchTitle.textContent = moduleName || 'Prova FocusQuiz';
-  }
-
-  el.assignmentLaunchOverlay.classList.remove('hidden');
-  document.addEventListener('keydown', handleLaunchEscape);
-  setTimeout(() => {
-    if (el.closeLaunchOverlay) {
-      el.closeLaunchOverlay.focus?.();
-    }
-  }, 150);
-}
-
-function closeAssignmentLaunchOverlay() {
-  if (!el.assignmentLaunchOverlay) return;
-  el.assignmentLaunchOverlay.classList.add('hidden');
-  document.removeEventListener('keydown', handleLaunchEscape);
-  if (el.assignmentLaunchFrame) {
-    el.assignmentLaunchFrame.src = 'about:blank';
-  }
-}
-
-function handleConfiguratorMessage(event) {
-  if (!event || !event.data || typeof event.data !== 'object') return;
-  if (event.data.type !== 'focusquiz:assignment-config') return;
-
-  const sameOrigin = !event.origin || event.origin === 'null' || event.origin === window.location.origin;
-  if (!sameOrigin) return;
-
-  const moduleId = event.data.moduleId;
-  const config = event.data.config;
-  if (!moduleId || !config) return;
-
-  const summary = event.data.summary || null;
-  const module = state.moduleIndex.get(moduleId);
-
-  state.selectedModuleId = moduleId;
-  state.moduleConfigBundle = {
-    moduleId,
-    moduleName: event.data.moduleName || module?.name || moduleId,
-    config: JSON.parse(JSON.stringify(config)),
-    summary: summary ? JSON.parse(JSON.stringify(summary)) : null,
-  };
-
-  renderModulePicker();
-  updateModuleSelectionUI();
-  closeModuleConfigurator();
-
-  resetAlerts();
-  showSuccess(el.assignmentFeedback, 'Prova configurada. Revisa els alumnes i prem «Assigna la prova».');
 }
 
 function renderStudents() {
@@ -515,25 +259,11 @@ function renderTeacherAssignments(assignments) {
     const assignmentId = escapeHTML(assignment.id);
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
     const moduleName = escapeHTML(module?.name || assignment.title || 'Tasca');
+    const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
+    const descriptionHTML = formatDescription(descriptionSource);
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
-    const moduleLink = module ? `../index.html?module=${encodeURIComponent(module.id)}` : '';
-    const moduleConfig = assignment.module_config || {};
-    const summaryNormalized = normalizeSummary(moduleConfig.summary, module);
-    const summaryHeadline = summaryNormalized.headline
-      ? `<p class="portal-muted" style="margin-top:0.35rem">${escapeHTML(summaryNormalized.headline)}</p>`
-      : '';
-    const summaryBadges = summaryBadgesHTML(summaryNormalized);
-    const summaryBadgesHtml = summaryBadges ? `<div class="portal-summary-badges">${summaryBadges}</div>` : '';
-    const summaryDetails = summaryDetailsHTML(summaryNormalized);
-    const summaryDetailsHtml = summaryDetails
-      ? `<ul class="portal-meta-list portal-muted">${summaryDetails}</ul>`
-      : '';
-    const fallbackDescriptionHtml = `<p class="portal-muted" style="margin-top:0.35rem">${formatDescription(assignment.description || module?.desc || 'Sense descripció')}</p>`;
-    const summaryBlock = summaryHeadline || summaryBadgesHtml || summaryDetailsHtml
-      ? `${summaryHeadline}${summaryBadgesHtml}${summaryDetailsHtml}`
-      : fallbackDescriptionHtml;
-    const noteHtml = moduleConfig.note
-      ? `<p class="portal-muted" style="margin-top:0.35rem"><strong>Nota per a l'alumnat:</strong> ${escapeHTML(moduleConfig.note)}</p>`
+    const moduleLink = module
+      ? `../index.html?module=${encodeURIComponent(module.id)}`
       : '';
 
     const assignees = (assignment.assignment_assignees || []).map((row) => {
@@ -548,13 +278,6 @@ function renderTeacherAssignments(assignments) {
     });
 
     const actions = [];
-    if (moduleConfig.config) {
-      actions.push(`
-        <button class="btn-primary portal-launch-assignment" type="button" data-assignment="${assignmentId}" data-launch-origin="teacher">
-          Previsualitza la prova
-        </button>
-      `);
-    }
     if (moduleLink) {
       actions.push(`<a class="btn-secondary" href="${moduleLink}" target="_blank" rel="noopener">Obre el mòdul</a>`);
     }
@@ -565,8 +288,7 @@ function renderTeacherAssignments(assignments) {
         <h4 style="margin:0;">${moduleName}</h4>
         ${moduleTag}
       </div>
-      ${summaryBlock}
-      ${noteHtml}
+      <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       <div>
         <p class="portal-muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
@@ -613,28 +335,11 @@ function renderStudentAssignments(rows) {
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
     const moduleName = escapeHTML(module?.name || assignment.title || 'Tasca');
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
-    const moduleConfig = assignment.module_config || {};
-    const summaryNormalized = normalizeSummary(moduleConfig.summary, module);
-    const summaryHeadline = summaryNormalized.headline
-      ? `<p class="portal-muted" style="margin-top:0.35rem">${escapeHTML(summaryNormalized.headline)}</p>`
+    const moduleLink = module
+      ? `../index.html?module=${encodeURIComponent(module.id)}`
       : '';
-    const summaryBadges = summaryBadgesHTML(summaryNormalized);
-    const summaryBadgesHtml = summaryBadges ? `<div class="portal-summary-badges">${summaryBadges}</div>` : '';
-    const summaryDetails = summaryDetailsHTML(summaryNormalized);
-    const summaryDetailsHtml = summaryDetails
-      ? `<ul class="portal-meta-list portal-muted">${summaryDetails}</ul>`
-      : '';
-    const fallbackDescriptionHtml = `<p class="portal-muted" style="margin-top:0.35rem">${formatDescription(assignment.description || module?.desc || 'Sense descripció')}</p>`;
-    const summaryBlock = summaryHeadline || summaryBadgesHtml || summaryDetailsHtml
-      ? `${summaryHeadline}${summaryBadgesHtml}${summaryDetailsHtml}`
-      : fallbackDescriptionHtml;
-    const noteHtml = moduleConfig.note
-      ? `<p class="portal-muted" style="margin-top:0.35rem"><strong>Nota del docent:</strong> ${escapeHTML(moduleConfig.note)}</p>`
-      : '';
-    const canLaunch = moduleConfig.config
-      ? `<button class="btn-primary portal-launch-assignment" type="button" data-assignment="${assignmentId}" data-launch-origin="student">Fer l'examen ara</button>`
-      : '';
-    const launchActions = canLaunch ? `<div class="portal-assignment-actions">${canLaunch}</div>` : '';
+    const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
+    const descriptionHTML = formatDescription(descriptionSource);
     const safeStatus = escapeHTML(row.status);
     const statusChip = `<span class="portal-status-chip" data-status="${safeStatus}">${escapeHTML(statusLabels[row.status] || row.status)}</span>`;
     const statusOptions = Object.entries(statusLabels)
@@ -649,10 +354,9 @@ function renderStudentAssignments(rows) {
         <h4 style="margin:0;">${moduleName}</h4>
         ${moduleTag}
       </div>
-      ${summaryBlock}
-      ${noteHtml}
+      <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
-      ${launchActions}
+      ${moduleLink ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${moduleLink}" target="_blank" rel="noopener">Comença el mòdul</a></div>` : ''}
       <p style="margin-top:0.35rem;">
         Estat actual: ${statusChip}
       </p>
@@ -749,7 +453,6 @@ async function loadTeacherAssignments() {
       title,
       description,
       module_id,
-      module_config,
       due_date,
       created_at,
       assignment_assignees (
@@ -766,8 +469,7 @@ async function loadTeacherAssignments() {
     return;
   }
 
-  state.teacherAssignments = Array.isArray(data) ? data : [];
-  renderTeacherAssignments(state.teacherAssignments);
+  renderTeacherAssignments(data || []);
 }
 
 async function loadStudentAssignments() {
@@ -782,7 +484,6 @@ async function loadStudentAssignments() {
         title,
         description,
         module_id,
-        module_config,
         due_date,
         created_at
       ),
@@ -802,8 +503,7 @@ async function loadStudentAssignments() {
     return;
   }
 
-  state.studentAssignments = Array.isArray(data) ? data : [];
-  renderStudentAssignments(state.studentAssignments);
+  renderStudentAssignments(data || []);
 }
 
 async function handleLogin(event) {
@@ -836,54 +536,47 @@ async function handleAssignmentSubmit(event) {
   const formData = new FormData(event.currentTarget);
   const dueDate = formData.get('due_date') || null;
   const note = (formData.get('note') || '').toString().trim();
-  const moduleId = state.selectedModuleId;
-  const configBundle = state.moduleConfigBundle;
+  const selectedModuleIds = Array.from(state.selectedModules);
 
   const selectedStudents = Array.from(el.studentChecklist?.querySelectorAll('input[type="checkbox"]:checked') || [])
     .map((input) => input.value);
 
-  if (!moduleId) {
-    showError(el.assignmentError, 'Selecciona un mòdul per crear la tasca.');
-    return;
-  }
-
-  if (!configBundle || !configBundle.config) {
-    showError(el.assignmentError, 'Configura la prova abans d\'assignar-la.');
+  if (!selectedModuleIds.length) {
+    showError(el.assignmentError, 'Selecciona com a mínim un mòdul per crear les tasques.');
     return;
   }
 
   if (!selectedStudents.length) {
-    showError(el.assignmentError, 'Selecciona com a mínim un alumne per assignar la prova.');
+    showError(el.assignmentError, 'Selecciona com a mínim un alumne per assignar els mòduls.');
     return;
   }
 
-  const module = state.moduleIndex.get(moduleId);
-  if (!module) {
-    showError(el.assignmentError, 'El mòdul seleccionat no és vàlid.');
+  const modulesToAssign = selectedModuleIds
+    .map((moduleId) => state.moduleIndex.get(moduleId))
+    .filter(Boolean);
+
+  if (!modulesToAssign.length) {
+    showError(el.assignmentError, 'Cap dels mòduls seleccionats és vàlid.');
     return;
   }
 
-  const summary = configBundle.summary || null;
-  const title = buildAssignmentTitle(module, summary);
-  const description = buildAssignmentDescription(module, summary, note);
-  const moduleConfig = {
-    version: 1,
-    module: moduleId,
-    config: JSON.parse(JSON.stringify(configBundle.config)),
-    summary: summary ? JSON.parse(JSON.stringify(summary)) : null,
-    note: note || null,
-  };
-
-  const { data: insertedAssignments, error } = await state.supabase
-    .from('assignments')
-    .insert({
-      title,
+  const inserts = modulesToAssign.map((module) => {
+    const baseDescription = module.desc || 'Sense descripció';
+    const description = note
+      ? `${baseDescription}\n\n— Nota del docent —\n${note}`
+      : baseDescription;
+    return {
+      title: module.name,
       description,
       due_date: dueDate,
       created_by: state.profile.id,
-      module_id: moduleId,
-      module_config: moduleConfig,
-    })
+      module_id: module.id,
+    };
+  });
+
+  const { data: insertedAssignments, error } = await state.supabase
+    .from('assignments')
+    .insert(inserts)
     .select('id');
 
   if (error) {
@@ -918,10 +611,11 @@ async function handleAssignmentSubmit(event) {
   resetModulePicker();
   renderStudents();
 
+  const moduleCount = modulesToAssign.length;
   const studentCount = selectedStudents.length;
+  const moduleLabel = moduleCount === 1 ? '1 mòdul' : `${moduleCount} mòduls`;
   const studentLabel = studentCount === 1 ? '1 alumne' : `${studentCount} alumnes`;
-  const moduleLabel = module?.name || 'Prova FocusQuiz';
-  showSuccess(el.assignmentFeedback, `Prova «${moduleLabel}» assignada a ${studentLabel}.`);
+  showSuccess(el.assignmentFeedback, `${moduleLabel} assignat(s) a ${studentLabel}.`);
 
   loadTeacherAssignments();
 }
@@ -949,12 +643,6 @@ async function handleStatusChange(event) {
 }
 
 async function handleAssignmentListClick(event) {
-  const launch = event.target.closest('.portal-launch-assignment');
-  if (launch) {
-    await handleAssignmentLaunch(event);
-    return;
-  }
-
   const button = event.target.closest('.portal-delete-assignment');
   if (!button) return;
   event.preventDefault();
@@ -981,94 +669,6 @@ async function handleAssignmentListClick(event) {
   resetAlerts();
   showSuccess(el.assignmentFeedback, 'Tasca eliminada correctament.');
   loadTeacherAssignments();
-}
-
-async function handleAssignmentLaunch(event) {
-  const button = event.target.closest('.portal-launch-assignment');
-  if (!button) return;
-  event.preventDefault();
-
-  const assignmentId = button.dataset.assignment;
-  if (!assignmentId) return;
-
-  const origin = button.dataset.launchOrigin || 'student';
-
-  let moduleConfig = null;
-  let moduleId = null;
-  let moduleName = null;
-  let assigneeRow = null;
-
-  if (origin === 'teacher') {
-    const assignments = Array.isArray(state.teacherAssignments) ? state.teacherAssignments : [];
-    const assignment = assignments.find((row) => row.id === assignmentId);
-    if (!assignment) {
-      alert('No s\'ha trobat la configuració d\'aquesta tasca.');
-      return;
-    }
-    moduleConfig = assignment.module_config || {};
-    moduleId = moduleConfig.module || assignment.module_id;
-    const module = moduleId ? state.moduleIndex.get(moduleId) : null;
-    moduleName = module?.name || assignment.title || 'Prova FocusQuiz';
-  } else {
-    const rows = Array.isArray(state.studentAssignments) ? state.studentAssignments : [];
-    const entry = rows.find((row) => row.assignment?.id === assignmentId);
-    if (!entry || !entry.assignment) {
-      alert('No s\'ha trobat la configuració d\'aquesta tasca.');
-      return;
-    }
-    moduleConfig = entry.assignment.module_config || {};
-    moduleId = moduleConfig.module || entry.assignment.module_id;
-    const module = moduleId ? state.moduleIndex.get(moduleId) : null;
-    moduleName = module?.name || entry.assignment.title || 'Prova FocusQuiz';
-    assigneeRow = entry;
-  }
-
-  const config = moduleConfig?.config;
-  if (!moduleId || !config) {
-    alert('La prova seleccionada no té configuració disponible.');
-    return;
-  }
-
-  const payload = {
-    module: moduleId,
-    config,
-    summary: moduleConfig.summary || null,
-  };
-  if (moduleConfig.note) {
-    payload.note = moduleConfig.note;
-  }
-
-  const serialized = JSON.stringify(payload);
-  const storageKey = `${ASSIGNMENT_STORAGE_PREFIX}${assignmentId}`;
-  try {
-    sessionStorage.setItem(storageKey, serialized);
-  } catch (error) {
-    console.warn('No s\'ha pogut preparar la prova assignada', error);
-    alert('No s\'ha pogut preparar la prova. Revisa la configuració del navegador.');
-    return;
-  }
-
-  try {
-    localStorage.setItem(storageKey, serialized);
-  } catch (error) {
-    console.warn('No s\'ha pogut emmagatzemar la configuració a localStorage', error);
-  }
-
-  button.blur?.();
-
-  if (origin !== 'teacher' && state.supabase && assigneeRow?.id) {
-    try {
-      await state.supabase
-        .from('assignment_assignees')
-        .update({ status: 'in_progress' })
-        .eq('id', assigneeRow.id);
-      await loadStudentAssignments();
-    } catch (error) {
-      console.warn('No s\'ha pogut actualitzar l\'estat de la tasca', error);
-    }
-  }
-
-  openAssignmentLaunchOverlay(assignmentId, moduleName);
 }
 
 async function handleSubmission(event) {
@@ -1109,15 +709,8 @@ function wireEvents() {
   if (el.modulePicker) el.modulePicker.addEventListener('click', handleModuleClick);
   if (el.moduleFilter) el.moduleFilter.addEventListener('change', handleModuleFilterChange);
   if (el.moduleSearch) el.moduleSearch.addEventListener('input', handleModuleSearch);
-  if (el.configureModuleBtn) el.configureModuleBtn.addEventListener('click', openModuleConfigurator);
-  if (el.clearModuleBtn) el.clearModuleBtn.addEventListener('click', resetModulePicker);
-  if (el.closeConfigOverlay) el.closeConfigOverlay.addEventListener('click', closeModuleConfigurator);
-  if (el.studentAssignmentList) el.studentAssignmentList.addEventListener('click', handleAssignmentLaunch);
-  if (el.assignmentLaunchOverlay) el.assignmentLaunchOverlay.addEventListener('click', handleLaunchBackdrop);
-  if (el.closeLaunchOverlay) el.closeLaunchOverlay.addEventListener('click', closeAssignmentLaunchOverlay);
   document.addEventListener('change', handleStatusChange);
   document.addEventListener('submit', handleSubmission, true);
-  window.addEventListener('message', handleConfiguratorMessage);
 }
 
 function disableUI() {
@@ -1131,7 +724,7 @@ function disableUI() {
 async function init() {
   populateModuleFilter();
   renderModulePicker();
-  updateModuleSelectionUI();
+  updateSelectedModulesInfo();
 
   const config = await import('./supabase-config.js').catch(() => null);
 

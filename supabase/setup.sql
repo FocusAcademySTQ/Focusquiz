@@ -19,7 +19,6 @@ create table if not exists public.assignments (
   title text not null,
   description text,
   module_id text,
-  module_config jsonb,
   due_date date,
   created_by uuid not null references public.profiles (id) on delete cascade,
   created_at timestamptz not null default now()
@@ -27,9 +26,6 @@ create table if not exists public.assignments (
 
 alter table if exists public.assignments
   add column if not exists module_id text;
-
-alter table if exists public.assignments
-  add column if not exists module_config jsonb;
 
 -- Relation between assignments and students
 create table if not exists public.assignment_assignees (

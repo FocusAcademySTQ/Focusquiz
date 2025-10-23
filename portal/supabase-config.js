@@ -1,2 +1,2 @@
-export const SUPABASE_URL = import.meta?.env?.SUPABASE_URL ?? '';
-export const SUPABASE_ANON_KEY = import.meta?.env?.SUPABASE_ANON_KEY ?? '';
+export const SUPABASE_URL = window?.SUPABASE_URL || '';
+export const SUPABASE_ANON_KEY = window?.SUPABASE_ANON_KEY || '';

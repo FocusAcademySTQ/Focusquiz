@@ -142,6 +142,7 @@
 
 .portal-module-card::after {
   content: 'Seleccionat';
+  content: 'Assignat';
   position: absolute;
   top: 12px;
   right: 12px;
