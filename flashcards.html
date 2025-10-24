@@ -557,9 +557,8 @@
 
     .flashcard-text--vocab {
       display: flex;
-      flex-direction: column;
-      gap: 16px;
       align-items: center;
+      justify-content: center;
       text-align: center;
     }
 
@@ -567,23 +566,29 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 16px;
       width: 100%;
     }
 
-    .flashcard-vocab__media {
+    .flashcard-vocab--front {
+      min-height: 160px;
+    }
+
+    .flashcard-vocab__media,
+    .flashcard-vocab__placeholder {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 120px;
-      height: 120px;
-      border-radius: 24px;
+      width: 140px;
+      height: 140px;
+      border-radius: 32px;
       background: linear-gradient(180deg, rgba(165, 180, 252, 0.25), rgba(59, 130, 246, 0.2));
-      font-size: 3rem;
+      font-size: 3.2rem;
     }
 
     .flashcard-vocab__media[role='img'] {
-      font-size: 3.2rem;
+      font-size: 3.4rem;
     }
 
     .flashcard-vocab__media img {
@@ -593,80 +598,12 @@
     }
 
     .flashcard-vocab__word {
-      font-size: clamp(1.4rem, 1.2rem + 1vw, 2rem);
+      font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.4rem);
       font-weight: 700;
       color: #1e293b;
+      letter-spacing: 0.02em;
     }
 
-    .flashcard-vocab__category {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: rgba(244, 114, 182, 0.18);
-      color: #9d174d;
-      font-size: 0.85rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .flashcard-vocab__details {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      text-align: left;
-      width: 100%;
-    }
-
-    .flashcard-vocab__details p {
-      margin: 0;
-    }
-
-    .flashcard-vocab__subtitle {
-      margin: 0;
-      font-weight: 700;
-      color: #4338ca;
-    }
-
-    .flashcard-vocab__examples {
-      margin: 0;
-      padding-left: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .flashcard-vocab__examples li::marker {
-      color: #6366f1;
-    }
-
-    .flashcard-vocab__activity {
-      padding: 10px 14px;
-      border-radius: 14px;
-      background: rgba(52, 211, 153, 0.18);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-      font-weight: 600;
-    }
-
-    .flashcard-vocab__audio {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.45);
-      background: rgba(255, 255, 255, 0.9);
-      color: #1d4ed8;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .flashcard-vocab__audio:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
-    }
 
     .flashcard-hint {
       font-size: 0.85rem;
@@ -3192,126 +3129,26 @@
         summary:
           'Coneix el vocabulari essencial de l’aula i practica les ordres que escoltes cada dia.',
         cards: [
-          {
-            type: 'vocab',
-            word: 'llibre',
-            category: 'Objecte d’aula',
-            image: { emoji: '📘', alt: 'Llibre blau' },
-            audio: null,
-            description: 'Objecte amb pàgines que fem servir per llegir i estudiar.',
-            examples: ['Exemple: «Obre el llibre per la pàgina 12.»'],
-            activity: 'Busca un llibre i explica què hi aprens avui.',
-          },
-          {
-            type: 'vocab',
-            word: 'cadira',
-            category: 'Objecte d’aula',
-            image: { emoji: '🪑', alt: 'Cadira de classe' },
-            audio: null,
-            description: 'Seient on ens asseiem per escoltar i treballar còmodament.',
-            examples: ['Exemple: «Seu bé a la cadira i posa l’esquena recta.»'],
-            activity: 'Revisa si la teva cadira està ben posada i col·loca-la sota la taula.',
-          },
-          {
-            type: 'vocab',
-            word: 'taula',
-            category: 'Objecte d’aula',
-            image: { emoji: '🍽️', alt: 'Taula d’estudi' },
-            audio: null,
-            description: 'Superfície plana on escrivim, dibuixem i fem les activitats.',
-            examples: ['Exemple: «Deixa els colors ordenats damunt la taula.»'],
-            activity: 'Ordena els teus materials sobre la taula en menys de trenta segons.',
-          },
-          {
-            type: 'vocab',
-            word: 'pissarra',
-            category: 'Element de classe',
-            image: { emoji: '🧑‍🏫', alt: 'Mestra davant de la pissarra' },
-            audio: null,
-            description: 'Panell on el docent escriu informació important per a la classe.',
-            examples: ['Exemple: «Mira la pissarra i copia la data.»'],
-            activity: 'Llegeix el que hi ha a la pissarra i resumeix-ne una idea en veu alta.',
-          },
-          {
-            type: 'vocab',
-            word: 'motxilla',
-            category: 'Objecte personal',
-            image: { emoji: '🎒', alt: 'Motxilla escolar' },
-            audio: null,
-            description: 'Bossa on guardem el material per portar-lo a l’escola.',
-            examples: ['Exemple: «Guarda el llibre a la motxilla quan acabis.»'],
-            activity: 'Comprova que a la motxilla tens tot el material necessari per a casa.',
-          },
-          {
-            type: 'vocab',
-            word: 'llapis',
-            category: 'Material d’escriptura',
-            image: { emoji: '✏️', alt: 'Llapis groc' },
-            audio: null,
-            description: 'Eina per escriure i dibuixar sobre el paper.',
-            examples: ['Exemple: «Apunta la resposta amb llapis.»'],
-            activity: 'Mira si el teu llapis està ben afilat o necessita maquineta.',
-          },
-          {
-            type: 'vocab',
-            word: 'goma',
-            category: 'Material d’escriptura',
-            image: { emoji: '🧽', alt: 'Goma d’esborrar' },
-            audio: null,
-            description: 'Accessor per esborrar el que hem escrit amb llapis.',
-            examples: ['Exemple: «Esborra l’error amb la goma i torna-ho a escriure.»'],
-            activity: 'Esborra una paraula i torna-la a escriure sense errors.',
-          },
+          { type: 'vocab', word: 'llibre', image: { emoji: '📘', alt: 'Llibre de lectura' } },
+          { type: 'vocab', word: 'cadira', image: { emoji: '🪑', alt: 'Cadira de classe' } },
+          { type: 'vocab', word: 'taula', image: { emoji: '🍽️', alt: 'Taula de treball' } },
+          { type: 'vocab', word: 'pissarra', image: { emoji: '🧑‍🏫', alt: 'Mestre davant la pissarra' } },
+          { type: 'vocab', word: 'motxilla', image: { emoji: '🎒', alt: 'Motxilla escolar' } },
+          { type: 'vocab', word: 'llapis', image: { emoji: '✏️', alt: 'Llapis groc' } },
+          { type: 'vocab', word: 'goma', image: { emoji: '🧽', alt: 'Goma d’esborrar' } },
           {
             type: 'vocab',
             word: 'Activitat: Associa paraula i imatge',
-            category: 'Activitat',
-            image: { emoji: '🧩', alt: 'Activitat de correspondència' },
-            audio: null,
-            description: 'Barreja targetes amb paraules i imatges dels objectes de l’aula.',
-            examples: ['Consell: treballa en parelles i parleu en català quan feu les parelles.'],
-            activity: 'Uneix cada paraula amb la imatge correcta tan ràpid com puguis.',
+            image: { emoji: '🧩', alt: 'Joc de correspondència' },
           },
           {
             type: 'vocab',
             word: 'Activitat: Ordena les accions',
-            category: 'Activitat',
             image: { emoji: '⏱️', alt: 'Rellotge de sorra' },
-            audio: null,
-            description: 'Escriu o col·loca targetes amb passos típics de la classe.',
-            examples: ['Idees: «Obrir el quadern», «Copiar la data», «Guardar els materials».'],
-            activity: 'Posa les accions en l’ordre correcte i explica per què.',
           },
-          {
-            type: 'vocab',
-            word: 'Ordre: Obre el quadern',
-            category: 'Ordre',
-            image: { emoji: '📔', alt: 'Quadern obert' },
-            audio: null,
-            description: 'Indica que hem de desplegar el quadern per començar a treballar.',
-            examples: ['Exemple: «Obre el quadern a la pàgina 5 i copia la pregunta.»'],
-            activity: 'Fes el gest d’obrir el quadern i comprova que tens el llapis a punt.',
-          },
-          {
-            type: 'vocab',
-            word: 'Ordre: Seu bé',
-            category: 'Ordre',
-            image: { emoji: '🧘', alt: 'Nen assegut amb l’esquena recta' },
-            audio: null,
-            description: 'Recorda que cal tenir una postura recta i còmoda per concentrar-nos.',
-            examples: ['Exemple: «Seu bé perquè puguis escriure millor.»'],
-            activity: 'Ajusta la cadira i explica a un company per què és important la postura.',
-          },
-          {
-            type: 'vocab',
-            word: 'Ordre: Tanca la porta',
-            category: 'Ordre',
-            image: { emoji: '🚪', alt: 'Porta tancada' },
-            audio: null,
-            description: 'Demana que tanquem la porta per mantenir el silenci a l’aula.',
-            examples: ['Exemple: «Tanca la porta quan entris a classe.»'],
-            activity: 'Tanca suaument la porta i comenta què passa si la deixem oberta.',
-          },
+          { type: 'vocab', word: 'Obre el quadern', image: { emoji: '📔', alt: 'Quadern obert' } },
+          { type: 'vocab', word: 'Seu bé', image: { emoji: '🧘', alt: 'Nen assegut correctament' } },
+          { type: 'vocab', word: 'Tanca la porta', image: { emoji: '🚪', alt: 'Porta tancada' } },
         ],
       },
       {
@@ -3321,115 +3158,28 @@
         summary:
           'Aprèn el vocabulari bàsic de la família i els espais de la llar amb propostes per parlar-ne.',
         cards: [
+          { type: 'vocab', word: 'pare', image: { emoji: '👨', alt: 'Pare' } },
+          { type: 'vocab', word: 'mare', image: { emoji: '👩', alt: 'Mare' } },
+          { type: 'vocab', word: 'germà', image: { emoji: '👦', alt: 'Germà' } },
+          { type: 'vocab', word: 'àvia', image: { emoji: '👵', alt: 'Àvia' } },
+          { type: 'vocab', word: 'casa', image: { emoji: '🏠', alt: 'Casa familiar' } },
+          { type: 'vocab', word: 'habitació', image: { emoji: '🛏️', alt: 'llit' } },
+          { type: 'vocab', word: 'cuina', image: { emoji: '🍳', alt: 'Cuina de casa' } },
+          { type: 'vocab', word: 'bany', image: { emoji: '🛁', alt: 'Banyera' } },
           {
             type: 'vocab',
-            word: 'pare',
-            category: 'Membre de la família',
-            image: { emoji: '👨', alt: 'Pare somrient' },
-            audio: null,
-            description: 'El pare és el progenitor masculí de la família.',
-            examples: ['Exemple: «El meu pare cuina el sopar.»'],
-            activity: 'Explica què t’agrada fer amb el teu pare un cap de setmana.',
-          },
-          {
-            type: 'vocab',
-            word: 'mare',
-            category: 'Membre de la família',
-            image: { emoji: '👩', alt: 'Mare contenta' },
-            audio: null,
-            description: 'La mare és la progenitora femenina de la família.',
-            examples: ['Exemple: «La meva mare em llegeix contes.»'],
-            activity: 'Digues una tasca que compartiu a casa amb la mare.',
-          },
-          {
-            type: 'vocab',
-            word: 'germà',
-            category: 'Membre de la família',
-            image: { emoji: '👦', alt: 'Nen que pot ser germà' },
-            audio: null,
-            description: 'Un germà és un altre fill o filla dels teus pares.',
-            examples: ['Exemple: «El meu germà i jo juguem a futbol.»'],
-            activity: 'Comparteix una activitat que fas amb el teu germà o germana.',
-          },
-          {
-            type: 'vocab',
-            word: 'àvia',
-            category: 'Membre de la família',
-            image: { emoji: '👵', alt: 'Àvia que somriu' },
-            audio: null,
-            description: 'L’àvia és la mare del pare o de la mare.',
-            examples: ['Exemple: «La meva àvia m’explica històries del poble.»'],
-            activity: 'Pregunta a l’àvia quin és el seu record preferit i explica’l.',
-          },
-          {
-            type: 'vocab',
-            word: 'casa',
-            category: 'Espai de la llar',
-            image: { emoji: '🏠', alt: 'Casa familiar' },
-            audio: null,
-            description: 'Lloc on viu la família i compartim moments junts.',
-            examples: ['Exemple: «A casa sopem tots junts.»'],
-            activity: 'Descriu la façana de casa teva amb tres paraules.',
-          },
-          {
-            type: 'vocab',
-            word: 'habitació',
-            category: 'Espai de la llar',
-            image: { emoji: '🛏️', alt: 'Habitació amb llit' },
-            audio: null,
-            description: 'Espai de la casa on dormim i guardem coses personals.',
-            examples: ['Exemple: «La meva habitació té una finestra gran.»'],
-            activity: 'Ordena tres objectes de la teva habitació i digues on els guardes.',
-          },
-          {
-            type: 'vocab',
-            word: 'cuina',
-            category: 'Espai de la llar',
-            image: { emoji: '🍳', alt: 'Estris de cuina' },
-            audio: null,
-            description: 'Lloc on preparem els àpats i cuinem els aliments.',
-            examples: ['Exemple: «A la cuina hi ha una taula petita.»'],
-            activity: 'Fes una llista de tres estris que hi ha a la cuina.',
-          },
-          {
-            type: 'vocab',
-            word: 'bany',
-            category: 'Espai de la llar',
-            image: { emoji: '🛁', alt: 'Banyera' },
-            audio: null,
-            description: 'Espai de la casa on ens rentem i ens preparem.',
-            examples: ['Exemple: «Renta’t les mans al bany abans de dinar.»'],
-            activity: 'Recorda els passos per rentar-te les mans i explica’ls a un company.',
-          },
-          {
-            type: 'vocab',
-            word: 'Activitat: Imatges de família',
-            category: 'Activitat',
-            image: { emoji: '🖼️', alt: 'Fotografies de família' },
-            audio: null,
-            description: 'Observa fotos o dibuixos i identifica qui és cada membre de la família.',
-            examples: ['Pregunta: «Qui és la mare? Qui és l’àvia?»'],
-            activity: 'Assenyala cada imatge i digues en veu alta com es diu aquella persona.',
+            word: 'Activitat: Associa imatges de família',
+            image: { emoji: '🖼️', alt: 'Fotografies familiars' },
           },
           {
             type: 'vocab',
             word: 'Activitat: Completa la frase',
-            category: 'Activitat',
             image: { emoji: '✍️', alt: 'Llapis escrivint' },
-            audio: null,
-            description: 'Omple frases amb informació sobre la teva família.',
-            examples: ['Model: «El meu pare es diu _____.»'],
-            activity: 'Escriu el nom dels teus familiars per completar les frases proposades.',
           },
           {
             type: 'vocab',
             word: 'Lectura: La meva família',
-            category: 'Lectura',
             image: { emoji: '📖', alt: 'Llibre obert' },
-            audio: null,
-            description: 'Llegeix un text curt sobre la vida familiar i respon preguntes senzilles.',
-            examples: ['Pista: busca qui fa cada tasca a la casa del text.'],
-            activity: 'Després de llegir, explica amb les teves paraules què fa cada membre de la família.',
           },
         ],
       },
@@ -3440,157 +3190,35 @@
         summary:
           'Practica paraules d’aliments, expressions de gustos i jocs per parlar dels àpats del dia.',
         cards: [
+          { type: 'vocab', word: 'pa', image: { emoji: '🥖', alt: 'Barra de pa' } },
+          { type: 'vocab', word: 'aigua', image: { emoji: '💧', alt: 'Gota d’aigua' } },
+          { type: 'vocab', word: 'fruita', image: { emoji: '🍎', alt: 'Poma vermella' } },
+          { type: 'vocab', word: 'verdura', image: { emoji: '🥦', alt: 'Bròquil verd' } },
+          { type: 'vocab', word: 'carn', image: { emoji: '🍗', alt: 'Pernilet de pollastre' } },
+          { type: 'vocab', word: 'peix', image: { emoji: '🐟', alt: 'Peix blau' } },
+          { type: 'vocab', word: 'esmorzar', image: { emoji: '🥐', alt: 'Esmorzar amb croissant' } },
+          { type: 'vocab', word: 'dinar', image: { emoji: '🍽️', alt: 'Plat a taula' } },
+          { type: 'vocab', word: 'sopar', image: { emoji: '🍲', alt: 'Sopa calenta' } },
+          { type: 'vocab', word: 'Expressió: Tinc gana', image: { emoji: '😋', alt: 'Cara amb gana' } },
+          { type: 'vocab', word: 'Expressió: M’agrada la poma', image: { emoji: '🍏', alt: 'Poma verda' } },
+          { type: 'vocab', word: 'Expressió: No m’agrada el peix', image: { emoji: '😖', alt: 'Cara de desgrat' } },
           {
             type: 'vocab',
-            word: 'pa',
-            category: 'Aliment bàsic',
-            image: { emoji: '🥖', alt: 'Pa acabat de fer' },
-            audio: null,
-            description: 'Aliment fet amb farina que acompanya molts àpats.',
-            examples: ['Exemple: «Mengem pa torrat per esmorzar.»'],
-            activity: 'Digues amb què t’agrada menjar el pa.',
-          },
-          {
-            type: 'vocab',
-            word: 'aigua',
-            category: 'Beguda',
-            image: { emoji: '💧', alt: 'Gota d’aigua' },
-            audio: null,
-            description: 'Beguda transparent i essencial per mantenir-nos hidratats.',
-            examples: ['Exemple: «Beu un got d’aigua després de jugar.»'],
-            activity: 'Recorda quantes vegades al dia has de beure aigua.',
-          },
-          {
-            type: 'vocab',
-            word: 'fruita',
-            category: 'Aliment saludable',
-            image: { emoji: '🍎', alt: 'Poma vermella' },
-            audio: null,
-            description: 'Aliment dolç i natural que creix als arbres o plantes.',
-            examples: ['Exemple: «M’agrada menjar fruita fresca a la tarda.»'],
-            activity: 'Enumera tres fruites de colors diferents.',
-          },
-          {
-            type: 'vocab',
-            word: 'verdura',
-            category: 'Aliment saludable',
-            image: { emoji: '🥦', alt: 'Bròquil verd' },
-            audio: null,
-            description: 'Part comestible de les plantes que aporta vitamines i fibra.',
-            examples: ['Exemple: «Mengem verdura amb el dinar.»'],
-            activity: 'Dibuixa la teva verdura preferida i anomena-la.',
-          },
-          {
-            type: 'vocab',
-            word: 'carn',
-            category: 'Aliment proteic',
-            image: { emoji: '🍗', alt: 'Pernilet de pollastre' },
-            audio: null,
-            description: 'Aliment que prové dels animals i és ric en proteïnes.',
-            examples: ['Exemple: «Avui dinem carn a la planxa.»'],
-            activity: 'Explica quina guarnició acompanya la carn a casa teva.',
-          },
-          {
-            type: 'vocab',
-            word: 'peix',
-            category: 'Aliment proteic',
-            image: { emoji: '🐟', alt: 'Peix blau' },
-            audio: null,
-            description: 'Aliment que prové del mar o dels rius i és ric en vitamines.',
-            examples: ['Exemple: «El peix té moltes vitamines.»'],
-            activity: 'Digues com cuineu el peix a casa.',
-          },
-          {
-            type: 'vocab',
-            word: 'esmorzar',
-            category: 'Àpat del dia',
-            image: { emoji: '🍞', alt: 'Torrades d’esmorzar' },
-            audio: null,
-            description: 'Primer àpat del dia que fem al matí.',
-            examples: ['Exemple: «Per esmorzar prenc llet i cereals.»'],
-            activity: 'Explica què has esmorzat avui.',
-          },
-          {
-            type: 'vocab',
-            word: 'dinar',
-            category: 'Àpat del dia',
-            image: { emoji: '🍽️', alt: 'Plat llest per dinar' },
-            audio: null,
-            description: 'Àpat principal que fem a migdia.',
-            examples: ['Exemple: «Dinem a les dues amb la família.»'],
-            activity: 'Escriu un menú complet per al dinar.',
-          },
-          {
-            type: 'vocab',
-            word: 'sopar',
-            category: 'Àpat del dia',
-            image: { emoji: '🌙', alt: 'Lluna sobre el plat del sopar' },
-            audio: null,
-            description: 'Últim àpat del dia abans d’anar a dormir.',
-            examples: ['Exemple: «Sopem una sopa calenta.»'],
-            activity: 'Digues a quina hora sopes normalment.',
-          },
-          {
-            type: 'vocab',
-            word: 'Expressió: Tinc gana',
-            category: 'Expressió',
-            image: { emoji: '😋', alt: 'Cara amb gana' },
-            audio: null,
-            description: 'Serveix per dir que vols menjar perquè tens l’estómac buit.',
-            examples: ['Exemple: «Després d’educació física tinc gana.»'],
-            activity: 'Fes un petit diàleg dient quan tens gana.',
-          },
-          {
-            type: 'vocab',
-            word: 'Expressió: M’agrada la poma',
-            category: 'Expressió',
-            image: { emoji: '😊', alt: 'Cara satisfeta' },
-            audio: null,
-            description: 'Expressa que la poma és una fruita que et resulta agradable.',
-            examples: ['Exemple: «M’agrada la poma perquè és dolça.»'],
-            activity: 'Digues dues fruites que t’agradin i per què.',
-          },
-          {
-            type: 'vocab',
-            word: 'Expressió: No m’agrada el peix',
-            category: 'Expressió',
-            image: { emoji: '🙁', alt: 'Cara descontenta' },
-            audio: null,
-            description: 'Indica que el peix no és del teu gust.',
-            examples: ['Exemple: «No m’agrada el peix perquè té espines.»'],
-            activity: 'Pensa en una manera diferent de cuinar el peix per tastar-lo.',
-          },
-          {
-            type: 'vocab',
-            word: 'Activitat: Tria els aliments correctes',
-            category: 'Activitat',
-            image: { emoji: '✅', alt: 'Selecció d’aliments saludables' },
-            audio: null,
-            description: 'Observa imatges i indica quins aliments són saludables per al dia a dia.',
-            examples: ['Recorda combinar fruita, verdura i proteïnes.'],
-            activity: 'Marca amb un gomet els aliments saludables i explica per què els tries.',
+            word: 'Activitat: Selecciona els aliments correctes',
+            image: { emoji: '✅', alt: 'Marca de verificació' },
           },
           {
             type: 'vocab',
             word: 'Activitat: Joc de correspondència',
-            category: 'Activitat',
-            image: { emoji: '🔗', alt: 'Targetes per relacionar' },
-            audio: null,
-            description: 'Relaciona cada àpat amb el menjar que hi solem prendre.',
-            examples: ['Exemple: «Esmorzar → llet i torrades».'],
-            activity: 'Col·loca els aliments sota l’àpat que els correspon i revisa-ho amb un company.',
+            image: { emoji: '🧠', alt: 'Cervell pensant' },
           },
           {
             type: 'vocab',
-            word: 'Mini diàleg: Què mengem?',
-            category: 'Activitat oral',
-            image: { emoji: '🗨️', alt: 'Bombolla de diàleg' },
-            audio: null,
-            description: 'Practica converses senzilles escollint respostes sobre menjar.',
-            examples: ['Pregunta: «Què t’agrada esmorzar?»'],
-            activity: 'Escull una resposta i continua el diàleg amb una nova pregunta al company.',
+            word: 'Activitat: Mini-diàlegs amb opcions',
+            image: { emoji: '💬', alt: 'Bafarada de conversa' },
           },
         ],
+
       },
       {
         id: 'language-body-clothes',
@@ -3599,117 +3227,31 @@
         summary:
           'Identifica parts del cos i peces de roba mentre practiques frases quotidianes.',
         cards: [
-          {
-            type: 'vocab',
-            word: 'mà',
-            category: 'Part del cos',
-            image: { emoji: '✋', alt: 'Mà oberta' },
-            audio: null,
-            description: 'Extremitat que utilitzem per agafar objectes i saludar.',
-            examples: ['Exemple: «Alça la mà si vols parlar.»'],
-            activity: 'Obre i tanca la mà cinc vegades seguides.',
-          },
-          {
-            type: 'vocab',
-            word: 'cap',
-            category: 'Part del cos',
-            image: { emoji: '🙂', alt: 'Cara somrient' },
-            audio: null,
-            description: 'Part superior del cos on hi ha la cara i el cervell.',
-            examples: ['Exemple: «Protegeix el cap amb la gorra.»'],
-            activity: 'Assenyala tres parts que hi ha al cap.',
-          },
-          {
-            type: 'vocab',
-            word: 'peu',
-            category: 'Part del cos',
-            image: { emoji: '🦶', alt: 'Peu humà' },
-            audio: null,
-            description: 'Part del cos que ens permet caminar i córrer.',
-            examples: ['Exemple: «Posa’t les sabates al peu.»'],
-            activity: 'Fes tres salts a peu coix.',
-          },
-          {
-            type: 'vocab',
-            word: 'ulls',
-            category: 'Part del cos',
-            image: { emoji: '👀', alt: 'Parell d’ulls' },
-            audio: null,
-            description: 'Òrgans que ens permeten veure el que ens envolta.',
-            examples: ['Exemple: «Tanca els ulls i escolta.»'],
-            activity: 'Mira al voltant i descriu tres coses que veus.',
-          },
-          {
-            type: 'vocab',
-            word: 'pantalons',
-            category: 'Peça de roba',
-            image: { emoji: '👖', alt: 'Pantalons llargs' },
-            audio: null,
-            description: 'Peça que cobreix les cames i protegeix del fred.',
-            examples: ['Exemple: «A l’hivern porto pantalons gruixuts.»'],
-            activity: 'Digues de quin color són els teus pantalons avui.',
-          },
-          {
-            type: 'vocab',
-            word: 'samarreta',
-            category: 'Peça de roba',
-            image: { emoji: '👕', alt: 'Samarreta de màniga curta' },
-            audio: null,
-            description: 'Peça lleugera que cobreix el tronc i els braços.',
-            examples: ['Exemple: «La samarreta és de màniga curta.»'],
-            activity: 'Descriu la samarreta d’un company.',
-          },
-          {
-            type: 'vocab',
-            word: 'jaqueta',
-            category: 'Peça de roba',
-            image: { emoji: '🧥', alt: 'Jaqueta d’hivern' },
-            audio: null,
-            description: 'Peça que abriga quan fa frescor o vent.',
-            examples: ['Exemple: «Posa’t la jaqueta abans de sortir.»'],
-            activity: 'Obre i tanca la jaqueta mentre dius de quin color és.',
-          },
-          {
-            type: 'vocab',
-            word: 'sabates',
-            category: 'Peça de roba',
-            image: { emoji: '👟', alt: 'Parell de sabatilles' },
-            audio: null,
-            description: 'Calçat que protegeix els peus quan caminem.',
-            examples: ['Exemple: «Cordem bé les sabates.»'],
-            activity: 'Practica com cordar-te les sabates en trenta segons.',
-          },
+          { type: 'vocab', word: 'mà', image: { emoji: '🖐️', alt: 'Mà oberta' } },
+          { type: 'vocab', word: 'cap', image: { emoji: '🙂', alt: 'Cap somrient' } },
+          { type: 'vocab', word: 'peu', image: { emoji: '🦶', alt: 'Peu' } },
+          { type: 'vocab', word: 'ulls', image: { emoji: '👀', alt: 'Parell d’ulls' } },
+          { type: 'vocab', word: 'pantalons', image: { emoji: '👖', alt: 'Pantalons blaus' } },
+          { type: 'vocab', word: 'samarreta', image: { emoji: '👕', alt: 'Samarreta' } },
+          { type: 'vocab', word: 'jaqueta', image: { emoji: '🧥', alt: 'Jaqueta càlida' } },
+          { type: 'vocab', word: 'sabates', image: { emoji: '👟', alt: 'Sabates esportives' } },
           {
             type: 'vocab',
             word: 'Activitat: Identifica parts del cos',
-            category: 'Activitat',
-            image: { emoji: '☝️', alt: 'Dit assenyalant' },
-            audio: null,
-            description: 'Mostra un dibuix i assenyala la part del cos que diu el docent.',
-            examples: ['Pregunta: «On tens els ulls?»'],
-            activity: 'Assenyala la part correcta i digues-ne el nom en veu alta.',
+            image: { emoji: '🧍', alt: 'Figura humana' },
           },
           {
             type: 'vocab',
             word: 'Activitat: Vesteix la figura',
-            category: 'Activitat',
-            image: { emoji: '🧍', alt: 'Figura humana' },
-            audio: null,
-            description: 'Escull peces de roba per vestir una figura segons el temps que fa.',
-            examples: ['Exemple: «Si plou, afegeix una jaqueta i sabates impermeables.»'],
-            activity: 'Col·loca les peces i explica per què les has triat.',
+            image: { emoji: '🧸', alt: 'Ninot per vestir' },
           },
           {
             type: 'vocab',
-            word: 'Frase: Porto una jaqueta blava',
-            category: 'Expressió',
-            image: { emoji: '🧥', alt: 'Jaqueta blava' },
-            audio: null,
-            description: 'Model de frase per practicar adjectius de color amb la roba.',
-            examples: ['Variant: «Porto unes sabates negres.»'],
-            activity: 'Completa la frase amb la peça i el color que portes avui.',
+            word: 'Activitat: Completa la frase',
+            image: { emoji: '🖊️', alt: 'Bolígraf escrivint' },
           },
         ],
+
       },
       {
         id: 'language-weather',
@@ -3718,167 +3260,38 @@
         summary:
           'Reconeix el temps atmosfèric, les estacions i ordena els dies del calendari.',
         cards: [
+          { type: 'vocab', word: 'sol', image: { emoji: '☀️', alt: 'Sol brillant' } },
+          { type: 'vocab', word: 'pluja', image: { emoji: '🌧️', alt: 'Núvol amb pluja' } },
+          { type: 'vocab', word: 'fred', image: { emoji: '❄️', alt: 'Floc de neu' } },
+          { type: 'vocab', word: 'calor', image: { emoji: '🔥', alt: 'Foc calent' } },
+          { type: 'vocab', word: 'primavera', image: { emoji: '🌸', alt: 'Flor de primavera' } },
+          { type: 'vocab', word: 'estiu', image: { emoji: '🏖️', alt: 'Platja d’estiu' } },
+          { type: 'vocab', word: 'tardor', image: { emoji: '🍂', alt: 'Fulla de tardor' } },
+          { type: 'vocab', word: 'hivern', image: { emoji: '🧤', alt: 'Guants d’hivern' } },
+          { type: 'vocab', word: 'dilluns', image: { emoji: '📅', alt: 'Calendari dilluns' } },
+          { type: 'vocab', word: 'dimarts', image: { emoji: '🗓️', alt: 'Calendari dimarts' } },
+          { type: 'vocab', word: 'dimecres', image: { emoji: '📆', alt: 'Calendari dimecres' } },
+          { type: 'vocab', word: 'dijous', image: { emoji: '📘', alt: 'Llibreta de dijous' } },
+          { type: 'vocab', word: 'divendres', image: { emoji: '🎉', alt: 'Celebració de divendres' } },
+          { type: 'vocab', word: 'dissabte', image: { emoji: '🛝', alt: 'Tobogan per dissabte' } },
+          { type: 'vocab', word: 'diumenge', image: { emoji: '🌻', alt: 'Flor de diumenge' } },
           {
             type: 'vocab',
-            word: 'sol',
-            category: 'Temps atmosfèric',
-            image: { emoji: '☀️', alt: 'Sol brillant' },
-            audio: null,
-            description: 'Indica que el cel està clar i fa llum.',
-            examples: ['Exemple: «Avui fa sol i anirem al pati.»'],
-            activity: 'Busca un lloc assolellat i explica què faries allà.',
+            word: 'Activitat: Completa frases del temps',
+            image: { emoji: '📝', alt: 'Full i llapis' },
           },
           {
             type: 'vocab',
-            word: 'pluja',
-            category: 'Temps atmosfèric',
-            image: { emoji: '🌧️', alt: 'Pluja i núvol' },
-            audio: null,
-            description: 'Quan cauen gotes d’aigua del cel.',
-            examples: ['Exemple: «Hi ha pluja i necessitem paraigua.»'],
-            activity: 'Imagina què et poses si plou i explica-ho.',
-          },
-          {
-            type: 'vocab',
-            word: 'fred',
-            category: 'Temps atmosfèric',
-            image: { emoji: '❄️', alt: 'Floc de neu' },
-            audio: null,
-            description: 'Sensació de baixa temperatura que ens fa tremolar.',
-            examples: ['Exemple: «Quan fa fred portem jaqueta.»'],
-            activity: 'Fes una llista de roba que et poses quan fa fred.',
-          },
-          {
-            type: 'vocab',
-            word: 'calor',
-            category: 'Temps atmosfèric',
-            image: { emoji: '🔥', alt: 'Flama de calor' },
-            audio: null,
-            description: 'Quan la temperatura és alta i tenim molta calor.',
-            examples: ['Exemple: «Quan fa calor bevem molta aigua.»'],
-            activity: 'Explica com et refresques quan fa calor.',
-          },
-          {
-            type: 'vocab',
-            word: 'primavera',
-            category: 'Estació',
-            image: { emoji: '🌸', alt: 'Flor de primavera' },
-            audio: null,
-            description: 'Estació de l’any en què floreixen les plantes.',
-            examples: ['Exemple: «A la primavera surten flors al jardí.»'],
-            activity: 'Dibuixa una flor típica de la primavera.',
-          },
-          {
-            type: 'vocab',
-            word: 'estiu',
-            category: 'Estació',
-            image: { emoji: '🏖️', alt: 'Platja d’estiu' },
-            audio: null,
-            description: 'Estació més calorosa de l’any, ideal per anar a la platja.',
-            examples: ['Exemple: «A l’estiu anem al mar.»'],
-            activity: 'Explica una activitat que t’agrada fer a l’estiu.',
-          },
-          {
-            type: 'vocab',
-            word: 'dilluns',
-            category: 'Dia de la setmana',
-            image: { emoji: '📅', alt: 'Calendari dilluns' },
-            audio: null,
-            description: 'Primer dia lectiu de la setmana.',
-            examples: ['Exemple: «Els dilluns comencem la setmana amb tutoria.»'],
-            activity: 'Explica què fas cada dilluns a l’escola.',
-          },
-          {
-            type: 'vocab',
-            word: 'dimarts',
-            category: 'Dia de la setmana',
-            image: { emoji: '🗓️', alt: 'Calendari dimarts' },
-            audio: null,
-            description: 'Segon dia de la setmana després de dilluns.',
-            examples: ['Exemple: «Dimarts tenim educació física.»'],
-            activity: 'Ordena si dimarts va abans o després de dilluns i explica-ho.',
-          },
-          {
-            type: 'vocab',
-            word: 'dimecres',
-            category: 'Dia de la setmana',
-            image: { emoji: '📆', alt: 'Calendari dimecres' },
-            audio: null,
-            description: 'Dia que se situa al mig de la setmana.',
-            examples: ['Exemple: «Dimecres anem a la biblioteca.»'],
-            activity: 'Assenyala en quin lloc del calendari apareix dimecres.',
-          },
-          {
-            type: 'vocab',
-            word: 'dijous',
-            category: 'Dia de la setmana',
-            image: { emoji: '📘', alt: 'Llibreta per dijous' },
-            audio: null,
-            description: 'Dia que ve després de dimecres i abans de divendres.',
-            examples: ['Exemple: «Dijous fem treball en grup.»'],
-            activity: 'Explica una tasca que tens programada cada dijous.',
-          },
-          {
-            type: 'vocab',
-            word: 'divendres',
-            category: 'Dia de la setmana',
-            image: { emoji: '🎉', alt: 'Celebració de divendres' },
-            audio: null,
-            description: 'Últim dia lectiu abans del cap de setmana.',
-            examples: ['Exemple: «Divendres fem l’assemblea de classe.»'],
-            activity: 'Explica com celebres l’arribada del cap de setmana.',
-          },
-          {
-            type: 'vocab',
-            word: 'dissabte',
-            category: 'Dia de la setmana',
-            image: { emoji: '🛝', alt: 'Tobogan per jugar dissabte' },
-            audio: null,
-            description: 'Primer dia del cap de setmana per descansar i jugar.',
-            examples: ['Exemple: «Dissabte vaig al parc amb la família.»'],
-            activity: 'Digues una activitat que fas en família dissabte.',
-          },
-          {
-            type: 'vocab',
-            word: 'diumenge',
-            category: 'Dia de la setmana',
-            image: { emoji: '🌻', alt: 'Flor de diumenge' },
-            audio: null,
-            description: 'Segon dia del cap de setmana per descansar i compartir temps.',
-            examples: ['Exemple: «Diumenge anem a passejar pel bosc.»'],
-            activity: 'Explica una tradició familiar que feu en diumenge.',
-          },
-          {
-            type: 'vocab',
-            word: 'Activitat: Frases sobre el temps',
-            category: 'Activitat',
-            image: { emoji: '📝', alt: 'Full amb llapis' },
-            audio: null,
-            description: 'Completa frases segons el temps que fa avui.',
-            examples: ['Model: «Avui fa ____ i porto _____.»'],
-            activity: 'Escriu o digues la frase complerta i comparteix-la amb la classe.',
-          },
-          {
-            type: 'vocab',
-            word: 'Activitat: Ordena els dies',
-            category: 'Activitat',
+            word: 'Activitat: Ordena dies i estacions',
             image: { emoji: '🔢', alt: 'Nombres ordenats' },
-            audio: null,
-            description: 'Posa els dies de la setmana en ordre correcte.',
-            examples: ['Recorda començar per dilluns i acabar per diumenge.'],
-            activity: 'Col·loca targetes amb els dies i comprova l’ordre amb un company.',
           },
           {
             type: 'vocab',
             word: 'Activitat: Tria la imatge correcta',
-            category: 'Activitat',
-            image: { emoji: '🔍', alt: 'Lupa observant imatges' },
-            audio: null,
-            description: 'Observa imatges de temps i estacions i escull la que coincideix amb la frase.',
-            examples: ['Exemple: «Avui fa sol» → imatge amb sol.'],
-            activity: 'Assenyala la imatge adequada i explica què hi veus.',
+            image: { emoji: '🔍', alt: 'Lupa sobre imatges' },
           },
         ],
+
       },
       {
         id: 'language-environment',
@@ -3887,117 +3300,31 @@
         summary:
           'Descriu espais propers com l’escola, el parc o la natura i relaciona paraules amb imatges.',
         cards: [
+          { type: 'vocab', word: 'escola', image: { emoji: '🏫', alt: 'Escola amb pati' } },
+          { type: 'vocab', word: 'parc', image: { emoji: '🌳', alt: 'Parc verd' } },
+          { type: 'vocab', word: 'carrer', image: { emoji: '🚶‍♂️', alt: 'Persona caminant pel carrer' } },
+          { type: 'vocab', word: 'botiga', image: { emoji: '🏪', alt: 'Botiga de barri' } },
+          { type: 'vocab', word: 'muntanya', image: { emoji: '⛰️', alt: 'Muntanya' } },
+          { type: 'vocab', word: 'mar', image: { emoji: '🌊', alt: 'Onada de mar' } },
+          { type: 'vocab', word: 'arbre', image: { emoji: '🌲', alt: 'Arbre verd' } },
+          { type: 'vocab', word: 'animal', image: { emoji: '🐾', alt: 'Petjades d’animal' } },
           {
             type: 'vocab',
-            word: 'escola',
-            category: 'Lloc del barri',
-            image: { emoji: '🏫', alt: 'Escola amb pati' },
-            audio: null,
-            description: 'Edifici on aprenem amb mestres i companys.',
-            examples: ['Exemple: «L’escola té un pati ampli.»'],
-            activity: 'Explica què fas al teu espai preferit de l’escola.',
-          },
-          {
-            type: 'vocab',
-            word: 'parc',
-            category: 'Lloc del barri',
-            image: { emoji: '🌳', alt: 'Parc amb arbres' },
-            audio: null,
-            description: 'Espai amb arbres i jocs per jugar a l’aire lliure.',
-            examples: ['Exemple: «Anem al parc després de classe.»'],
-            activity: 'Descriu dos elements que hi ha al parc del teu barri.',
-          },
-          {
-            type: 'vocab',
-            word: 'carrer',
-            category: 'Lloc del barri',
-            image: { emoji: '🚶‍♂️', alt: 'Persona caminant pel carrer' },
-            audio: null,
-            description: 'Via per on passen persones i vehicles al poble o la ciutat.',
-            examples: ['Exemple: «Camina pel carrer amb precaució.»'],
-            activity: 'Explica quins senyals veus al carrer quan vas a l’escola.',
-          },
-          {
-            type: 'vocab',
-            word: 'botiga',
-            category: 'Lloc del barri',
-            image: { emoji: '🏪', alt: 'Botiga il·luminada' },
-            audio: null,
-            description: 'Establiment on comprem productes i aliments.',
-            examples: ['Exemple: «Anem a la botiga a comprar pa.»'],
-            activity: 'Imagina què vens a la botiga i fes un diàleg curt amb un client.',
-          },
-          {
-            type: 'vocab',
-            word: 'muntanya',
-            category: 'Paisatge natural',
-            image: { emoji: '⛰️', alt: 'Muntanya nevada' },
-            audio: null,
-            description: 'Elevació natural del terreny que pot estar coberta de neu.',
-            examples: ['Exemple: «La muntanya està nevada.»'],
-            activity: 'Dibuixa una muntanya i escriu què hi podem fer.',
-          },
-          {
-            type: 'vocab',
-            word: 'mar',
-            category: 'Paisatge natural',
-            image: { emoji: '🌊', alt: 'Ones del mar' },
-            audio: null,
-            description: 'Gran massa d’aigua salada amb onades.',
-            examples: ['Exemple: «Al mar hi ha onades altes.»'],
-            activity: 'Explica com et sents quan visites el mar.',
-          },
-          {
-            type: 'vocab',
-            word: 'arbre',
-            category: 'Paisatge natural',
-            image: { emoji: '🌲', alt: 'Arbre verd' },
-            audio: null,
-            description: 'Planta gran amb tronc i branques que dona ombra.',
-            examples: ['Exemple: «L’arbre del parc dóna ombra.»'],
-            activity: 'Abraça un arbre i explica com és la seva escorça.',
-          },
-          {
-            type: 'vocab',
-            word: 'animal',
-            category: 'Ésser viu',
-            image: { emoji: '🐾', alt: 'Empremtes d’animal' },
-            audio: null,
-            description: 'Ésser viu que pot moure’s i necessita aliments per viure.',
-            examples: ['Exemple: «Hi ha animals al bosc i a la granja.»'],
-            activity: 'Nomena tres animals que pots trobar a la natura o a la ciutat.',
-          },
-          {
-            type: 'vocab',
-            word: 'Activitat: Llocs del barri',
-            category: 'Activitat',
+            word: 'Activitat: Identifica llocs del barri',
             image: { emoji: '🗺️', alt: 'Mapa del barri' },
-            audio: null,
-            description: 'Identifica espais del teu barri i situa’ls en un mapa senzill.',
-            examples: ['Pregunta: «On és la biblioteca?»'],
-            activity: 'Dibuixa un mapa curt i marca-hi tres llocs importants.',
           },
           {
             type: 'vocab',
             word: 'Activitat: Relaciona imatge i paraula',
-            category: 'Activitat',
             image: { emoji: '🔖', alt: 'Etiqueta per enganxar' },
-            audio: null,
-            description: 'Uneix fotografies d’espais amb el nom corresponent.',
-            examples: ['Inclou escola, parc, botiga i carrer.'],
-            activity: 'Enganxa cada paraula sota la imatge correcta.',
           },
           {
             type: 'vocab',
             word: 'Activitat: Descriu un espai',
-            category: 'Activitat oral',
             image: { emoji: '🗣️', alt: 'Persona parlant' },
-            audio: null,
-            description: 'Fes una descripció breu d’un lloc del teu entorn.',
-            examples: ['Model: «A la meva ciutat hi ha una plaça amb arbres.»'],
-            activity: 'Utilitza tres frases per descriure un lloc i comparteix-les amb la classe.',
           },
         ],
+
       },
     ];
 
@@ -4022,7 +3349,7 @@
       },
       {
         id: 'language',
-        title: '🗣️ Llengua Catalana, EN CONSTRUCCIÓ, NO UTILITZAR',
+        title: '🗣️ Llengua Catalana',
         name: 'Llengua Catalana',
         summary: 'Vocabulari quotidià, expressions i activitats per practicar el català d’aula.',
         topicsTitle: 'Escull la temàtica de llengua catalana',
@@ -4044,10 +3371,7 @@
 
     function getCardLabels(card = {}) {
       if (getCardType(card) === 'vocab') {
-        return {
-          front: 'Paraula',
-          back: card.activity ? 'Activitat' : 'Descripció',
-        };
+        return { front: 'Imatge', back: 'Paraula' };
       }
       return { front: 'Pregunta', back: 'Resposta' };
     }
@@ -4056,22 +3380,13 @@
       return getCardType(card) === 'vocab' ? card.word || '' : card.question || '';
     }
 
-    function createVocabCategory(category) {
-      if (!category) return null;
-      const span = document.createElement('span');
-      span.className = 'flashcard-vocab__category';
-      span.textContent = category;
-      return span;
-    }
-
     function createVocabMedia(image = {}) {
       if (!image) return null;
       const wrapper = document.createElement('span');
       wrapper.className = 'flashcard-vocab__media';
+      wrapper.setAttribute('aria-hidden', 'true');
 
       if (image.emoji) {
-        wrapper.setAttribute('role', 'img');
-        wrapper.setAttribute('aria-label', image.alt || image.emoji);
         wrapper.textContent = image.emoji;
         return wrapper;
       }
@@ -4079,7 +3394,7 @@
       if (image.src) {
         const img = document.createElement('img');
         img.src = image.src;
-        img.alt = image.alt || '';
+        img.alt = '';
         wrapper.appendChild(img);
         return wrapper;
       }
@@ -4087,94 +3402,38 @@
       return null;
     }
 
-    function createAudioButton(audioSrc) {
-      if (!audioSrc) return null;
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'flashcard-vocab__audio';
-      button.textContent = '🔊 Escolta la paraula';
-
-      const audio = new Audio(audioSrc);
-      button.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        audio.currentTime = 0;
-        audio
-          .play()
-          .catch(() => {
-            /* Ignore playback errors (per exemple, bloqueig d'autoreproducció) */
-          });
-      });
-
-      return button;
-    }
-
     function createVocabFront(card = {}) {
       const container = document.createElement('span');
-      container.className = 'flashcard-vocab';
-
-      const elements = [];
-      const category = createVocabCategory(card.category);
-      if (category) {
-        elements.push(category);
-      }
+      container.className = 'flashcard-vocab flashcard-vocab--front';
 
       const media = createVocabMedia(card.image);
       if (media) {
-        elements.push(media);
+        container.appendChild(media);
+      } else {
+        const placeholder = document.createElement('span');
+        placeholder.className = 'flashcard-vocab__placeholder';
+        placeholder.setAttribute('aria-hidden', 'true');
+        placeholder.textContent = '🖼️';
+        container.appendChild(placeholder);
       }
 
-      const word = document.createElement('span');
-      word.className = 'flashcard-vocab__word';
-      word.textContent = card.word || '';
-      elements.push(word);
-
-      const audioButton = createAudioButton(card.audio);
-      if (audioButton) {
-        elements.push(audioButton);
+      const label = card.word || (card.image && card.image.alt) || '';
+      if (label) {
+        container.setAttribute('aria-label', label);
       }
+      container.setAttribute('role', 'img');
 
-      container.append(...elements);
       return container;
     }
 
     function createVocabBack(card = {}) {
-      const container = document.createElement('div');
-      container.className = 'flashcard-vocab__details';
+      const container = document.createElement('span');
+      container.className = 'flashcard-vocab flashcard-vocab--back';
 
-      const category = createVocabCategory(card.category);
-      if (category) {
-        container.appendChild(category.cloneNode(true));
-      }
-
-      if (card.description) {
-        const description = document.createElement('p');
-        description.textContent = card.description;
-        container.appendChild(description);
-      }
-
-      if (Array.isArray(card.examples) && card.examples.length > 0) {
-        const subtitle = document.createElement('p');
-        subtitle.className = 'flashcard-vocab__subtitle';
-        subtitle.textContent = 'Exemples:';
-        container.appendChild(subtitle);
-
-        const list = document.createElement('ul');
-        list.className = 'flashcard-vocab__examples';
-        card.examples.forEach((example) => {
-          const item = document.createElement('li');
-          item.textContent = example;
-          list.appendChild(item);
-        });
-        container.appendChild(list);
-      }
-
-      if (card.activity) {
-        const activity = document.createElement('p');
-        activity.className = 'flashcard-vocab__activity';
-        activity.textContent = card.activity;
-        container.appendChild(activity);
-      }
+      const word = document.createElement('span');
+      word.className = 'flashcard-vocab__word';
+      word.textContent = card.word || '';
+      container.appendChild(word);
 
       return container;
     }
@@ -4684,7 +3943,7 @@
       frontHint.className = 'flashcard-hint';
       frontHint.textContent =
         cardType === 'vocab'
-          ? 'Clica per veure la descripció i les activitats de la paraula'
+          ? 'Clica per veure el nom de la paraula'
           : 'Clica per descobrir la resposta';
 
       front.append(frontBadge, frontLabel, frontText, frontHint);
@@ -4713,7 +3972,7 @@
       backHint.className = 'flashcard-hint';
       backHint.textContent =
         cardType === 'vocab'
-          ? 'Torna a clicar per tornar a la paraula'
+          ? 'Torna a clicar per veure la imatge'
           : 'Torna a clicar per tornar a la pregunta';
 
       back.append(backBadge, backLabel, backText, backHint);
