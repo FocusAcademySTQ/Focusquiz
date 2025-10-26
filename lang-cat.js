@@ -1474,7 +1474,7 @@ const BANK_MORFO_CONCORDANCA = [
   },
   { 
     text: `Frase correcta:`, 
-    options:["L’home alt caminen ràpid","Els homes alts caminen ràpid","Els home alt camina ràpid","Els homes alt caminen ràpid"], 
+    options:["L'home alt caminen ràpid","Els homes alts caminen ràpid","Els home alt camina ràpid","Els homes alt caminen ràpid"], 
     answer: `Els homes alts caminen ràpid` 
   },
   { 
