@@ -19,7 +19,6 @@ export const MODULES = [
   { id: 'func', name: 'Estudi de funcions', desc: 'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', category: 'math' },
   { id: 'cat-ort', name: 'Ortografia', desc: 'b/v, j/g, s/c/ç/z/x, corregir, r/rr, l/l·l.', category: 'cat' },
   { id: 'cat-morf', name: 'Morfologia', desc: 'Subjecte, temps verbals, categories, concordança, funcions sintàctiques.', category: 'cat' },
-  { id: 'cat-gramatica-verbos-basics', name: 'Gramàtica: estructures bàsiques', desc: 'Completa frases amb ser, tenir, anar i fer per reforçar la comunicació inicial.', category: 'cat' },
   { id: 'geo-europe', name: "Països d'Europa", desc: 'Descobreix països, capitals, banderes i fronteres europees.', category: 'geo' },
   { id: 'geo-america', name: "Països d'Amèrica", desc: 'Recorre el continent americà amb capitals, banderes i pistes culturals.', category: 'geo' },
   { id: 'geo-africa', name: "Països d'Àfrica", desc: 'Coneix les regions africanes, les seves capitals i la seva diversitat.', category: 'geo' },

@@ -297,64 +297,6 @@ const store = {
   }
 };
 
-const MODULE_PROGRESS_KEY = 'focusquiz:module-progress';
-
-function loadModuleProgressStore(){
-  try {
-    const raw = localStorage.getItem(MODULE_PROGRESS_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? parsed : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveModuleProgressStore(data){
-  try {
-    localStorage.setItem(MODULE_PROGRESS_KEY, JSON.stringify(data));
-  } catch (err) {
-    if (!isQuotaError(err)) {
-      console.warn("No s'ha pogut guardar el progrés dels mòduls.", err);
-    }
-  }
-}
-
-function updateModuleProgress(moduleId, question, isCorrect){
-  if (!moduleId) return;
-  if (moduleId === 'cat-gramatica-verbos-basics') {
-    const itemId = question && question.meta ? question.meta.itemId : null;
-    if (!itemId) return;
-    const store = loadModuleProgressStore();
-    const moduleData = store[moduleId] && typeof store[moduleId] === 'object' ? store[moduleId] : {};
-    moduleData[itemId] = {
-      status: isCorrect ? 'correct' : 'incorrect',
-      answer: question && 'answer' in question ? question.answer : null,
-      updatedAt: new Date().toISOString()
-    };
-    store[moduleId] = moduleData;
-    saveModuleProgressStore(store);
-  }
-}
-
-function getModuleProgress(moduleId){
-  const store = loadModuleProgressStore();
-  const moduleData = store[moduleId];
-  if (!moduleData || typeof moduleData !== 'object') return {};
-  return moduleData;
-}
-
-function resetModuleProgress(moduleId){
-  const store = loadModuleProgressStore();
-  if (moduleId in store) {
-    delete store[moduleId];
-    saveModuleProgressStore(store);
-  }
-}
-
-window.getModuleProgress = getModuleProgress;
-window.resetModuleProgress = resetModuleProgress;
-
 const fmtTime = (sec)=>{
   const m = Math.floor(sec/60), s = sec%60;
   return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
@@ -727,7 +669,7 @@ function openConfig(moduleId){
 
 function collectConfigValues(){
   if(!pendingModule) return null;
-  let count = parseInt($('#cfg-count').value||DEFAULTS.count);
+  const count = parseInt($('#cfg-count').value||DEFAULTS.count);
   const time = parseInt($('#cfg-time').value||0);
   const levelSelect = $('#cfg-level');
   const usesLevels = pendingModule?.usesLevels !== false;
@@ -799,29 +741,6 @@ function collectConfigValues(){
       monotony: !!$('#f-monotony')?.checked
     };
     options.difficulty = parseInt($('#func-diff').value || '1');
-  } else if(pendingModule.id==='cat-gramatica-verbos-basics'){
-    const mode = (document.querySelector('input[name="verb-basics-mode"]:checked') || {}).value || 'all';
-    options.verbMode = mode;
-    const buildQueue = window.CAT_VERB_BASICS && typeof window.CAT_VERB_BASICS.buildQueue === 'function'
-      ? window.CAT_VERB_BASICS.buildQueue
-      : null;
-    if (buildQueue) {
-      const queue = buildQueue(mode) || [];
-      if (mode === 'errors' && !queue.length) {
-        alert('No hi ha frases amb error guardat per repassar.');
-        return null;
-      }
-      if (!queue.length) {
-        alert('No hi ha frases disponibles per a aquest mode.');
-        return null;
-      }
-      options.verbQueue = queue.slice();
-      if (mode === 'errors') {
-        count = queue.length;
-      } else {
-        count = Math.min(count, queue.length);
-      }
-    }
   }
 
   if (pendingModule && pendingModule.config && typeof pendingModule.config.collect === 'function') {
@@ -1379,23 +1298,15 @@ function checkAnswer(){
   }
 
   if(ok){
-    session.correct++;
-  }else{
-    session.wrongs.push({ ...q, user: raw });
-  }
+  session.correct++;
+  feedback(true, `Correcte!`);
+}else{
+  session.wrongs.push({ ...q, user: raw });
+  feedback(false, `Incorrecte. Resposta correcta: <b>${fmtAns(q.answer)}</b>`);
+}
 
-  const customMsg = buildModuleFeedback(session.module, q, ok);
-  if (customMsg !== null) {
-    feedback(ok, customMsg);
-  } else if (ok) {
-    feedback(true, 'Correcte!');
-  } else {
-    feedback(false, `Incorrecte. Resposta correcta: <b>${fmtAns(q.answer)}</b>`);
-  }
-
-  // 🧠 Registra resultat de cada pregunta
-  saveResult(session.module, q.text, ok);
-  updateModuleProgress(session.module, q, ok);
+// 🧠 Registra resultat de cada pregunta
+saveResult(session.module, q.text, ok);
 
   session.idx++;
   updateProgress();
@@ -1415,19 +1326,6 @@ function skip(){
   updateProgress();
   if(session.idx>=session.count){ finishQuiz(false) }
   else renderQuestion();
-}
-
-function buildModuleFeedback(moduleId, question, isCorrect){
-  if (moduleId !== 'cat-gramatica-verbos-basics') return null;
-  const noteText = question && question.meta && question.meta.feedback
-    ? escapeHTML(question.meta.feedback)
-    : '';
-  const note = noteText ? `<span class="feedback-note">${noteText}</span>` : '';
-  const correctForm = fmtAns(question.answer);
-  if (isCorrect) {
-    return `✅ Correcte! La forma correcta és <b>${correctForm}</b>.${note}`;
-  }
-  return `❌ Incorrecte. La forma correcta és <b>${correctForm}</b>.${note}`;
 }
 
 function feedback(isOk, msg){
