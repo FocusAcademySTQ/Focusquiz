@@ -20,6 +20,7 @@ const state = {
   selectedModules: new Set(),
   moduleFilter: 'all',
   moduleSearch: '',
+  supportsQuizConfigColumn: true,
 };
 
 const el = {
@@ -127,6 +128,85 @@ function formatQuizConfig(config) {
   }
 
   return parts.join(' · ');
+}
+
+const QUIZ_CONFIG_MARKER = '[[FocusQuiz::QuizConfig]]';
+
+function embedQuizConfigInDescription(description, quizConfig) {
+  const base = extractEmbeddedQuizConfig(description).description;
+  if (!quizConfig) {
+    return base;
+  }
+
+  const normalizedConfig = normalizeQuizConfig(quizConfig);
+  const payload = JSON.stringify(normalizedConfig);
+  const trimmed = base.trimEnd();
+  const prefix = trimmed ? `${trimmed}\n\n` : '';
+  return `${prefix}${QUIZ_CONFIG_MARKER}\n${payload}`;
+}
+
+function extractEmbeddedQuizConfig(description) {
+  if (!description) {
+    return { description: '', quizConfig: null };
+  }
+
+  const markerIndex = description.lastIndexOf(QUIZ_CONFIG_MARKER);
+  if (markerIndex === -1) {
+    return { description: description.trimEnd(), quizConfig: null };
+  }
+
+  const payload = description.slice(markerIndex + QUIZ_CONFIG_MARKER.length).trim();
+  const cleaned = description.slice(0, markerIndex).trimEnd();
+  if (!payload) {
+    return { description: cleaned, quizConfig: null };
+  }
+
+  try {
+    const parsed = JSON.parse(payload);
+    return { description: cleaned, quizConfig: normalizeQuizConfig(parsed) };
+  } catch (error) {
+    console.warn('No s\'ha pogut recuperar la configuració embeguda de la prova.', error);
+    return { description: cleaned, quizConfig: null };
+  }
+}
+
+function prepareAssignmentForDisplay(assignment) {
+  if (!assignment || typeof assignment !== 'object') {
+    return assignment;
+  }
+
+  const processed = { ...assignment };
+  const { description, quizConfig } = extractEmbeddedQuizConfig(assignment.description || '');
+  processed.description = description;
+  if (!processed.quiz_config && quizConfig) {
+    processed.quiz_config = quizConfig;
+  }
+  return processed;
+}
+
+function buildAssignmentSelect(includeAssignees = false) {
+  const fields = [
+    'id',
+    'title',
+    'description',
+    'module_id',
+    'due_date',
+    'created_at',
+  ];
+  if (state.supportsQuizConfigColumn) {
+    fields.splice(4, 0, 'quiz_config');
+  }
+  let select = fields.join(', ');
+  if (includeAssignees) {
+    select += ', assignment_assignees ( id, profile_id, status )';
+  }
+  return select;
+}
+
+function isQuizConfigSchemaError(error) {
+  if (!error) return false;
+  const message = (error.message || '').toLowerCase();
+  return message.includes('quiz_config') && message.includes('schema cache');
 }
 
 function encodeQuizOptions(options) {
@@ -373,7 +453,9 @@ function renderTeacherAssignments(assignments) {
     return;
   }
 
-  assignments.forEach((assignment) => {
+  const normalizedAssignments = assignments.map(prepareAssignmentForDisplay);
+
+  normalizedAssignments.forEach((assignment) => {
     const item = document.createElement('article');
     item.className = 'list-item';
 
@@ -451,7 +533,8 @@ function renderStudentAssignments(rows) {
   }
 
   rows.forEach((row) => {
-    const assignment = row.assignment || {
+    const assignmentData = prepareAssignmentForDisplay(row.assignment);
+    const assignment = assignmentData || {
       id: row.assignment_id,
       title: 'Prova assignada',
       description: '',
@@ -594,26 +677,19 @@ async function loadStudents() {
 
 async function loadTeacherAssignments() {
   if (!state.supabase) return;
+  const assignmentSelect = buildAssignmentSelect(true);
   const { data, error } = await state.supabase
     .from('assignments')
-    .select(`
-      id,
-      title,
-      description,
-      module_id,
-      quiz_config,
-      due_date,
-      created_at,
-      assignment_assignees (
-        id,
-        profile_id,
-        status
-      )
-    `)
+    .select(assignmentSelect)
     .order('due_date', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false });
 
   if (error) {
+    if (isQuizConfigSchemaError(error) && state.supportsQuizConfigColumn) {
+      state.supportsQuizConfigColumn = false;
+      await loadTeacherAssignments();
+      return;
+    }
     showError(el.assignmentError, error.message);
     return;
   }
@@ -623,6 +699,7 @@ async function loadTeacherAssignments() {
 
 async function loadStudentAssignments() {
   if (!state.supabase || !state.profile) return;
+  const assignmentSelect = buildAssignmentSelect(false);
   const { data, error } = await state.supabase
     .from('assignment_assignees')
     .select(`
@@ -630,20 +707,17 @@ async function loadStudentAssignments() {
       status,
       assigned_at,
       assignment_id,
-      assignment:assignments (
-        id,
-        title,
-        description,
-        module_id,
-        quiz_config,
-        due_date,
-        created_at
-      )
+      assignment:assignments (${assignmentSelect})
     `)
     .eq('profile_id', state.profile.id)
     .order('assigned_at', { ascending: false });
 
   if (error) {
+    if (isQuizConfigSchemaError(error) && state.supportsQuizConfigColumn) {
+      state.supportsQuizConfigColumn = false;
+      await loadStudentAssignments();
+      return;
+    }
     showError(el.assignmentError, error.message);
     return;
   }
@@ -685,16 +759,23 @@ async function loadStudentAssignments() {
 
   if (missingAssignments.length) {
     const uniqueIds = Array.from(new Set(missingAssignments));
-    const { data: fallbackAssignments } = await state.supabase
+    const fallbackSelect = buildAssignmentSelect(false);
+    const { data: fallbackAssignments, error: fallbackError } = await state.supabase
       .from('assignments')
-      .select('id, title, description, module_id, quiz_config, due_date, created_at')
+      .select(fallbackSelect)
       .in('id', uniqueIds);
+
+    if (fallbackError && isQuizConfigSchemaError(fallbackError) && state.supportsQuizConfigColumn) {
+      state.supportsQuizConfigColumn = false;
+      await loadStudentAssignments();
+      return;
+    }
 
     if (Array.isArray(fallbackAssignments) && fallbackAssignments.length) {
       const fallbackMap = new Map(fallbackAssignments.map((assignment) => [assignment.id, assignment]));
       rows.forEach((row) => {
         if (!row.assignment && row.assignment_id) {
-          const assignment = fallbackMap.get(row.assignment_id);
+          const assignment = prepareAssignmentForDisplay(fallbackMap.get(row.assignment_id));
           if (assignment) {
             row.assignment = assignment;
           }
@@ -703,7 +784,12 @@ async function loadStudentAssignments() {
     }
   }
 
-  renderStudentAssignments(rows);
+  const normalizedRows = rows.map((row) => {
+    if (!row.assignment) return row;
+    return { ...row, assignment: prepareAssignmentForDisplay(row.assignment) };
+  });
+
+  renderStudentAssignments(normalizedRows);
 }
 
 async function handleLogin(event) {
@@ -812,17 +898,51 @@ async function handleAssignmentSubmit(event) {
     };
   });
 
-  const { data: insertedAssignments, error } = await state.supabase
-    .from('assignments')
-    .insert(inserts)
-    .select('id');
+  let insertedAssignments = [];
+  let usedFallbackStorage = false;
 
-  if (error) {
-    showError(el.assignmentError, error.message);
-    return;
+  if (state.supportsQuizConfigColumn) {
+    const { data: result, error } = await state.supabase
+      .from('assignments')
+      .insert(inserts)
+      .select('id');
+
+    if (error) {
+      if (isQuizConfigSchemaError(error)) {
+        state.supportsQuizConfigColumn = false;
+      } else {
+        showError(el.assignmentError, error.message);
+        return;
+      }
+    } else {
+      insertedAssignments = Array.isArray(result) ? result : [];
+    }
   }
 
-  const assignmentRows = Array.isArray(insertedAssignments) ? insertedAssignments : [];
+  if (!insertedAssignments.length) {
+    const fallbackPayload = inserts.map((assignment) => {
+      const { quiz_config, ...rest } = assignment;
+      return {
+        ...rest,
+        description: embedQuizConfigInDescription(assignment.description, quiz_config),
+      };
+    });
+
+    const { data: result, error } = await state.supabase
+      .from('assignments')
+      .insert(fallbackPayload)
+      .select('id');
+
+    if (error) {
+      showError(el.assignmentError, error.message);
+      return;
+    }
+
+    insertedAssignments = Array.isArray(result) ? result : [];
+    usedFallbackStorage = true;
+  }
+
+  const assignmentRows = insertedAssignments;
 
   if (assignmentRows.length && selectedStudents.length) {
     const rows = [];
@@ -854,7 +974,11 @@ async function handleAssignmentSubmit(event) {
   const moduleLabel = moduleCount === 1 ? '1 prova' : `${moduleCount} proves`;
   const studentLabel = studentCount === 1 ? '1 alumne' : `${studentCount} alumnes`;
   const verb = moduleCount === 1 ? 'assignada' : 'assignades';
-  showSuccess(el.assignmentFeedback, `${moduleLabel} ${verb} a ${studentLabel}.`);
+  const baseMessage = `${moduleLabel} ${verb} a ${studentLabel}.`;
+  const feedbackMessage = usedFallbackStorage
+    ? `${baseMessage} Actualitza l'esquema de Supabase executant l'script de setup per guardar la configuració automàtica de les proves.`
+    : baseMessage;
+  showSuccess(el.assignmentFeedback, feedbackMessage);
 
   loadTeacherAssignments();
 }
@@ -1015,6 +1139,7 @@ async function init() {
     },
   });
 
+  await detectQuizConfigSupport();
   wireEvents();
 
   const { data: initialSession } = await state.supabase.auth.getSession();
@@ -1053,6 +1178,22 @@ async function init() {
       updateSessionUI();
     }
   });
+}
+
+async function detectQuizConfigSupport() {
+  if (!state.supabase) return false;
+  state.supportsQuizConfigColumn = true;
+  const { error } = await state.supabase
+    .from('assignments')
+    .select('id, quiz_config')
+    .limit(1);
+
+  if (error && isQuizConfigSchemaError(error)) {
+    state.supportsQuizConfigColumn = false;
+    return false;
+  }
+
+  return !error;
 }
 
 init();
