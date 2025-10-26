@@ -199,6 +199,22 @@
   outline-offset: 2px;
 }
 
+.portal-quiz-section {
+  margin-top: 1.5rem;
+}
+
+.portal-quiz-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.portal-quiz-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 .portal-assignees {
   display: flex;
   flex-wrap: wrap;
