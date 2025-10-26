@@ -59,15 +59,15 @@
 
     <section id="teacherView" class="panel card hidden">
       <h2>Panell de mestre/a</h2>
-      <p class="portal-muted">Tria mòduls FocusQuiz i assigna'ls als alumnes seleccionats.</p>
+      <p class="portal-muted">Tria els mòduls FocusQuiz i defineix una prova automàtica per a l'alumnat seleccionat.</p>
       <form id="assignmentForm" class="portal-form" style="margin-top:1rem">
         <section class="portal-module-section">
           <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
             <div>
-              <p class="portal-section-title" style="margin-bottom:0.35rem">Selecciona mòduls per convertir-los en tasques</p>
-              <p class="portal-muted" style="margin:0">Pots triar diversos mòduls a la vegada. Cada mòdul es crearà com una tasca separada.</p>
+              <p class="portal-section-title" style="margin-bottom:0.35rem">Selecciona mòduls per convertir-los en proves</p>
+              <p class="portal-muted" style="margin:0">Pots triar diversos mòduls a la vegada. Cada mòdul generarà una prova independent amb la mateixa configuració.</p>
             </div>
-            <span id="moduleSelectedInfo" class="portal-chip portal-chip--muted">Cap mòdul seleccionat</span>
+            <span id="moduleSelectedInfo" class="portal-chip portal-chip--muted">Cap prova seleccionada</span>
           </div>
           <div class="portal-module-toolbar">
             <label class="chip portal-chip-input">
@@ -82,6 +82,38 @@
           <div id="modulePicker" class="portal-module-grid" role="listbox" aria-multiselectable="true"></div>
           <p id="moduleEmptyState" class="portal-muted portal-module-empty hidden">Cap mòdul coincideix amb la cerca o el filtre aplicat.</p>
         </section>
+        <section class="portal-quiz-section">
+          <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
+            <div>
+              <p class="portal-section-title" style="margin-bottom:0.35rem">Configura la prova automàtica</p>
+              <p class="portal-muted" style="margin:0">Aquests paràmetres s'aplicaran a totes les proves creades amb la selecció anterior.</p>
+            </div>
+          </div>
+          <div class="portal-quiz-grid">
+            <label>
+              <span class="portal-field-label">Nom de la prova (opcional)</span>
+              <input class="input" name="quiz_title" type="text" maxlength="120" placeholder="Per exemple: Prova inicial de morfologia" />
+            </label>
+            <label>
+              <span class="portal-field-label">Nombre de preguntes</span>
+              <input class="input" name="quiz_count" type="number" min="1" max="200" value="10" required />
+            </label>
+            <label>
+              <span class="portal-field-label">Temps límit (minuts)</span>
+              <input class="input" name="quiz_time" type="number" min="0" max="180" value="0" required />
+            </label>
+            <label>
+              <span class="portal-field-label">Nivell (1–4)</span>
+              <select class="input" name="quiz_level" required>
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </label>
+          </div>
+          <p class="portal-muted" style="margin-top:0.35rem">Si un mòdul no utilitza nivells o límit de temps, s'ignorarà automàticament.</p>
+        </section>
         <label>
           <span class="portal-field-label">Data límit</span>
           <input class="input" name="due_date" type="date" />
@@ -95,7 +127,7 @@
           <div id="studentChecklist" class="portal-assignees"></div>
         </section>
         <div class="portal-actions">
-          <button class="btn-primary" type="submit">Assigna els mòduls</button>
+          <button class="btn-primary" type="submit">Assigna les proves</button>
           <button class="btn-secondary" type="button" id="refreshStudents">Actualitza alumnes</button>
         </div>
       </form>
