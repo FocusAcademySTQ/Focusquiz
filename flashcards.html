@@ -325,6 +325,40 @@
       width: 100%;
     }
 
+    .review-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      background: rgba(224, 231, 255, 0.65);
+      color: #4338ca;
+      font-weight: 600;
+      cursor: pointer;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .review-toggle:hover,
+    .review-toggle:focus-visible {
+      outline: none;
+      box-shadow: 0 12px 26px rgba(99, 102, 241, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .review-toggle.is-active {
+      background: rgba(34, 197, 94, 0.18);
+      border-color: rgba(34, 197, 94, 0.45);
+      color: #047857;
+    }
+
+    .review-toggle:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
     .knowledge-button {
       border: none;
       border-radius: 999px;
@@ -520,6 +554,56 @@
       color: #0f172a;
       overflow-wrap: anywhere;
     }
+
+    .flashcard-text--vocab {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .flashcard-vocab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .flashcard-vocab--front {
+      min-height: 160px;
+    }
+
+    .flashcard-vocab__media,
+    .flashcard-vocab__placeholder {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 140px;
+      height: 140px;
+      border-radius: 32px;
+      background: linear-gradient(180deg, rgba(165, 180, 252, 0.25), rgba(59, 130, 246, 0.2));
+      font-size: 3.2rem;
+    }
+
+    .flashcard-vocab__media[role='img'] {
+      font-size: 3.4rem;
+    }
+
+    .flashcard-vocab__media img {
+      width: 80%;
+      height: 80%;
+      object-fit: contain;
+    }
+
+    .flashcard-vocab__word {
+      font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2.4rem);
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: 0.02em;
+    }
+
 
     .flashcard-hint {
       font-size: 0.85rem;
@@ -804,6 +888,14 @@
               <button class="knowledge-button" type="button" data-status="partial">🟠 Mig mig</button>
               <button class="knowledge-button" type="button" data-status="unknown">❌ No me la sabia</button>
             </div>
+            <button
+              id="review-toggle"
+              class="review-toggle"
+              type="button"
+              aria-pressed="false"
+            >
+              ⭐ Repassa només les fallades
+            </button>
             <button id="reset-progress" class="reset-button" type="button">🔁 Reinicia el progrés</button>
           </div>
         </div>
@@ -3030,6 +3122,119 @@
           },
         ],
       },
+      {
+        id: 'language-classroom',
+        title: '🏫 L’aula: objectes, accions i ordres',
+        subject: 'language',
+        summary:
+          'Coneix el vocabulari essencial de l’aula amb targetes il·lustrades.',
+        cards: [
+          { type: 'vocab', word: 'llibre', image: { emoji: '📘', alt: 'Llibre de lectura' } },
+          { type: 'vocab', word: 'cadira', image: { emoji: '🪑', alt: 'Cadira de classe' } },
+          { type: 'vocab', word: 'taula', image: { emoji: '🍽️', alt: 'Taula de treball' } },
+          { type: 'vocab', word: 'pissarra', image: { emoji: '🧑‍🏫', alt: 'Mestre davant la pissarra' } },
+          { type: 'vocab', word: 'motxilla', image: { emoji: '🎒', alt: 'Motxilla escolar' } },
+          { type: 'vocab', word: 'llapis', image: { emoji: '✏️', alt: 'Llapis groc' } },
+          { type: 'vocab', word: 'goma', image: { emoji: '🧽', alt: 'Goma d’esborrar' } },
+        ],
+      },
+      {
+        id: 'language-home-family',
+        title: '🏠 La casa i la família',
+        subject: 'language',
+        summary:
+          'Aprèn el vocabulari bàsic de la família i els espais de la llar.',
+        cards: [
+          { type: 'vocab', word: 'pare', image: { emoji: '👨', alt: 'Pare somrient' } },
+          { type: 'vocab', word: 'mare', image: { emoji: '👩', alt: 'Mare contenta' } },
+          { type: 'vocab', word: 'germà', image: { emoji: '👦', alt: 'Germà jove' } },
+          { type: 'vocab', word: 'àvia', image: { emoji: '👵', alt: 'Àvia que somriu' } },
+          { type: 'vocab', word: 'casa', image: { emoji: '🏠', alt: 'Casa familiar' } },
+          { type: 'vocab', word: 'habitació', image: { emoji: '🛏️', alt: 'Habitació amb llit' } },
+          { type: 'vocab', word: 'cuina', image: { emoji: '🍳', alt: 'Cuina de casa' } },
+          { type: 'vocab', word: 'bany', image: { emoji: '🛁', alt: 'Banyera' } },
+        ],
+      },
+      {
+        id: 'language-food',
+        title: '🍎 L’alimentació i el menjar',
+        subject: 'language',
+        summary:
+          'Practica paraules d’aliments i els àpats del dia.',
+        cards: [
+          { type: 'vocab', word: 'pa', image: { emoji: '🥖', alt: 'Barra de pa' } },
+          { type: 'vocab', word: 'aigua', image: { emoji: '💧', alt: 'Gota d’aigua' } },
+          { type: 'vocab', word: 'fruita', image: { emoji: '🍎', alt: 'Poma vermella' } },
+          { type: 'vocab', word: 'verdura', image: { emoji: '🥦', alt: 'Bròquil verd' } },
+          { type: 'vocab', word: 'carn', image: { emoji: '🍗', alt: 'Pernilet de pollastre' } },
+          { type: 'vocab', word: 'peix', image: { emoji: '🐟', alt: 'Peix blau' } },
+          { type: 'vocab', word: 'esmorzar', image: { emoji: '🥐', alt: 'Esmorzar amb croissant' } },
+          { type: 'vocab', word: 'dinar', image: { emoji: '🍽️', alt: 'Plat a taula' } },
+          { type: 'vocab', word: 'sopar', image: { emoji: '🍲', alt: 'Sopa calenta' } },
+        ],
+
+      },
+      {
+        id: 'language-body-clothes',
+        title: '👕 El cos i la roba',
+        subject: 'language',
+        summary:
+          'Identifica parts del cos i peces de roba amb suport visual.',
+        cards: [
+          { type: 'vocab', word: 'mà', image: { emoji: '🖐️', alt: 'Mà oberta' } },
+          { type: 'vocab', word: 'cap', image: { emoji: '🙂', alt: 'Cap somrient' } },
+          { type: 'vocab', word: 'peu', image: { emoji: '🦶', alt: 'Peu' } },
+          { type: 'vocab', word: 'ulls', image: { emoji: '👀', alt: 'Parell d’ulls' } },
+          { type: 'vocab', word: 'pantalons', image: { emoji: '👖', alt: 'Pantalons blaus' } },
+          { type: 'vocab', word: 'samarreta', image: { emoji: '👕', alt: 'Samarreta' } },
+          { type: 'vocab', word: 'jaqueta', image: { emoji: '🧥', alt: 'Jaqueta càlida' } },
+          { type: 'vocab', word: 'sabates', image: { emoji: '👟', alt: 'Sabates esportives' } },
+        ],
+
+      },
+      {
+        id: 'language-weather',
+        title: '🌦️ El temps, les estacions i els dies de la setmana',
+        subject: 'language',
+        summary:
+          'Reconeix el temps atmosfèric, les estacions i els dies del calendari.',
+        cards: [
+          { type: 'vocab', word: 'sol', image: { emoji: '☀️', alt: 'Sol brillant' } },
+          { type: 'vocab', word: 'pluja', image: { emoji: '🌧️', alt: 'Núvol amb pluja' } },
+          { type: 'vocab', word: 'fred', image: { emoji: '❄️', alt: 'Floc de neu' } },
+          { type: 'vocab', word: 'calor', image: { emoji: '🔥', alt: 'Foc calent' } },
+          { type: 'vocab', word: 'primavera', image: { emoji: '🌸', alt: 'Flor de primavera' } },
+          { type: 'vocab', word: 'estiu', image: { emoji: '🏖️', alt: 'Platja d’estiu' } },
+          { type: 'vocab', word: 'tardor', image: { emoji: '🍂', alt: 'Fulla de tardor' } },
+          { type: 'vocab', word: 'hivern', image: { emoji: '🧤', alt: 'Guants d’hivern' } },
+          { type: 'vocab', word: 'dilluns', image: { emoji: '📅', alt: 'Calendari dilluns' } },
+          { type: 'vocab', word: 'dimarts', image: { emoji: '🗓️', alt: 'Calendari dimarts' } },
+          { type: 'vocab', word: 'dimecres', image: { emoji: '📆', alt: 'Calendari dimecres' } },
+          { type: 'vocab', word: 'dijous', image: { emoji: '📘', alt: 'Llibreta de dijous' } },
+          { type: 'vocab', word: 'divendres', image: { emoji: '🎉', alt: 'Celebració de divendres' } },
+          { type: 'vocab', word: 'dissabte', image: { emoji: '🛝', alt: 'Tobogan per dissabte' } },
+          { type: 'vocab', word: 'diumenge', image: { emoji: '🌻', alt: 'Flor de diumenge' } },
+        ],
+
+      },
+      {
+        id: 'language-environment',
+        title: '🌳 L’entorn: la ciutat, el poble i la natura',
+        subject: 'language',
+        summary:
+          'Descriu espais propers com l’escola, el parc o la natura i relaciona paraules amb imatges.',
+        cards: [
+          { type: 'vocab', word: 'escola', image: { emoji: '🏫', alt: 'Escola amb pati' } },
+          { type: 'vocab', word: 'parc', image: { emoji: '🌳', alt: 'Parc verd' } },
+          { type: 'vocab', word: 'carrer', image: { emoji: '🚶‍♂️', alt: 'Persona caminant pel carrer' } },
+          { type: 'vocab', word: 'botiga', image: { emoji: '🏪', alt: 'Botiga de barri' } },
+          { type: 'vocab', word: 'muntanya', image: { emoji: '⛰️', alt: 'Muntanya' } },
+          { type: 'vocab', word: 'mar', image: { emoji: '🌊', alt: 'Onada de mar' } },
+          { type: 'vocab', word: 'arbre', image: { emoji: '🌲', alt: 'Arbre verd' } },
+          { type: 'vocab', word: 'animal', image: { emoji: '🐾', alt: 'Petjades d’animal' } },
+        ],
+
+      },
     ];
 
     const subjectsConfig = [
@@ -3051,6 +3256,14 @@
         topicsSubtitle:
           'Aprèn conceptes clau sobre les cèl·lules, els éssers vius, la Terra, el cos humà i la matèria.',
       },
+      {
+        id: 'language',
+        title: '🗣️ Llengua Catalana',
+        name: 'Llengua Catalana',
+        summary: 'Vocabulari quotidià per practicar el català d’aula.',
+        topicsTitle: 'Escull la temàtica de llengua catalana',
+        topicsSubtitle: 'Repassa paraules amb imatges i reforça el vocabulari bàsic.',
+      },
     ];
 
     const subjects = subjectsConfig
@@ -3059,6 +3272,79 @@
         topics: topics.filter((topic) => topic.subject === subject.id),
       }))
       .filter((subject) => subject.topics.length > 0);
+
+    function getCardType(card = {}) {
+      return card.type || 'qa';
+    }
+
+    function getCardLabels(card = {}) {
+      if (getCardType(card) === 'vocab') {
+        return { front: 'Imatge', back: 'Paraula' };
+      }
+      return { front: 'Pregunta', back: 'Resposta' };
+    }
+
+    function getCardLibraryLabel(card = {}) {
+      return getCardType(card) === 'vocab' ? card.word || '' : card.question || '';
+    }
+
+    function createVocabMedia(image = {}) {
+      if (!image) return null;
+      const wrapper = document.createElement('span');
+      wrapper.className = 'flashcard-vocab__media';
+      wrapper.setAttribute('aria-hidden', 'true');
+
+      if (image.emoji) {
+        wrapper.textContent = image.emoji;
+        return wrapper;
+      }
+
+      if (image.src) {
+        const img = document.createElement('img');
+        img.src = image.src;
+        img.alt = '';
+        wrapper.appendChild(img);
+        return wrapper;
+      }
+
+      return null;
+    }
+
+    function createVocabFront(card = {}) {
+      const container = document.createElement('span');
+      container.className = 'flashcard-vocab flashcard-vocab--front';
+
+      const media = createVocabMedia(card.image);
+      if (media) {
+        container.appendChild(media);
+      } else {
+        const placeholder = document.createElement('span');
+        placeholder.className = 'flashcard-vocab__placeholder';
+        placeholder.setAttribute('aria-hidden', 'true');
+        placeholder.textContent = '🖼️';
+        container.appendChild(placeholder);
+      }
+
+      const label = card.word || (card.image && card.image.alt) || '';
+      if (label) {
+        container.setAttribute('aria-label', label);
+      }
+      container.setAttribute('role', 'img');
+
+      return container;
+    }
+
+    function createVocabBack(card = {}) {
+      const container = document.createElement('span');
+      container.className = 'flashcard-vocab flashcard-vocab--back';
+
+      const word = document.createElement('span');
+      word.className = 'flashcard-vocab__word';
+      word.textContent = card.word || '';
+      container.appendChild(word);
+
+      return container;
+    }
 
     const activeUserBanner = document.getElementById('active-user-banner');
     const subjectsGrid = document.getElementById('subjects-grid');
@@ -3078,6 +3364,7 @@
     const prevButton = document.getElementById('prev-card');
     const nextButton = document.getElementById('next-card');
     const knowledgeButtons = document.querySelectorAll('.knowledge-button');
+    const reviewToggleButton = document.getElementById('review-toggle');
     const resetButton = document.getElementById('reset-progress');
 
     const statusLabels = {
@@ -3087,7 +3374,7 @@
     };
 
     const instructionsBase =
-      'Gira la targeta principal per veure la resposta, fes servir les fletxes o la biblioteca per canviar de targeta i marca amb els botons si te la sabies.';
+      'Gira la targeta principal per veure la resposta o més detalls, fes servir les fletxes o la biblioteca per canviar de targeta, marca el teu progrés i activa el mode de fallades quan vulguis repassar.';
 
     const subjectButtons = new Map();
 
@@ -3103,6 +3390,7 @@
     let currentTopic = null;
     let currentCardIndex = 0;
     let cardStatuses = [];
+    let reviewMissedOnly = false;
 
     function loadStorageState() {
       const empty = { users: {}, userOrder: [] };
@@ -3514,6 +3802,7 @@
       currentTopic = topic;
       cardStatuses = getOrCreateStatuses(topic);
       currentCardIndex = 0;
+      reviewMissedOnly = false;
 
       goToCard(0, { focus: false, scroll: false });
 
@@ -3526,6 +3815,8 @@
 
       const card = currentTopic.cards[currentCardIndex];
       const status = cardStatuses[currentCardIndex];
+      const cardType = getCardType(card);
+      const labels = getCardLabels(card);
       mainCardSlot.innerHTML = '';
 
       const button = document.createElement('button');
@@ -3545,15 +3836,23 @@
 
       const frontLabel = document.createElement('span');
       frontLabel.className = 'flashcard-label';
-      frontLabel.textContent = 'Pregunta';
+      frontLabel.textContent = labels.front;
 
       const frontText = document.createElement('span');
       frontText.className = 'flashcard-text';
-      frontText.textContent = card.question;
+      if (cardType === 'vocab') {
+        frontText.classList.add('flashcard-text--vocab');
+        frontText.appendChild(createVocabFront(card));
+      } else {
+        frontText.textContent = card.question;
+      }
 
       const frontHint = document.createElement('span');
       frontHint.className = 'flashcard-hint';
-      frontHint.textContent = 'Clica per descobrir la resposta';
+      frontHint.textContent =
+        cardType === 'vocab'
+          ? 'Clica per veure el nom de la paraula'
+          : 'Clica per descobrir la resposta';
 
       front.append(frontBadge, frontLabel, frontText, frontHint);
 
@@ -3566,15 +3865,23 @@
 
       const backLabel = document.createElement('span');
       backLabel.className = 'flashcard-label';
-      backLabel.textContent = 'Resposta';
+      backLabel.textContent = labels.back;
 
       const backText = document.createElement('span');
       backText.className = 'flashcard-text';
-      backText.textContent = card.answer;
+      if (cardType === 'vocab') {
+        backText.classList.add('flashcard-text--vocab');
+        backText.appendChild(createVocabBack(card));
+      } else {
+        backText.textContent = card.answer;
+      }
 
       const backHint = document.createElement('span');
       backHint.className = 'flashcard-hint';
-      backHint.textContent = 'Torna a clicar per tornar a la pregunta';
+      backHint.textContent =
+        cardType === 'vocab'
+          ? 'Torna a clicar per veure la imatge'
+          : 'Torna a clicar per tornar a la pregunta';
 
       back.append(backBadge, backLabel, backText, backHint);
 
@@ -3644,7 +3951,7 @@
 
         const question = document.createElement('span');
         question.className = 'library-card-text';
-        question.textContent = card.question;
+        question.textContent = getCardLibraryLabel(card);
 
         const hint = document.createElement('span');
         hint.className = 'library-card-hint';
@@ -3697,6 +4004,45 @@
       cardProgress.textContent = `Targeta ${currentCardIndex + 1} de ${total}${summaryText}`;
     }
 
+    function getUnknownIndices() {
+      if (!currentTopic) return [];
+      const indices = [];
+      currentTopic.cards.forEach((_, index) => {
+        if (cardStatuses[index] === 'unknown') {
+          indices.push(index);
+        }
+      });
+      return indices;
+    }
+
+    function getActiveIndices() {
+      if (!currentTopic) return [];
+      if (!reviewMissedOnly) {
+        return currentTopic.cards.map((_, index) => index);
+      }
+      return getUnknownIndices();
+    }
+
+    function updateReviewToggle() {
+      if (!reviewToggleButton) return;
+      const unknownCount = currentTopic
+        ? cardStatuses.filter((status) => status === 'unknown').length
+        : 0;
+
+      if (reviewMissedOnly && unknownCount === 0) {
+        reviewMissedOnly = false;
+      }
+
+      reviewToggleButton.disabled = !currentTopic || (unknownCount === 0 && !reviewMissedOnly);
+      reviewToggleButton.classList.toggle('is-active', reviewMissedOnly);
+      reviewToggleButton.setAttribute('aria-pressed', reviewMissedOnly ? 'true' : 'false');
+
+      const prefix = reviewMissedOnly ? '🔁' : '⭐';
+      const label = reviewMissedOnly ? 'Mode fallades' : 'Repassa només les fallades';
+      const suffix = currentTopic ? ` (${unknownCount})` : '';
+      reviewToggleButton.textContent = `${prefix} ${label}${suffix}`;
+    }
+
     function updateKnowledgeButtons() {
       const activeStatus = currentTopic ? cardStatuses[currentCardIndex] : null;
 
@@ -3715,8 +4061,8 @@
         return;
       }
 
-      const total = currentTopic.cards.length;
-      const disableNav = total <= 1;
+      const activeIndices = getActiveIndices();
+      const disableNav = activeIndices.length <= 1;
       prevButton.disabled = disableNav;
       nextButton.disabled = disableNav;
     }
@@ -3730,6 +4076,7 @@
       updateKnowledgeButtons();
       updateNavButtons();
       updateResetButton();
+      updateReviewToggle();
     }
 
     function setCardStatus(status) {
@@ -3744,6 +4091,17 @@
 
       renderMainCard();
       renderLibrary();
+
+      if (reviewMissedOnly) {
+        const unknownIndices = getUnknownIndices();
+        if (!unknownIndices.length) {
+          reviewMissedOnly = false;
+          updateReviewToggle();
+        } else if (!unknownIndices.includes(currentCardIndex)) {
+          goToCard(unknownIndices[0], { focus: true, scroll: true });
+          return;
+        }
+      }
     }
 
     function goToCard(newIndex, { focus = true, scroll = true } = {}) {
@@ -3752,7 +4110,18 @@
       const total = currentTopic.cards.length;
       if (!total) return;
 
-      const nextIndex = ((newIndex % total) + total) % total;
+      let nextIndex = ((newIndex % total) + total) % total;
+
+      if (reviewMissedOnly) {
+        const unknownIndices = getUnknownIndices();
+        if (!unknownIndices.length) {
+          reviewMissedOnly = false;
+          updateReviewToggle();
+        } else if (!unknownIndices.includes(nextIndex)) {
+          nextIndex = unknownIndices[0];
+        }
+      }
+
       currentCardIndex = nextIndex;
 
       renderMainCard(focus);
@@ -3763,12 +4132,31 @@
       }
     }
 
+    function findNextIndex(direction) {
+      if (!currentTopic) return null;
+      const indices = getActiveIndices();
+      if (!indices.length) return null;
+
+      const current = currentCardIndex;
+      const position = indices.indexOf(current);
+      if (position === -1) {
+        return direction > 0 ? indices[0] : indices[indices.length - 1];
+      }
+
+      const nextPosition = (position + direction + indices.length) % indices.length;
+      return indices[nextPosition];
+    }
+
     function goNext() {
-      goToCard(currentCardIndex + 1, { focus: true, scroll: true });
+      const target = findNextIndex(1);
+      if (target === null) return;
+      goToCard(target, { focus: true, scroll: true });
     }
 
     function goPrev() {
-      goToCard(currentCardIndex - 1, { focus: true, scroll: true });
+      const target = findNextIndex(-1);
+      if (target === null) return;
+      goToCard(target, { focus: true, scroll: true });
     }
 
     function handleKeyNavigation(event) {
@@ -3776,10 +4164,16 @@
 
       if (event.key === 'ArrowRight') {
         event.preventDefault();
-        goToCard(currentCardIndex + 1, { focus: false, scroll: false });
+        const target = findNextIndex(1);
+        if (target !== null) {
+          goToCard(target, { focus: false, scroll: false });
+        }
       } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
-        goToCard(currentCardIndex - 1, { focus: false, scroll: false });
+        const target = findNextIndex(-1);
+        if (target !== null) {
+          goToCard(target, { focus: false, scroll: false });
+        }
       }
     }
 
@@ -3802,6 +4196,7 @@
       currentTopic = null;
       currentCardIndex = 0;
       cardStatuses = [];
+      reviewMissedOnly = false;
       mainCardSlot.innerHTML = '';
       libraryList.innerHTML = '';
       updateGameControls();
@@ -3839,6 +4234,32 @@
     knowledgeButtons.forEach((button) => {
       button.addEventListener('click', () => setCardStatus(button.dataset.status));
     });
+    if (reviewToggleButton) {
+      reviewToggleButton.addEventListener('click', () => {
+        if (!currentTopic) return;
+
+        if (reviewMissedOnly) {
+          reviewMissedOnly = false;
+          updateGameControls();
+          return;
+        }
+
+        const unknownIndices = getUnknownIndices();
+        if (!unknownIndices.length) {
+          updateGameControls();
+          return;
+        }
+
+        reviewMissedOnly = true;
+        const targetIndex = unknownIndices.includes(currentCardIndex)
+          ? currentCardIndex
+          : unknownIndices[0];
+        updateGameControls();
+        if (targetIndex !== currentCardIndex) {
+          goToCard(targetIndex, { focus: true, scroll: true });
+        }
+      });
+    }
     resetButton.addEventListener('click', resetProgress);
     document.addEventListener('keydown', handleKeyNavigation);
 
