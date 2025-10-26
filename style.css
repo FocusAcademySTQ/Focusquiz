@@ -674,6 +674,38 @@ a.btn-secondary{
   gap:10px;
   margin-top:8px;
 }
+.quiz .verb-basics-card{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:8px;
+}
+.quiz .verb-basics-sentence{
+  font-size:clamp(1.4rem, 2.6vw, 2rem);
+  font-weight:800;
+  color:var(--ink);
+}
+.quiz .verb-basics-verb{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(122,162,255,0.18);
+  color:#334155;
+  font-weight:600;
+  font-size:0.95rem;
+}
+.quiz .verb-basics-verb strong{
+  color:var(--ink);
+  font-size:1rem;
+}
+.quiz .verb-basics-verb .verb-basics-label{
+  text-transform:uppercase;
+  letter-spacing:0.06em;
+  font-size:0.72rem;
+  color:#475569;
+}
 .quiz .options .option{
   display:flex;
   align-items:center;
@@ -748,6 +780,12 @@ a.btn-secondary{
 
 .feedback{padding:12px; border-radius:12px; background: #ecfdf5; border:1px solid #bbf7d0; color:#065f46}
 .feedback.bad{background: #fff1f2; border-color: #fecaca; color:#7f1d1d}
+.feedback .feedback-note{
+  display:block;
+  margin-top:6px;
+  font-size:0.95rem;
+  color:#334155;
+}
 
 .timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.2rem}
 .chip{border:1px solid var(--hair); color:var(--muted); padding:6px 10px; border-radius:999px; background:#fff}
