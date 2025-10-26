@@ -247,7 +247,6 @@
 
   // L / L·L
   const BANK_LLG = [
-    [
   { text: `Escriu correctament, L o L·L: co__ar (unir dues peces)`, answer: `collar` },
   { text: `Escriu correctament, L o L·L: so__icitud (petició formal)`, answer: `sol·licitud` },
   { text: `Escriu correctament, L o L·L: mi__or (de més petita mida)`, answer: `millor` },
@@ -1452,8 +1451,301 @@ const BANK_MORFO_CONCORDANCA = [
     text: `Frase correcta:`, 
     options:["La noies bonica","Les noies boniques","La noia boniques","Les noia bonica"], 
     answer: `Les noies boniques` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El gossos corren pel parc","Els gos corre pel parc","Els gossos corren pel parc","El gos corren pel parc"], 
+    answer: `Els gossos corren pel parc` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["La nen content","El nen contents","La nena contents","La nena contenta"], 
+    answer: `La nena contenta` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Els llibres nou","Els llibre nous","Els llibres nous","El llibres nous"], 
+    answer: `Els llibres nous` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Les flors vermells","Les flors vermelles","La flor vermelles","Les flor vermell"], 
+    answer: `Les flors vermelles` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["L'home alt caminen ràpid","Els homes alts caminen ràpid","Els home alt camina ràpid","Els homes alt caminen ràpid"], 
+    answer: `Els homes alts caminen ràpid` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Les nenes juga al pati","Les nen juga al pati","Les nenes juguen al pati","La nena juguen al pati"], 
+    answer: `Les nenes juguen al pati` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El cotxes vermells estan aparcat","Els cotxes vermells estan aparcats","Els cotxe vermell estan aparcats","Els cotxes vermell està aparcat"], 
+    answer: `Els cotxes vermells estan aparcats` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["La cases grans són boniques","Les cases gran són boniques","Les cases grans són boniques","Les casa grans és bonica"], 
+    answer: `Les cases grans són boniques` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El gats dormen molt","Els gats dormen molt","Els gat dorm molt","Els gats dorm molt"], 
+    answer: `Els gats dormen molt` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["La professors simpàtics","Els professors simpàtics","Els professors simpàtic","Els professor simpàtics"], 
+    answer: `Els professors simpàtics` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Les alumnes nou","Les alumnes noves","La alumna noves","Les alumne noves"], 
+    answer: `Les alumnes noves` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Els nois i les noies està contents","Els nois i les noies estan contents","Els noi i la noia estan content","Els nois i les noies està contentes"], 
+    answer: `Els nois i les noies estan contents` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El nens petit juguen","Els nens petits juguen","Els nen petits juga","Els nens petit juga"], 
+    answer: `Els nens petits juguen` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Les portes obertes deixen passar l’aire","Les porta oberta deixen passar l’aire","Les portes oberta deixa passar l’aire","Les porta obertes deixen passar l’aire"], 
+    answer: `Les portes obertes deixen passar l’aire` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El noi i la noia simpàtics","Els nois i les noies simpàtics","Els noi i la noia simpàtic","Els nois i la noia simpàtics"], 
+    answer: `Els nois i les noies simpàtics` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Aquest nen són divertits","Aquests nens són divertits","Aquest nens és divertit","Aquests nen és divertit"], 
+    answer: `Aquests nens són divertits` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["La nena i el nen contentes","La nena i el nen contents","Les nenes i els nens content","Les nen i els nen contenta"], 
+    answer: `La nena i el nen contents` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Els amics nova","Les amigues noves","Els amics nous","Els amiga noves"], 
+    answer: `Els amics nous` 
+  },
+  // 🔹 Noves frases (21–50)
+  {
+    text: `Frase correcta:`,
+    options:["Les noies és altes","Les noies són altes","Les noia són altes","La noies és altes"],
+    answer: `Les noies són altes`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els nens és intel·ligents","Els nens són intel·ligents","Els nen són intel·ligent","Els nens és intel·ligent"],
+    answer: `Els nens són intel·ligents`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La nena és simpàtic","La nena és simpàtica","Les nenes són simpàtic","La nen és simpàtica"],
+    answer: `La nena és simpàtica`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els homes jove treballen molt","Els homes joves treballen molt","Els home jove treballa molt","Els homes jove treballa molt"],
+    answer: `Els homes joves treballen molt`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les classes divertides agraden a tothom","Les classe divertit agraden a tothom","Les classes divertit agraden a tothom","Les classe divertida agraden a tothom"],
+    answer: `Les classes divertides agraden a tothom`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els llibres és interessants","Els llibres són interessants","Els llibre són interessant","Els llibres és interessant"],
+    answer: `Els llibres són interessants`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El gos i el gat són amics","Els gos i el gat són amic","El gos i el gat són amics","Els gossos i els gats és amics"],
+    answer: `El gos i el gat són amics`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La porta oberta deixen entrar la llum","La porta oberta deixa entrar la llum","Les portes obertes deixa entrar la llum","La portes obertes deixen entrar la llum"],
+    answer: `La porta oberta deixa entrar la llum`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els nens i nenes petit juga","Els nens i nenes petits juguen","Els nen i nena petits juga","Els nens i nenes petites juga"],
+    answer: `Els nens i nenes petits juguen`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els amics noves","Els amics nous","Les amigues nous","Les amics nova"],
+    answer: `Els amics nous`
+  },
+  // 🔸 Gènere i adjectius
+  {
+    text: `Frase correcta:`,
+    options:["El noi alt","La noi alta","El noi alta","La noia alt"],
+    answer: `El noi alt`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La noia alta","El noia alta","La noia alt","El noi alta"],
+    answer: `La noia alta`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els nois alts","Els nois alta","Els noi alts","Les nois alts"],
+    answer: `Els nois alts`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les noies altes","La noies alts","Les noia altes","Els noies altes"],
+    answer: `Les noies altes`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El cotxe vermella","El cotxe vermell","La cotxe vermell","La cotxe vermella"],
+    answer: `El cotxe vermell`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La taula vermella","El taula vermell","La taula vermell","La taules vermelles"],
+    answer: `La taula vermella`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els cotxes vermells","Els cotxe vermelles","Els cotxes vermella","Els cotxes vermell"],
+    answer: `Els cotxes vermells`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les cadires vermelles","La cadira vermell","Les cadira vermelles","Les cadires vermell"],
+    answer: `Les cadires vermelles`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El nen trist","El nen trista","La nen trist","La nena trist"],
+    answer: `El nen trist`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La nena trista","El nena trist","La nena trist","La nenes tristes"],
+    answer: `La nena trista`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els nens tristos","Els nens trista","Els nen trist","Les nens tristes"],
+    answer: `Els nens tristos`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les nenes tristes","Les nena trista","Les nenes trist","La nenes tristes"],
+    answer: `Les nenes tristes`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El gos gran","La gos gran","El gos grans","La gossa gran"],
+    answer: `El gos gran`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La gossa gran","El gossa gran","La gossa grans","El gos gran"],
+    answer: `La gossa gran`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els gossos grans","Els gos gran","Els gossos gran","Els gossa grans"],
+    answer: `Els gossos grans`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les gosses grans","Les gossa gran","Les gosses gran","Les gossa grans"],
+    answer: `Les gosses grans`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El nen feliç","La nen feliç","Els nens feliços","Les nenes feliç"],
+    answer: `El nen feliç`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les nenes feliços","Els nenes feliç","Les nenes feliç","Les nena feliços"],
+    answer: `Les nenes feliços`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El noi jove","La noi jove","Els nois joves","Les noies jove"],
+    answer: `El noi jove`
+  },
+   { 
+  text: `Frase correcta:`, 
+  options:["Jo canta molt bé","Jo canto molt bé","Jo canten molt bé","Jo cantem molt bé"], 
+  answer: `Jo canto molt bé` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Tu estudien cada tarda","Tu estudies cada tarda","Tu estudia cada tarda","Tu estudiem cada tarda"], 
+  answer: `Tu estudies cada tarda` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Ell jugues al futbol","Ell juga al futbol","Ell juguen al futbol","Ell jugo al futbol"], 
+  answer: `Ell juga al futbol` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Nosaltres llegeixem un llibre","Nosaltres llegim un llibre","Nosaltres llegeixen un llibre","Nosaltres llegiu un llibre"], 
+  answer: `Nosaltres llegim un llibre` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Vosaltres estudien molt","Vosaltres estudieu molt","Vosaltres estudia molt","Vosaltres estudiem molt"], 
+  answer: `Vosaltres estudieu molt` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Ells mira la televisió","Ells miren la televisió","Ell mira la televisió","Ell miren la televisió"], 
+  answer: `Ells miren la televisió` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Jo dorms vuit hores","Jo dormo vuit hores","Jo dorm vuit hores","Jo dormim vuit hores"], 
+  answer: `Jo dormo vuit hores` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Tu menjam una poma","Tu menges una poma","Tu mengeu una poma","Tu mengen una poma"], 
+  answer: `Tu menges una poma` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Nosaltres aneu a escola","Nosaltres anem a escola","Nosaltres va a escola","Nosaltres vas a escola"], 
+  answer: `Nosaltres anem a escola` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Ells tenen gana","Ell té gana","Ells té gana","Ell tenen gana"], 
+  answer: `Ells tenen gana` 
+},
+  {
+    text: `Frase correcta:`,
+    options:["Les noies joves","Els noies jove","La noia jove","Les noia joves"],
+    answer: `Les noies joves`
   }
 ];
+
 
 const BANK_MORFO_FUNCIONS = [
   {
