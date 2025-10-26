@@ -68,7 +68,7 @@ Aquest projecte inclou un panell opcional per connectar Focusquiz amb un backend
    - A `Settings → Auth`, activa el mètode d'email i crea manualment els usuaris mestres/alumnes. Recorda afegir el seu `full_name`, `email` i `role` (`teacher` o `student`) a la taula `profiles` amb el mateix `id` (`uuid`) que el compte d'`auth.users`.
 5. **Preparar el frontend**
    - Duplica `supabase-config.example.js` amb el nom `supabase-config.js` i enganxa-hi l'URL i la `anon key` del projecte.
-   - Obre `supabase-portal.html` en un navegador per accedir al panell. Els mestres poden crear tasques i assignar-les als alumnes seleccionats; els alumnes poden veure les tasques i enviar les respostes.
+   - Obre `supabase-portal.html` en un navegador per accedir al panell. Els mestres poden crear proves automàtiques (amb nombre de preguntes, temps i nivell predefinits) i assignar-les als alumnes seleccionats; els alumnes poden obrir directament la prova i enviar les respostes.
 6. **(Opcional) Edge Functions o backend extra**
    - Si necessites lògica avançada (per exemple, notificacions o correcció automàtica), implementa-la amb Edge Functions des del mateix projecte Supabase.
 7. **Proves i validació**
@@ -80,5 +80,5 @@ Aquest projecte inclou un panell opcional per connectar Focusquiz amb un backend
 
 1. Inicia sessió com a mestre a `supabase-portal.html`.
 2. Recarrega el llistat d'alumnes i selecciona'ls al formulari.
-3. Publica una tasca; apareixerà a "Assignacions publicades" amb l'estat de cada alumne.
-4. Inicia sessió com a alumne per veure la tasca, actualitzar l'estat i enviar la resposta.
+3. Publica una prova; apareixerà a "Assignacions publicades" amb el resum de configuració i l'estat de cada alumne.
+4. Inicia sessió com a alumne per veure la prova, iniciar-la amb la configuració predefinida, actualitzar l'estat i enviar la resposta.

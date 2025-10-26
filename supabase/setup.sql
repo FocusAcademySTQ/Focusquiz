@@ -19,6 +19,7 @@ create table if not exists public.assignments (
   title text not null,
   description text,
   module_id text,
+  quiz_config jsonb,
   due_date date,
   created_by uuid not null references public.profiles (id) on delete cascade,
   created_at timestamptz not null default now()
@@ -26,6 +27,8 @@ create table if not exists public.assignments (
 
 alter table if exists public.assignments
   add column if not exists module_id text;
+alter table if exists public.assignments
+  add column if not exists quiz_config jsonb;
 
 -- Relation between assignments and students
 create table if not exists public.assignment_assignees (
@@ -55,6 +58,7 @@ create or replace view public.assignment_summary as
     a.id,
     a.title,
     a.module_id,
+    a.quiz_config,
     a.due_date,
     a.created_at,
     a.created_by,

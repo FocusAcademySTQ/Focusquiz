@@ -56,6 +56,131 @@ const statusLabels = {
   completed: 'Completada',
 };
 
+const QUIZ_DEFAULTS = Object.freeze({
+  count: 10,
+  time: 0,
+  level: 1,
+});
+
+function clampNumber(value, min, max) {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(Math.max(value, min), max);
+}
+
+function normalizeQuizConfig(raw = {}) {
+  const normalized = {
+    count: QUIZ_DEFAULTS.count,
+    time: QUIZ_DEFAULTS.time,
+    level: QUIZ_DEFAULTS.level,
+    options: {},
+  };
+
+  const parsedCount = Number.parseInt(raw.count, 10);
+  if (Number.isFinite(parsedCount)) {
+    normalized.count = clampNumber(parsedCount, 1, 200);
+  }
+
+  const parsedTime = Number.parseInt(raw.time, 10);
+  if (Number.isFinite(parsedTime)) {
+    normalized.time = clampNumber(parsedTime, 0, 180);
+  }
+
+  const parsedLevel = Number.parseInt(raw.level, 10);
+  if (Number.isFinite(parsedLevel)) {
+    normalized.level = clampNumber(parsedLevel, 1, 4);
+  }
+
+  if (raw.options && typeof raw.options === 'object' && !Array.isArray(raw.options)) {
+    normalized.options = raw.options;
+  }
+
+  if (raw.label && typeof raw.label === 'string') {
+    normalized.label = raw.label;
+  }
+
+  if (raw.title && typeof raw.title === 'string') {
+    normalized.title = raw.title;
+  }
+
+  return normalized;
+}
+
+function formatQuizConfig(config) {
+  if (!config || typeof config !== 'object') return '';
+  const normalized = normalizeQuizConfig(config);
+  const parts = [];
+
+  if (normalized.count === 1) {
+    parts.push('1 pregunta');
+  } else if (normalized.count > 1) {
+    parts.push(`${normalized.count} preguntes`);
+  }
+
+  if (normalized.time > 0) {
+    parts.push(`${normalized.time} min`);
+  } else {
+    parts.push('Sense límit de temps');
+  }
+
+  if (normalized.level > 0) {
+    parts.push(`Nivell ${normalized.level}`);
+  }
+
+  return parts.join(' · ');
+}
+
+function encodeQuizOptions(options) {
+  if (!options || typeof options !== 'object') return '';
+  try {
+    const json = JSON.stringify(options);
+    if (!json) return '';
+    let encoded = '';
+    if (typeof TextEncoder !== 'undefined') {
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(json);
+      let binary = '';
+      bytes.forEach((byte) => {
+        binary += String.fromCharCode(byte);
+      });
+      encoded = typeof btoa === 'function' ? btoa(binary) : '';
+    } else {
+      encoded = typeof btoa === 'function'
+        ? btoa(unescape(encodeURIComponent(json)))
+        : '';
+    }
+    return encoded.replace(/=+$/, '');
+  } catch (error) {
+    console.warn('No s\'ha pogut codificar les opcions de la prova', error);
+    return '';
+  }
+}
+
+function buildQuizLink(moduleId, config, meta = {}) {
+  if (!moduleId) return '';
+  const params = new URLSearchParams();
+  params.set('module', moduleId);
+
+  const normalized = normalizeQuizConfig(config);
+  params.set('count', String(normalized.count));
+  params.set('time', String(normalized.time));
+  params.set('level', String(normalized.level));
+
+  if (normalized.options && Object.keys(normalized.options).length) {
+    const encodedOptions = encodeQuizOptions(normalized.options);
+    if (encodedOptions) {
+      params.set('opts', encodedOptions);
+    }
+  }
+
+  const label = typeof meta.label === 'string' ? meta.label.trim() : '';
+  if (label) {
+    params.set('label', label);
+  }
+
+  params.set('autostart', '1');
+  return `../index.html?${params.toString()}`;
+}
+
 function toggle(element, show) {
   if (!element) return;
   element.classList.toggle('hidden', !show);
@@ -110,11 +235,11 @@ function getCategoryLabel(category) {
 function updateSelectedModulesInfo() {
   if (!el.moduleSelectedInfo) return;
   const count = state.selectedModules.size;
-  let text = 'Cap mòdul seleccionat';
+  let text = 'Cap prova seleccionada';
   if (count === 1) {
-    text = '1 mòdul seleccionat';
+    text = '1 prova seleccionada';
   } else if (count > 1) {
-    text = `${count} mòduls seleccionats`;
+    text = `${count} proves seleccionades`;
   }
   el.moduleSelectedInfo.textContent = text;
   el.moduleSelectedInfo.classList.toggle('portal-chip--muted', count === 0);
@@ -243,7 +368,7 @@ function renderTeacherAssignments(assignments) {
   if (!assignments.length) {
     const empty = document.createElement('p');
     empty.className = 'muted';
-    empty.textContent = 'Encara no has creat cap tasca.';
+    empty.textContent = 'Encara no has creat cap prova.';
     el.assignmentList.appendChild(empty);
     return;
   }
@@ -258,26 +383,33 @@ function renderTeacherAssignments(assignments) {
 
     const assignmentId = escapeHTML(assignment.id);
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
-    const moduleName = escapeHTML(module?.name || assignment.title || 'Tasca');
+    const title = escapeHTML(assignment.title || module?.name || 'Prova assignada');
     const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
     const descriptionHTML = formatDescription(descriptionSource);
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
-    const moduleLink = module
-      ? `../index.html?module=${encodeURIComponent(module.id)}`
+    const quizConfig = assignment.quiz_config || null;
+    const quizSummary = quizConfig ? formatQuizConfig(quizConfig) : '';
+    const quizLink = module && quizConfig
+      ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
       : '';
+    const moduleLink = module ? `../index.html?module=${encodeURIComponent(module.id)}` : '';
 
     const assignees = (assignment.assignment_assignees || []).map((row) => {
       const student = state.students.find((s) => s.id === row.profile_id);
       const name = escapeHTML(student?.full_name || 'Alumne');
+      const statusValue = escapeHTML(row.status);
       return `
         <li>
           ${name}
-          <span class="portal-status-chip" data-status="${row.status}">${escapeHTML(statusLabels[row.status] || row.status)}</span>
+          <span class="portal-status-chip" data-status="${statusValue}">${escapeHTML(statusLabels[row.status] || row.status)}</span>
         </li>
       `;
     });
 
     const actions = [];
+    if (quizLink) {
+      actions.push(`<a class="btn-primary" href="${quizLink}" target="_blank" rel="noopener">Obre la prova</a>`);
+    }
     if (moduleLink) {
       actions.push(`<a class="btn-secondary" href="${moduleLink}" target="_blank" rel="noopener">Obre el mòdul</a>`);
     }
@@ -285,10 +417,11 @@ function renderTeacherAssignments(assignments) {
 
     item.innerHTML = `
       <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
-        <h4 style="margin:0;">${moduleName}</h4>
+        <h4 style="margin:0;">${title}</h4>
         ${moduleTag}
       </div>
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
+      ${quizSummary ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: <strong>${escapeHTML(quizSummary)}</strong></p>` : ''}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       <div>
         <p class="portal-muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
@@ -312,7 +445,7 @@ function renderStudentAssignments(rows) {
   if (!rows.length) {
     const empty = document.createElement('p');
     empty.className = 'muted';
-    empty.textContent = 'No tens tasques assignades.';
+    empty.textContent = 'No tens proves assignades.';
     el.studentAssignmentList.appendChild(empty);
     return;
   }
@@ -320,7 +453,7 @@ function renderStudentAssignments(rows) {
   rows.forEach((row) => {
     const assignment = row.assignment || {
       id: row.assignment_id,
-      title: 'Tasca assignada',
+      title: 'Prova assignada',
       description: '',
       module_id: null,
       due_date: null,
@@ -338,9 +471,14 @@ function renderStudentAssignments(rows) {
     const rowId = escapeHTML(row.id);
     const assignmentId = escapeHTML(assignment.id);
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
-    const moduleName = escapeHTML(module?.name || assignment.title || 'Tasca');
+    const assignmentTitle = escapeHTML(assignment.title || module?.name || 'Prova');
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
-    const moduleLink = module
+    const quizConfig = assignment.quiz_config || null;
+    const quizSummary = quizConfig ? formatQuizConfig(quizConfig) : '';
+    const quizLink = module && quizConfig
+      ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
+      : '';
+    const fallbackModuleLink = !quizLink && module
       ? `../index.html?module=${encodeURIComponent(module.id)}`
       : '';
     const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
@@ -356,12 +494,17 @@ function renderStudentAssignments(rows) {
     item.className = 'list-item';
     item.innerHTML = `
       <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
-        <h4 style="margin:0;">${moduleName}</h4>
+        <h4 style="margin:0;">${assignmentTitle}</h4>
         ${moduleTag}
       </div>
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
+      ${quizSummary ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: <strong>${escapeHTML(quizSummary)}</strong></p>` : ''}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
-      ${moduleLink ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${moduleLink}" target="_blank" rel="noopener">Comença el mòdul</a></div>` : ''}
+      ${quizLink
+        ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${quizLink}" target="_blank" rel="noopener">Comença la prova</a></div>`
+        : fallbackModuleLink
+          ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${fallbackModuleLink}" target="_blank" rel="noopener">Obre el mòdul</a></div>`
+          : ''}
       <p style="margin-top:0.35rem;">
         Estat actual: ${statusChip}
       </p>
@@ -458,6 +601,7 @@ async function loadTeacherAssignments() {
       title,
       description,
       module_id,
+      quiz_config,
       due_date,
       created_at,
       assignment_assignees (
@@ -491,6 +635,7 @@ async function loadStudentAssignments() {
         title,
         description,
         module_id,
+        quiz_config,
         due_date,
         created_at
       )
@@ -542,7 +687,7 @@ async function loadStudentAssignments() {
     const uniqueIds = Array.from(new Set(missingAssignments));
     const { data: fallbackAssignments } = await state.supabase
       .from('assignments')
-      .select('id, title, description, module_id, due_date, created_at')
+      .select('id, title, description, module_id, quiz_config, due_date, created_at')
       .in('id', uniqueIds);
 
     if (Array.isArray(fallbackAssignments) && fallbackAssignments.length) {
@@ -612,17 +757,24 @@ async function handleAssignmentSubmit(event) {
   const formData = new FormData(event.currentTarget);
   const dueDate = formData.get('due_date') || null;
   const note = (formData.get('note') || '').toString().trim();
+  const titleInput = (formData.get('quiz_title') || '').toString().trim();
+  const quizConfigInput = {
+    count: formData.get('quiz_count'),
+    time: formData.get('quiz_time'),
+    level: formData.get('quiz_level'),
+  };
+  const baseQuizConfig = normalizeQuizConfig(quizConfigInput);
   const selectedModuleIds = Array.from(state.selectedModules);
 
   const selectedStudents = formData.getAll('students').filter((value) => Boolean(value));
 
   if (!selectedModuleIds.length) {
-    showError(el.assignmentError, 'Selecciona com a mínim un mòdul per crear les tasques.');
+    showError(el.assignmentError, 'Selecciona com a mínim un mòdul per crear les proves.');
     return;
   }
 
   if (!selectedStudents.length) {
-    showError(el.assignmentError, 'Selecciona com a mínim un alumne per assignar els mòduls.');
+    showError(el.assignmentError, 'Selecciona com a mínim un alumne per assignar les proves.');
     return;
   }
 
@@ -636,16 +788,27 @@ async function handleAssignmentSubmit(event) {
   }
 
   const inserts = modulesToAssign.map((module) => {
+    const finalTitle = titleInput
+      ? (modulesToAssign.length > 1 ? `${titleInput} · ${module.name}` : titleInput)
+      : module.name;
+    const quizConfig = { ...baseQuizConfig, label: finalTitle };
     const baseDescription = module.desc || 'Sense descripció';
-    const description = note
-      ? `${baseDescription}\n\n— Nota del docent —\n${note}`
-      : baseDescription;
+    const configSummary = formatQuizConfig(quizConfig);
+    const descriptionParts = [baseDescription];
+    if (configSummary) {
+      descriptionParts.push(`\n— Configuració de la prova —\n${configSummary}`);
+    }
+    if (note) {
+      descriptionParts.push(`\n— Nota del docent —\n${note}`);
+    }
+    const description = descriptionParts.join('\n').replace(/\n{3,}/g, '\n\n');
     return {
-      title: module.name,
+      title: finalTitle,
       description,
       due_date: dueDate,
       created_by: state.profile.id,
       module_id: module.id,
+      quiz_config: quizConfig,
     };
   });
 
@@ -688,9 +851,10 @@ async function handleAssignmentSubmit(event) {
 
   const moduleCount = modulesToAssign.length;
   const studentCount = selectedStudents.length;
-  const moduleLabel = moduleCount === 1 ? '1 mòdul' : `${moduleCount} mòduls`;
+  const moduleLabel = moduleCount === 1 ? '1 prova' : `${moduleCount} proves`;
   const studentLabel = studentCount === 1 ? '1 alumne' : `${studentCount} alumnes`;
-  showSuccess(el.assignmentFeedback, `${moduleLabel} assignat(s) a ${studentLabel}.`);
+  const verb = moduleCount === 1 ? 'assignada' : 'assignades';
+  showSuccess(el.assignmentFeedback, `${moduleLabel} ${verb} a ${studentLabel}.`);
 
   loadTeacherAssignments();
 }
