@@ -247,7 +247,6 @@
 
   // L / L·L
   const BANK_LLG = [
-    [
   { text: `Escriu correctament, L o L·L: co__ar (unir dues peces)`, answer: `collar` },
   { text: `Escriu correctament, L o L·L: so__icitud (petició formal)`, answer: `sol·licitud` },
   { text: `Escriu correctament, L o L·L: mi__or (de més petita mida)`, answer: `millor` },
