@@ -1452,8 +1452,301 @@ const BANK_MORFO_CONCORDANCA = [
     text: `Frase correcta:`, 
     options:["La noies bonica","Les noies boniques","La noia boniques","Les noia bonica"], 
     answer: `Les noies boniques` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El gossos corren pel parc","Els gos corre pel parc","Els gossos corren pel parc","El gos corren pel parc"], 
+    answer: `Els gossos corren pel parc` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["La nen content","El nen contents","La nena contents","La nena contenta"], 
+    answer: `La nena contenta` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Els llibres nou","Els llibre nous","Els llibres nous","El llibres nous"], 
+    answer: `Els llibres nous` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Les flors vermells","Les flors vermelles","La flor vermelles","Les flor vermell"], 
+    answer: `Les flors vermelles` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["L’home alt caminen ràpid","Els homes alts caminen ràpid","Els home alt camina ràpid","Els homes alt caminen ràpid"], 
+    answer: `Els homes alts caminen ràpid` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Les nenes juga al pati","Les nen juga al pati","Les nenes juguen al pati","La nena juguen al pati"], 
+    answer: `Les nenes juguen al pati` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El cotxes vermells estan aparcat","Els cotxes vermells estan aparcats","Els cotxe vermell estan aparcats","Els cotxes vermell està aparcat"], 
+    answer: `Els cotxes vermells estan aparcats` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["La cases grans són boniques","Les cases gran són boniques","Les cases grans són boniques","Les casa grans és bonica"], 
+    answer: `Les cases grans són boniques` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El gats dormen molt","Els gats dormen molt","Els gat dorm molt","Els gats dorm molt"], 
+    answer: `Els gats dormen molt` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["La professors simpàtics","Els professors simpàtics","Els professors simpàtic","Els professor simpàtics"], 
+    answer: `Els professors simpàtics` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Les alumnes nou","Les alumnes noves","La alumna noves","Les alumne noves"], 
+    answer: `Les alumnes noves` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Els nois i les noies està contents","Els nois i les noies estan contents","Els noi i la noia estan content","Els nois i les noies està contentes"], 
+    answer: `Els nois i les noies estan contents` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El nens petit juguen","Els nens petits juguen","Els nen petits juga","Els nens petit juga"], 
+    answer: `Els nens petits juguen` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Les portes obertes deixen passar l’aire","Les porta oberta deixen passar l’aire","Les portes oberta deixa passar l’aire","Les porta obertes deixen passar l’aire"], 
+    answer: `Les portes obertes deixen passar l’aire` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["El noi i la noia simpàtics","Els nois i les noies simpàtics","Els noi i la noia simpàtic","Els nois i la noia simpàtics"], 
+    answer: `Els nois i les noies simpàtics` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Aquest nen són divertits","Aquests nens són divertits","Aquest nens és divertit","Aquests nen és divertit"], 
+    answer: `Aquests nens són divertits` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["La nena i el nen contentes","La nena i el nen contents","Les nenes i els nens content","Les nen i els nen contenta"], 
+    answer: `La nena i el nen contents` 
+  },
+  { 
+    text: `Frase correcta:`, 
+    options:["Els amics nova","Les amigues noves","Els amics nous","Els amiga noves"], 
+    answer: `Els amics nous` 
+  },
+  // 🔹 Noves frases (21–50)
+  {
+    text: `Frase correcta:`,
+    options:["Les noies és altes","Les noies són altes","Les noia són altes","La noies és altes"],
+    answer: `Les noies són altes`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els nens és intel·ligents","Els nens són intel·ligents","Els nen són intel·ligent","Els nens és intel·ligent"],
+    answer: `Els nens són intel·ligents`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La nena és simpàtic","La nena és simpàtica","Les nenes són simpàtic","La nen és simpàtica"],
+    answer: `La nena és simpàtica`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els homes jove treballen molt","Els homes joves treballen molt","Els home jove treballa molt","Els homes jove treballa molt"],
+    answer: `Els homes joves treballen molt`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les classes divertides agraden a tothom","Les classe divertit agraden a tothom","Les classes divertit agraden a tothom","Les classe divertida agraden a tothom"],
+    answer: `Les classes divertides agraden a tothom`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els llibres és interessants","Els llibres són interessants","Els llibre són interessant","Els llibres és interessant"],
+    answer: `Els llibres són interessants`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El gos i el gat són amics","Els gos i el gat són amic","El gos i el gat són amics","Els gossos i els gats és amics"],
+    answer: `El gos i el gat són amics`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La porta oberta deixen entrar la llum","La porta oberta deixa entrar la llum","Les portes obertes deixa entrar la llum","La portes obertes deixen entrar la llum"],
+    answer: `La porta oberta deixa entrar la llum`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els nens i nenes petit juga","Els nens i nenes petits juguen","Els nen i nena petits juga","Els nens i nenes petites juga"],
+    answer: `Els nens i nenes petits juguen`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els amics noves","Els amics nous","Les amigues nous","Les amics nova"],
+    answer: `Els amics nous`
+  },
+  // 🔸 Gènere i adjectius
+  {
+    text: `Frase correcta:`,
+    options:["El noi alt","La noi alta","El noi alta","La noia alt"],
+    answer: `El noi alt`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La noia alta","El noia alta","La noia alt","El noi alta"],
+    answer: `La noia alta`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els nois alts","Els nois alta","Els noi alts","Les nois alts"],
+    answer: `Els nois alts`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les noies altes","La noies alts","Les noia altes","Els noies altes"],
+    answer: `Les noies altes`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El cotxe vermella","El cotxe vermell","La cotxe vermell","La cotxe vermella"],
+    answer: `El cotxe vermell`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La taula vermella","El taula vermell","La taula vermell","La taules vermelles"],
+    answer: `La taula vermella`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els cotxes vermells","Els cotxe vermelles","Els cotxes vermella","Els cotxes vermell"],
+    answer: `Els cotxes vermells`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les cadires vermelles","La cadira vermell","Les cadira vermelles","Les cadires vermell"],
+    answer: `Les cadires vermelles`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El nen trist","El nen trista","La nen trist","La nena trist"],
+    answer: `El nen trist`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La nena trista","El nena trist","La nena trist","La nenes tristes"],
+    answer: `La nena trista`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els nens tristos","Els nens trista","Els nen trist","Les nens tristes"],
+    answer: `Els nens tristos`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les nenes tristes","Les nena trista","Les nenes trist","La nenes tristes"],
+    answer: `Les nenes tristes`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El gos gran","La gos gran","El gos grans","La gossa gran"],
+    answer: `El gos gran`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["La gossa gran","El gossa gran","La gossa grans","El gos gran"],
+    answer: `La gossa gran`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Els gossos grans","Els gos gran","Els gossos gran","Els gossa grans"],
+    answer: `Els gossos grans`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les gosses grans","Les gossa gran","Les gosses gran","Les gossa grans"],
+    answer: `Les gosses grans`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El nen feliç","La nen feliç","Els nens feliços","Les nenes feliç"],
+    answer: `El nen feliç`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["Les nenes feliços","Els nenes feliç","Les nenes feliç","Les nena feliços"],
+    answer: `Les nenes feliços`
+  },
+  {
+    text: `Frase correcta:`,
+    options:["El noi jove","La noi jove","Els nois joves","Les noies jove"],
+    answer: `El noi jove`
+  },
+   { 
+  text: `Frase correcta:`, 
+  options:["Jo canta molt bé","Jo canto molt bé","Jo canten molt bé","Jo cantem molt bé"], 
+  answer: `Jo canto molt bé` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Tu estudien cada tarda","Tu estudies cada tarda","Tu estudia cada tarda","Tu estudiem cada tarda"], 
+  answer: `Tu estudies cada tarda` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Ell jugues al futbol","Ell juga al futbol","Ell juguen al futbol","Ell jugo al futbol"], 
+  answer: `Ell juga al futbol` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Nosaltres llegeixem un llibre","Nosaltres llegim un llibre","Nosaltres llegeixen un llibre","Nosaltres llegiu un llibre"], 
+  answer: `Nosaltres llegim un llibre` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Vosaltres estudien molt","Vosaltres estudieu molt","Vosaltres estudia molt","Vosaltres estudiem molt"], 
+  answer: `Vosaltres estudieu molt` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Ells mira la televisió","Ells miren la televisió","Ell mira la televisió","Ell miren la televisió"], 
+  answer: `Ells miren la televisió` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Jo dorms vuit hores","Jo dormo vuit hores","Jo dorm vuit hores","Jo dormim vuit hores"], 
+  answer: `Jo dormo vuit hores` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Tu menjam una poma","Tu menges una poma","Tu mengeu una poma","Tu mengen una poma"], 
+  answer: `Tu menges una poma` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Nosaltres aneu a escola","Nosaltres anem a escola","Nosaltres va a escola","Nosaltres vas a escola"], 
+  answer: `Nosaltres anem a escola` 
+},
+{ 
+  text: `Frase correcta:`, 
+  options:["Ells tenen gana","Ell té gana","Ells té gana","Ell tenen gana"], 
+  answer: `Ells tenen gana` 
+},
+  {
+    text: `Frase correcta:`,
+    options:["Les noies joves","Els noies jove","La noia jove","Les noia joves"],
+    answer: `Les noies joves`
   }
 ];
+
 
 const BANK_MORFO_FUNCIONS = [
   {
@@ -1465,8 +1758,259 @@ const BANK_MORFO_FUNCIONS = [
     text: `Funció de "un llibre" en: "Vaig comprar un llibre"`,
     options: ["Complement directe", "Subjecte", "Atribut", "Complement de lloc"],
     answer: `Complement directe`
+  },
+  {
+    text: `Funció de "La Maria" en: "La Maria estudia molt"`,
+    options: ["Subjecte", "Atribut", "Complement directe", "Complement de temps"],
+    answer: `Subjecte`
+  },
+  {
+    text: `Funció de "a la seva amiga" en: "Va donar un regal a la seva amiga"`,
+    options: ["Complement indirecte", "Complement directe", "Atribut", "Subjecte"],
+    answer: `Complement indirecte`
+  },
+  {
+    text: `Funció de "molt bé" en: "El noi canta molt bé"`,
+    options: ["Complement circumstancial de manera", "Atribut", "Complement directe", "Complement de règim"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "ahir" en: "Vam sortir ahir"`,
+    options: ["Complement circumstancial de temps", "Complement directe", "Atribut", "Subjecte"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "a Barcelona" en: "Visc a Barcelona"`,
+    options: ["Complement de règim", "Complement directe", "Complement circumstancial de lloc", "Atribut"],
+    answer: `Complement de règim`
+  },
+  {
+    text: `Funció de "mestre" en: "El meu pare és mestre"`,
+    options: ["Atribut", "Subjecte", "Complement directe", "Complement predicatiu"],
+    answer: `Atribut`
+  },
+  {
+    text: `Funció de "el cotxe" en: "He rentat el cotxe"`,
+    options: ["Complement directe", "Complement indirecte", "Subjecte", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "amb alegria" en: "Els nens canten amb alegria"`,
+    options: ["Complement circumstancial de manera", "Atribut", "Complement directe", "Complement de règim"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "d’en Joan" en: "Parlem d’en Joan"`,
+    options: ["Complement de règim", "Complement directe", "Complement indirecte", "Atribut"],
+    answer: `Complement de règim`
+  },
+  {
+    text: `Funció de "cada dissabte" en: "Juguem a futbol cada dissabte"`,
+    options: ["Complement circumstancial de temps", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "Els alumnes" en: "Els alumnes escriuen una redacció"`,
+    options: ["Subjecte", "Complement directe", "Atribut", "Complement predicatiu"],
+    answer: `Subjecte`
+  },
+  {
+    text: `Funció de "una redacció" en: "Els alumnes escriuen una redacció"`,
+    options: ["Complement directe", "Subjecte", "Atribut", "Complement de règim"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "al professor" en: "L’alumna va saludar al professor"`,
+    options: ["Complement directe", "Complement indirecte", "Atribut", "Complement de règim"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "al seu amic" en: "Va enviar un missatge al seu amic"`,
+    options: ["Complement indirecte", "Complement directe", "Atribut", "Subjecte"],
+    answer: `Complement indirecte`
+  },
+  {
+    text: `Funció de "a casa" en: "Els nens tornen a casa"`,
+    options: ["Complement circumstancial de lloc", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "contenta" en: "La Júlia està contenta"`,
+    options: ["Atribut", "Complement directe", "Subjecte", "Complement predicatiu"],
+    answer: `Atribut`
+  },
+  {
+    text: `Funció de "amb els amics" en: "Passeja amb els amics"`,
+    options: ["Complement de règim", "Complement circumstancial de companyia", "Complement directe", "Atribut"],
+    answer: `Complement de règim`
+  },
+  {
+    text: `Funció de "pel carrer" en: "Caminen pel carrer"`,
+    options: ["Complement circumstancial de lloc", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "molt" en: "Treballa molt"`,
+    options: ["Complement circumstancial de quantitat", "Atribut", "Subjecte", "Complement directe"],
+    answer: `Complement circumstancial de quantitat`
+  },
+  {
+    text: `Funció de "de pressa" en: "Corren de pressa"`,
+    options: ["Complement circumstancial de manera", "Complement de règim", "Atribut", "Complement directe"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "per estudiar" en: "Va venir per estudiar"`,
+    options: ["Complement circumstancial de finalitat", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement circumstancial de finalitat`
+  },
+  {
+    text: `Funció de "per la pluja" en: "No vam sortir per la pluja"`,
+    options: ["Complement circumstancial de causa", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement circumstancial de causa`
+  },
+  {
+    text: `Funció de "amb entusiasme" en: "Els alumnes treballen amb entusiasme"`,
+    options: ["Complement circumstancial de manera", "Complement de règim", "Atribut", "Complement directe"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "cada matí" en: "S’aixeca cada matí"`,
+    options: ["Complement circumstancial de temps", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "els deures" en: "Fa els deures a casa"`,
+    options: ["Complement directe", "Atribut", "Subjecte", "Complement circumstancial de lloc"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "una mica" en: "Menja una mica"`,
+    options: ["Complement circumstancial de quantitat", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement circumstancial de quantitat`
+  },
+  {
+    text: `Funció de "a les set" en: "Sopem a les set"`,
+    options: ["Complement circumstancial de temps", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "molt contents" en: "Els nens van arribar molt contents"`,
+    options: ["Complement predicatiu", "Atribut", "Complement directe", "Complement de règim"],
+    answer: `Complement predicatiu`
+  },
+  {
+    text: `Funció de "de llibres" en: "L’estanteria és plena de llibres"`,
+    options: ["Complement del nom", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "dels alumnes" en: "Els treballs dels alumnes són bons"`,
+    options: ["Complement del nom", "Subjecte", "Complement directe", "Atribut"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "aigua" en: "Beu aigua cada dia"`,
+    options: ["Complement directe", "Complement de règim", "Complement circumstancial de temps", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "a la tarda" en: "Treballa a la tarda"`,
+    options: ["Complement circumstancial de temps", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "als alumnes" en: "La professora explica la lliçó als alumnes"`,
+    options: ["Complement indirecte", "Complement directe", "Subjecte", "Complement de règim"],
+    answer: `Complement indirecte`
+  },
+  {
+    text: `Funció de "la lliçó" en: "La professora explica la lliçó als alumnes"`,
+    options: ["Complement directe", "Subjecte", "Complement de règim", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "feliç" en: "En Pau sembla feliç"`,
+    options: ["Atribut", "Complement directe", "Complement predicatiu", "Subjecte"],
+    answer: `Atribut`
+  },
+  {
+    text: `Funció de "de pintura" en: "El quadre de pintura és vell"`,
+    options: ["Complement del nom", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "en bicicleta" en: "Va a treballar en bicicleta"`,
+    options: ["Complement circumstancial de manera", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "a la muntanya" en: "Anirem a la muntanya demà"`,
+    options: ["Complement circumstancial de lloc", "Complement de règim", "Atribut", "Complement directe"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "demà" en: "Anirem a la muntanya demà"`,
+    options: ["Complement circumstancial de temps", "Complement directe", "Atribut", "Subjecte"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "per telèfon" en: "Va parlar per telèfon"`,
+    options: ["Complement circumstancial de mitjà", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement circumstancial de mitjà`
+  },
+  {
+    text: `Funció de "el jardí" en: "Han netejat el jardí"`,
+    options: ["Complement directe", "Complement circumstancial de lloc", "Subjecte", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "els alumnes" en: "Els alumnes treballen molt"`,
+    options: ["Subjecte", "Complement directe", "Atribut", "Complement predicatiu"],
+    answer: `Subjecte`
+  },
+  {
+    text: `Funció de "molt" en: "Els alumnes treballen molt"`,
+    options: ["Complement circumstancial de quantitat", "Atribut", "Complement directe", "Subjecte"],
+    answer: `Complement circumstancial de quantitat`
+  },
+  {
+    text: `Funció de "del professor" en: "El llibre del professor és nou"`,
+    options: ["Complement del nom", "Atribut", "Subjecte", "Complement directe"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "una pizza" en: "Hem menjat una pizza"`,
+    options: ["Complement directe", "Subjecte", "Complement de règim", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "amb la seva germana" en: "Va sortir amb la seva germana"`,
+    options: ["Complement de règim", "Complement circumstancial de companyia", "Complement directe", "Atribut"],
+    answer: `Complement de règim`
+  },
+  {
+    text: `Funció de "en silenci" en: "Llegien en silenci"`,
+    options: ["Complement circumstancial de manera", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "a la biblioteca" en: "Estudio a la biblioteca"`,
+    options: ["Complement circumstancial de lloc", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "els llibres" en: "Els llibres són nous"`,
+    options: ["Subjecte", "Atribut", "Complement directe", "Complement del nom"],
+    answer: `Subjecte`
+  },
+  {
+    text: `Funció de "nous" en: "Els llibres són nous"`,
+    options: ["Atribut", "Complement directe", "Complement del nom", "Subjecte"],
+    answer: `Atribut`
   }
 ];
+
 
 const BANK_MORFO_BASIQUES = [
   {
@@ -1516,8 +2060,122 @@ const BANK_MORFO_BASIQUES = [
   {
     text: `Vosaltres ___ dues germanes.<br><small>Verb: tenir</small>`,
     answer: `teniu`
+  },
+  {
+    text: `Nosaltres ___ molt cansats avui.<br><small>Verb: estar</small>`,
+    answer: `estem`
+  },
+  {
+    text: `Ells ___ una casa molt gran.<br><small>Verb: tenir</small>`,
+    answer: `tenen`
+  },
+  {
+    text: `Tu ___ els deures cada tarda.<br><small>Verb: fer</small>`,
+    answer: `fas`
+  },
+  {
+    text: `Jo ___ a comprar al mercat.<br><small>Verb: anar</small>`,
+    answer: `vaig`
+  },
+  {
+    text: `Ella ___ una amiga molt simpàtica.<br><small>Verb: tenir</small>`,
+    answer: `té`
+  },
+  {
+    text: `Ells ___ a la platja sovint.<br><small>Verb: anar</small>`,
+    answer: `van`
+  },
+  {
+    text: `Nosaltres ___ els exercicis de català.<br><small>Verb: fer</small>`,
+    answer: `fem`
+  },
+  {
+    text: `Tu ___ un alumne molt aplicat.<br><small>Verb: ser</small>`,
+    answer: `ets`
+  },
+  {
+    text: `Ell ___ tres llibres nous.<br><small>Verb: tenir</small>`,
+    answer: `té`
+  },
+  {
+    text: `Jo ___ un pastís per al meu aniversari.<br><small>Verb: fer</small>`,
+    answer: `faig`
+  },
+  {
+    text: `Vosaltres ___ a l'autobús del matí.<br><small>Verb: anar</small>`,
+    answer: `aneu`
+  },
+  {
+    text: `Ells ___ molt simpàtics amb tothom.<br><small>Verb: ser</small>`,
+    answer: `són`
+  },
+  {
+    text: `Nosaltres ___ molta feina avui.<br><small>Verb: tenir</small>`,
+    answer: `tenim`
+  },
+  {
+    text: `Tu ___ a l’escola cada dia amb la teva amiga.<br><small>Verb: anar</small>`,
+    answer: `vas`
+  },
+  {
+    text: `Jo ___ els deures abans de sopar.<br><small>Verb: fer</small>`,
+    answer: `faig`
+  },
+  {
+    text: `Ells ___ molt bones notes.<br><small>Verb: tenir</small>`,
+    answer: `tenen`
+  },
+  {
+    text: `Vosaltres ___ els millors del grup.<br><small>Verb: ser</small>`,
+    answer: `sou`
+  },
+  {
+    text: `Ella ___ la maleta per al viatge.<br><small>Verb: fer</small>`,
+    answer: `fa`
+  },
+  // 🔹 A partir d’aquí, nous amb "estar" i "viure"
+  {
+    text: `Jo ___ molt content avui.<br><small>Verb: estar</small>`,
+    answer: `estic`
+  },
+  {
+    text: `Tu ___ molt cansat després de l’entrenament.<br><small>Verb: estar</small>`,
+    answer: `estàs`
+  },
+  {
+    text: `Ell ___ a l’habitació estudiant.<br><small>Verb: estar</small>`,
+    answer: `està`
+  },
+  {
+    text: `Nosaltres ___ molt tranquils al jardí.<br><small>Verb: estar</small>`,
+    answer: `estem`
+  },
+  {
+    text: `Vosaltres ___ una mica nerviosos pel concert.<br><small>Verb: estar</small>`,
+    answer: `esteu`
+  },
+  {
+    text: `Ells ___ molt contents amb el resultat.<br><small>Verb: estar</small>`,
+    answer: `estan`
+  },
+  {
+    text: `Jo ___ a Sant Cugat.<br><small>Verb: viure</small>`,
+    answer: `visc`
+  },
+  {
+    text: `Tu ___ a Barcelona o a Terrassa?<br><small>Verb: viure</small>`,
+    answer: `vius`
+  },
+  {
+    text: `Ell ___ a un poble petit de muntanya.<br><small>Verb: viure</small>`,
+    answer: `viu`
+  },
+  {
+    text: `Nosaltres ___ en un pis molt acollidor.<br><small>Verb: viure</small>`,
+    answer: `vivim`
   }
 ];
+
 
 const SUBS_MORF = [
   { key: 'basiques', label: 'Estructures bàsiques', bank: BANK_MORFO_BASIQUES },
