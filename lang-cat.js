@@ -3,8 +3,290 @@
    Arxiu: lang-cat.js
    ======================================================= */
 
+
 (function(){
   const choice = (arr)=> arr[Math.floor(Math.random()*arr.length)];
+  const shuffleCopy = (arr = []) => {
+    const clone = Array.from(arr);
+    for (let i = clone.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [clone[i], clone[j]] = [clone[j], clone[i]];
+    }
+    return clone;
+  };
+  const escapeHtml = (str = '') => String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  const VERB_BASICS_MODULE_ID = 'cat-gramatica-verbos-basics';
+  const VERB_BASICS_ITEMS = [
+    {
+      id: 'vb-01',
+      sentence: 'Jo ___ un llibre.',
+      verb: 'tenir',
+      options: ['tinc', 'té', 'tenim', 'tenen'],
+      correct: 'tinc',
+    },
+    {
+      id: 'vb-02',
+      sentence: 'Ella ___ molt alta.',
+      verb: 'ser',
+      options: ['és', 'som', 'sóc', 'són'],
+      correct: 'és',
+    },
+    {
+      id: 'vb-03',
+      sentence: 'Nosaltres ___ a l’escola.',
+      verb: 'anar',
+      options: ['anem', 'vaig', 'van', 'aneu'],
+      correct: 'anem',
+    },
+    {
+      id: 'vb-04',
+      sentence: 'Tu ___ un germà petit.',
+      verb: 'tenir',
+      options: ['tens', 'té', 'teniu', 'tenen'],
+      correct: 'tens',
+    },
+    {
+      id: 'vb-05',
+      sentence: 'Ell ___ els deures.',
+      verb: 'fer',
+      options: ['fa', 'fan', 'fem', 'farà'],
+      correct: 'fa',
+    },
+    {
+      id: 'vb-06',
+      sentence: 'Vosaltres ___ molt contents.',
+      verb: 'ser',
+      options: ['sou', 'ets', 'eren', 'som'],
+      correct: 'sou',
+    },
+    {
+      id: 'vb-07',
+      sentence: 'Jo ___ a casa cada dia.',
+      verb: 'anar',
+      options: ['vaig', 'vas', 'van', 'anem'],
+      correct: 'vaig',
+    },
+    {
+      id: 'vb-08',
+      sentence: 'Ells ___ moltes ganes de jugar.',
+      verb: 'tenir',
+      options: ['tenen', 'teniu', 'té', 'tenia'],
+      correct: 'tenen',
+    },
+    {
+      id: 'vb-09',
+      sentence: 'La Maria ___ una bona amiga.',
+      verb: 'ser',
+      options: ['és', 'ets', 'som', 'són'],
+      correct: 'és',
+    },
+    {
+      id: 'vb-10',
+      sentence: 'Nosaltres ___ els deures junts.',
+      verb: 'fer',
+      options: ['fem', 'fa', 'feu', 'fan'],
+      correct: 'fem',
+    },
+    {
+      id: 'vb-11',
+      sentence: 'Tu ___ a la biblioteca ara?',
+      verb: 'anar',
+      options: ['vas', 'vaig', 'va', 'anem'],
+      correct: 'vas',
+    },
+    {
+      id: 'vb-12',
+      sentence: 'Jo ___ molta feina avui.',
+      verb: 'tenir',
+      options: ['tinc', 'tenim', 'tens', 'tenia'],
+      correct: 'tinc',
+    },
+    {
+      id: 'vb-13',
+      sentence: 'Ell ___ molt amable amb tothom.',
+      verb: 'ser',
+      options: ['és', 'som', 'sou', 'serà'],
+      correct: 'és',
+    },
+    {
+      id: 'vb-14',
+      sentence: 'Vosaltres ___ la taula per sopar.',
+      verb: 'fer',
+      options: ['feu', 'fa', 'fem', 'fan'],
+      correct: 'feu',
+    },
+    {
+      id: 'vb-15',
+      sentence: 'Nosaltres ___ al parc després de classe.',
+      verb: 'anar',
+      options: ['anem', 'aneu', 'va', 'van'],
+      correct: 'anem',
+    },
+    {
+      id: 'vb-16',
+      sentence: 'Ells ___ els exercicis cada tarda.',
+      verb: 'fer',
+      options: ['fan', 'fa', 'feu', 'fem'],
+      correct: 'fan',
+    },
+    {
+      id: 'vb-17',
+      sentence: 'Tu ___ molta paciència.',
+      verb: 'tenir',
+      options: ['tens', 'teniu', 'tinc', 'tenen'],
+      correct: 'tens',
+    },
+    {
+      id: 'vb-18',
+      sentence: 'Jo ___ estudiant de català.',
+      verb: 'ser',
+      options: ['sóc', 'ets', 'som', 'seré'],
+      correct: 'sóc',
+    },
+    {
+      id: 'vb-19',
+      sentence: 'Ell ___ a comprar pa.',
+      verb: 'anar',
+      options: ['va', 'vaig', 'van', 'anem'],
+      correct: 'va',
+    },
+    {
+      id: 'vb-20',
+      sentence: 'Nosaltres ___ la feina a temps.',
+      verb: 'fer',
+      options: ['fem', 'fa', 'fan', 'feu'],
+      correct: 'fem',
+    },
+    {
+      id: 'vb-21',
+      sentence: 'Vosaltres ___ una excursió demà.',
+      verb: 'fer',
+      options: ['feu', 'fa', 'fan', 'fem'],
+      correct: 'feu',
+    },
+    {
+      id: 'vb-22',
+      sentence: 'Ells ___ molt contents avui.',
+      verb: 'ser',
+      options: ['són', 'som', 'sou', 'seran'],
+      correct: 'són',
+    },
+    {
+      id: 'vb-23',
+      sentence: 'La Paula ___ dues germanes.',
+      verb: 'tenir',
+      options: ['té', 'tens', 'teniu', 'tenen'],
+      correct: 'té',
+    },
+    {
+      id: 'vb-24',
+      sentence: 'Tu i jo ___ al cinema.',
+      verb: 'anar',
+      options: ['anem', 'aneu', 'va', 'van'],
+      correct: 'anem',
+    },
+    {
+      id: 'vb-25',
+      sentence: 'Jo ___ una idea nova.',
+      verb: 'tenir',
+      options: ['tinc', 'té', 'tenim', 'tenen'],
+      correct: 'tinc',
+    },
+    {
+      id: 'vb-26',
+      sentence: 'Ell ___ professor de música.',
+      verb: 'ser',
+      options: ['és', 'ets', 'sou', 'som'],
+      correct: 'és',
+    },
+    {
+      id: 'vb-27',
+      sentence: 'Vosaltres ___ a casa tard.',
+      verb: 'anar',
+      options: ['aneu', 'anem', 'va', 'van'],
+      correct: 'aneu',
+    },
+    {
+      id: 'vb-28',
+      sentence: 'Nosaltres ___ el projecte avui.',
+      verb: 'fer',
+      options: ['fem', 'fa', 'fan', 'feu'],
+      correct: 'fem',
+    },
+    {
+      id: 'vb-29',
+      sentence: 'Ells ___ les maletes.',
+      verb: 'fer',
+      options: ['fan', 'fa', 'feu', 'fem'],
+      correct: 'fan',
+    },
+    {
+      id: 'vb-30',
+      sentence: 'Tu ___ molt contenta.',
+      verb: 'ser',
+      options: ['ets', 'sóc', 'sou', 'són'],
+      correct: 'ets',
+    },
+  ];
+  const VERB_BASICS_MAP = new Map(VERB_BASICS_ITEMS.map((item) => [item.id, item]));
+
+  function getVerbBasicsProgress() {
+    if (typeof window.getModuleProgress === 'function') {
+      const raw = window.getModuleProgress(VERB_BASICS_MODULE_ID);
+      if (raw && typeof raw === 'object') return raw;
+    }
+    return {};
+  }
+
+  function getVerbBasicsSummary() {
+    const progress = getVerbBasicsProgress();
+    let correct = 0;
+    let incorrect = 0;
+    VERB_BASICS_ITEMS.forEach((item) => {
+      const status = progress[item.id]?.status;
+      if (status === 'correct') correct += 1;
+      else if (status === 'incorrect') incorrect += 1;
+    });
+    const total = VERB_BASICS_ITEMS.length;
+    const pending = total - correct - incorrect;
+    return { total, correct, incorrect, pending };
+  }
+
+  function getVerbBasicsPool(mode = 'all') {
+    const progress = getVerbBasicsProgress();
+    if (mode === 'errors') {
+      return VERB_BASICS_ITEMS.filter((item) => progress[item.id]?.status === 'incorrect');
+    }
+    if (mode === 'pending') {
+      return VERB_BASICS_ITEMS.filter((item) => progress[item.id]?.status !== 'correct');
+    }
+    return VERB_BASICS_ITEMS.slice();
+  }
+
+  function buildVerbBasicsQueue(mode = 'all') {
+    return shuffleCopy(getVerbBasicsPool(mode)).map((item) => item.id);
+  }
+
+  function getVerbBasicsItemById(id) {
+    return VERB_BASICS_MAP.get(id) || null;
+  }
+
+  if (typeof window.CAT_VERB_BASICS !== 'object' || !window.CAT_VERB_BASICS) {
+    window.CAT_VERB_BASICS = {};
+  }
+  Object.assign(window.CAT_VERB_BASICS, {
+    moduleId: VERB_BASICS_MODULE_ID,
+    getItemsForMode: (mode = 'all') => getVerbBasicsPool(mode).slice(),
+    buildQueue: (mode = 'all') => buildVerbBasicsQueue(mode),
+    getSummary: () => getVerbBasicsSummary(),
+    getItemById: (id) => getVerbBasicsItemById(id),
+  });
 
   /* ========== BANCS D'EXERCICIS (ORTOGRAFIA) ========== */
 
@@ -1494,12 +1776,73 @@ function genCatMorf(level, opts = {}){
   const subKey = opts.sub || 'categories';
   const sub = SUBS_MORF.find(s => s.key === subKey) || SUBS_MORF[0];
   const q = choice(sub.bank);
-  return { 
+  return {
     type: 'cat-morf',
     text: q.text,
     answer: q.answer,
     options: q.options || null,
     input: q.options ? "choice" : "text"   // 👈 si té options → multiple choice
+  };
+}
+
+function genCatVerbBasics(level, opts = {}){
+  const mode = opts.verbMode || 'all';
+  let item = null;
+  if (Array.isArray(opts.verbQueue) && opts.verbQueue.length) {
+    const nextId = opts.verbQueue.shift();
+    item = getVerbBasicsItemById(nextId);
+  }
+
+  const pool = getVerbBasicsPool(mode);
+  if (!item) {
+    const fallback = pool.length ? pool : VERB_BASICS_ITEMS;
+    item = fallback.length ? choice(fallback) : null;
+  }
+  if (!item) {
+    return {
+      type: VERB_BASICS_MODULE_ID,
+      text: 'No hi ha frases disponibles.',
+      answer: '',
+      options: [],
+      input: 'choice'
+    };
+  }
+
+  const baseOptions = Array.isArray(item.options) ? item.options.slice() : [];
+  baseOptions.push(item.correct);
+  const uniqueOptions = Array.from(new Set(baseOptions));
+  let options = shuffleCopy(uniqueOptions).slice(0, 4);
+  if (!options.includes(item.correct)) {
+    if (options.length < 4) {
+      options.push(item.correct);
+    } else {
+      options[options.length - 1] = item.correct;
+    }
+    options = shuffleCopy(options);
+  }
+
+  const fullSentence = item.complete || item.sentence.replace('___', item.correct);
+  const titleHtml = `
+    <div class="verb-basics-card">
+      <div class="verb-basics-sentence">${escapeHtml(item.sentence)}</div>
+      <div class="verb-basics-verb"><span class="verb-basics-label">Verb en infinitiu</span> <strong>${escapeHtml(item.verb)}</strong></div>
+    </div>
+  `;
+
+  return {
+    type: VERB_BASICS_MODULE_ID,
+    text: `${item.sentence} (verb: ${item.verb})`,
+    title: titleHtml,
+    answer: item.correct,
+    options,
+    meta: {
+      itemId: item.id,
+      verb: item.verb,
+      sentence: item.sentence,
+      fullSentence,
+      feedback: `Frase completa: ${fullSentence}`,
+    },
+    input: 'choice'
   };
 }
 
@@ -1553,6 +1896,75 @@ function genCatMorf(level, opts = {}){
     }
   };
 
+  const VerbBasicsConfig = {
+    render(){
+      const wrap = document.createElement('div');
+      const summary = getVerbBasicsSummary();
+      wrap.innerHTML = `
+        <div class="section-title">Gramàtica i estructures bàsiques</div>
+        <p class="subtitle">Completa frases senzilles amb verbs freqüents (ser, tenir, anar i fer). Mostrem el verb en infinitiu perquè l'alumnat nouvingut tingui la pista del significat.</p>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin:8px 0;">
+          <span class="chip" data-verb-basics-count="total">Total frases: ${summary.total}</span>
+          <span class="chip" data-verb-basics-count="correct">Encertades: ${summary.correct}</span>
+          <span class="chip" data-verb-basics-count="incorrect">Amb error: ${summary.incorrect}</span>
+          <span class="chip" data-verb-basics-count="pending">Pendents: ${summary.pending}</span>
+        </div>
+        <div class="controls">
+          <div class="group" role="group" aria-label="Mode de pràctica">
+            <label class="toggle">
+              <input class="check" type="radio" name="verb-basics-mode" value="all" checked>
+              Totes les frases
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="verb-basics-mode" value="errors" ${summary.incorrect ? '' : 'disabled'}>
+              Només les que he fallat
+            </label>
+          </div>
+        </div>
+        <div class="controls">
+          <button type="button" class="btn-ghost" id="verb-basics-reset">Reinicia el progrés guardat</button>
+        </div>
+      `;
+
+      const refresh = () => {
+        const current = getVerbBasicsSummary();
+        const totalEl = wrap.querySelector('[data-verb-basics-count="total"]');
+        const correctEl = wrap.querySelector('[data-verb-basics-count="correct"]');
+        const incorrectEl = wrap.querySelector('[data-verb-basics-count="incorrect"]');
+        const pendingEl = wrap.querySelector('[data-verb-basics-count="pending"]');
+        if (totalEl) totalEl.textContent = `Total frases: ${current.total}`;
+        if (correctEl) correctEl.textContent = `Encertades: ${current.correct}`;
+        if (incorrectEl) incorrectEl.textContent = `Amb error: ${current.incorrect}`;
+        if (pendingEl) pendingEl.textContent = `Pendents: ${current.pending}`;
+        const errorsRadio = wrap.querySelector('input[name="verb-basics-mode"][value="errors"]');
+        if (errorsRadio) {
+          errorsRadio.disabled = current.incorrect === 0;
+          if (errorsRadio.disabled) {
+            const allRadio = wrap.querySelector('input[name="verb-basics-mode"][value="all"]');
+            if (allRadio) allRadio.checked = true;
+          }
+        }
+      };
+
+      const resetBtn = wrap.querySelector('#verb-basics-reset');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          if (!confirm('Segur que vols esborrar el progrés guardat d’aquestes frases?')) return;
+          if (typeof window.resetModuleProgress === 'function') {
+            window.resetModuleProgress(VERB_BASICS_MODULE_ID);
+          }
+          refresh();
+        });
+      }
+
+      return wrap;
+    },
+    collect(){
+      const v = (document.querySelector('input[name="verb-basics-mode"]:checked') || {}).value || 'all';
+      return { verbMode: v };
+    }
+  };
+
   /* ========== MÒDULS ========== */
   const CAT_MODULES = [
     {
@@ -1564,12 +1976,21 @@ function genCatMorf(level, opts = {}){
       config: OrtografiaConfig
     },
     {
-id: 'cat-morf',
+      id: 'cat-morf',
       name: 'Morfologia',
       desc: 'Subjecte, temps verbals, categories, concordança, funcions sintàctiques.',
       category: 'cat',
       gen: genCatMorf,
       config: MorfologiaConfig
+    },
+    {
+      id: VERB_BASICS_MODULE_ID,
+      name: 'Estructures bàsiques',
+      desc: 'Completa frases curtes amb ser, tenir, anar i fer pensades per a alumnat nouvingut.',
+      category: 'cat',
+      gen: genCatVerbBasics,
+      config: VerbBasicsConfig,
+      usesLevels: false
     }
   ];
 
