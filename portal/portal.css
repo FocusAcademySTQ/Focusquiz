@@ -199,6 +199,62 @@
   outline-offset: 2px;
 }
 
+.portal-module-config {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.portal-module-config-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.portal-module-config-card {
+  border-radius: var(--radius);
+  border: 1px solid var(--hair);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: var(--shadow);
+  padding: clamp(16px, 2vw, 22px);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.portal-module-config-card--error {
+  border-color: rgba(248, 113, 113, 0.6);
+  box-shadow: 0 10px 30px -18px rgba(248, 113, 113, 0.6);
+}
+
+.portal-module-config-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.portal-module-config-header h3 {
+  margin: 0;
+}
+
+.portal-module-config-summary {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.portal-module-config-body {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.portal-error-text {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 .portal-quiz-section {
   margin-top: 1.5rem;
 }

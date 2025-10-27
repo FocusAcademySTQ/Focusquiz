@@ -1,5 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { MODULES, CATEGORY_LABELS } from './modules-data.js';
+import {
+  getModuleOptionDefinition,
+  getDefaultModuleOptions,
+  summarizeModuleOptions,
+  validateModuleOptions,
+  cloneModuleOptions,
+} from './module-config.js';
 
 const sortedModules = [...MODULES].sort((a, b) => {
   const catA = a.category || '';
@@ -18,6 +25,7 @@ const state = {
   modules: sortedModules,
   moduleIndex: new Map(sortedModules.map((module) => [module.id, module])),
   selectedModules: new Set(),
+  moduleConfigs: new Map(),
   moduleFilter: 'all',
   moduleSearch: '',
   supportsQuizConfigColumn: true,
@@ -43,6 +51,8 @@ const el = {
   moduleFilter: document.getElementById('moduleFilter'),
   moduleSearch: document.getElementById('moduleSearch'),
   moduleSelectedInfo: document.getElementById('moduleSelectedInfo'),
+  moduleConfigPanel: document.getElementById('moduleConfigPanel'),
+  moduleConfigList: document.getElementById('moduleConfigList'),
   studentChecklist: document.getElementById('studentChecklist'),
   assignmentList: document.getElementById('assignmentList'),
   reloadAssignments: document.getElementById('reloadAssignments'),
@@ -314,6 +324,163 @@ function getCategoryLabel(category) {
   return CATEGORY_LABELS[category] || 'Mòdul FocusQuiz';
 }
 
+function cssEscape(value) {
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(value);
+  }
+  return String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+}
+
+function ensureModuleOptionState(moduleId) {
+  if (state.moduleConfigs.has(moduleId)) {
+    return state.moduleConfigs.get(moduleId);
+  }
+  const defaults = getDefaultModuleOptions(moduleId);
+  state.moduleConfigs.set(moduleId, defaults);
+  return defaults;
+}
+
+function applyModuleCardState(card, module, definition, options) {
+  if (!card) return;
+  const summaryEl = card.querySelector('.portal-module-config-summary');
+  const errorEl = card.querySelector('.portal-error-text');
+  let normalized = options || {};
+  let summaryText = '';
+  let errorText = '';
+
+  if (definition) {
+    normalized = typeof definition.normalize === 'function' ? definition.normalize(options) : (options || {});
+    state.moduleConfigs.set(module.id, normalized);
+    if (typeof definition.summarize === 'function') {
+      summaryText = definition.summarize(normalized, module) || '';
+    }
+    if (typeof definition.validate === 'function') {
+      errorText = definition.validate(normalized, module) || '';
+    }
+    if (!summaryText) {
+      summaryText = 'Sense opcions addicionals.';
+    }
+  } else {
+    normalized = {};
+    state.moduleConfigs.set(module.id, normalized);
+    summaryText = 'Aquest mòdul utilitza només la configuració general.';
+  }
+
+  if (summaryEl) {
+    summaryEl.textContent = summaryText;
+  }
+
+  if (errorEl) {
+    if (errorText) {
+      errorEl.textContent = errorText;
+      errorEl.classList.remove('hidden');
+      card.classList.add('portal-module-config-card--error');
+    } else {
+      errorEl.textContent = '';
+      errorEl.classList.add('hidden');
+      card.classList.remove('portal-module-config-card--error');
+    }
+  }
+}
+
+function renderModuleConfigCards() {
+  if (!el.moduleConfigList) return;
+  const selectedIds = Array.from(state.selectedModules);
+  toggle(el.moduleConfigPanel, selectedIds.length > 0);
+  el.moduleConfigList.innerHTML = '';
+
+  selectedIds.forEach((moduleId) => {
+    const module = state.moduleIndex.get(moduleId);
+    if (!module) return;
+    const definition = getModuleOptionDefinition(moduleId);
+    const card = document.createElement('section');
+    card.className = 'portal-module-config-card';
+    card.dataset.moduleConfigCard = moduleId;
+
+    const header = document.createElement('div');
+    header.className = 'portal-module-config-header';
+    header.innerHTML = `
+      <div>
+        <h3>${escapeHTML(module.name)}</h3>
+        <p class="portal-muted" style="margin:0;">${escapeHTML(module.desc || '')}</p>
+      </div>
+      <span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>
+    `;
+    card.appendChild(header);
+
+    const summary = document.createElement('p');
+    summary.className = 'portal-module-config-summary';
+    card.appendChild(summary);
+
+    let body = null;
+    if (definition && typeof definition.render === 'function') {
+      const current = ensureModuleOptionState(moduleId);
+      body = definition.render(current, module) || null;
+      if (body) {
+        card.appendChild(body);
+      }
+    } else {
+      ensureModuleOptionState(moduleId);
+      const info = document.createElement('p');
+      info.className = 'portal-muted';
+      info.style.margin = '0';
+      info.textContent = 'No hi ha subopcions addicionals per aquest mòdul. S\'utilitzarà la configuració general de preguntes, temps i nivell.';
+      card.appendChild(info);
+    }
+
+    const error = document.createElement('p');
+    error.className = 'portal-error-text hidden';
+    card.appendChild(error);
+
+    const applyState = () => {
+      const collected = definition && typeof definition.collect === 'function'
+        ? definition.collect(card, module)
+        : state.moduleConfigs.get(moduleId);
+      applyModuleCardState(card, module, definition, collected);
+    };
+
+    applyState();
+
+    if (definition && (body || definition.collect)) {
+      card.addEventListener('change', applyState);
+      card.addEventListener('input', applyState);
+    }
+
+    el.moduleConfigList.appendChild(card);
+  });
+}
+
+function gatherModuleOptions(modules) {
+  const optionsMap = new Map();
+  const summaries = new Map();
+  const errors = [];
+
+  modules.forEach((module) => {
+    const moduleId = module.id;
+    const definition = getModuleOptionDefinition(moduleId);
+    const card = el.moduleConfigList?.querySelector(`[data-module-config-card="${cssEscape(moduleId)}"]`);
+    if (definition) {
+      const collected = definition.collect
+        ? definition.collect(card, module)
+        : state.moduleConfigs.get(moduleId) || ensureModuleOptionState(moduleId);
+      applyModuleCardState(card, module, definition, collected);
+      const normalized = state.moduleConfigs.get(moduleId) || ensureModuleOptionState(moduleId);
+      const validationMessage = validateModuleOptions(moduleId, normalized);
+      if (validationMessage) {
+        errors.push({ module, message: validationMessage });
+      }
+      optionsMap.set(moduleId, cloneModuleOptions(normalized));
+      summaries.set(moduleId, summarizeModuleOptions(moduleId, normalized));
+    } else {
+      applyModuleCardState(card, module, null, {});
+      optionsMap.set(moduleId, {});
+      summaries.set(moduleId, '');
+    }
+  });
+
+  return { optionsMap, summaries, errors };
+}
+
 function updateSelectedModulesInfo() {
   if (!el.moduleSelectedInfo) return;
   const count = state.selectedModules.size;
@@ -384,12 +551,14 @@ function populateModuleFilter() {
 
 function resetModulePicker() {
   state.selectedModules.clear();
+  state.moduleConfigs.clear();
   state.moduleFilter = 'all';
   state.moduleSearch = '';
   if (el.moduleFilter) el.moduleFilter.value = 'all';
   if (el.moduleSearch) el.moduleSearch.value = '';
   renderModulePicker();
   updateSelectedModulesInfo();
+  renderModuleConfigCards();
 }
 
 function handleModuleClick(event) {
@@ -401,13 +570,16 @@ function handleModuleClick(event) {
   const willSelect = !state.selectedModules.has(moduleId);
   if (willSelect) {
     state.selectedModules.add(moduleId);
+    ensureModuleOptionState(moduleId);
   } else {
     state.selectedModules.delete(moduleId);
+    state.moduleConfigs.delete(moduleId);
   }
 
   button.classList.toggle('is-selected', willSelect);
   button.setAttribute('aria-selected', willSelect ? 'true' : 'false');
   updateSelectedModulesInfo();
+  renderModuleConfigCards();
 }
 
 function handleModuleFilterChange(event) {
@@ -473,6 +645,15 @@ function renderTeacherAssignments(assignments) {
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
     const quizConfig = assignment.quiz_config || null;
     const quizSummary = quizConfig ? formatQuizConfig(quizConfig) : '';
+    const moduleSummary = module && quizConfig?.options
+      ? summarizeModuleOptions(module.id, quizConfig.options)
+      : '';
+    const configDetails = [];
+    if (quizSummary) configDetails.push(`<strong>${escapeHTML(quizSummary)}</strong>`);
+    if (moduleSummary) configDetails.push(escapeHTML(moduleSummary));
+    const configBlock = configDetails.length
+      ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
+      : '';
     const quizLink = module && quizConfig
       ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
       : '';
@@ -505,7 +686,7 @@ function renderTeacherAssignments(assignments) {
         ${moduleTag}
       </div>
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
-      ${quizSummary ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: <strong>${escapeHTML(quizSummary)}</strong></p>` : ''}
+      ${configBlock}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       <div>
         <p class="portal-muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
@@ -560,6 +741,15 @@ function renderStudentAssignments(rows) {
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
     const quizConfig = assignment.quiz_config || null;
     const quizSummary = quizConfig ? formatQuizConfig(quizConfig) : '';
+    const moduleSummary = module && quizConfig?.options
+      ? summarizeModuleOptions(module.id, quizConfig.options)
+      : '';
+    const configDetails = [];
+    if (quizSummary) configDetails.push(`<strong>${escapeHTML(quizSummary)}</strong>`);
+    if (moduleSummary) configDetails.push(escapeHTML(moduleSummary));
+    const configBlock = configDetails.length
+      ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
+      : '';
     const quizLink = module && quizConfig
       ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
       : '';
@@ -583,7 +773,7 @@ function renderStudentAssignments(rows) {
         ${moduleTag}
       </div>
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
-      ${quizSummary ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: <strong>${escapeHTML(quizSummary)}</strong></p>` : ''}
+      ${configBlock}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       ${quizLink
         ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${quizLink}" target="_blank" rel="noopener">Comença la prova</a></div>`
@@ -875,16 +1065,32 @@ async function handleAssignmentSubmit(event) {
     return;
   }
 
+  const { optionsMap, summaries: optionSummaries, errors: optionErrors } = gatherModuleOptions(modulesToAssign);
+
+  if (optionErrors.length) {
+    const errorText = optionErrors
+      .map(({ module, message }) => `${module.name}: ${message}`)
+      .join(' · ');
+    showError(el.assignmentError, `Revisa la configuració dels subtemes: ${errorText}`);
+    return;
+  }
+
   const inserts = modulesToAssign.map((module) => {
     const finalTitle = titleInput
       ? (modulesToAssign.length > 1 ? `${titleInput} · ${module.name}` : titleInput)
       : module.name;
+    const moduleOptions = optionsMap.get(module.id) || {};
     const quizConfig = { ...baseQuizConfig, label: finalTitle };
+    quizConfig.options = cloneModuleOptions(moduleOptions);
     const baseDescription = module.desc || 'Sense descripció';
     const configSummary = formatQuizConfig(quizConfig);
+    const moduleSummary = optionSummaries.get(module.id) || '';
     const descriptionParts = [baseDescription];
     if (configSummary) {
       descriptionParts.push(`\n— Configuració de la prova —\n${configSummary}`);
+    }
+    if (moduleSummary) {
+      descriptionParts.push(`\n— Subtemes configurats —\n${moduleSummary}`);
     }
     if (note) {
       descriptionParts.push(`\n— Nota del docent —\n${note}`);
@@ -1125,6 +1331,7 @@ async function init() {
   populateModuleFilter();
   renderModulePicker();
   updateSelectedModulesInfo();
+  renderModuleConfigCards();
 
   const config = await import('./supabase-config.js').catch(() => null);
 

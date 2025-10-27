@@ -81,6 +81,43 @@
           </div>
           <div id="modulePicker" class="portal-module-grid" role="listbox" aria-multiselectable="true"></div>
           <p id="moduleEmptyState" class="portal-muted portal-module-empty hidden">Cap mòdul coincideix amb la cerca o el filtre aplicat.</p>
+          <section id="moduleConfigPanel" class="portal-module-config hidden" aria-live="polite">
+            <p class="portal-section-title" style="margin-bottom:0.35rem">Detalla els subtemes de cada prova</p>
+            <p class="portal-muted" style="margin-top:0; margin-bottom:0.75rem;">Configura les opcions específiques de cada mòdul perquè l'alumne rebi exactament la mateixa prova que prepararies des del configurador principal.</p>
+            <div id="moduleConfigList" class="portal-module-config-list"></div>
+          </section>
+        </section>
+        <section class="portal-quiz-section">
+          <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
+            <div>
+              <p class="portal-section-title" style="margin-bottom:0.35rem">Configura la prova automàtica</p>
+              <p class="portal-muted" style="margin:0">Aquests paràmetres s'aplicaran a totes les proves creades amb la selecció anterior.</p>
+            </div>
+          </div>
+          <div class="portal-quiz-grid">
+            <label>
+              <span class="portal-field-label">Nom de la prova (opcional)</span>
+              <input class="input" name="quiz_title" type="text" maxlength="120" placeholder="Per exemple: Prova inicial de morfologia" />
+            </label>
+            <label>
+              <span class="portal-field-label">Nombre de preguntes</span>
+              <input class="input" name="quiz_count" type="number" min="1" max="200" value="10" required />
+            </label>
+            <label>
+              <span class="portal-field-label">Temps límit (minuts)</span>
+              <input class="input" name="quiz_time" type="number" min="0" max="180" value="0" required />
+            </label>
+            <label>
+              <span class="portal-field-label">Nivell (1–4)</span>
+              <select class="input" name="quiz_level" required>
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </label>
+          </div>
+          <p class="portal-muted" style="margin-top:0.35rem">Si un mòdul no utilitza nivells o límit de temps, s'ignorarà automàticament.</p>
         </section>
         <section class="portal-quiz-section">
           <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
