@@ -205,8 +205,10 @@ function buildAssignmentSelect(includeAssignees = false) {
 
 function isQuizConfigSchemaError(error) {
   if (!error) return false;
+  if (error.code === '42703') return true;
   const message = (error.message || '').toLowerCase();
-  return message.includes('quiz_config') && message.includes('schema cache');
+  if (!message.includes('quiz_config')) return false;
+  return message.includes('schema cache') || message.includes('does not exist') || message.includes('column');
 }
 
 function encodeQuizOptions(options) {
