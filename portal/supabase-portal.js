@@ -1,5 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { MODULES, CATEGORY_LABELS } from './modules-data.js';
+import {
+  getModuleOptionDefinition,
+  getDefaultModuleOptions,
+  summarizeModuleOptions,
+  validateModuleOptions,
+  cloneModuleOptions,
+} from './module-config.js';
 
 const sortedModules = [...MODULES].sort((a, b) => {
   const catA = a.category || '';
@@ -18,8 +25,10 @@ const state = {
   modules: sortedModules,
   moduleIndex: new Map(sortedModules.map((module) => [module.id, module])),
   selectedModules: new Set(),
+  moduleConfigs: new Map(),
   moduleFilter: 'all',
   moduleSearch: '',
+  supportsQuizConfigColumn: true,
 };
 
 const el = {
@@ -42,6 +51,8 @@ const el = {
   moduleFilter: document.getElementById('moduleFilter'),
   moduleSearch: document.getElementById('moduleSearch'),
   moduleSelectedInfo: document.getElementById('moduleSelectedInfo'),
+  moduleConfigPanel: document.getElementById('moduleConfigPanel'),
+  moduleConfigList: document.getElementById('moduleConfigList'),
   studentChecklist: document.getElementById('studentChecklist'),
   assignmentList: document.getElementById('assignmentList'),
   reloadAssignments: document.getElementById('reloadAssignments'),
@@ -55,6 +66,212 @@ const statusLabels = {
   submitted: 'Entregada',
   completed: 'Completada',
 };
+
+const QUIZ_DEFAULTS = Object.freeze({
+  count: 10,
+  time: 0,
+  level: 1,
+});
+
+function clampNumber(value, min, max) {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(Math.max(value, min), max);
+}
+
+function normalizeQuizConfig(raw = {}) {
+  const normalized = {
+    count: QUIZ_DEFAULTS.count,
+    time: QUIZ_DEFAULTS.time,
+    level: QUIZ_DEFAULTS.level,
+    options: {},
+  };
+
+  const parsedCount = Number.parseInt(raw.count, 10);
+  if (Number.isFinite(parsedCount)) {
+    normalized.count = clampNumber(parsedCount, 1, 200);
+  }
+
+  const parsedTime = Number.parseInt(raw.time, 10);
+  if (Number.isFinite(parsedTime)) {
+    normalized.time = clampNumber(parsedTime, 0, 180);
+  }
+
+  const parsedLevel = Number.parseInt(raw.level, 10);
+  if (Number.isFinite(parsedLevel)) {
+    normalized.level = clampNumber(parsedLevel, 1, 4);
+  }
+
+  if (raw.options && typeof raw.options === 'object' && !Array.isArray(raw.options)) {
+    normalized.options = raw.options;
+  }
+
+  if (raw.label && typeof raw.label === 'string') {
+    normalized.label = raw.label;
+  }
+
+  if (raw.title && typeof raw.title === 'string') {
+    normalized.title = raw.title;
+  }
+
+  return normalized;
+}
+
+function formatQuizConfig(config) {
+  if (!config || typeof config !== 'object') return '';
+  const normalized = normalizeQuizConfig(config);
+  const parts = [];
+
+  if (normalized.count === 1) {
+    parts.push('1 pregunta');
+  } else if (normalized.count > 1) {
+    parts.push(`${normalized.count} preguntes`);
+  }
+
+  if (normalized.time > 0) {
+    parts.push(`${normalized.time} min`);
+  } else {
+    parts.push('Sense límit de temps');
+  }
+
+  if (normalized.level > 0) {
+    parts.push(`Nivell ${normalized.level}`);
+  }
+
+  return parts.join(' · ');
+}
+
+const QUIZ_CONFIG_MARKER = '[[FocusQuiz::QuizConfig]]';
+
+function embedQuizConfigInDescription(description, quizConfig) {
+  const base = extractEmbeddedQuizConfig(description).description;
+  if (!quizConfig) {
+    return base;
+  }
+
+  const normalizedConfig = normalizeQuizConfig(quizConfig);
+  const payload = JSON.stringify(normalizedConfig);
+  const trimmed = base.trimEnd();
+  const prefix = trimmed ? `${trimmed}\n\n` : '';
+  return `${prefix}${QUIZ_CONFIG_MARKER}\n${payload}`;
+}
+
+function extractEmbeddedQuizConfig(description) {
+  if (!description) {
+    return { description: '', quizConfig: null };
+  }
+
+  const markerIndex = description.lastIndexOf(QUIZ_CONFIG_MARKER);
+  if (markerIndex === -1) {
+    return { description: description.trimEnd(), quizConfig: null };
+  }
+
+  const payload = description.slice(markerIndex + QUIZ_CONFIG_MARKER.length).trim();
+  const cleaned = description.slice(0, markerIndex).trimEnd();
+  if (!payload) {
+    return { description: cleaned, quizConfig: null };
+  }
+
+  try {
+    const parsed = JSON.parse(payload);
+    return { description: cleaned, quizConfig: normalizeQuizConfig(parsed) };
+  } catch (error) {
+    console.warn('No s\'ha pogut recuperar la configuració embeguda de la prova.', error);
+    return { description: cleaned, quizConfig: null };
+  }
+}
+
+function prepareAssignmentForDisplay(assignment) {
+  if (!assignment || typeof assignment !== 'object') {
+    return assignment;
+  }
+
+  const processed = { ...assignment };
+  const { description, quizConfig } = extractEmbeddedQuizConfig(assignment.description || '');
+  processed.description = description;
+  if (!processed.quiz_config && quizConfig) {
+    processed.quiz_config = quizConfig;
+  }
+  return processed;
+}
+
+function buildAssignmentSelect(includeAssignees = false) {
+  const fields = [
+    'id',
+    'title',
+    'description',
+    'module_id',
+    'due_date',
+    'created_at',
+  ];
+  if (state.supportsQuizConfigColumn) {
+    fields.splice(4, 0, 'quiz_config');
+  }
+  let select = fields.join(', ');
+  if (includeAssignees) {
+    select += ', assignment_assignees ( id, profile_id, status )';
+  }
+  return select;
+}
+
+function isQuizConfigSchemaError(error) {
+  if (!error) return false;
+  if (error.code === '42703') return true;
+  const message = (error.message || '').toLowerCase();
+  if (!message.includes('quiz_config')) return false;
+  return message.includes('schema cache') || message.includes('does not exist') || message.includes('column');
+}
+
+function encodeQuizOptions(options) {
+  if (!options || typeof options !== 'object') return '';
+  try {
+    const json = JSON.stringify(options);
+    if (!json) return '';
+    let encoded = '';
+    if (typeof TextEncoder !== 'undefined') {
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(json);
+      let binary = '';
+      bytes.forEach((byte) => {
+        binary += String.fromCharCode(byte);
+      });
+      encoded = typeof btoa === 'function' ? btoa(binary) : '';
+    } else {
+      encoded = typeof btoa === 'function'
+        ? btoa(unescape(encodeURIComponent(json)))
+        : '';
+    }
+    return encoded.replace(/=+$/, '');
+  } catch (error) {
+    console.warn('No s\'ha pogut codificar les opcions de la prova', error);
+    return '';
+  }
+}
+
+function buildQuizLink(moduleId, config, meta = {}) {
+  if (!moduleId) return '';
+  const params = new URLSearchParams();
+  params.set('module', moduleId);
+
+  const normalized = normalizeQuizConfig(config);
+  params.set('count', String(normalized.count));
+  params.set('time', String(normalized.time));
+  params.set('level', String(normalized.level));
+
+  if (normalized.options && Object.keys(normalized.options).length) {
+    const encodedOptions = encodeQuizOptions(normalized.options);
+    if (encodedOptions) {
+      params.set('opts', encodedOptions);
+    }
+  }
+
+  const label = typeof meta.label === 'string' ? meta.label.trim() : '';
+  if (label) {
+    params.set('label', label);
+  }
+
+  params.set('autostart', '1');
+  return `../index.html?${params.toString()}`;
+}
 
 function toggle(element, show) {
   if (!element) return;
@@ -107,14 +324,171 @@ function getCategoryLabel(category) {
   return CATEGORY_LABELS[category] || 'Mòdul FocusQuiz';
 }
 
+function cssEscape(value) {
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(value);
+  }
+  return String(value).replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+}
+
+function ensureModuleOptionState(moduleId) {
+  if (state.moduleConfigs.has(moduleId)) {
+    return state.moduleConfigs.get(moduleId);
+  }
+  const defaults = getDefaultModuleOptions(moduleId);
+  state.moduleConfigs.set(moduleId, defaults);
+  return defaults;
+}
+
+function applyModuleCardState(card, module, definition, options) {
+  if (!card) return;
+  const summaryEl = card.querySelector('.portal-module-config-summary');
+  const errorEl = card.querySelector('.portal-error-text');
+  let normalized = options || {};
+  let summaryText = '';
+  let errorText = '';
+
+  if (definition) {
+    normalized = typeof definition.normalize === 'function' ? definition.normalize(options) : (options || {});
+    state.moduleConfigs.set(module.id, normalized);
+    if (typeof definition.summarize === 'function') {
+      summaryText = definition.summarize(normalized, module) || '';
+    }
+    if (typeof definition.validate === 'function') {
+      errorText = definition.validate(normalized, module) || '';
+    }
+    if (!summaryText) {
+      summaryText = 'Sense opcions addicionals.';
+    }
+  } else {
+    normalized = {};
+    state.moduleConfigs.set(module.id, normalized);
+    summaryText = 'Aquest mòdul utilitza només la configuració general.';
+  }
+
+  if (summaryEl) {
+    summaryEl.textContent = summaryText;
+  }
+
+  if (errorEl) {
+    if (errorText) {
+      errorEl.textContent = errorText;
+      errorEl.classList.remove('hidden');
+      card.classList.add('portal-module-config-card--error');
+    } else {
+      errorEl.textContent = '';
+      errorEl.classList.add('hidden');
+      card.classList.remove('portal-module-config-card--error');
+    }
+  }
+}
+
+function renderModuleConfigCards() {
+  if (!el.moduleConfigList) return;
+  const selectedIds = Array.from(state.selectedModules);
+  toggle(el.moduleConfigPanel, selectedIds.length > 0);
+  el.moduleConfigList.innerHTML = '';
+
+  selectedIds.forEach((moduleId) => {
+    const module = state.moduleIndex.get(moduleId);
+    if (!module) return;
+    const definition = getModuleOptionDefinition(moduleId);
+    const card = document.createElement('section');
+    card.className = 'portal-module-config-card';
+    card.dataset.moduleConfigCard = moduleId;
+
+    const header = document.createElement('div');
+    header.className = 'portal-module-config-header';
+    header.innerHTML = `
+      <div>
+        <h3>${escapeHTML(module.name)}</h3>
+        <p class="portal-muted" style="margin:0;">${escapeHTML(module.desc || '')}</p>
+      </div>
+      <span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>
+    `;
+    card.appendChild(header);
+
+    const summary = document.createElement('p');
+    summary.className = 'portal-module-config-summary';
+    card.appendChild(summary);
+
+    let body = null;
+    if (definition && typeof definition.render === 'function') {
+      const current = ensureModuleOptionState(moduleId);
+      body = definition.render(current, module) || null;
+      if (body) {
+        card.appendChild(body);
+      }
+    } else {
+      ensureModuleOptionState(moduleId);
+      const info = document.createElement('p');
+      info.className = 'portal-muted';
+      info.style.margin = '0';
+      info.textContent = 'No hi ha subopcions addicionals per aquest mòdul. S\'utilitzarà la configuració general de preguntes, temps i nivell.';
+      card.appendChild(info);
+    }
+
+    const error = document.createElement('p');
+    error.className = 'portal-error-text hidden';
+    card.appendChild(error);
+
+    const applyState = () => {
+      const collected = definition && typeof definition.collect === 'function'
+        ? definition.collect(card, module)
+        : state.moduleConfigs.get(moduleId);
+      applyModuleCardState(card, module, definition, collected);
+    };
+
+    applyState();
+
+    if (definition && (body || definition.collect)) {
+      card.addEventListener('change', applyState);
+      card.addEventListener('input', applyState);
+    }
+
+    el.moduleConfigList.appendChild(card);
+  });
+}
+
+function gatherModuleOptions(modules) {
+  const optionsMap = new Map();
+  const summaries = new Map();
+  const errors = [];
+
+  modules.forEach((module) => {
+    const moduleId = module.id;
+    const definition = getModuleOptionDefinition(moduleId);
+    const card = el.moduleConfigList?.querySelector(`[data-module-config-card="${cssEscape(moduleId)}"]`);
+    if (definition) {
+      const collected = definition.collect
+        ? definition.collect(card, module)
+        : state.moduleConfigs.get(moduleId) || ensureModuleOptionState(moduleId);
+      applyModuleCardState(card, module, definition, collected);
+      const normalized = state.moduleConfigs.get(moduleId) || ensureModuleOptionState(moduleId);
+      const validationMessage = validateModuleOptions(moduleId, normalized);
+      if (validationMessage) {
+        errors.push({ module, message: validationMessage });
+      }
+      optionsMap.set(moduleId, cloneModuleOptions(normalized));
+      summaries.set(moduleId, summarizeModuleOptions(moduleId, normalized));
+    } else {
+      applyModuleCardState(card, module, null, {});
+      optionsMap.set(moduleId, {});
+      summaries.set(moduleId, '');
+    }
+  });
+
+  return { optionsMap, summaries, errors };
+}
+
 function updateSelectedModulesInfo() {
   if (!el.moduleSelectedInfo) return;
   const count = state.selectedModules.size;
-  let text = 'Cap mòdul seleccionat';
+  let text = 'Cap prova seleccionada';
   if (count === 1) {
-    text = '1 mòdul seleccionat';
+    text = '1 prova seleccionada';
   } else if (count > 1) {
-    text = `${count} mòduls seleccionats`;
+    text = `${count} proves seleccionades`;
   }
   el.moduleSelectedInfo.textContent = text;
   el.moduleSelectedInfo.classList.toggle('portal-chip--muted', count === 0);
@@ -177,12 +551,14 @@ function populateModuleFilter() {
 
 function resetModulePicker() {
   state.selectedModules.clear();
+  state.moduleConfigs.clear();
   state.moduleFilter = 'all';
   state.moduleSearch = '';
   if (el.moduleFilter) el.moduleFilter.value = 'all';
   if (el.moduleSearch) el.moduleSearch.value = '';
   renderModulePicker();
   updateSelectedModulesInfo();
+  renderModuleConfigCards();
 }
 
 function handleModuleClick(event) {
@@ -194,13 +570,16 @@ function handleModuleClick(event) {
   const willSelect = !state.selectedModules.has(moduleId);
   if (willSelect) {
     state.selectedModules.add(moduleId);
+    ensureModuleOptionState(moduleId);
   } else {
     state.selectedModules.delete(moduleId);
+    state.moduleConfigs.delete(moduleId);
   }
 
   button.classList.toggle('is-selected', willSelect);
   button.setAttribute('aria-selected', willSelect ? 'true' : 'false');
   updateSelectedModulesInfo();
+  renderModuleConfigCards();
 }
 
 function handleModuleFilterChange(event) {
@@ -243,12 +622,14 @@ function renderTeacherAssignments(assignments) {
   if (!assignments.length) {
     const empty = document.createElement('p');
     empty.className = 'muted';
-    empty.textContent = 'Encara no has creat cap tasca.';
+    empty.textContent = 'Encara no has creat cap prova.';
     el.assignmentList.appendChild(empty);
     return;
   }
 
-  assignments.forEach((assignment) => {
+  const normalizedAssignments = assignments.map(prepareAssignmentForDisplay);
+
+  normalizedAssignments.forEach((assignment) => {
     const item = document.createElement('article');
     item.className = 'list-item';
 
@@ -258,26 +639,42 @@ function renderTeacherAssignments(assignments) {
 
     const assignmentId = escapeHTML(assignment.id);
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
-    const moduleName = escapeHTML(module?.name || assignment.title || 'Tasca');
+    const title = escapeHTML(assignment.title || module?.name || 'Prova assignada');
     const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
     const descriptionHTML = formatDescription(descriptionSource);
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
-    const moduleLink = module
-      ? `../index.html?module=${encodeURIComponent(module.id)}`
+    const quizConfig = assignment.quiz_config || null;
+    const quizSummary = quizConfig ? formatQuizConfig(quizConfig) : '';
+    const moduleSummary = module && quizConfig?.options
+      ? summarizeModuleOptions(module.id, quizConfig.options)
       : '';
+    const configDetails = [];
+    if (quizSummary) configDetails.push(`<strong>${escapeHTML(quizSummary)}</strong>`);
+    if (moduleSummary) configDetails.push(escapeHTML(moduleSummary));
+    const configBlock = configDetails.length
+      ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
+      : '';
+    const quizLink = module && quizConfig
+      ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
+      : '';
+    const moduleLink = module ? `../index.html?module=${encodeURIComponent(module.id)}` : '';
 
     const assignees = (assignment.assignment_assignees || []).map((row) => {
       const student = state.students.find((s) => s.id === row.profile_id);
       const name = escapeHTML(student?.full_name || 'Alumne');
+      const statusValue = escapeHTML(row.status);
       return `
         <li>
           ${name}
-          <span class="portal-status-chip" data-status="${row.status}">${escapeHTML(statusLabels[row.status] || row.status)}</span>
+          <span class="portal-status-chip" data-status="${statusValue}">${escapeHTML(statusLabels[row.status] || row.status)}</span>
         </li>
       `;
     });
 
     const actions = [];
+    if (quizLink) {
+      actions.push(`<a class="btn-primary" href="${quizLink}" target="_blank" rel="noopener">Obre la prova</a>`);
+    }
     if (moduleLink) {
       actions.push(`<a class="btn-secondary" href="${moduleLink}" target="_blank" rel="noopener">Obre el mòdul</a>`);
     }
@@ -285,10 +682,11 @@ function renderTeacherAssignments(assignments) {
 
     item.innerHTML = `
       <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
-        <h4 style="margin:0;">${moduleName}</h4>
+        <h4 style="margin:0;">${title}</h4>
         ${moduleTag}
       </div>
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
+      ${configBlock}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       <div>
         <p class="portal-muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
@@ -312,15 +710,16 @@ function renderStudentAssignments(rows) {
   if (!rows.length) {
     const empty = document.createElement('p');
     empty.className = 'muted';
-    empty.textContent = 'No tens tasques assignades.';
+    empty.textContent = 'No tens proves assignades.';
     el.studentAssignmentList.appendChild(empty);
     return;
   }
 
   rows.forEach((row) => {
-    const assignment = row.assignment || {
+    const assignmentData = prepareAssignmentForDisplay(row.assignment);
+    const assignment = assignmentData || {
       id: row.assignment_id,
-      title: 'Tasca assignada',
+      title: 'Prova assignada',
       description: '',
       module_id: null,
       due_date: null,
@@ -338,9 +737,23 @@ function renderStudentAssignments(rows) {
     const rowId = escapeHTML(row.id);
     const assignmentId = escapeHTML(assignment.id);
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
-    const moduleName = escapeHTML(module?.name || assignment.title || 'Tasca');
+    const assignmentTitle = escapeHTML(assignment.title || module?.name || 'Prova');
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
-    const moduleLink = module
+    const quizConfig = assignment.quiz_config || null;
+    const quizSummary = quizConfig ? formatQuizConfig(quizConfig) : '';
+    const moduleSummary = module && quizConfig?.options
+      ? summarizeModuleOptions(module.id, quizConfig.options)
+      : '';
+    const configDetails = [];
+    if (quizSummary) configDetails.push(`<strong>${escapeHTML(quizSummary)}</strong>`);
+    if (moduleSummary) configDetails.push(escapeHTML(moduleSummary));
+    const configBlock = configDetails.length
+      ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
+      : '';
+    const quizLink = module && quizConfig
+      ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
+      : '';
+    const fallbackModuleLink = !quizLink && module
       ? `../index.html?module=${encodeURIComponent(module.id)}`
       : '';
     const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
@@ -356,12 +769,17 @@ function renderStudentAssignments(rows) {
     item.className = 'list-item';
     item.innerHTML = `
       <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
-        <h4 style="margin:0;">${moduleName}</h4>
+        <h4 style="margin:0;">${assignmentTitle}</h4>
         ${moduleTag}
       </div>
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
+      ${configBlock}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
-      ${moduleLink ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${moduleLink}" target="_blank" rel="noopener">Comença el mòdul</a></div>` : ''}
+      ${quizLink
+        ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${quizLink}" target="_blank" rel="noopener">Comença la prova</a></div>`
+        : fallbackModuleLink
+          ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${fallbackModuleLink}" target="_blank" rel="noopener">Obre el mòdul</a></div>`
+          : ''}
       <p style="margin-top:0.35rem;">
         Estat actual: ${statusChip}
       </p>
@@ -451,25 +869,19 @@ async function loadStudents() {
 
 async function loadTeacherAssignments() {
   if (!state.supabase) return;
+  const assignmentSelect = buildAssignmentSelect(true);
   const { data, error } = await state.supabase
     .from('assignments')
-    .select(`
-      id,
-      title,
-      description,
-      module_id,
-      due_date,
-      created_at,
-      assignment_assignees (
-        id,
-        profile_id,
-        status
-      )
-    `)
+    .select(assignmentSelect)
     .order('due_date', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: false });
 
   if (error) {
+    if (isQuizConfigSchemaError(error) && state.supportsQuizConfigColumn) {
+      state.supportsQuizConfigColumn = false;
+      await loadTeacherAssignments();
+      return;
+    }
     showError(el.assignmentError, error.message);
     return;
   }
@@ -479,6 +891,7 @@ async function loadTeacherAssignments() {
 
 async function loadStudentAssignments() {
   if (!state.supabase || !state.profile) return;
+  const assignmentSelect = buildAssignmentSelect(false);
   const { data, error } = await state.supabase
     .from('assignment_assignees')
     .select(`
@@ -486,19 +899,17 @@ async function loadStudentAssignments() {
       status,
       assigned_at,
       assignment_id,
-      assignment:assignments (
-        id,
-        title,
-        description,
-        module_id,
-        due_date,
-        created_at
-      )
+      assignment:assignments (${assignmentSelect})
     `)
     .eq('profile_id', state.profile.id)
     .order('assigned_at', { ascending: false });
 
   if (error) {
+    if (isQuizConfigSchemaError(error) && state.supportsQuizConfigColumn) {
+      state.supportsQuizConfigColumn = false;
+      await loadStudentAssignments();
+      return;
+    }
     showError(el.assignmentError, error.message);
     return;
   }
@@ -540,16 +951,23 @@ async function loadStudentAssignments() {
 
   if (missingAssignments.length) {
     const uniqueIds = Array.from(new Set(missingAssignments));
-    const { data: fallbackAssignments } = await state.supabase
+    const fallbackSelect = buildAssignmentSelect(false);
+    const { data: fallbackAssignments, error: fallbackError } = await state.supabase
       .from('assignments')
-      .select('id, title, description, module_id, due_date, created_at')
+      .select(fallbackSelect)
       .in('id', uniqueIds);
+
+    if (fallbackError && isQuizConfigSchemaError(fallbackError) && state.supportsQuizConfigColumn) {
+      state.supportsQuizConfigColumn = false;
+      await loadStudentAssignments();
+      return;
+    }
 
     if (Array.isArray(fallbackAssignments) && fallbackAssignments.length) {
       const fallbackMap = new Map(fallbackAssignments.map((assignment) => [assignment.id, assignment]));
       rows.forEach((row) => {
         if (!row.assignment && row.assignment_id) {
-          const assignment = fallbackMap.get(row.assignment_id);
+          const assignment = prepareAssignmentForDisplay(fallbackMap.get(row.assignment_id));
           if (assignment) {
             row.assignment = assignment;
           }
@@ -558,7 +976,12 @@ async function loadStudentAssignments() {
     }
   }
 
-  renderStudentAssignments(rows);
+  const normalizedRows = rows.map((row) => {
+    if (!row.assignment) return row;
+    return { ...row, assignment: prepareAssignmentForDisplay(row.assignment) };
+  });
+
+  renderStudentAssignments(normalizedRows);
 }
 
 async function handleLogin(event) {
@@ -612,17 +1035,24 @@ async function handleAssignmentSubmit(event) {
   const formData = new FormData(event.currentTarget);
   const dueDate = formData.get('due_date') || null;
   const note = (formData.get('note') || '').toString().trim();
+  const titleInput = (formData.get('quiz_title') || '').toString().trim();
+  const quizConfigInput = {
+    count: formData.get('quiz_count'),
+    time: formData.get('quiz_time'),
+    level: formData.get('quiz_level'),
+  };
+  const baseQuizConfig = normalizeQuizConfig(quizConfigInput);
   const selectedModuleIds = Array.from(state.selectedModules);
 
   const selectedStudents = formData.getAll('students').filter((value) => Boolean(value));
 
   if (!selectedModuleIds.length) {
-    showError(el.assignmentError, 'Selecciona com a mínim un mòdul per crear les tasques.');
+    showError(el.assignmentError, 'Selecciona com a mínim un mòdul per crear les proves.');
     return;
   }
 
   if (!selectedStudents.length) {
-    showError(el.assignmentError, 'Selecciona com a mínim un alumne per assignar els mòduls.');
+    showError(el.assignmentError, 'Selecciona com a mínim un alumne per assignar les proves.');
     return;
   }
 
@@ -635,31 +1065,92 @@ async function handleAssignmentSubmit(event) {
     return;
   }
 
+  const { optionsMap, summaries: optionSummaries, errors: optionErrors } = gatherModuleOptions(modulesToAssign);
+
+  if (optionErrors.length) {
+    const errorText = optionErrors
+      .map(({ module, message }) => `${module.name}: ${message}`)
+      .join(' · ');
+    showError(el.assignmentError, `Revisa la configuració dels subtemes: ${errorText}`);
+    return;
+  }
+
   const inserts = modulesToAssign.map((module) => {
+    const finalTitle = titleInput
+      ? (modulesToAssign.length > 1 ? `${titleInput} · ${module.name}` : titleInput)
+      : module.name;
+    const moduleOptions = optionsMap.get(module.id) || {};
+    const quizConfig = { ...baseQuizConfig, label: finalTitle };
+    quizConfig.options = cloneModuleOptions(moduleOptions);
     const baseDescription = module.desc || 'Sense descripció';
-    const description = note
-      ? `${baseDescription}\n\n— Nota del docent —\n${note}`
-      : baseDescription;
+    const configSummary = formatQuizConfig(quizConfig);
+    const moduleSummary = optionSummaries.get(module.id) || '';
+    const descriptionParts = [baseDescription];
+    if (configSummary) {
+      descriptionParts.push(`\n— Configuració de la prova —\n${configSummary}`);
+    }
+    if (moduleSummary) {
+      descriptionParts.push(`\n— Subtemes configurats —\n${moduleSummary}`);
+    }
+    if (note) {
+      descriptionParts.push(`\n— Nota del docent —\n${note}`);
+    }
+    const description = descriptionParts.join('\n').replace(/\n{3,}/g, '\n\n');
     return {
-      title: module.name,
+      title: finalTitle,
       description,
       due_date: dueDate,
       created_by: state.profile.id,
       module_id: module.id,
+      quiz_config: quizConfig,
     };
   });
 
-  const { data: insertedAssignments, error } = await state.supabase
-    .from('assignments')
-    .insert(inserts)
-    .select('id');
+  let insertedAssignments = [];
+  let usedFallbackStorage = false;
 
-  if (error) {
-    showError(el.assignmentError, error.message);
-    return;
+  if (state.supportsQuizConfigColumn) {
+    const { data: result, error } = await state.supabase
+      .from('assignments')
+      .insert(inserts)
+      .select('id');
+
+    if (error) {
+      if (isQuizConfigSchemaError(error)) {
+        state.supportsQuizConfigColumn = false;
+      } else {
+        showError(el.assignmentError, error.message);
+        return;
+      }
+    } else {
+      insertedAssignments = Array.isArray(result) ? result : [];
+    }
   }
 
-  const assignmentRows = Array.isArray(insertedAssignments) ? insertedAssignments : [];
+  if (!insertedAssignments.length) {
+    const fallbackPayload = inserts.map((assignment) => {
+      const { quiz_config, ...rest } = assignment;
+      return {
+        ...rest,
+        description: embedQuizConfigInDescription(assignment.description, quiz_config),
+      };
+    });
+
+    const { data: result, error } = await state.supabase
+      .from('assignments')
+      .insert(fallbackPayload)
+      .select('id');
+
+    if (error) {
+      showError(el.assignmentError, error.message);
+      return;
+    }
+
+    insertedAssignments = Array.isArray(result) ? result : [];
+    usedFallbackStorage = true;
+  }
+
+  const assignmentRows = insertedAssignments;
 
   if (assignmentRows.length && selectedStudents.length) {
     const rows = [];
@@ -688,9 +1179,14 @@ async function handleAssignmentSubmit(event) {
 
   const moduleCount = modulesToAssign.length;
   const studentCount = selectedStudents.length;
-  const moduleLabel = moduleCount === 1 ? '1 mòdul' : `${moduleCount} mòduls`;
+  const moduleLabel = moduleCount === 1 ? '1 prova' : `${moduleCount} proves`;
   const studentLabel = studentCount === 1 ? '1 alumne' : `${studentCount} alumnes`;
-  showSuccess(el.assignmentFeedback, `${moduleLabel} assignat(s) a ${studentLabel}.`);
+  const verb = moduleCount === 1 ? 'assignada' : 'assignades';
+  const baseMessage = `${moduleLabel} ${verb} a ${studentLabel}.`;
+  const feedbackMessage = usedFallbackStorage
+    ? `${baseMessage} Actualitza l'esquema de Supabase executant l'script de setup per guardar la configuració automàtica de les proves.`
+    : baseMessage;
+  showSuccess(el.assignmentFeedback, feedbackMessage);
 
   loadTeacherAssignments();
 }
@@ -835,6 +1331,7 @@ async function init() {
   populateModuleFilter();
   renderModulePicker();
   updateSelectedModulesInfo();
+  renderModuleConfigCards();
 
   const config = await import('./supabase-config.js').catch(() => null);
 
@@ -851,6 +1348,7 @@ async function init() {
     },
   });
 
+  await detectQuizConfigSupport();
   wireEvents();
 
   const { data: initialSession } = await state.supabase.auth.getSession();
@@ -889,6 +1387,22 @@ async function init() {
       updateSessionUI();
     }
   });
+}
+
+async function detectQuizConfigSupport() {
+  if (!state.supabase) return false;
+  state.supportsQuizConfigColumn = true;
+  const { error } = await state.supabase
+    .from('assignments')
+    .select('id, quiz_config')
+    .limit(1);
+
+  if (error && isQuizConfigSchemaError(error)) {
+    state.supportsQuizConfigColumn = false;
+    return false;
+  }
+
+  return !error;
 }
 
 init();

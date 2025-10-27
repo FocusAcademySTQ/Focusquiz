@@ -328,6 +328,8 @@ window.addModules = function(mods){
 
 let pendingModule = null; // mòdul seleccionat per configurar
 let urlModuleHandled = false;
+let pendingUrlQuizConfig = null;
+let pendingUrlQuizOverrides = null;
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
 let timerHandle = null;
@@ -389,18 +391,101 @@ function buildHome(){
   openModuleFromURL();
 }
 
+function parseUrlInt(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const num = Number.parseInt(value, 10);
+  return Number.isFinite(num) ? num : null;
+}
+
+function parseUrlBoolean(value) {
+  if (value === null || value === undefined) return false;
+  const normalized = String(value).trim().toLowerCase();
+  return ['1', 'true', 'yes', 'y', 'si', 'sí'].includes(normalized);
+}
+
+function decodeQuizOptionsParam(value) {
+  if (!value) return null;
+  try {
+    const padded = value.length % 4 === 0 ? value : value + '='.repeat(4 - (value.length % 4));
+    const binary = typeof atob === 'function' ? atob(padded) : '';
+    if (!binary) return null;
+    let json = '';
+    if (typeof TextDecoder !== 'undefined') {
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      json = new TextDecoder().decode(bytes);
+    } else {
+      json = decodeURIComponent(Array.prototype.map.call(binary, (c) => `%${c.charCodeAt(0).toString(16).padStart(2, '0')}`).join(''));
+    }
+    const parsed = JSON.parse(json);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+    return parsed;
+  } catch (error) {
+    console.warn('No s\'ha pogut llegir la configuració de la prova des de l\'URL', error);
+    return null;
+  }
+}
+
+function extractQuizConfigFromParams(params) {
+  if (!params) return null;
+  const count = parseUrlInt(params.get('count'));
+  const time = parseUrlInt(params.get('time'));
+  const level = parseUrlInt(params.get('level'));
+  const labelRaw = params.get('label');
+  const optionsParam = params.get('opts') || params.get('options');
+  const options = optionsParam ? decodeQuizOptionsParam(optionsParam) : null;
+  const autostart = parseUrlBoolean(params.get('autostart') ?? params.get('start'));
+
+  const config = {};
+  if (Number.isFinite(count)) config.count = clamp(count, 1, 200);
+  if (Number.isFinite(time)) config.time = clamp(time, 0, 180);
+  if (Number.isFinite(level)) config.level = clamp(level, 1, 4);
+  if (options) config.options = options;
+  if (labelRaw && typeof labelRaw === 'string' && labelRaw.trim()) config.label = labelRaw.trim();
+  if (autostart) config.autostart = true;
+
+  return Object.keys(config).length ? config : null;
+}
+
+function applyUrlQuizConfig(config) {
+  if (!config) return;
+  const countInput = $('#cfg-count');
+  if (countInput && Number.isFinite(config.count)) {
+    countInput.value = String(clamp(config.count, 1, 200));
+  }
+
+  const timeInput = $('#cfg-time');
+  if (timeInput && Number.isFinite(config.time)) {
+    timeInput.value = String(clamp(config.time, 0, 180));
+  }
+
+  const levelSelect = $('#cfg-level');
+  if (levelSelect && Number.isFinite(config.level)) {
+    levelSelect.value = String(clamp(config.level, 1, 4));
+  }
+
+  if (config.autostart) {
+    const meta = {};
+    if (config.label) meta.label = config.label;
+    setTimeout(() => {
+      startFromConfig(meta);
+    }, 150);
+  }
+}
+
 function openModuleFromURL(){
   if (urlModuleHandled) return;
+  let searchParams = null;
   let moduleId = null;
   try {
-    const params = new URLSearchParams(window.location.search);
-    moduleId = params.get('module');
+    searchParams = new URLSearchParams(window.location.search);
+    moduleId = searchParams.get('module');
   } catch {}
 
-  if (!moduleId && window.location.hash) {
+  let hashParams = null;
+  if ((!moduleId || !moduleId.trim()) && window.location.hash) {
     try {
-      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
-      moduleId = hashParams.get('module');
+      hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+      if (!moduleId) moduleId = hashParams.get('module');
     } catch {}
   }
 
@@ -411,8 +496,28 @@ function openModuleFromURL(){
   const target = MODULES.find(m => m.id === moduleId);
   if (!target) return;
 
+  const sourceParams = (searchParams && searchParams.get('module') === moduleId)
+    ? searchParams
+    : (hashParams && hashParams.get('module') === moduleId)
+      ? hashParams
+      : searchParams;
+
+  pendingUrlQuizConfig = extractQuizConfigFromParams(sourceParams);
+  pendingUrlQuizOverrides = pendingUrlQuizConfig
+    ? {
+        options: pendingUrlQuizConfig.options || null,
+        label: pendingUrlQuizConfig.label || '',
+      }
+    : null;
+
   urlModuleHandled = true;
   openConfig(target.id);
+
+  if (pendingUrlQuizConfig) {
+    setTimeout(() => {
+      applyUrlQuizConfig(pendingUrlQuizConfig);
+    }, 60);
+  }
 }
 
 function openConfig(moduleId){
@@ -751,33 +856,50 @@ function collectConfigValues(){
   return { count, time, level, options };
 }
 
-function startFromConfig(){
+function startFromConfig(meta){
   const cfg = collectConfigValues();
   if(!cfg) return;
+  if (pendingUrlQuizOverrides && pendingUrlQuizOverrides.options) {
+    cfg.options = Object.assign({}, cfg.options || {}, pendingUrlQuizOverrides.options);
+  }
+  const metaData = (meta && typeof meta === 'object') ? { ...meta } : {};
+  if (!metaData.label && pendingUrlQuizOverrides && pendingUrlQuizOverrides.label) {
+    metaData.label = pendingUrlQuizOverrides.label;
+  }
   if (cfg.options?.mode === 'map') {
     if (pendingModule?.id === 'geo-europe') {
       openEuropeMap();
+      pendingUrlQuizConfig = null;
+      pendingUrlQuizOverrides = null;
       return;
     }
     if (pendingModule?.id === 'geo-america') {
       openAmericaMap();
+      pendingUrlQuizConfig = null;
+      pendingUrlQuizOverrides = null;
       return;
     }
     if (pendingModule?.id === 'geo-africa') {
       openAfricaMap();
+      pendingUrlQuizConfig = null;
+      pendingUrlQuizOverrides = null;
       return;
     }
     if (pendingModule?.id === 'geo-asia') {
       openAsiaMap();
+      pendingUrlQuizConfig = null;
+      pendingUrlQuizOverrides = null;
       return;
     }
   }
-  startQuiz(pendingModule.id, cfg);
+  startQuiz(pendingModule.id, cfg, metaData);
+  pendingUrlQuizConfig = null;
+  pendingUrlQuizOverrides = null;
 }
 
 /* ===================== QUIZ ENGINE ===================== */
 
-function startQuiz(moduleId, cfg){
+function startQuiz(moduleId, cfg, meta = {}){
   const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
   const count = clamp(parseInt(cfg.count)||10, 1, 200);
   const time = clamp(parseInt(cfg.time)||0, 0, 180);
@@ -786,6 +908,9 @@ function startQuiz(moduleId, cfg){
   const genLevel = usesLevels ? clamp(rawLevel||1, 1, 4) : clamp(rawLevel||4, 1, 4);
   const levelLabel = usesLevels ? `Nivell ${genLevel}` : (module?.levelLabel || 'Mode lliure');
   const storedLevel = usesLevels ? genLevel : 0;
+  const metaData = (meta && typeof meta === 'object') ? meta : {};
+  const customLabel = typeof metaData.label === 'string' ? metaData.label.trim() : '';
+  const quizTitle = customLabel || module.name;
 
   session = {
     module: moduleId,
@@ -797,12 +922,15 @@ function startQuiz(moduleId, cfg){
     secondsLeft: time>0 ? time*60 : 0,
     questions: [],
     options: cfg.options || {},
-    levelLabel
+    levelLabel,
+    assignmentLabel: customLabel,
+    assignmentTitle: quizTitle,
+    moduleName: module?.name || moduleId
   };
 
   for(let i=0;i<count;i++) session.questions.push(module.gen(genLevel, session.options));
 
-  $('#qModule').textContent = module.name;
+  $('#qModule').textContent = quizTitle;
   $('#qLevel').textContent = session.levelLabel;
   $('#feedback').innerHTML='';
   $('#answer').value='';
