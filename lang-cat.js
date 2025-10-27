@@ -262,7 +262,6 @@
   { text: `Escriu correctament, L o L·L: co__ector (que recull o agrupa)`, answer: `col·lector` },
   { text: `Escriu correctament, L o L·L: a__ucinant (sorprenent)`, answer: `al·lucinant` },
   { text: `Escriu correctament, L o L·L: mo__estia (actitud humil)`, answer: `modèstia` }
-]
   ];
 
   // Catàleg de subtemes Ortografia
