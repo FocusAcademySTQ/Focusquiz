@@ -269,6 +269,11 @@ function buildQuizLink(moduleId, config, meta = {}) {
     params.set('label', label);
   }
 
+  const assignmentId = typeof meta.assignmentId === 'string' ? meta.assignmentId.trim() : '';
+  if (assignmentId) {
+    params.set('assignment', assignmentId);
+  }
+
   params.set('autostart', '1');
   return `../index.html?${params.toString()}`;
 }
@@ -655,7 +660,10 @@ function renderTeacherAssignments(assignments) {
       ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
       : '';
     const quizLink = module && quizConfig
-      ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
+      ? buildQuizLink(module.id, quizConfig, {
+          label: assignment.title || module?.name,
+          assignmentId: assignment.id,
+        })
       : '';
     const moduleLink = module ? `../index.html?module=${encodeURIComponent(module.id)}` : '';
 
@@ -751,7 +759,10 @@ function renderStudentAssignments(rows) {
       ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
       : '';
     const quizLink = module && quizConfig
-      ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
+      ? buildQuizLink(module.id, quizConfig, {
+          label: assignment.title || module?.name,
+          assignmentId: assignment.id,
+        })
       : '';
     const fallbackModuleLink = !quizLink && module
       ? `../index.html?module=${encodeURIComponent(module.id)}`
