@@ -1456,19 +1456,71 @@ const BANK_MORFO_CONCORDANCA = [
 ];
 
 const BANK_MORFO_FUNCIONS = [
-  { 
-    text: `Funció de "al parc" en: "La Marta juga al parc"`, 
-    options: ["Complement circumstancial de lloc", "Subjecte", "Complement directe", "Complement de règim"], 
-    answer: `Complement circumstancial de lloc` 
+  {
+    text: `Funció de "al parc" en: "La Marta juga al parc"`,
+    options: ["Complement circumstancial de lloc", "Subjecte", "Complement directe", "Complement de règim"],
+    answer: `Complement circumstancial de lloc`
   },
-  { 
-    text: `Funció de "un llibre" en: "Vaig comprar un llibre"`, 
-    options: ["Complement directe", "Subjecte", "Atribut", "Complement de lloc"], 
-    answer: `Complement directe` 
+  {
+    text: `Funció de "un llibre" en: "Vaig comprar un llibre"`,
+    options: ["Complement directe", "Subjecte", "Atribut", "Complement de lloc"],
+    answer: `Complement directe`
   }
 ];
 
-   const SUBS_MORF = [
+const BANK_MORFO_BASIQUES = [
+  {
+    text: `Jo ___ un llibre.<br><small>Verb: tenir</small>`,
+    answer: `tinc`
+  },
+  {
+    text: `Ella ___ molt alta.<br><small>Verb: ser</small>`,
+    answer: `és`
+  },
+  {
+    text: `Nosaltres ___ a l'escola.<br><small>Verb: anar</small>`,
+    answer: `anem`
+  },
+  {
+    text: `Tu ___ un germà petit.<br><small>Verb: tenir</small>`,
+    answer: `tens`
+  },
+  {
+    text: `Ell ___ els deures.<br><small>Verb: fer</small>`,
+    answer: `fa`
+  },
+  {
+    text: `Vosaltres ___ molt contents.<br><small>Verb: ser</small>`,
+    answer: `sou`
+  },
+  {
+    text: `Jo ___ a casa cada dia.<br><small>Verb: anar</small>`,
+    answer: `vaig`
+  },
+  {
+    text: `Ells ___ moltes ganes de jugar.<br><small>Verb: tenir</small>`,
+    answer: `tenen`
+  },
+  {
+    text: `Nosaltres ___ un pastís els diumenges.<br><small>Verb: fer</small>`,
+    answer: `fem`
+  },
+  {
+    text: `Tu ___ molt amable amb tothom.<br><small>Verb: ser</small>`,
+    answer: `ets`
+  },
+  {
+    text: `Ell ___ a l'institut amb bicicleta.<br><small>Verb: anar</small>`,
+    answer: `va`
+  },
+  {
+    text: `Vosaltres ___ dues germanes.<br><small>Verb: tenir</small>`,
+    answer: `teniu`
+  }
+];
+
+const SUBS_MORF = [
+  { key: 'basiques', label: 'Estructures bàsiques', bank: BANK_MORFO_BASIQUES },
   { key: 'subjecte', label: 'Subjecte Vs Predicat', bank: BANK_MORFO_SUBJECTE },
   { key: 'temps', label: 'Temps i mode verbal', bank: BANK_MORFO_TEMPS },
   { key: 'categories', label: 'Categories gramaticals', bank: BANK_MORFO_CATEGORIES },
