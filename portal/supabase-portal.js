@@ -33,6 +33,7 @@ const state = {
   requireTeacherCode: false,
   activeTab: null,
   profileSupportsEmail: true,
+  sessionWarning: '',
 };
 
 const el = {
@@ -50,6 +51,7 @@ const el = {
   sessionName: document.getElementById('sessionName'),
   sessionRole: document.getElementById('sessionRole'),
   logoutBtn: document.getElementById('logoutBtn'),
+  sessionWarning: document.getElementById('sessionWarning'),
   tabList: document.getElementById('portalTabs'),
   tabButtons: Array.from(document.querySelectorAll('[data-tab]')),
   teacherPanel: document.getElementById('teacherPanel'),
@@ -1167,7 +1169,40 @@ function deriveProfileRole(user) {
   if (metaRole === 'teacher' || metaRole === 'student') {
     return metaRole;
   }
+
+  const appRole = user?.app_metadata?.role;
+  if (appRole === 'teacher' || appRole === 'student') {
+    return appRole;
+  }
+
+  const claimRole = user?.app_metadata?.claims?.role;
+  if (claimRole === 'teacher' || claimRole === 'student') {
+    return claimRole;
+  }
+
   return 'student';
+}
+
+function buildAuthProfileFallback(user) {
+  if (!user) return null;
+  return {
+    id: user.id || null,
+    full_name: deriveProfileName(user),
+    email: typeof user.email === 'string' ? user.email : null,
+    role: deriveProfileRole(user),
+  };
+}
+
+async function syncAuthMetadataRole(user, role) {
+  if (!state.supabase || !user || !role) return;
+  const currentRole = user?.user_metadata?.role;
+  if (currentRole === role) return;
+
+  try {
+    await state.supabase.auth.updateUser({ data: { role } });
+  } catch (error) {
+    console.warn('No s\'ha pogut sincronitzar el rol amb Supabase Auth', error);
+  }
 }
 
 function deriveProfileName(user) {
@@ -1203,6 +1238,9 @@ async function ensureProfile(user) {
   if (data) {
     const normalized = normalizeProfileRow(data, user);
     state.profile = normalized;
+    if (user) {
+      await syncAuthMetadataRole(user, normalized.role);
+    }
     return normalized;
   }
 
@@ -1236,6 +1274,9 @@ async function ensureProfile(user) {
 
   const normalized = normalizeProfileRow(upserted, user);
   state.profile = normalized;
+  if (user) {
+    await syncAuthMetadataRole(user, normalized.role);
+  }
   return normalized;
 }
 
@@ -1247,12 +1288,17 @@ function updateSessionUI() {
   toggle(el.tabList, loggedIn);
 
   if (!loggedIn) {
+    state.sessionWarning = '';
     resetTabs();
     toggle(el.teacherPanel, false);
     toggle(el.studentPanel, false);
     toggle(el.teacherView, false);
     toggle(el.teacherAssignments, false);
     toggle(el.studentView, false);
+    if (el.sessionWarning) {
+      el.sessionWarning.textContent = '';
+      el.sessionWarning.classList.add('hidden');
+    }
     clearSignupMessages();
     updateSignupRoleFields();
     return;
@@ -1265,6 +1311,15 @@ function updateSessionUI() {
     el.sessionRole.textContent = state.profile.role === 'teacher'
       ? 'Rol: Mestre/a'
       : 'Rol: Alumne/a';
+  }
+  if (el.sessionWarning) {
+    if (state.sessionWarning) {
+      el.sessionWarning.textContent = state.sessionWarning;
+      el.sessionWarning.classList.remove('hidden');
+    } else {
+      el.sessionWarning.textContent = '';
+      el.sessionWarning.classList.add('hidden');
+    }
   }
 
   const isTeacher = state.profile.role === 'teacher';
@@ -1527,6 +1582,7 @@ async function handleSignup(event) {
       options: {
         data: {
           full_name: fullName,
+          role,
         },
       },
     });
@@ -1945,6 +2001,11 @@ function disableUI() {
   toggle(el.teacherView, false);
   toggle(el.teacherAssignments, false);
   toggle(el.studentView, false);
+  state.sessionWarning = '';
+  if (el.sessionWarning) {
+    el.sessionWarning.textContent = '';
+    el.sessionWarning.classList.add('hidden');
+  }
   resetTabs();
 }
 
@@ -1980,15 +2041,28 @@ async function init() {
   const { data: initialSession } = await state.supabase.auth.getSession();
   state.session = initialSession?.session ?? null;
   if (state.session?.user) {
-    await ensureProfile(state.session.user);
+    try {
+      await ensureProfile(state.session.user);
+      state.sessionWarning = '';
+    } catch (error) {
+      console.error('No s\'ha pogut sincronitzar el perfil inicial', error);
+      state.profile = buildAuthProfileFallback(state.session.user);
+      state.sessionWarning =
+        'Sessió iniciada sense sincronitzar el perfil de Supabase. S\'utilitzen les dades del compte d\'accés.';
+      if (state.session?.user && state.profile?.role) {
+        await syncAuthMetadataRole(state.session.user, state.profile.role);
+      }
+    }
+
     updateSessionUI();
-    if (state.profile.role === 'teacher') {
+    if (state.profile?.role === 'teacher') {
       await loadStudents();
       await loadTeacherAssignments();
     } else {
       await loadStudentAssignments();
     }
   } else {
+    state.sessionWarning = '';
     updateSessionUI();
   }
 
@@ -1997,14 +2071,19 @@ async function init() {
     if (session?.user) {
       try {
         await ensureProfile(session.user);
+        state.sessionWarning = '';
       } catch (error) {
-        showError(el.authError, error.message);
-        await state.supabase.auth.signOut();
-        return;
+        console.error('No s\'ha pogut carregar el perfil després de l\'inici de sessió', error);
+        state.profile = buildAuthProfileFallback(session.user);
+        state.sessionWarning =
+          'Sessió iniciada sense sincronitzar el perfil de Supabase. S\'utilitzen les dades del compte d\'accés.';
+        if (session?.user && state.profile?.role) {
+          await syncAuthMetadataRole(session.user, state.profile.role);
+        }
       }
 
       updateSessionUI();
-      if (state.profile.role === 'teacher') {
+      if (state.profile?.role === 'teacher') {
         await loadStudents();
         await loadTeacherAssignments();
       } else {
@@ -2012,6 +2091,7 @@ async function init() {
       }
     } else {
       state.profile = null;
+      state.sessionWarning = '';
       updateSessionUI();
     }
   });
