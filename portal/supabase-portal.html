@@ -119,38 +119,6 @@
           </div>
           <p class="portal-muted" style="margin-top:0.35rem">Si un mòdul no utilitza nivells o límit de temps, s'ignorarà automàticament.</p>
         </section>
-        <section class="portal-quiz-section">
-          <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
-            <div>
-              <p class="portal-section-title" style="margin-bottom:0.35rem">Configura la prova automàtica</p>
-              <p class="portal-muted" style="margin:0">Aquests paràmetres s'aplicaran a totes les proves creades amb la selecció anterior.</p>
-            </div>
-          </div>
-          <div class="portal-quiz-grid">
-            <label>
-              <span class="portal-field-label">Nom de la prova (opcional)</span>
-              <input class="input" name="quiz_title" type="text" maxlength="120" placeholder="Per exemple: Prova inicial de morfologia" />
-            </label>
-            <label>
-              <span class="portal-field-label">Nombre de preguntes</span>
-              <input class="input" name="quiz_count" type="number" min="1" max="200" value="10" required />
-            </label>
-            <label>
-              <span class="portal-field-label">Temps límit (minuts)</span>
-              <input class="input" name="quiz_time" type="number" min="0" max="180" value="0" required />
-            </label>
-            <label>
-              <span class="portal-field-label">Nivell (1–4)</span>
-              <select class="input" name="quiz_level" required>
-                <option value="1" selected>1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-              </select>
-            </label>
-          </div>
-          <p class="portal-muted" style="margin-top:0.35rem">Si un mòdul no utilitza nivells o límit de temps, s'ignorarà automàticament.</p>
-        </section>
         <label>
           <span class="portal-field-label">Data límit</span>
           <input class="input" name="due_date" type="date" />
