@@ -431,6 +431,7 @@ function extractQuizConfigFromParams(params) {
   const time = parseUrlInt(params.get('time'));
   const level = parseUrlInt(params.get('level'));
   const labelRaw = params.get('label');
+  const assignmentIdRaw = params.get('assignment');
   const optionsParam = params.get('opts') || params.get('options');
   const options = optionsParam ? decodeQuizOptionsParam(optionsParam) : null;
   const autostart = parseUrlBoolean(params.get('autostart') ?? params.get('start'));
@@ -446,6 +447,9 @@ function extractQuizConfigFromParams(params) {
     config.assignmentId = assignmentParam.trim();
   }
   if (autostart) config.autostart = true;
+  if (tags.length) {
+    config.assignmentTags = Array.from(new Set(tags));
+  }
 
   return Object.keys(config).length ? config : null;
 }
@@ -470,6 +474,8 @@ function applyUrlQuizConfig(config) {
   if (config.autostart) {
     const meta = {};
     if (config.label) meta.label = config.label;
+    if (config.assignmentId) meta.assignmentId = config.assignmentId;
+    if (config.assignmentTags) meta.assignmentTags = config.assignmentTags;
     setTimeout(() => {
       startFromConfig(meta);
     }, 150);
@@ -922,6 +928,10 @@ function startQuiz(moduleId, cfg, meta = {}){
   const storedLevel = usesLevels ? genLevel : 0;
   const metaData = (meta && typeof meta === 'object') ? meta : {};
   const customLabel = typeof metaData.label === 'string' ? metaData.label.trim() : '';
+  const assignmentId = typeof metaData.assignmentId === 'string' ? metaData.assignmentId.trim() : '';
+  const assignmentTags = Array.isArray(metaData.assignmentTags)
+    ? metaData.assignmentTags.filter((tag) => typeof tag === 'string' && tag.trim()).map((tag) => tag.trim())
+    : [];
   const quizTitle = customLabel || module.name;
 
   session = {
@@ -940,7 +950,9 @@ function startQuiz(moduleId, cfg, meta = {}){
       : null,
     assignmentLabel: customLabel,
     assignmentTitle: quizTitle,
-    moduleName: module?.name || moduleId
+    moduleName: module?.name || moduleId,
+    assignmentId: assignmentId || null,
+    assignmentTags,
   };
 
   for(let i=0;i<count;i++) session.questions.push(module.gen(genLevel, session.options));
@@ -1543,6 +1555,26 @@ function finishQuiz(timeUp){
     }).catch((error) => {
       console.warn('No s\'ha pogut sincronitzar el resultat amb el professorat.', error);
     });
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
   }
 
   try {
