@@ -32,6 +32,7 @@ const state = {
   teacherAccessCode: '',
   requireTeacherCode: false,
   activeTab: null,
+  profileSupportsEmail: true,
 };
 
 const el = {
@@ -244,6 +245,34 @@ function buildAssignmentSelect(includeAssignees = false) {
     select += ', assignment_assignees ( id, profile_id, status )';
   }
   return select;
+}
+
+function isMissingProfileEmailColumn(error) {
+  if (!error) return false;
+  if (error.code === '42703') return true;
+  const haystack = `${error.message || ''} ${error.details || ''}`.toLowerCase();
+  return haystack.includes('profiles') && haystack.includes('email') && haystack.includes('column');
+}
+
+function normalizeProfileRow(row, user) {
+  if (!row && !user) return null;
+  const normalized = { ...row };
+  if (!('id' in normalized) || !normalized.id) {
+    normalized.id = user?.id || null;
+  }
+  if (!('full_name' in normalized) || !normalized.full_name) {
+    normalized.full_name = deriveProfileName(user);
+  }
+  if (!('email' in normalized)) {
+    normalized.email = typeof user?.email === 'string' ? user.email : null;
+  } else if (normalized.email === undefined) {
+    normalized.email = null;
+  }
+  const role = normalized.role;
+  if (role !== 'teacher' && role !== 'student') {
+    normalized.role = deriveProfileRole(user);
+  }
+  return normalized;
 }
 
 function isQuizConfigSchemaError(error) {
@@ -903,6 +932,34 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
       );
     }
 
+    const assigneeRows = Array.isArray(assignment.assignment_assignees)
+      ? assignment.assignment_assignees
+      : [];
+
+    const gradeNumbers = assigneeRows
+      .map((row) => parseGradeValue(row?.submission?.grade))
+      .filter((value) => value !== null);
+    const averageGrade = gradeNumbers.length
+      ? gradeFormatter.format(
+          gradeNumbers.reduce((total, value) => total + value, 0) / gradeNumbers.length
+        )
+      : null;
+    const deliveredCount = assigneeRows.filter((row) => Boolean(row?.submission)).length;
+
+    const summaryChips = [];
+    if (assigneeRows.length) {
+      summaryChips.push(
+        `<span class="portal-chip portal-chip--muted">Lliuraments: ${escapeHTML(
+          `${deliveredCount}/${assigneeRows.length}`
+        )}</span>`
+      );
+    }
+    if (averageGrade !== null) {
+      summaryChips.push(
+        `<span class="portal-chip portal-chip--positive">Mitjana ${escapeHTML(averageGrade)}</span>`
+      );
+    }
+
     const summaryBlock = summaryChips.length
       ? `<div class="portal-assignment-summary">${summaryChips.join('')}</div>`
       : '';
@@ -1125,38 +1182,61 @@ function deriveProfileName(user) {
 }
 
 async function ensureProfile(user) {
+  const selectColumns = state.profileSupportsEmail
+    ? 'id, full_name, role, email'
+    : 'id, full_name, role';
+
   const { data, error } = await state.supabase
     .from('profiles')
-    .select('id, full_name, role, email')
+    .select(selectColumns)
     .eq('id', user.id)
     .maybeSingle();
 
-  if (error) throw error;
+  if (error) {
+    if (state.profileSupportsEmail && isMissingProfileEmailColumn(error)) {
+      state.profileSupportsEmail = false;
+      return ensureProfile(user);
+    }
+    throw error;
+  }
+
   if (data) {
-    state.profile = data;
-    return data;
+    const normalized = normalizeProfileRow(data, user);
+    state.profile = normalized;
+    return normalized;
   }
 
   const payload = {
     id: user.id,
-    email: typeof user.email === 'string' ? user.email : null,
     full_name: deriveProfileName(user),
     role: deriveProfileRole(user),
   };
 
+  if (state.profileSupportsEmail) {
+    payload.email = typeof user.email === 'string' ? user.email : null;
+  }
+
   const { data: upserted, error: upsertError } = await state.supabase
     .from('profiles')
     .upsert(payload, { onConflict: 'id' })
-    .select('id, full_name, role, email')
+    .select(selectColumns)
     .maybeSingle();
 
-  if (upsertError) throw upsertError;
+  if (upsertError) {
+    if (state.profileSupportsEmail && isMissingProfileEmailColumn(upsertError)) {
+      state.profileSupportsEmail = false;
+      return ensureProfile(user);
+    }
+    throw upsertError;
+  }
+
   if (!upserted) {
     throw new Error('No s\'ha pogut crear el perfil de l\'usuari.');
   }
 
-  state.profile = upserted;
-  return upserted;
+  const normalized = normalizeProfileRow(upserted, user);
+  state.profile = normalized;
+  return normalized;
 }
 
 function updateSessionUI() {
@@ -1196,18 +1276,27 @@ function updateSessionUI() {
 
 async function loadStudents() {
   if (!state.supabase) return;
+  const selectColumns = state.profileSupportsEmail ? 'id, full_name, email' : 'id, full_name';
   const { data, error } = await state.supabase
     .from('profiles')
-    .select('id, full_name, email')
+    .select(selectColumns)
     .eq('role', 'student')
     .order('full_name', { ascending: true });
 
   if (error) {
+    if (state.profileSupportsEmail && isMissingProfileEmailColumn(error)) {
+      state.profileSupportsEmail = false;
+      await loadStudents();
+      return;
+    }
     showError(el.assignmentError, error.message);
     return;
   }
 
-  state.students = data || [];
+  const rows = Array.isArray(data) ? data : [];
+  state.students = rows
+    .map((row) => normalizeProfileRow(row, null))
+    .filter(Boolean);
   renderStudents();
 }
 
