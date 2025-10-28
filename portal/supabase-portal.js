@@ -830,15 +830,11 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
     const summaryRow = summaryChips.length
       ? `<div class="portal-assignment-summary">${summaryChips.join('')}</div>`
       : '';
-
-    const rawDescription = assignment.description || '';
-    const shouldShowDescription = rawDescription && rawDescription.trim().toLowerCase() !== 'sense descripció';
-    const descriptionHTML = shouldShowDescription ? formatDescription(rawDescription) : '';
-    const configPieces = [];
-    if (quizSummary) configPieces.push(`<strong>${escapeHTML(quizSummary)}</strong>`);
-    if (moduleSummary) configPieces.push(escapeHTML(moduleSummary));
-    const configBlock = configPieces.length
-      ? `<p class="portal-assignment-config">${configPieces.join('<br>')}</p>`
+    const quizLink = module && quizConfig
+      ? buildQuizLink(module.id, quizConfig, {
+          label: assignment.title || module?.name,
+          assignmentId: assignment.id,
+        })
       : '';
     const detailsSections = [];
     if (descriptionHTML) {
@@ -879,6 +875,34 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
       );
     }
 
+    const assigneeRows = Array.isArray(assignment.assignment_assignees)
+      ? assignment.assignment_assignees
+      : [];
+
+    const gradeNumbers = assigneeRows
+      .map((row) => parseGradeValue(row?.submission?.grade))
+      .filter((value) => value !== null);
+    const averageGrade = gradeNumbers.length
+      ? gradeFormatter.format(
+          gradeNumbers.reduce((total, value) => total + value, 0) / gradeNumbers.length
+        )
+      : null;
+    const deliveredCount = assigneeRows.filter((row) => Boolean(row?.submission)).length;
+
+    const summaryChips = [];
+    if (assigneeRows.length) {
+      summaryChips.push(
+        `<span class="portal-chip portal-chip--muted">Lliuraments: ${escapeHTML(
+          `${deliveredCount}/${assigneeRows.length}`
+        )}</span>`
+      );
+    }
+    if (averageGrade !== null) {
+      summaryChips.push(
+        `<span class="portal-chip portal-chip--positive">Mitjana ${escapeHTML(averageGrade)}</span>`
+      );
+    }
+
     const summaryBlock = summaryChips.length
       ? `<div class="portal-assignment-summary">${summaryChips.join('')}</div>`
       : '';
@@ -888,39 +912,31 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
       const name = escapeHTML(student?.full_name || 'Alumne');
       const statusValue = escapeHTML(row.status);
       const statusLabel = escapeHTML(statusLabels[row.status] || row.status);
-      const submission = submissionMap.get(buildSubmissionKey(assignment.id, row.profile_id)) || row.submission || null;
-      const gradeValue = formatGradeValue(submission?.grade);
-      const gradeChip = gradeValue
-        ? `<span class="portal-assignee-grade">${escapeHTML(gradeValue)}</span>`
+      const gradeValue = formatGradeValue(row?.submission?.grade);
+      const submittedAt = row?.submission?.submitted_at
+        ? new Date(row.submission.submitted_at).toLocaleString('ca-ES')
         : '';
-      const submittedAt = submission?.submitted_at
-        ? new Date(submission.submitted_at).toLocaleString('ca-ES', {
-            dateStyle: 'short',
-            timeStyle: 'short',
-          })
-        : '';
-      const metaParts = [];
+      const feedback = row?.submission?.feedback ? escapeHTML(row.submission.feedback) : '';
+      const detailParts = [];
+      detailParts.push(
+        gradeValue !== null
+          ? `Nota: <strong>${escapeHTML(gradeValue)}</strong>`
+          : 'Sense nota'
+      );
       if (submittedAt) {
-        metaParts.push(escapeHTML(`Entrega: ${submittedAt}`));
+        detailParts.push(`Entrega: ${escapeHTML(submittedAt)}`);
       }
-      if (submission?.content) {
-        const preview = submission.content.trim();
-        if (preview) {
-          const shortened = preview.length > 140 ? `${preview.slice(0, 137)}…` : preview;
-          metaParts.push(escapeHTML(shortened));
-        }
+      if (feedback) {
+        detailParts.push(`Feedback: ${feedback}`);
       }
-      const metaLine = metaParts.length
-        ? `<span class="portal-assignee-meta">${metaParts.join(' · ')}</span>`
-        : '';
+      const detailHTML = detailParts.join(' · ');
       return `
         <li>
-          <div class="portal-assignee-row">
-            <span class="portal-assignee-name">${name}</span>
-            ${gradeChip}
+          <div class="portal-assignee-line">
+            <span>${name}</span>
             <span class="portal-status-chip" data-status="${statusValue}">${statusLabel}</span>
           </div>
-          ${metaLine}
+          <p class="portal-assignee-details">${detailHTML}</p>
         </li>
       `;
     });
@@ -957,7 +973,10 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
         </div>
         ${summaryRow}
       </div>
-      ${detailsBlock}
+      <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
+      ${configBlock}
+      ${summaryBlock}
+      <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       <div>
         <p class="portal-assignees-title">Alumnes assignats</p>
         <ul class="portal-meta-list portal-assignee-list">
@@ -1024,7 +1043,7 @@ function renderStudentAssignments(rows) {
     const quizLink = module && quizConfig
       ? buildQuizLink(module.id, quizConfig, {
           label: assignment.title || module?.name,
-          assignmentId: assignmentUuid,
+          assignmentId: assignment.id,
         })
       : '';
     const fallbackModuleLink = !quizLink && module
@@ -1086,6 +1105,25 @@ function renderStudentAssignments(rows) {
   });
 }
 
+function deriveProfileRole(user) {
+  const metaRole = user?.user_metadata?.role;
+  if (metaRole === 'teacher' || metaRole === 'student') {
+    return metaRole;
+  }
+  return 'student';
+}
+
+function deriveProfileName(user) {
+  const metadata = user?.user_metadata || {};
+  const candidates = [metadata.full_name, metadata.name, metadata.user_name, user?.email];
+  for (const value of candidates) {
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+  return 'Usuari FocusQuiz';
+}
+
 async function ensureProfile(user) {
   const { data, error } = await state.supabase
     .from('profiles')
@@ -1094,12 +1132,31 @@ async function ensureProfile(user) {
     .maybeSingle();
 
   if (error) throw error;
-  if (!data) {
-    throw new Error('No s\'ha trobat el perfil a la taula profiles.');
+  if (data) {
+    state.profile = data;
+    return data;
   }
 
-  state.profile = data;
-  return data;
+  const payload = {
+    id: user.id,
+    email: typeof user.email === 'string' ? user.email : null,
+    full_name: deriveProfileName(user),
+    role: deriveProfileRole(user),
+  };
+
+  const { data: upserted, error: upsertError } = await state.supabase
+    .from('profiles')
+    .upsert(payload, { onConflict: 'id' })
+    .select('id, full_name, role, email')
+    .maybeSingle();
+
+  if (upsertError) throw upsertError;
+  if (!upserted) {
+    throw new Error('No s\'ha pogut crear el perfil de l\'usuari.');
+  }
+
+  state.profile = upserted;
+  return upserted;
 }
 
 function updateSessionUI() {
@@ -1178,29 +1235,51 @@ async function loadTeacherAssignments() {
   }
 
   const assignments = Array.isArray(data) ? data : [];
-  const assignmentIds = assignments.map((assignment) => assignment.id).filter(Boolean);
 
-  let submissionMap = new Map();
+  if (!assignments.length) {
+    renderTeacherAssignments([]);
+    return;
+  }
+
+  const assignmentIds = assignments.map((assignment) => assignment.id).filter(Boolean);
+  let submissions = [];
+
   if (assignmentIds.length) {
-    const uniqueIds = Array.from(new Set(assignmentIds));
     const { data: submissionRows, error: submissionError } = await state.supabase
       .from('submissions')
-      .select('assignment_id, profile_id, grade, content, submitted_at')
-      .in('assignment_id', uniqueIds);
+      .select('assignment_id, profile_id, grade, feedback, submitted_at')
+      .in('assignment_id', assignmentIds);
 
     if (submissionError) {
       showError(el.assignmentError, submissionError.message);
-    } else if (Array.isArray(submissionRows) && submissionRows.length) {
-      submissionMap = new Map(
-        submissionRows.map((submission) => [
-          buildSubmissionKey(submission.assignment_id, submission.profile_id),
-          submission,
-        ]),
-      );
+      return;
     }
+
+    submissions = Array.isArray(submissionRows) ? submissionRows : [];
   }
 
-  renderTeacherAssignments(assignments, submissionMap);
+  const submissionMap = new Map(
+    submissions.map((submission) => [`${submission.assignment_id}:${submission.profile_id}`, submission])
+  );
+
+  const enrichedAssignments = assignments.map((assignment) => {
+    const assignees = Array.isArray(assignment.assignment_assignees)
+      ? assignment.assignment_assignees.map((assignee) => {
+          const key = `${assignment.id}:${assignee.profile_id}`;
+          return {
+            ...assignee,
+            submission: submissionMap.get(key) || null,
+          };
+        })
+      : [];
+
+    return {
+      ...assignment,
+      assignment_assignees: assignees,
+    };
+  });
+
+  renderTeacherAssignments(enrichedAssignments);
 }
 
 async function loadStudentAssignments() {
@@ -1404,15 +1483,42 @@ async function handleLogin(event) {
   event.preventDefault();
   if (!state.supabase) return;
 
-  const formData = new FormData(event.currentTarget);
-  const email = formData.get('email');
-  const password = formData.get('password');
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  const email = (formData.get('email') || '').toString().trim();
+  const password = (formData.get('password') || '').toString();
 
   toggle(el.authError, false);
 
-  const { error } = await state.supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    showError(el.authError, error.message);
+  if (!email || !password) {
+    showError(el.authError, 'Introdueix el correu electrònic i la contrasenya.');
+    return;
+  }
+
+  const submitButton = form.querySelector('button[type="submit"]');
+  const originalLabel = submitButton ? submitButton.textContent : '';
+
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = 'Entrant…';
+  }
+
+  try {
+    const { error } = await state.supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+  } catch (error) {
+    const message = error?.message || 'No s\'ha pogut iniciar sessió.';
+    showError(el.authError, message);
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = originalLabel || 'Entrar';
+    }
+    return;
+  }
+
+  if (submitButton) {
+    submitButton.disabled = false;
+    submitButton.textContent = originalLabel || 'Entrar';
   }
 }
 

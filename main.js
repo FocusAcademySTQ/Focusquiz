@@ -435,7 +435,17 @@ function extractQuizConfigFromParams(params) {
   const optionsParam = params.get('opts') || params.get('options');
   const options = optionsParam ? decodeQuizOptionsParam(optionsParam) : null;
   const autostart = parseUrlBoolean(params.get('autostart') ?? params.get('start'));
-  const assignmentParam = params.get('assignment');
+  const tags = [];
+  const tagParams = params.getAll ? params.getAll('tag') : [];
+  tagParams.forEach((tag) => {
+    if (tag && typeof tag === 'string' && tag.trim()) tags.push(tag.trim());
+  });
+  const tagsJoined = params.get('tags');
+  if (tagsJoined && typeof tagsJoined === 'string') {
+    tagsJoined.split(',').forEach((tag) => {
+      if (tag && tag.trim()) tags.push(tag.trim());
+    });
+  }
 
   const config = {};
   if (Number.isFinite(count)) config.count = clamp(count, 1, 200);
@@ -443,8 +453,8 @@ function extractQuizConfigFromParams(params) {
   if (Number.isFinite(level)) config.level = clamp(level, 1, 4);
   if (options) config.options = options;
   if (labelRaw && typeof labelRaw === 'string' && labelRaw.trim()) config.label = labelRaw.trim();
-  if (assignmentParam && typeof assignmentParam === 'string' && assignmentParam.trim()) {
-    config.assignmentId = assignmentParam.trim();
+  if (assignmentIdRaw && typeof assignmentIdRaw === 'string' && assignmentIdRaw.trim()) {
+    config.assignmentId = assignmentIdRaw.trim();
   }
   if (autostart) config.autostart = true;
   if (tags.length) {
@@ -517,7 +527,8 @@ function openModuleFromURL(){
     ? {
         options: pendingUrlQuizConfig.options || null,
         label: pendingUrlQuizConfig.label || '',
-        assignmentId: pendingUrlQuizConfig.assignmentId || null,
+        assignmentId: pendingUrlQuizConfig.assignmentId || '',
+        assignmentTags: pendingUrlQuizConfig.assignmentTags || null,
       }
     : null;
 
@@ -877,12 +888,11 @@ function startFromConfig(meta){
   if (!metaData.label && pendingUrlQuizOverrides && pendingUrlQuizOverrides.label) {
     metaData.label = pendingUrlQuizOverrides.label;
   }
-  if (!metaData.assignmentId) {
-    if (pendingUrlQuizOverrides && pendingUrlQuizOverrides.assignmentId) {
-      metaData.assignmentId = pendingUrlQuizOverrides.assignmentId;
-    } else if (pendingUrlQuizConfig && pendingUrlQuizConfig.assignmentId) {
-      metaData.assignmentId = pendingUrlQuizConfig.assignmentId;
-    }
+  if (!metaData.assignmentId && pendingUrlQuizOverrides && pendingUrlQuizOverrides.assignmentId) {
+    metaData.assignmentId = pendingUrlQuizOverrides.assignmentId;
+  }
+  if (!metaData.assignmentTags && pendingUrlQuizOverrides && pendingUrlQuizOverrides.assignmentTags) {
+    metaData.assignmentTags = pendingUrlQuizOverrides.assignmentTags;
   }
   if (cfg.options?.mode === 'map') {
     if (pendingModule?.id === 'geo-europe') {
@@ -1555,6 +1565,26 @@ function finishQuiz(timeUp){
     }).catch((error) => {
       console.warn('No s\'ha pogut sincronitzar el resultat amb el professorat.', error);
     });
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
   }
 
   try {

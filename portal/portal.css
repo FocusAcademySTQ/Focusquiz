@@ -5,6 +5,11 @@
   padding: clamp(16px, 2vw, 28px) 0 64px;
 }
 
+.portal-main .hidden,
+.portal-main.hidden {
+  display: none !important;
+}
+
 .portal-hero h1 {
   margin-bottom: 0.5rem;
 }
