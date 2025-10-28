@@ -172,17 +172,20 @@
               <span class="portal-field-label">Comentaris addicionals (opcional)</span>
               <textarea class="input" name="note" rows="3" placeholder="Instruccions extra per a l'alumnat..."></textarea>
             </label>
-            <section>
-              <p class="portal-section-title" style="margin-bottom:0.5rem">Selecciona alumnes per assignar la tasca</p>
-              <div id="studentChecklist" class="portal-assignees"></div>
-            </section>
-            <div class="portal-actions">
-              <button class="btn-primary" type="submit">Assigna les proves</button>
-              <button class="btn-secondary" type="button" id="refreshStudents">Actualitza alumnes</button>
-            </div>
-          </form>
-          <div id="assignmentFeedback" class="portal-success hidden" style="margin-top:1rem"></div>
-          <div id="assignmentError" class="portal-error hidden" style="margin-top:1rem"></div>
+          </div>
+          <p class="portal-muted" style="margin-top:0.35rem">Si un mòdul no utilitza nivells o límit de temps, s'ignorarà automàticament.</p>
+        </section>
+        <label>
+          <span class="portal-field-label">Data límit</span>
+          <input class="input" name="due_date" type="date" />
+        </label>
+        <label>
+          <span class="portal-field-label">Comentaris addicionals (opcional)</span>
+          <textarea class="input" name="note" rows="3" placeholder="Instruccions extra per a l'alumnat..."></textarea>
+        </label>
+        <section>
+          <p class="portal-section-title" style="margin-bottom:0.5rem">Selecciona alumnes per assignar la tasca</p>
+          <div id="studentChecklist" class="portal-assignees"></div>
         </section>
 
         <section id="teacherAssignments" class="panel card hidden">

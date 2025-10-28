@@ -435,17 +435,7 @@ function extractQuizConfigFromParams(params) {
   const optionsParam = params.get('opts') || params.get('options');
   const options = optionsParam ? decodeQuizOptionsParam(optionsParam) : null;
   const autostart = parseUrlBoolean(params.get('autostart') ?? params.get('start'));
-  const tags = [];
-  const tagParams = params.getAll ? params.getAll('tag') : [];
-  tagParams.forEach((tag) => {
-    if (tag && typeof tag === 'string' && tag.trim()) tags.push(tag.trim());
-  });
-  const tagsJoined = params.get('tags');
-  if (tagsJoined && typeof tagsJoined === 'string') {
-    tagsJoined.split(',').forEach((tag) => {
-      if (tag && tag.trim()) tags.push(tag.trim());
-    });
-  }
+  const assignmentParam = params.get('assignment');
 
   const config = {};
   if (Number.isFinite(count)) config.count = clamp(count, 1, 200);
@@ -453,8 +443,8 @@ function extractQuizConfigFromParams(params) {
   if (Number.isFinite(level)) config.level = clamp(level, 1, 4);
   if (options) config.options = options;
   if (labelRaw && typeof labelRaw === 'string' && labelRaw.trim()) config.label = labelRaw.trim();
-  if (assignmentIdRaw && typeof assignmentIdRaw === 'string' && assignmentIdRaw.trim()) {
-    config.assignmentId = assignmentIdRaw.trim();
+  if (assignmentParam && typeof assignmentParam === 'string' && assignmentParam.trim()) {
+    config.assignmentId = assignmentParam.trim();
   }
   if (autostart) config.autostart = true;
   if (tags.length) {
@@ -527,8 +517,7 @@ function openModuleFromURL(){
     ? {
         options: pendingUrlQuizConfig.options || null,
         label: pendingUrlQuizConfig.label || '',
-        assignmentId: pendingUrlQuizConfig.assignmentId || '',
-        assignmentTags: pendingUrlQuizConfig.assignmentTags || null,
+        assignmentId: pendingUrlQuizConfig.assignmentId || null,
       }
     : null;
 
@@ -888,11 +877,12 @@ function startFromConfig(meta){
   if (!metaData.label && pendingUrlQuizOverrides && pendingUrlQuizOverrides.label) {
     metaData.label = pendingUrlQuizOverrides.label;
   }
-  if (!metaData.assignmentId && pendingUrlQuizOverrides && pendingUrlQuizOverrides.assignmentId) {
-    metaData.assignmentId = pendingUrlQuizOverrides.assignmentId;
-  }
-  if (!metaData.assignmentTags && pendingUrlQuizOverrides && pendingUrlQuizOverrides.assignmentTags) {
-    metaData.assignmentTags = pendingUrlQuizOverrides.assignmentTags;
+  if (!metaData.assignmentId) {
+    if (pendingUrlQuizOverrides && pendingUrlQuizOverrides.assignmentId) {
+      metaData.assignmentId = pendingUrlQuizOverrides.assignmentId;
+    } else if (pendingUrlQuizConfig && pendingUrlQuizConfig.assignmentId) {
+      metaData.assignmentId = pendingUrlQuizConfig.assignmentId;
+    }
   }
   if (cfg.options?.mode === 'map') {
     if (pendingModule?.id === 'geo-europe') {
@@ -955,6 +945,9 @@ function startQuiz(moduleId, cfg, meta = {}){
     questions: [],
     options: cfg.options || {},
     levelLabel,
+    assignmentId: typeof metaData.assignmentId === 'string' && metaData.assignmentId
+      ? metaData.assignmentId
+      : null,
     assignmentLabel: customLabel,
     assignmentTitle: quizTitle,
     moduleName: module?.name || moduleId,
@@ -1542,6 +1535,26 @@ function finishQuiz(timeUp){
   } catch (err) {
     console.error('No s\'ha pogut guardar el resultat al magatzem local.', err);
     alert('No s\'ha pogut guardar aquest examen perquè no hi ha espai lliure. Esborra alguns intents antics i torna-ho a provar.');
+  }
+
+  const supabase = window.FocusSupabase;
+  if (supabase && typeof supabase.submitResult === 'function') {
+    const supabaseEntry = { ...entry, assignmentId: session.assignmentId || null };
+    const supabaseContext = {
+      assignmentId: session.assignmentId || null,
+      assignmentTitle: session.assignmentTitle,
+      assignmentLabel: session.assignmentLabel,
+      module: session.module,
+      moduleName: session.moduleName,
+      levelLabel: session.levelLabel,
+    };
+    Promise.resolve(supabase.submitResult(supabaseEntry, supabaseContext)).then((result) => {
+      if (result && result.error) {
+        console.warn('No s\'ha pogut sincronitzar el resultat amb el professorat.', result.error);
+      }
+    }).catch((error) => {
+      console.warn('No s\'ha pogut sincronitzar el resultat amb el professorat.', error);
+    });
   }
 
   try {
