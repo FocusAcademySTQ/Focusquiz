@@ -873,22 +873,22 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
       : null;
     const deliveredCount = assigneeRows.filter((row) => Boolean(row?.submission)).length;
 
-    const summaryChips = [];
+    const assignmentSummaryChips = [];
     if (assigneeRows.length) {
-      summaryChips.push(
+      assignmentSummaryChips.push(
         `<span class="portal-chip portal-chip--muted">Lliuraments: ${escapeHTML(
           `${deliveredCount}/${assigneeRows.length}`
         )}</span>`
       );
     }
     if (averageGrade !== null) {
-      summaryChips.push(
+      assignmentSummaryChips.push(
         `<span class="portal-chip portal-chip--positive">Mitjana ${escapeHTML(averageGrade)}</span>`
       );
     }
 
-    const summaryBlock = summaryChips.length
-      ? `<div class="portal-assignment-summary">${summaryChips.join('')}</div>`
+    const summaryBlock = assignmentSummaryChips.length
+      ? `<div class="portal-assignment-summary">${assignmentSummaryChips.join('')}</div>`
       : '';
 
     const assignees = assigneeRows.map((row) => {
