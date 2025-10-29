@@ -955,6 +955,9 @@ function startQuiz(moduleId, cfg, meta = {}){
     questions: [],
     options: cfg.options || {},
     levelLabel,
+    assignmentId: typeof metaData.assignmentId === 'string' && metaData.assignmentId
+      ? metaData.assignmentId
+      : null,
     assignmentLabel: customLabel,
     assignmentTitle: quizTitle,
     moduleName: module?.name || moduleId,
@@ -1542,6 +1545,186 @@ function finishQuiz(timeUp){
   } catch (err) {
     console.error('No s\'ha pogut guardar el resultat al magatzem local.', err);
     alert('No s\'ha pogut guardar aquest examen perquè no hi ha espai lliure. Esborra alguns intents antics i torna-ho a provar.');
+  }
+
+  const supabase = window.FocusSupabase;
+  if (supabase && typeof supabase.submitResult === 'function') {
+    const supabaseEntry = { ...entry, assignmentId: session.assignmentId || null };
+    const supabaseContext = {
+      assignmentId: session.assignmentId || null,
+      assignmentTitle: session.assignmentTitle,
+      assignmentLabel: session.assignmentLabel,
+      module: session.module,
+      moduleName: session.moduleName,
+      levelLabel: session.levelLabel,
+    };
+    Promise.resolve(supabase.submitResult(supabaseEntry, supabaseContext)).then((result) => {
+      if (result && result.error) {
+        console.warn('No s\'ha pogut sincronitzar el resultat amb el professorat.', result.error);
+      }
+    }).catch((error) => {
+      console.warn('No s\'ha pogut sincronitzar el resultat amb el professorat.', error);
+    });
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
   }
 
   try {
