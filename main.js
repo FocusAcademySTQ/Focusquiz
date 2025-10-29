@@ -431,9 +431,21 @@ function extractQuizConfigFromParams(params) {
   const time = parseUrlInt(params.get('time'));
   const level = parseUrlInt(params.get('level'));
   const labelRaw = params.get('label');
+  const assignmentIdRaw = params.get('assignment');
   const optionsParam = params.get('opts') || params.get('options');
   const options = optionsParam ? decodeQuizOptionsParam(optionsParam) : null;
   const autostart = parseUrlBoolean(params.get('autostart') ?? params.get('start'));
+  const tags = [];
+  const tagParams = params.getAll ? params.getAll('tag') : [];
+  tagParams.forEach((tag) => {
+    if (tag && typeof tag === 'string' && tag.trim()) tags.push(tag.trim());
+  });
+  const tagsJoined = params.get('tags');
+  if (tagsJoined && typeof tagsJoined === 'string') {
+    tagsJoined.split(',').forEach((tag) => {
+      if (tag && tag.trim()) tags.push(tag.trim());
+    });
+  }
 
   const config = {};
   if (Number.isFinite(count)) config.count = clamp(count, 1, 200);
@@ -441,7 +453,13 @@ function extractQuizConfigFromParams(params) {
   if (Number.isFinite(level)) config.level = clamp(level, 1, 4);
   if (options) config.options = options;
   if (labelRaw && typeof labelRaw === 'string' && labelRaw.trim()) config.label = labelRaw.trim();
+  if (assignmentIdRaw && typeof assignmentIdRaw === 'string' && assignmentIdRaw.trim()) {
+    config.assignmentId = assignmentIdRaw.trim();
+  }
   if (autostart) config.autostart = true;
+  if (tags.length) {
+    config.assignmentTags = Array.from(new Set(tags));
+  }
 
   return Object.keys(config).length ? config : null;
 }
@@ -466,6 +484,8 @@ function applyUrlQuizConfig(config) {
   if (config.autostart) {
     const meta = {};
     if (config.label) meta.label = config.label;
+    if (config.assignmentId) meta.assignmentId = config.assignmentId;
+    if (config.assignmentTags) meta.assignmentTags = config.assignmentTags;
     setTimeout(() => {
       startFromConfig(meta);
     }, 150);
@@ -507,6 +527,8 @@ function openModuleFromURL(){
     ? {
         options: pendingUrlQuizConfig.options || null,
         label: pendingUrlQuizConfig.label || '',
+        assignmentId: pendingUrlQuizConfig.assignmentId || '',
+        assignmentTags: pendingUrlQuizConfig.assignmentTags || null,
       }
     : null;
 
@@ -866,6 +888,12 @@ function startFromConfig(meta){
   if (!metaData.label && pendingUrlQuizOverrides && pendingUrlQuizOverrides.label) {
     metaData.label = pendingUrlQuizOverrides.label;
   }
+  if (!metaData.assignmentId && pendingUrlQuizOverrides && pendingUrlQuizOverrides.assignmentId) {
+    metaData.assignmentId = pendingUrlQuizOverrides.assignmentId;
+  }
+  if (!metaData.assignmentTags && pendingUrlQuizOverrides && pendingUrlQuizOverrides.assignmentTags) {
+    metaData.assignmentTags = pendingUrlQuizOverrides.assignmentTags;
+  }
   if (cfg.options?.mode === 'map') {
     if (pendingModule?.id === 'geo-europe') {
       openEuropeMap();
@@ -910,6 +938,10 @@ function startQuiz(moduleId, cfg, meta = {}){
   const storedLevel = usesLevels ? genLevel : 0;
   const metaData = (meta && typeof meta === 'object') ? meta : {};
   const customLabel = typeof metaData.label === 'string' ? metaData.label.trim() : '';
+  const assignmentId = typeof metaData.assignmentId === 'string' ? metaData.assignmentId.trim() : '';
+  const assignmentTags = Array.isArray(metaData.assignmentTags)
+    ? metaData.assignmentTags.filter((tag) => typeof tag === 'string' && tag.trim()).map((tag) => tag.trim())
+    : [];
   const quizTitle = customLabel || module.name;
 
   session = {
@@ -925,7 +957,9 @@ function startQuiz(moduleId, cfg, meta = {}){
     levelLabel,
     assignmentLabel: customLabel,
     assignmentTitle: quizTitle,
-    moduleName: module?.name || moduleId
+    moduleName: module?.name || moduleId,
+    assignmentId: assignmentId || null,
+    assignmentTags,
   };
 
   for(let i=0;i<count;i++) session.questions.push(module.gen(genLevel, session.options));
@@ -1508,6 +1542,26 @@ function finishQuiz(timeUp){
   } catch (err) {
     console.error('No s\'ha pogut guardar el resultat al magatzem local.', err);
     alert('No s\'ha pogut guardar aquest examen perquè no hi ha espai lliure. Esborra alguns intents antics i torna-ho a provar.');
+  }
+
+  try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
   }
 
   try {
