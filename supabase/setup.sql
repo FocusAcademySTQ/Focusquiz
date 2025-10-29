@@ -10,8 +10,12 @@ create table if not exists public.profiles (
   full_name text not null,
   email text unique,
   role text not null check (role in ('teacher', 'student')),
+  group_name text,
   created_at timestamptz not null default now()
 );
+
+alter table if exists public.profiles
+  add column if not exists group_name text;
 
 -- Assignments created by teachers
 create table if not exists public.assignments (
