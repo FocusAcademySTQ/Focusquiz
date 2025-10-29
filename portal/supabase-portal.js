@@ -95,7 +95,7 @@ function parseGradeValue(value) {
   return numeric;
 }
 
-function formatGradeValue(value) {
+function formatGradeDisplay(value) {
   const grade = parseGradeValue(value);
   if (grade === null) return null;
   return gradeFormatter.format(grade);
@@ -896,7 +896,7 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
       const name = escapeHTML(student?.full_name || 'Alumne');
       const statusValue = escapeHTML(row.status);
       const statusLabel = escapeHTML(statusLabels[row.status] || row.status);
-      const gradeValue = formatGradeValue(row?.submission?.grade);
+      const gradeValue = formatGradeDisplay(row?.submission?.grade);
       const submittedAt = row?.submission?.submitted_at
         ? new Date(row.submission.submitted_at).toLocaleString('ca-ES')
         : '';
