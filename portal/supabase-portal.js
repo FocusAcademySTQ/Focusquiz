@@ -497,6 +497,18 @@ function getCategoryLabel(category) {
   return CATEGORY_LABELS[category] || 'Mòdul FocusQuiz';
 }
 
+function formatGradeValue(value) {
+  if (value === null || value === undefined) return null;
+  const num = Number(value);
+  if (!Number.isFinite(num)) return String(value);
+  return Number.isInteger(num) ? `${num}%` : `${num.toFixed(1)}%`;
+}
+
+function buildSubmissionKey(assignmentId, profileId) {
+  if (!assignmentId || !profileId) return '';
+  return `${assignmentId}::${profileId}`;
+}
+
 function cssEscape(value) {
   if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
     return CSS.escape(value);
@@ -788,7 +800,7 @@ function renderStudents() {
   });
 }
 
-function renderTeacherAssignments(assignments) {
+function renderTeacherAssignments(assignments, submissionMap = new Map()) {
   if (!el.assignmentList) return;
   el.assignmentList.innerHTML = '';
 
@@ -804,7 +816,7 @@ function renderTeacherAssignments(assignments) {
 
   normalizedAssignments.forEach((assignment) => {
     const item = document.createElement('article');
-    item.className = 'list-item';
+    item.className = 'list-item portal-assignment-card';
 
     const dueDate = assignment.due_date
       ? new Date(assignment.due_date + 'T00:00:00').toLocaleDateString('ca-ES')
@@ -813,19 +825,31 @@ function renderTeacherAssignments(assignments) {
     const assignmentId = escapeHTML(assignment.id);
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
     const title = escapeHTML(assignment.title || module?.name || 'Prova assignada');
-    const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
-    const descriptionHTML = formatDescription(descriptionSource);
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
     const quizConfig = assignment.quiz_config || null;
     const quizSummary = quizConfig ? formatQuizConfig(quizConfig) : '';
     const moduleSummary = module && quizConfig?.options
       ? summarizeModuleOptions(module.id, quizConfig.options)
       : '';
-    const configDetails = [];
-    if (quizSummary) configDetails.push(`<strong>${escapeHTML(quizSummary)}</strong>`);
-    if (moduleSummary) configDetails.push(escapeHTML(moduleSummary));
-    const configBlock = configDetails.length
-      ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
+
+    const summaryChips = [];
+    if (quizSummary) {
+      summaryChips.push(`<span class="portal-chip portal-chip--muted" title="Configuració">${escapeHTML(quizSummary)}</span>`);
+    }
+    if (moduleSummary) {
+      summaryChips.push(`<span class="portal-chip portal-chip--muted" title="Subtemes">${escapeHTML(moduleSummary)}</span>`);
+    }
+    const dueLabel = assignment.due_date ? `Límit: ${dueDate}` : 'Sense data límit';
+    summaryChips.push(`<span class="portal-chip portal-chip--muted">${escapeHTML(dueLabel)}</span>`);
+    const assigneeCount = Array.isArray(assignment.assignment_assignees) ? assignment.assignment_assignees.length : 0;
+    const assigneeLabel = assigneeCount === 0
+      ? 'Sense alumnes'
+      : assigneeCount === 1
+        ? '1 alumne'
+        : `${assigneeCount} alumnes`;
+    summaryChips.push(`<span class="portal-chip portal-chip--muted">${escapeHTML(assigneeLabel)}</span>`);
+    const summaryRow = summaryChips.length
+      ? `<div class="portal-assignment-summary">${summaryChips.join('')}</div>`
       : '';
     const quizLink = module && quizConfig
       ? buildQuizLink(module.id, quizConfig, {
@@ -833,7 +857,6 @@ function renderTeacherAssignments(assignments) {
           assignmentId: assignment.id,
         })
       : '';
-    const moduleLink = module ? `../index.html?module=${encodeURIComponent(module.id)}` : '';
 
     const assigneeRows = Array.isArray(assignment.assignment_assignees)
       ? assignment.assignment_assignees
@@ -901,6 +924,21 @@ function renderTeacherAssignments(assignments) {
       `;
     });
 
+    const quizLink = module && quizConfig
+      ? buildQuizLink(module.id, quizConfig, {
+          label: assignment.title || module?.name,
+          assignmentId: assignment.id,
+        })
+      : '';
+    const moduleLink = module
+      ? (() => {
+          const params = new URLSearchParams();
+          params.set('module', module.id);
+          if (assignment.id) params.set('assignment', assignment.id);
+          return `../index.html?${params.toString()}`;
+        })()
+      : '';
+
     const actions = [];
     if (quizLink) {
       actions.push(`<a class="btn-primary" href="${quizLink}" target="_blank" rel="noopener">Obre la prova</a>`);
@@ -911,18 +949,21 @@ function renderTeacherAssignments(assignments) {
     actions.push(`<button class="btn-ghost portal-delete-assignment" type="button" data-assignment-delete="${assignmentId}">🗑️ Elimina</button>`);
 
     item.innerHTML = `
-      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
-        <h4 style="margin:0;">${title}</h4>
-        ${moduleTag}
+      <div class="portal-assignment-header">
+        <div class="portal-assignment-title">
+          <h4 class="portal-assignment-heading">${title}</h4>
+          ${moduleTag}
+        </div>
+        ${summaryRow}
       </div>
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
       ${configBlock}
       ${summaryBlock}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       <div>
-        <p class="portal-muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
-        <ul class="portal-meta-list portal-muted">
-          ${assignees.join('') || '<li>Sense alumnes assignats</li>'}
+        <p class="portal-assignees-title">Alumnes assignats</p>
+        <ul class="portal-meta-list portal-assignee-list">
+          ${assignees.join('') || '<li class="portal-assignee-empty">Sense alumnes assignats</li>'}
         </ul>
       </div>
       <div class="portal-assignment-actions">
@@ -968,6 +1009,7 @@ function renderStudentAssignments(rows) {
     const rowId = escapeHTML(row.id);
     const assignmentId = escapeHTML(assignment.id);
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
+    const assignmentUuid = assignment.id || row.assignment_id || null;
     const assignmentTitle = escapeHTML(assignment.title || module?.name || 'Prova');
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
     const quizConfig = assignment.quiz_config || null;
@@ -988,7 +1030,12 @@ function renderStudentAssignments(rows) {
         })
       : '';
     const fallbackModuleLink = !quizLink && module
-      ? `../index.html?module=${encodeURIComponent(module.id)}`
+      ? (() => {
+          const params = new URLSearchParams();
+          params.set('module', module.id);
+          if (assignmentUuid) params.set('assignment', assignmentUuid);
+          return `../index.html?${params.toString()}`;
+        })()
       : '';
     const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
     const descriptionHTML = formatDescription(descriptionSource);
@@ -1304,6 +1351,10 @@ async function loadStudents() {
 
 async function loadTeacherAssignments() {
   if (!state.supabase) return;
+  if (el.assignmentError) {
+    el.assignmentError.textContent = '';
+    el.assignmentError.classList.add('hidden');
+  }
   const assignmentSelect = buildAssignmentSelect(true);
   const { data, error } = await state.supabase
     .from('assignments')
@@ -1966,6 +2017,10 @@ async function init() {
     disableUI();
     return;
   }
+
+  state.teacherAccessCode = (config.SUPABASE_TEACHER_CODE || '').toString().trim();
+  state.requireTeacherCode = Boolean(state.teacherAccessCode);
+  updateSignupRoleFields();
 
   state.supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY, {
     auth: {
