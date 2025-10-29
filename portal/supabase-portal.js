@@ -345,6 +345,123 @@ function buildQuizLink(moduleId, config, meta = {}) {
 function toggle(element, show) {
   if (!element) return;
   element.classList.toggle('hidden', !show);
+  if (typeof show === 'boolean') {
+    element.setAttribute('aria-hidden', show ? 'false' : 'true');
+  }
+}
+
+function resetTabs() {
+  state.activeTab = null;
+  if (Array.isArray(el.tabButtons)) {
+    el.tabButtons.forEach((button) => {
+      if (!button) return;
+      button.hidden = false;
+      button.disabled = false;
+      button.setAttribute('aria-selected', 'false');
+      button.setAttribute('aria-disabled', 'false');
+      button.classList.remove('portal-tab--active');
+      button.tabIndex = -1;
+    });
+  }
+  toggle(el.teacherPanel, false);
+  toggle(el.studentPanel, false);
+}
+
+function setActiveTab(tabId, options = {}) {
+  if (!Array.isArray(el.tabButtons) || !el.tabButtons.length) return;
+  if (!tabId) {
+    state.activeTab = null;
+    toggle(el.teacherPanel, false);
+    toggle(el.studentPanel, false);
+    el.tabButtons.forEach((button) => {
+      if (!button) return;
+      button.setAttribute('aria-selected', 'false');
+      button.classList.remove('portal-tab--active');
+      if (!button.hidden && !button.disabled) {
+        button.tabIndex = 0;
+      } else {
+        button.tabIndex = -1;
+      }
+    });
+    return;
+  }
+
+  const targetButton = el.tabButtons.find(
+    (button) => button && !button.hidden && !button.disabled && button.dataset.tab === tabId
+  );
+  if (!targetButton) return;
+
+  state.activeTab = tabId;
+  el.tabButtons.forEach((button) => {
+    if (!button) return;
+    const isActive = button === targetButton;
+    button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    button.classList.toggle('portal-tab--active', isActive);
+    if (button.hidden || button.disabled) {
+      button.tabIndex = -1;
+      button.setAttribute('aria-disabled', 'true');
+    } else {
+      button.tabIndex = isActive ? 0 : -1;
+      button.setAttribute('aria-disabled', 'false');
+    }
+  });
+
+  toggle(el.teacherPanel, tabId === 'teacher');
+  toggle(el.studentPanel, tabId === 'student');
+
+  if (options.focus) {
+    targetButton.focus();
+  }
+}
+
+function configureTabsForRole(role) {
+  if (!Array.isArray(el.tabButtons) || !el.tabButtons.length) return;
+  const isTeacher = role === 'teacher';
+  el.tabButtons.forEach((button) => {
+    if (!button) return;
+    const tabId = button.dataset.tab;
+    const allowed = tabId === 'teacher' ? isTeacher : tabId === 'student' ? !isTeacher : false;
+    button.hidden = !allowed;
+    button.disabled = !allowed;
+    button.setAttribute('aria-disabled', allowed ? 'false' : 'true');
+    if (!allowed) {
+      button.setAttribute('aria-selected', 'false');
+      button.classList.remove('portal-tab--active');
+      button.tabIndex = -1;
+    }
+  });
+
+  const defaultTab = isTeacher ? 'teacher' : 'student';
+  setActiveTab(defaultTab);
+}
+
+function clearSignupMessages() {
+  if (el.signupError) el.signupError.classList.add('hidden');
+  if (el.signupSuccess) el.signupSuccess.classList.add('hidden');
+}
+
+function updateSignupRoleFields() {
+  if (!el.signupForm) return;
+  const selected = el.signupForm.querySelector('input[name="signup_role"]:checked');
+  const role = selected ? selected.value : 'student';
+  const showTeacherFields = role === 'teacher';
+
+  if (Array.isArray(el.signupTeacherFields)) {
+    el.signupTeacherFields.forEach((field) => {
+      if (!field) return;
+      const requiresCode = field.dataset.signupRequiresCode === 'true';
+      const shouldShow = requiresCode ? showTeacherFields && state.requireTeacherCode : showTeacherFields;
+      toggle(field, shouldShow);
+    });
+  }
+
+  if (el.teacherAccessHint) {
+    if (showTeacherFields) {
+      el.teacherAccessHint.textContent = state.requireTeacherCode
+        ? 'Introdueix el codi proporcionat pel centre per validar el rol docent.'
+        : 'Si no disposes de codi, el centre et podrà assignar el rol docent manualment.';
+    }
+  }
 }
 
 function resetTabs() {
@@ -867,72 +984,6 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
           assignmentId: assignment.id,
         })
       : '';
-    const detailsSections = [];
-    if (descriptionHTML) {
-      detailsSections.push(`<p class="portal-assignment-description">${descriptionHTML}</p>`);
-    }
-    if (configBlock) {
-      detailsSections.push(configBlock);
-    }
-    const detailsBlock = detailsSections.length
-      ? `<details class="portal-assignment-details"><summary>Veure detalls</summary><div class="portal-assignment-details-body">${detailsSections.join('')}</div></details>`
-      : '';
-
-    const assigneeRows = Array.isArray(assignment.assignment_assignees)
-      ? assignment.assignment_assignees
-      : [];
-
-    const gradeNumbers = assigneeRows
-      .map((row) => parseGradeValue(row?.submission?.grade))
-      .filter((value) => value !== null);
-    const averageGrade = gradeNumbers.length
-      ? gradeFormatter.format(
-          gradeNumbers.reduce((total, value) => total + value, 0) / gradeNumbers.length
-        )
-      : null;
-    const deliveredCount = assigneeRows.filter((row) => Boolean(row?.submission)).length;
-
-    const summaryChips = [];
-    if (assigneeRows.length) {
-      summaryChips.push(
-        `<span class="portal-chip portal-chip--muted">Lliuraments: ${escapeHTML(
-          `${deliveredCount}/${assigneeRows.length}`
-        )}</span>`
-      );
-    }
-    if (averageGrade !== null) {
-      summaryChips.push(
-        `<span class="portal-chip portal-chip--positive">Mitjana ${escapeHTML(averageGrade)}</span>`
-      );
-    }
-
-    const assigneeRows = Array.isArray(assignment.assignment_assignees)
-      ? assignment.assignment_assignees
-      : [];
-
-    const gradeNumbers = assigneeRows
-      .map((row) => parseGradeValue(row?.submission?.grade))
-      .filter((value) => value !== null);
-    const averageGrade = gradeNumbers.length
-      ? gradeFormatter.format(
-          gradeNumbers.reduce((total, value) => total + value, 0) / gradeNumbers.length
-        )
-      : null;
-    const deliveredCount = assigneeRows.filter((row) => Boolean(row?.submission)).length;
-
-    const summaryChips = [];
-    if (assigneeRows.length) {
-      summaryChips.push(
-        `<span class="portal-chip portal-chip--muted">Lliuraments: ${escapeHTML(
-          `${deliveredCount}/${assigneeRows.length}`
-        )}</span>`
-      );
-    }
-    if (averageGrade !== null) {
-      summaryChips.push(
-        `<span class="portal-chip portal-chip--positive">Mitjana ${escapeHTML(averageGrade)}</span>`
-      );
-    }
 
     const assigneeRows = Array.isArray(assignment.assignment_assignees)
       ? assignment.assignment_assignees
@@ -1278,6 +1329,53 @@ async function ensureProfile(user) {
     await syncAuthMetadataRole(user, normalized.role);
   }
   return normalized;
+}
+
+async function applySession(session) {
+  const previousToken = state.session?.access_token || null;
+  const nextToken = session?.access_token || null;
+  const sameSession = Boolean(previousToken && nextToken && previousToken === nextToken && state.profile);
+
+  state.session = session ?? null;
+
+  if (!state.session?.user) {
+    state.profile = null;
+    state.sessionWarning = '';
+    updateSessionUI();
+    return;
+  }
+
+  if (!sameSession) {
+    try {
+      await ensureProfile(state.session.user);
+      state.sessionWarning = '';
+    } catch (error) {
+      console.error('No s\'ha pogut sincronitzar el perfil de Supabase', error);
+      state.profile = buildAuthProfileFallback(state.session.user);
+      state.sessionWarning =
+        'Sessió iniciada sense sincronitzar el perfil de Supabase. S\'utilitzen les dades del compte d\'accés.';
+      if (state.session?.user && state.profile?.role) {
+        await syncAuthMetadataRole(state.session.user, state.profile.role);
+      }
+    }
+  }
+
+  updateSessionUI();
+
+  if (!state.profile) {
+    return;
+  }
+
+  if (sameSession) {
+    return;
+  }
+
+  if (state.profile.role === 'teacher') {
+    await loadStudents();
+    await loadTeacherAssignments();
+  } else {
+    await loadStudentAssignments();
+  }
 }
 
 function updateSessionUI() {
@@ -1649,8 +1747,16 @@ async function handleLogin(event) {
   }
 
   try {
-    const { error } = await state.supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await state.supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+
+    const session = data?.session ?? null;
+    if (session) {
+      await applySession(session);
+    } else {
+      const { data: refreshed } = await state.supabase.auth.getSession();
+      await applySession(refreshed?.session ?? null);
+    }
   } catch (error) {
     const message = error?.message || 'No s\'ha pogut iniciar sessió.';
     showError(el.authError, message);
@@ -1684,9 +1790,7 @@ async function handleLogout() {
     return;
   }
 
-  state.session = null;
-  state.profile = null;
-  updateSessionUI();
+  await applySession(null);
 
   if (el.logoutBtn) {
     el.logoutBtn.disabled = false;
@@ -2039,61 +2143,10 @@ async function init() {
   wireEvents();
 
   const { data: initialSession } = await state.supabase.auth.getSession();
-  state.session = initialSession?.session ?? null;
-  if (state.session?.user) {
-    try {
-      await ensureProfile(state.session.user);
-      state.sessionWarning = '';
-    } catch (error) {
-      console.error('No s\'ha pogut sincronitzar el perfil inicial', error);
-      state.profile = buildAuthProfileFallback(state.session.user);
-      state.sessionWarning =
-        'Sessió iniciada sense sincronitzar el perfil de Supabase. S\'utilitzen les dades del compte d\'accés.';
-      if (state.session?.user && state.profile?.role) {
-        await syncAuthMetadataRole(state.session.user, state.profile.role);
-      }
-    }
-
-    updateSessionUI();
-    if (state.profile?.role === 'teacher') {
-      await loadStudents();
-      await loadTeacherAssignments();
-    } else {
-      await loadStudentAssignments();
-    }
-  } else {
-    state.sessionWarning = '';
-    updateSessionUI();
-  }
+  await applySession(initialSession?.session ?? null);
 
   state.supabase.auth.onAuthStateChange(async (_event, session) => {
-    state.session = session;
-    if (session?.user) {
-      try {
-        await ensureProfile(session.user);
-        state.sessionWarning = '';
-      } catch (error) {
-        console.error('No s\'ha pogut carregar el perfil després de l\'inici de sessió', error);
-        state.profile = buildAuthProfileFallback(session.user);
-        state.sessionWarning =
-          'Sessió iniciada sense sincronitzar el perfil de Supabase. S\'utilitzen les dades del compte d\'accés.';
-        if (session?.user && state.profile?.role) {
-          await syncAuthMetadataRole(session.user, state.profile.role);
-        }
-      }
-
-      updateSessionUI();
-      if (state.profile?.role === 'teacher') {
-        await loadStudents();
-        await loadTeacherAssignments();
-      } else {
-        await loadStudentAssignments();
-      }
-    } else {
-      state.profile = null;
-      state.sessionWarning = '';
-      updateSessionUI();
-    }
+    await applySession(session);
   });
 }
 
