@@ -105,6 +105,9 @@ async function submitResult(entry, session = {}) {
     tags: Array.isArray(session.assignmentTags) ? session.assignmentTags : [],
   };
 
+  const gradeNumber = entry && entry.score !== undefined ? Number.parseFloat(entry.score) : null;
+  const grade = Number.isFinite(gradeNumber) ? gradeNumber : null;
+
   let content = null;
   try {
     content = JSON.stringify({ entry, meta: payloadMeta });
@@ -121,6 +124,7 @@ async function submitResult(entry, session = {}) {
           profile_id: profile.id,
           submitted_at: new Date().toISOString(),
           content,
+          grade,
         },
         { onConflict: 'assignment_id,profile_id' }
       );
