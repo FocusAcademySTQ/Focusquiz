@@ -5,6 +5,11 @@
   padding: clamp(16px, 2vw, 28px) 0 64px;
 }
 
+.portal-main .hidden,
+.portal-main.hidden {
+  display: none !important;
+}
+
 .portal-hero h1 {
   margin-bottom: 0.5rem;
 }
@@ -384,8 +389,120 @@
 .portal-meta-list {
   display: grid;
   gap: 0.35rem;
-  padding-left: 1.25rem;
+  padding-left: 0;
   margin: 0;
+  list-style: none;
+}
+
+.portal-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: rgba(15, 23, 42, 0.05);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow);
+  margin-top: clamp(16px, 2vw, 24px);
+}
+
+.portal-tab {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.portal-tab:hover:not([disabled]) {
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+.portal-tab--active,
+.portal-tab[aria-selected='true'] {
+  background: rgba(59, 130, 246, 0.18);
+  color: #1e3a8a;
+  box-shadow: 0 8px 18px -12px rgba(59, 130, 246, 0.45);
+}
+
+.portal-tab[disabled],
+.portal-tab[aria-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.portal-tabpanel {
+  margin-top: clamp(16px, 2vw, 24px);
+}
+
+.portal-teacher-grid {
+  display: grid;
+  gap: clamp(16px, 2vw, 24px);
+}
+
+@media (min-width: 1024px) {
+  .portal-teacher-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+    align-items: start;
+  }
+}
+
+.portal-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--hair);
+  background: rgba(248, 250, 252, 0.6);
+  margin: 0;
+}
+
+.portal-radio-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.portal-hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.portal-assignment-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.portal-assignee-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.portal-assignee-line span:first-child {
+  font-weight: 600;
+}
+
+.portal-assignee-details {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.portal-assignee-details strong {
+  color: var(--ink);
 }
 
 @media (max-width: 720px) {
