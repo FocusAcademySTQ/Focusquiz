@@ -20,6 +20,7 @@ const sortedModules = [...MODULES].sort((a, b) => {
 const state = {
   supabase: null,
   session: null,
+  user: null,
   profile: null,
   students: [],
   modules: sortedModules,
@@ -1212,16 +1213,21 @@ async function applySession(session, fallbackUser = null) {
   state.session = session ?? null;
 
   if (!state.session) {
+    state.user = null;
     state.profile = null;
     state.sessionWarning = '';
     updateSessionUI();
     return;
   }
 
-  let activeUser = state.session.user ?? null;
+  let activeUser = state.session?.user ?? null;
 
   if (!activeUser && fallbackUser) {
     activeUser = fallbackUser;
+  }
+
+  if (!activeUser) {
+    activeUser = state.user ?? null;
   }
 
   if (!activeUser && state.supabase) {
@@ -1238,6 +1244,7 @@ async function applySession(session, fallbackUser = null) {
   }
 
   if (!activeUser) {
+    state.user = null;
     state.profile = null;
     state.sessionWarning =
       'No s\'ha pogut obtenir l\'usuari actiu de Supabase. Revisa la configuració o intenta-ho més tard.';
@@ -1246,7 +1253,7 @@ async function applySession(session, fallbackUser = null) {
     return;
   }
 
-  state.session.user = activeUser;
+  state.user = activeUser;
 
   try {
     await ensureProfile(activeUser);
