@@ -24,8 +24,9 @@
 
   <main class="wrap portal-main">
     <section class="panel card portal-hero">
-      <h1>Gestor de tasques (Supabase)</h1>
-      <p class="subtitle">Autentica't amb el teu compte per gestionar assignacions entre mestres i alumnes amb la mateixa experiència FocusQuiz.</p>
+      <div class="portal-hero__badge">Nova experiència</div>
+      <h1>Gestor Supabase Focus</h1>
+      <p class="subtitle">Connecta mestres i alumnat amb un espai més visual, ràpid i amb notificacions automàtiques de resultats.</p>
       <div id="configWarning" class="portal-alert hidden">Configura les claus Supabase a <code>SUPABASE_URL</code> i <code>SUPABASE_ANON_KEY</code> mitjançant variables d'entorn.</div>
     </section>
 
@@ -109,8 +110,44 @@
     </div>
 
     <section id="teacherPanel" class="portal-tabpanel hidden" data-tab-panel="teacher" role="tabpanel" aria-labelledby="tab-teacher">
-      <div class="portal-teacher-grid">
-        <section id="teacherView" class="panel card hidden">
+      <div id="teacherTabs" class="portal-subtabs hidden" data-teacher-tablist role="tablist" aria-label="Vistes del professorat">
+        <button
+          id="teacher-tab-planner"
+          class="portal-subtab"
+          type="button"
+          data-teacher-tab="planner"
+          role="tab"
+          aria-controls="teacherPlannerPanel"
+          aria-selected="false"
+        >Panell del mestre</button>
+        <button
+          id="teacher-tab-reports"
+          class="portal-subtab"
+          type="button"
+          data-teacher-tab="reports"
+          role="tab"
+          aria-controls="teacherReportsPanel"
+          aria-selected="false"
+        >Assignacions i notes</button>
+        <button
+          id="teacher-tab-students"
+          class="portal-subtab"
+          type="button"
+          data-teacher-tab="students"
+          role="tab"
+          aria-controls="teacherStudentsPanel"
+          aria-selected="false"
+        >Gestió d'alumnes</button>
+      </div>
+
+      <section
+        id="teacherPlannerPanel"
+        class="portal-subpanel hidden"
+        data-teacher-panel="planner"
+        role="tabpanel"
+        aria-labelledby="teacher-tab-planner"
+      >
+        <section id="teacherView" class="panel card">
           <h2>Panell de mestre/a</h2>
           <p class="portal-muted">Tria els mòduls FocusQuiz i defineix una prova automàtica per a l'alumnat seleccionat.</p>
           <form id="assignmentForm" class="portal-form" style="margin-top:1rem">
@@ -176,12 +213,15 @@
               <span class="portal-field-label">Data límit</span>
               <input class="input" name="due_date" type="date" />
             </label>
-            <label>
-              <span class="portal-field-label">Comentaris addicionals (opcional)</span>
-              <textarea class="input" name="note" rows="3" placeholder="Instruccions extra per a l'alumnat..."></textarea>
-            </label>
-            <section>
-              <p class="portal-section-title" style="margin-bottom:0.5rem">Selecciona alumnes per assignar la tasca</p>
+            <section class="portal-student-selector">
+              <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
+                <div>
+                  <p class="portal-section-title" style="margin-bottom:0.35rem">Selecciona alumnes per assignar la tasca</p>
+                  <p class="portal-muted" style="margin:0">Filtra per grup per activar ràpidament tota una classe.</p>
+                </div>
+                <span id="studentSelectionCount" class="portal-chip portal-chip--muted">Cap alumne seleccionat</span>
+              </div>
+              <div id="studentGroupFilter" class="portal-group-chips" role="group" aria-label="Filtra per grup"></div>
               <div id="studentChecklist" class="portal-assignees"></div>
             </section>
             <div class="portal-actions">
@@ -192,21 +232,99 @@
           <div id="assignmentFeedback" class="portal-success hidden" style="margin-top:1rem"></div>
           <div id="assignmentError" class="portal-error hidden" style="margin-top:1rem"></div>
         </section>
+      </section>
 
-        <section id="teacherAssignments" class="panel card hidden">
-          <div class="portal-section-header">
-            <h2 style="margin:0">Assignacions publicades</h2>
-            <button id="reloadAssignments" type="button" class="btn-secondary">Actualitza llistat</button>
+      <section
+        id="teacherReportsPanel"
+        class="portal-subpanel hidden"
+        data-teacher-panel="reports"
+        role="tabpanel"
+        aria-labelledby="teacher-tab-reports"
+      >
+        <div class="portal-teacher-columns">
+          <section id="teacherAssignments" class="panel card">
+            <div class="portal-section-header">
+              <h2 style="margin:0">Assignacions publicades</h2>
+              <button id="reloadAssignments" type="button" class="btn-secondary">Actualitza llistat</button>
+            </div>
+            <div id="assignmentList" class="portal-list list" aria-live="polite"></div>
+          </section>
+
+          <section id="teacherGrades" class="panel card">
+            <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
+              <div>
+                <p class="portal-section-title" style="margin-bottom:0.35rem">Resultats rebuts</p>
+                <h2 style="margin:0">Notes dels alumnes</h2>
+                <p class="portal-muted" style="margin-top:0.35rem;">Consulta les darreres entregues i la nota assignada automàticament.</p>
+              </div>
+              <button id="refreshGrades" type="button" class="btn-secondary">Actualitza notes</button>
+            </div>
+            <div id="teacherGradesList" class="portal-feed"></div>
+          </section>
+        </div>
+      </section>
+
+      <section
+        id="teacherStudentsPanel"
+        class="portal-subpanel hidden"
+        data-teacher-panel="students"
+        role="tabpanel"
+        aria-labelledby="teacher-tab-students"
+      >
+        <section class="panel card">
+          <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
+            <div>
+              <p class="portal-section-title" style="margin-bottom:0.35rem">Gestió d'alumnat</p>
+              <h2 style="margin:0">Edita perfils i grups</h2>
+              <p class="portal-muted" style="margin-top:0.5rem;">Organitza els grups i crea nous accessos sense sortir del portal.</p>
+            </div>
+            <button id="studentAdminRefresh" type="button" class="btn-secondary">Actualitza alumnes</button>
           </div>
-          <div id="assignmentList" class="portal-list list" aria-live="polite"></div>
+
+          <form id="studentCreateForm" class="portal-form portal-form--inline" autocomplete="off">
+            <label>
+              <span class="portal-field-label">Nom complet</span>
+              <input class="input" name="full_name" type="text" required placeholder="Nom i cognoms" autocomplete="off" />
+            </label>
+            <label>
+              <span class="portal-field-label">Correu electrònic</span>
+              <input class="input" name="email" type="email" required placeholder="alumne@centre.cat" autocomplete="off" />
+            </label>
+            <label>
+              <span class="portal-field-label">Contrasenya temporal</span>
+              <input class="input" name="password" type="text" minlength="6" required placeholder="Mínim 6 caràcters" autocomplete="off" />
+            </label>
+            <label data-admin-group-field>
+              <span class="portal-field-label">Grup (opcional)</span>
+              <input class="input" name="group_name" type="text" placeholder="Per exemple: 3rA" list="studentGroupSuggestions" autocomplete="off" />
+            </label>
+            <div class="portal-actions portal-actions--compact">
+              <button class="btn-primary" type="submit">Crear alumne</button>
+            </div>
+          </form>
+
+          <div class="portal-admin-feedback">
+            <div id="studentAdminFeedback" class="portal-success hidden" role="status" aria-live="polite"></div>
+            <div id="studentAdminError" class="portal-error hidden" role="alert"></div>
+          </div>
+
+          <div id="studentAdminToolbar" class="portal-student-admin-toolbar">
+            <div>
+              <p class="portal-section-title" style="margin-bottom:0.35rem">Filtra per grup</p>
+              <div id="studentAdminFilter" class="portal-group-chips" role="group" aria-label="Filtra alumnes per grup"></div>
+            </div>
+          </div>
+
+          <div id="studentAdminList" class="portal-student-admin-list" aria-live="polite"></div>
+          <datalist id="studentGroupSuggestions"></datalist>
         </section>
-      </div>
+      </section>
     </section>
 
     <section id="studentPanel" class="portal-tabpanel hidden" data-tab-panel="student" role="tabpanel" aria-labelledby="tab-student">
       <section id="studentView" class="panel card hidden">
         <h2>Panell d'alumne/a</h2>
-        <p class="portal-muted">Consulta les tasques assignades i marca el progrés.</p>
+        <p class="portal-muted">Les proves arriben amb una presentació simplificada i un botó neon per començar. Quan finalitzis, la nota s'enviarà sola a la docent.</p>
         <div id="studentAssignmentList" class="portal-list list" aria-live="polite"></div>
       </section>
     </section>
