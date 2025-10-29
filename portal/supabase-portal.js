@@ -852,7 +852,7 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
     const summaryRow = summaryChips.length
       ? `<div class="portal-assignment-summary">${summaryChips.join('')}</div>`
       : '';
-    const quizLink = module && quizConfig
+    const teacherQuizLink = module && quizConfig
       ? buildQuizLink(module.id, quizConfig, {
           label: assignment.title || module?.name,
           assignmentId: assignment.id,
@@ -941,8 +941,8 @@ function renderTeacherAssignments(assignments, submissionMap = new Map()) {
       : '';
 
     const actions = [];
-    if (quizLink) {
-      actions.push(`<a class="btn-primary" href="${quizLink}" target="_blank" rel="noopener">Obre la prova</a>`);
+    if (teacherQuizLink) {
+      actions.push(`<a class="btn-primary" href="${teacherQuizLink}" target="_blank" rel="noopener">Obre la prova</a>`);
     }
     if (moduleLink) {
       actions.push(`<a class="btn-secondary" href="${moduleLink}" target="_blank" rel="noopener">Obre el mòdul</a>`);
@@ -1024,19 +1024,14 @@ function renderStudentAssignments(rows) {
     const configBlock = configDetails.length
       ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
       : '';
-    const quizLink = module && quizConfig
+    const studentQuizLink = module && quizConfig
       ? buildQuizLink(module.id, quizConfig, {
           label: assignment.title || module?.name,
           assignmentId: assignment.id,
         })
       : '';
-    const fallbackModuleLink = !quizLink && module
-      ? (() => {
-          const params = new URLSearchParams();
-          params.set('module', module.id);
-          if (assignmentUuid) params.set('assignment', assignmentUuid);
-          return `../index.html?${params.toString()}`;
-        })()
+    const fallbackModuleLink = !studentQuizLink && module
+      ? `../index.html?module=${encodeURIComponent(module.id)}`
       : '';
     const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
     const descriptionHTML = formatDescription(descriptionSource);
@@ -1057,8 +1052,8 @@ function renderStudentAssignments(rows) {
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
       ${configBlock}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
-      ${quizLink
-        ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${quizLink}" target="_blank" rel="noopener">Comença la prova</a></div>`
+      ${studentQuizLink
+        ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${studentQuizLink}" target="_blank" rel="noopener">Comença la prova</a></div>`
         : fallbackModuleLink
           ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${fallbackModuleLink}" target="_blank" rel="noopener">Obre el mòdul</a></div>`
           : ''}
