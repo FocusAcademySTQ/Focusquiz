@@ -1,3 +1,3 @@
-export const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-export const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
-export const SUPABASE_TEACHER_CODE = import.meta.env.VITE_SUPABASE_TEACHER_CODE;
+export const SUPABASE_URL = window?.SUPABASE_URL || '';
+export const SUPABASE_ANON_KEY = window?.SUPABASE_ANON_KEY || '';
+export const SUPABASE_TEACHER_CODE = window?.SUPABASE_TEACHER_CODE || '';
