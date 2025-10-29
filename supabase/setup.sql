@@ -99,6 +99,22 @@ create policy "Users can insert their own profile" on public.profiles
 create policy "Users update their own profile" on public.profiles
   for update using (auth.uid() = id) with check (auth.uid() = id);
 
+create policy "Teachers insert student profiles" on public.profiles
+  for insert with check (
+    exists (
+      select 1 from public.profiles p where p.id = auth.uid() and p.role = 'teacher'
+    )
+    and role = 'student'
+  );
+
+create policy "Teachers update student profiles" on public.profiles
+  for update using (
+    exists (
+      select 1 from public.profiles p where p.id = auth.uid() and p.role = 'teacher'
+    )
+    and profiles.role = 'student'
+  ) with check (role = 'student');
+
 -- Assignment policies
 create policy "Teachers read assignments" on public.assignments
   for select using (exists (

@@ -31,6 +31,8 @@ function setupFocusPortal() {
 
   const state = {
     supabase: null,
+    supabaseUrl: '',
+    supabaseAnonKey: '',
     session: null,
     user: null,
     profile: null,
@@ -48,8 +50,10 @@ function setupFocusPortal() {
     moduleSearch: '',
     supportsQuizConfigColumn: true,
     activeTab: null,
+    teacherActiveSubtab: null,
     profileSupportsEmail: true,
     sessionWarning: '',
+    studentAdminGroupFilter: 'all',
   };
 
   const el = {
@@ -69,7 +73,13 @@ function setupFocusPortal() {
     sessionWarning: document.getElementById('sessionWarning'),
     tabList: document.getElementById('portalTabs'),
     tabButtons: Array.from(document.querySelectorAll('[data-tab]')),
+    teacherTabList: document.getElementById('teacherTabs'),
+    teacherTabButtons: Array.from(document.querySelectorAll('[data-teacher-tab]')),
+    teacherSubPanels: Array.from(document.querySelectorAll('[data-teacher-panel]')),
     teacherPanel: document.getElementById('teacherPanel'),
+    teacherPlannerPanel: document.getElementById('teacherPlannerPanel'),
+    teacherReportsPanel: document.getElementById('teacherReportsPanel'),
+    teacherStudentsPanel: document.getElementById('teacherStudentsPanel'),
     teacherView: document.getElementById('teacherView'),
     teacherAssignments: document.getElementById('teacherAssignments'),
     assignmentForm: document.getElementById('assignmentForm'),
@@ -86,6 +96,14 @@ function setupFocusPortal() {
     studentChecklist: document.getElementById('studentChecklist'),
     studentGroupFilter: document.getElementById('studentGroupFilter'),
     studentSelectionCount: document.getElementById('studentSelectionCount'),
+    studentAdminFilter: document.getElementById('studentAdminFilter'),
+    studentAdminToolbar: document.getElementById('studentAdminToolbar'),
+    studentAdminList: document.getElementById('studentAdminList'),
+    studentAdminRefresh: document.getElementById('studentAdminRefresh'),
+    studentAdminFeedback: document.getElementById('studentAdminFeedback'),
+    studentAdminError: document.getElementById('studentAdminError'),
+    studentCreateForm: document.getElementById('studentCreateForm'),
+    studentGroupSuggestions: document.getElementById('studentGroupSuggestions'),
     assignmentList: document.getElementById('assignmentList'),
     reloadAssignments: document.getElementById('reloadAssignments'),
     teacherGrades: document.getElementById('teacherGrades'),
@@ -389,6 +407,22 @@ function setupFocusPortal() {
     }
   }
 
+  function resetTeacherTabs() {
+    state.teacherActiveSubtab = null;
+    if (Array.isArray(el.teacherTabButtons)) {
+      el.teacherTabButtons.forEach((button) => {
+        if (!button) return;
+        button.setAttribute('aria-selected', 'false');
+        button.setAttribute('aria-disabled', button.disabled ? 'true' : 'false');
+        button.classList.remove('portal-subtab--active');
+        button.tabIndex = -1;
+      });
+    }
+    if (Array.isArray(el.teacherSubPanels)) {
+      el.teacherSubPanels.forEach((panel) => toggle(panel, false));
+    }
+  }
+
   function resetTabs() {
     state.activeTab = null;
     if (Array.isArray(el.tabButtons)) {
@@ -404,6 +438,8 @@ function setupFocusPortal() {
     }
     toggle(el.teacherPanel, false);
     toggle(el.studentPanel, false);
+    toggle(el.teacherTabList, false);
+    resetTeacherTabs();
   }
 
   function setActiveTab(tabId, options = {}) {
@@ -412,6 +448,8 @@ function setupFocusPortal() {
       state.activeTab = null;
       toggle(el.teacherPanel, false);
       toggle(el.studentPanel, false);
+      toggle(el.teacherTabList, false);
+      resetTeacherTabs();
       el.tabButtons.forEach((button) => {
         if (!button) return;
         button.setAttribute('aria-selected', 'false');
@@ -447,6 +485,58 @@ function setupFocusPortal() {
 
     toggle(el.teacherPanel, tabId === 'teacher');
     toggle(el.studentPanel, tabId === 'student');
+
+    if (tabId === 'teacher') {
+      toggle(el.teacherTabList, true);
+      const defaultSubtab = state.teacherActiveSubtab || 'planner';
+      setActiveTeacherTab(defaultSubtab);
+    } else {
+      toggle(el.teacherTabList, false);
+      resetTeacherTabs();
+    }
+
+    if (options.focus) {
+      targetButton.focus();
+    }
+  }
+
+  function setActiveTeacherTab(tabId, options = {}) {
+    if (!Array.isArray(el.teacherTabButtons) || !el.teacherTabButtons.length) return;
+    if (!tabId) {
+      resetTeacherTabs();
+      return;
+    }
+
+    const targetButton = el.teacherTabButtons.find(
+      (button) => button && !button.hidden && !button.disabled && button.dataset.teacherTab === tabId
+    );
+    if (!targetButton) {
+      resetTeacherTabs();
+      return;
+    }
+
+    state.teacherActiveSubtab = tabId;
+    el.teacherTabButtons.forEach((button) => {
+      if (!button) return;
+      const isActive = button === targetButton;
+      button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      button.classList.toggle('portal-subtab--active', isActive);
+      button.setAttribute('aria-disabled', button.hidden || button.disabled ? 'true' : 'false');
+      button.tabIndex = button.hidden || button.disabled ? -1 : isActive ? 0 : -1;
+    });
+
+    if (Array.isArray(el.teacherSubPanels)) {
+      el.teacherSubPanels.forEach((panel) => {
+        if (!panel) return;
+        const matches = panel.dataset.teacherPanel === tabId;
+        toggle(panel, matches);
+      });
+    }
+
+    toggle(el.teacherView, tabId === 'planner');
+    toggle(el.teacherAssignments, tabId === 'reports');
+    toggle(el.teacherGrades, tabId === 'reports');
+    toggle(el.teacherStudentsPanel, tabId === 'students');
 
     if (options.focus) {
       targetButton.focus();
@@ -496,6 +586,11 @@ function setupFocusPortal() {
   function resetAlerts() {
     if (el.assignmentFeedback) el.assignmentFeedback.classList.add('hidden');
     if (el.assignmentError) el.assignmentError.classList.add('hidden');
+  }
+
+  function clearStudentAdminMessages() {
+    if (el.studentAdminFeedback) el.studentAdminFeedback.classList.add('hidden');
+    if (el.studentAdminError) el.studentAdminError.classList.add('hidden');
   }
 
   function showError(container, message) {
@@ -846,6 +941,12 @@ function setupFocusPortal() {
         state.studentGroupFilter = 'all';
       }
     }
+    if (state.studentAdminGroupFilter !== 'all') {
+      const existsAdmin = sorted.some((group) => group.id === state.studentAdminGroupFilter);
+      if (!existsAdmin) {
+        state.studentAdminGroupFilter = 'all';
+      }
+    }
   }
 
   function renderStudentGroupFilter() {
@@ -940,6 +1041,172 @@ function setupFocusPortal() {
     });
 
     updateStudentSelectionCount();
+  }
+
+  function renderStudentAdminFilter() {
+    if (!el.studentAdminFilter) return;
+    const total = state.students.length;
+    const active = state.studentAdminGroupFilter;
+    const chips = [];
+
+    chips.push(
+      `<button type="button" class="portal-group-chip ${active === 'all' ? 'is-active' : ''}" data-group="all" title="Mostra tots els alumnes">Tots <small>${escapeHTML(String(total))}</small></button>`
+    );
+
+    state.studentGroups.forEach((group) => {
+      const count = group.count;
+      const label = escapeHTML(group.label);
+      const selected = active === group.id;
+      chips.push(
+        `<button type="button" class="portal-group-chip ${selected ? 'is-active' : ''}" data-group="${escapeHTML(group.id)}" title="Mostra només aquest grup">${label} <small>${escapeHTML(String(count))}</small></button>`
+      );
+    });
+
+    el.studentAdminFilter.innerHTML = chips.join('');
+  }
+
+  function renderStudentAdminList() {
+    if (!el.studentAdminList) return;
+    el.studentAdminList.innerHTML = '';
+
+    if (!state.students.length) {
+      const empty = document.createElement('p');
+      empty.className = 'portal-muted';
+      empty.textContent = 'Encara no hi ha alumnes registrats.';
+      el.studentAdminList.appendChild(empty);
+      return;
+    }
+
+    const filtered = state.studentAdminGroupFilter === 'all'
+      ? state.students
+      : state.students.filter((student) => getStudentGroup(student) === state.studentAdminGroupFilter);
+
+    if (!filtered.length) {
+      const empty = document.createElement('p');
+      empty.className = 'portal-muted';
+      empty.textContent = 'No hi ha alumnes en aquest grup.';
+      el.studentAdminList.appendChild(empty);
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    filtered.forEach((student) => {
+      const form = document.createElement('form');
+      form.className = 'portal-student-card';
+      form.dataset.studentAdminForm = 'true';
+      form.dataset.studentId = student.id || '';
+      form.dataset.originalName = student.full_name || '';
+      form.dataset.originalEmail = student.email || '';
+      form.dataset.originalGroup = student.group_name || '';
+      form.setAttribute('autocomplete', 'off');
+
+      const grid = document.createElement('div');
+      grid.className = 'portal-student-card__grid';
+
+      const nameLabel = document.createElement('label');
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'portal-field-label';
+      nameSpan.textContent = 'Nom complet';
+      const nameInput = document.createElement('input');
+      nameInput.className = 'input';
+      nameInput.name = 'full_name';
+      nameInput.type = 'text';
+      nameInput.required = true;
+      nameInput.autocomplete = 'off';
+      nameInput.value = student.full_name || '';
+      nameLabel.append(nameSpan, nameInput);
+      grid.appendChild(nameLabel);
+
+      if (state.profileSupportsEmail) {
+        const emailLabel = document.createElement('label');
+        const emailSpan = document.createElement('span');
+        emailSpan.className = 'portal-field-label';
+        emailSpan.textContent = 'Correu electrònic';
+        const emailInput = document.createElement('input');
+        emailInput.className = 'input';
+        emailInput.name = 'email';
+        emailInput.type = 'email';
+        emailInput.autocomplete = 'off';
+        emailInput.placeholder = 'alumne@centre.cat';
+        emailInput.value = student.email || '';
+        emailLabel.append(emailSpan, emailInput);
+        grid.appendChild(emailLabel);
+      }
+
+      if (state.supportsStudentGroups) {
+        const groupLabel = document.createElement('label');
+        groupLabel.dataset.adminGroupField = 'true';
+        const groupSpan = document.createElement('span');
+        groupSpan.className = 'portal-field-label';
+        groupSpan.textContent = 'Grup';
+        const groupInput = document.createElement('input');
+        groupInput.className = 'input';
+        groupInput.name = 'group_name';
+        groupInput.type = 'text';
+        groupInput.autocomplete = 'off';
+        groupInput.placeholder = 'Sense grup';
+        if (el.studentGroupSuggestions) {
+          groupInput.setAttribute('list', el.studentGroupSuggestions.id);
+        }
+        groupInput.value = student.group_name || '';
+        groupLabel.append(groupSpan, groupInput);
+        grid.appendChild(groupLabel);
+      }
+
+      form.appendChild(grid);
+
+      const actions = document.createElement('div');
+      actions.className = 'portal-student-card__actions';
+
+      const saveButton = document.createElement('button');
+      saveButton.type = 'submit';
+      saveButton.className = 'btn-primary';
+      saveButton.textContent = 'Desa canvis';
+      actions.appendChild(saveButton);
+
+      const resetButton = document.createElement('button');
+      resetButton.type = 'button';
+      resetButton.className = 'btn-secondary';
+      resetButton.dataset.action = 'reset';
+      resetButton.textContent = 'Desfés canvis';
+      actions.appendChild(resetButton);
+
+      if (state.supportsStudentGroups) {
+        const clearButton = document.createElement('button');
+        clearButton.type = 'button';
+        clearButton.className = 'btn-ghost';
+        clearButton.dataset.action = 'clear-group';
+        clearButton.textContent = 'Sense grup';
+        actions.appendChild(clearButton);
+      }
+
+      form.appendChild(actions);
+      fragment.appendChild(form);
+    });
+
+    el.studentAdminList.appendChild(fragment);
+  }
+
+  function updateStudentGroupSuggestions() {
+    if (!el.studentGroupSuggestions) return;
+    const options = state.studentGroups
+      .filter((group) => group.id && group.id !== 'Sense grup')
+      .map((group) => `<option value="${escapeHTML(group.label)}"></option>`);
+    el.studentGroupSuggestions.innerHTML = options.join('');
+  }
+
+  function applyStudentGroupAvailability() {
+    const supported = state.supportsStudentGroups;
+    if (el.studentAdminToolbar) {
+      toggle(el.studentAdminToolbar, supported);
+    }
+    if (el.studentCreateForm) {
+      const groupField = el.studentCreateForm.querySelector('[data-admin-group-field]');
+      if (groupField) {
+        toggle(groupField, supported);
+      }
+    }
   }
 
   function renderTeacherGrades(entries) {
@@ -1531,9 +1798,6 @@ function setupFocusPortal() {
 
     const isTeacher = state.profile.role === 'teacher';
     configureTabsForRole(isTeacher ? 'teacher' : 'student');
-    toggle(el.teacherView, isTeacher);
-    toggle(el.teacherAssignments, isTeacher);
-    toggle(el.teacherGrades, isTeacher);
     toggle(el.studentView, !isTeacher);
   }
 
@@ -1583,8 +1847,12 @@ function setupFocusPortal() {
     state.selectedStudentIds = retainedSelection;
 
     computeStudentGroups();
+    applyStudentGroupAvailability();
     renderStudentGroupFilter();
+    renderStudentAdminFilter();
+    updateStudentGroupSuggestions();
     renderStudents();
+    renderStudentAdminList();
   }
 
   async function loadTeacherAssignments() {
@@ -1769,12 +2037,211 @@ function setupFocusPortal() {
     renderStudentAssignments(normalizedRows);
   }
 
+  function handleTeacherTabClick(event) {
+    const button = event.target.closest('[data-teacher-tab]');
+    if (!button || button.disabled || button.hidden) return;
+    const tabId = button.dataset.teacherTab;
+    if (!tabId || tabId === state.teacherActiveSubtab) return;
+    setActiveTeacherTab(tabId, { focus: false });
+  }
+
   function handleTabClick(event) {
     const button = event.target.closest('[data-tab]');
     if (!button || button.disabled || button.hidden) return;
     const tabId = button.dataset.tab;
     if (!tabId || tabId === state.activeTab) return;
     setActiveTab(tabId, { focus: false });
+  }
+
+  function handleStudentAdminFilterClick(event) {
+    const button = event.target.closest('.portal-group-chip');
+    if (!button || !el.studentAdminFilter || !el.studentAdminFilter.contains(button)) return;
+    const groupId = button.dataset.group || 'all';
+    state.studentAdminGroupFilter = groupId;
+    renderStudentAdminFilter();
+    renderStudentAdminList();
+  }
+
+  function handleStudentAdminClick(event) {
+    const actionButton = event.target.closest('[data-action]');
+    if (!actionButton) return;
+    const form = event.target.closest('[data-student-admin-form]');
+    if (!form) return;
+    const action = actionButton.dataset.action;
+    if (action === 'reset') {
+      const nameInput = form.querySelector('input[name="full_name"]');
+      if (nameInput) {
+        nameInput.value = form.dataset.originalName || '';
+      }
+      if (state.profileSupportsEmail) {
+        const emailInput = form.querySelector('input[name="email"]');
+        if (emailInput) {
+          emailInput.value = form.dataset.originalEmail || '';
+        }
+      }
+      if (state.supportsStudentGroups) {
+        const groupInput = form.querySelector('input[name="group_name"]');
+        if (groupInput) {
+          groupInput.value = form.dataset.originalGroup || '';
+        }
+      }
+    } else if (action === 'clear-group') {
+      const groupInput = form.querySelector('input[name="group_name"]');
+      if (groupInput) {
+        groupInput.value = '';
+        groupInput.focus();
+      }
+    }
+  }
+
+  async function handleStudentAdminSubmit(event) {
+    const form = event.target.closest('[data-student-admin-form]');
+    if (!form) return;
+    event.preventDefault();
+    if (!state.supabase) return;
+
+    clearStudentAdminMessages();
+
+    const studentId = form.dataset.studentId;
+    if (!studentId) {
+      showError(el.studentAdminError, 'No s\'ha trobat l\'identificador de l\'alumne.');
+      return;
+    }
+
+    const formData = new FormData(form);
+    const fullName = (formData.get('full_name') || '').toString().trim();
+    const email = state.profileSupportsEmail ? (formData.get('email') || '').toString().trim() : null;
+    const groupName = state.supportsStudentGroups ? (formData.get('group_name') || '').toString().trim() : '';
+
+    if (!fullName) {
+      showError(el.studentAdminError, 'El nom complet és obligatori.');
+      return;
+    }
+
+    const payload = { full_name: fullName };
+    if (state.profileSupportsEmail) {
+      payload.email = email || null;
+    }
+    if (state.supportsStudentGroups) {
+      payload.group_name = groupName || null;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalLabel = submitButton ? submitButton.textContent : '';
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Desant…';
+    }
+
+    try {
+      const { error } = await state.supabase.from('profiles').update(payload).eq('id', studentId);
+      if (error) throw error;
+      await loadStudents();
+      showSuccess(el.studentAdminFeedback, 'Canvis desats correctament.');
+    } catch (error) {
+      const message = error?.message || 'No s\'han pogut desar els canvis de l\'alumne.';
+      showError(el.studentAdminError, message);
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalLabel || 'Desa canvis';
+      }
+    }
+  }
+
+  async function handleStudentCreateSubmit(event) {
+    event.preventDefault();
+    if (!state.supabase || !state.supabaseUrl || !state.supabaseAnonKey) return;
+
+    clearStudentAdminMessages();
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const fullName = (formData.get('full_name') || '').toString().trim();
+    const email = (formData.get('email') || '').toString().trim();
+    const password = (formData.get('password') || '').toString();
+    const groupName = (formData.get('group_name') || '').toString().trim();
+
+    if (!fullName) {
+      showError(el.studentAdminError, 'Introdueix el nom complet de l\'alumne.');
+      return;
+    }
+    if (!email) {
+      showError(el.studentAdminError, 'Cal un correu electrònic per crear el compte.');
+      return;
+    }
+    if (!password || password.length < 6) {
+      showError(el.studentAdminError, 'La contrasenya ha de tenir com a mínim 6 caràcters.');
+      return;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalLabel = submitButton ? submitButton.textContent : '';
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Creant alumne…';
+    }
+
+    try {
+      const provisionClient = createClient(state.supabaseUrl, state.supabaseAnonKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
+      });
+
+      const { data, error } = await provisionClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role: 'student',
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      const userId = data?.user?.id;
+      if (!userId) {
+        throw new Error('No s\'ha pogut crear l\'usuari de l\'alumne.');
+      }
+
+      const profilePayload = {
+        id: userId,
+        full_name: fullName,
+        role: 'student',
+      };
+      if (state.profileSupportsEmail) {
+        profilePayload.email = email;
+      }
+      if (state.supportsStudentGroups) {
+        profilePayload.group_name = groupName ? groupName : null;
+      }
+
+      const { error: profileError } = await state.supabase
+        .from('profiles')
+        .upsert(profilePayload, { onConflict: 'id' });
+
+      if (profileError) throw profileError;
+
+      form.reset();
+      await loadStudents();
+      showSuccess(
+        el.studentAdminFeedback,
+        'Alumne creat correctament. Rebrà un correu de confirmació per activar el compte.'
+      );
+    } catch (error) {
+      const message = error?.message || 'No s\'ha pogut crear l\'alumne.';
+      showError(el.studentAdminError, message);
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalLabel || 'Crear alumne';
+      }
+    }
   }
 
   function handleSignupRoleChange(event) {
@@ -2002,7 +2469,6 @@ function setupFocusPortal() {
 
     const formData = new FormData(event.currentTarget);
     const dueDate = formData.get('due_date') || null;
-    const note = (formData.get('note') || '').toString().trim();
     const titleInput = (formData.get('quiz_title') || '').toString().trim();
     const quizConfigInput = {
       count: formData.get('quiz_count'),
@@ -2059,9 +2525,6 @@ function setupFocusPortal() {
       }
       if (moduleSummary) {
         descriptionParts.push(`\n— Subtemes configurats —\n${moduleSummary}`);
-      }
-      if (note) {
-        descriptionParts.push(`\n— Nota del docent —\n${note}`);
       }
       const description = descriptionParts.join('\n').replace(/\n{3,}/g, '\n\n');
       return {
@@ -2202,12 +2665,20 @@ function setupFocusPortal() {
     if (el.moduleFilter) el.moduleFilter.addEventListener('change', handleModuleFilterChange);
     if (el.moduleSearch) el.moduleSearch.addEventListener('input', handleModuleSearch);
     if (el.tabList) el.tabList.addEventListener('click', handleTabClick);
+    if (el.teacherTabList) el.teacherTabList.addEventListener('click', handleTeacherTabClick);
     if (el.signupForm) {
       el.signupForm.addEventListener('submit', handleSignup);
       el.signupForm.addEventListener('change', handleSignupRoleChange);
     }
     if (el.studentChecklist) el.studentChecklist.addEventListener('change', handleStudentSelectionChange);
     if (el.studentGroupFilter) el.studentGroupFilter.addEventListener('click', handleGroupFilterClick);
+    if (el.studentAdminFilter) el.studentAdminFilter.addEventListener('click', handleStudentAdminFilterClick);
+    if (el.studentAdminList) {
+      el.studentAdminList.addEventListener('submit', handleStudentAdminSubmit);
+      el.studentAdminList.addEventListener('click', handleStudentAdminClick);
+    }
+    if (el.studentCreateForm) el.studentCreateForm.addEventListener('submit', handleStudentCreateSubmit);
+    if (el.studentAdminRefresh) el.studentAdminRefresh.addEventListener('click', loadStudents);
   }
 
   function disableUI() {
@@ -2216,6 +2687,10 @@ function setupFocusPortal() {
     toggle(el.sessionPanel, false);
     toggle(el.tabList, false);
     toggle(el.teacherPanel, false);
+    toggle(el.teacherTabList, false);
+    toggle(el.teacherPlannerPanel, false);
+    toggle(el.teacherReportsPanel, false);
+    toggle(el.teacherStudentsPanel, false);
     toggle(el.studentPanel, false);
     toggle(el.teacherView, false);
     toggle(el.teacherAssignments, false);
@@ -2227,6 +2702,7 @@ function setupFocusPortal() {
       el.sessionWarning.classList.add('hidden');
     }
     resetTabs();
+    clearStudentAdminMessages();
   }
 
   async function init() {
@@ -2243,6 +2719,9 @@ function setupFocusPortal() {
       disableUI();
       return;
     }
+
+    state.supabaseUrl = config.SUPABASE_URL;
+    state.supabaseAnonKey = config.SUPABASE_ANON_KEY;
 
     state.supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY, {
       auth: {
