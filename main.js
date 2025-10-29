@@ -1668,6 +1668,26 @@ function finishQuiz(timeUp){
   }
 
   try {
+    const supabaseSync = window?.FocusSupabase;
+    if (supabaseSync && typeof supabaseSync.submitResult === 'function' && session.assignmentId) {
+      Promise.resolve(supabaseSync.submitResult(entry, session))
+        .then((result) => {
+          if (!result || result.ok) return;
+          if (result.reason && ['missing-assignment', 'disabled', 'no-profile'].includes(result.reason)) {
+            console.info('FocusSupabase: sincronització no disponible ara mateix (%s).', result.reason);
+            return;
+          }
+          console.warn('FocusSupabase: no s\'ha pogut sincronitzar el resultat amb Supabase.', result);
+        })
+        .catch((error) => {
+          console.error('FocusSupabase: error inesperat en sincronitzar la prova.', error);
+        });
+    }
+  } catch (error) {
+    console.error('FocusSupabase: s\'ha produït un error en iniciar la sincronització.', error);
+  }
+
+  try {
     renderResults();
   } catch (err) {
     console.error('No s\'han pogut refrescar els resultats guardats.', err);
