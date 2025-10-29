@@ -343,6 +343,149 @@
   gap: 0.6rem;
 }
 
+.portal-assignment-card {
+  gap: 0.75rem;
+}
+
+.portal-assignment-header {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.portal-assignment-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.portal-assignment-heading {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.portal-assignment-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.portal-assignment-summary .portal-chip {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.65rem;
+}
+
+.portal-assignment-details {
+  border: 1px solid var(--hair);
+  border-radius: var(--radius);
+  background: rgba(148, 163, 184, 0.12);
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.portal-assignment-details summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #334155;
+  font-weight: 700;
+  list-style: none;
+}
+
+.portal-assignment-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.portal-assignment-details summary::after {
+  content: '\25BC';
+  font-size: 0.65rem;
+  margin-left: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.portal-assignment-details[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.portal-assignment-details-body {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.portal-assignment-description,
+.portal-assignment-config {
+  margin: 0;
+  color: #475569;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.portal-assignment-config strong {
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.portal-assignees-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.portal-assignee-list {
+  list-style: none;
+  padding-left: 0;
+  gap: 0.55rem;
+  display: grid;
+}
+
+.portal-assignee-list > li {
+  list-style: none;
+}
+
+.portal-assignee-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.portal-assignee-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.portal-assignee-grade {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  background: rgba(34, 197, 94, 0.16);
+  color: #047857;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.portal-assignee-meta {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  word-break: break-word;
+}
+
+.portal-assignee-empty {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
 .portal-list-item h4 {
   margin: 0;
 }
