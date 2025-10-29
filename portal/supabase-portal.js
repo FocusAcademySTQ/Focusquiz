@@ -1221,26 +1221,56 @@ async function ensureProfile(user) {
   return normalized;
 }
 
-async function applySession(session) {
+async function applySession(session, fallbackUser = null) {
   state.session = session ?? null;
 
-  if (!state.session?.user) {
+  if (!state.session) {
     state.profile = null;
     state.sessionWarning = '';
     updateSessionUI();
     return;
   }
 
+  let activeUser = state.session.user ?? null;
+
+  if (!activeUser && fallbackUser) {
+    activeUser = fallbackUser;
+  }
+
+  if (!activeUser && state.supabase) {
+    try {
+      const { data, error } = await state.supabase.auth.getUser();
+      if (error) {
+        console.warn('No s\'ha pogut recuperar l\'usuari actiu de Supabase', error);
+      } else if (data?.user) {
+        activeUser = data.user;
+      }
+    } catch (error) {
+      console.warn('Error inesperat recuperant l\'usuari actiu de Supabase', error);
+    }
+  }
+
+  if (!activeUser) {
+    state.profile = null;
+    state.sessionWarning =
+      'No s\'ha pogut obtenir l\'usuari actiu de Supabase. Revisa la configuració o intenta-ho més tard.';
+    showError(el.authError, state.sessionWarning);
+    updateSessionUI();
+    return;
+  }
+
+  state.session.user = activeUser;
+
   try {
-    await ensureProfile(state.session.user);
+    await ensureProfile(activeUser);
     state.sessionWarning = '';
   } catch (error) {
     console.error('No s\'ha pogut sincronitzar el perfil de Supabase', error);
-    state.profile = buildAuthProfileFallback(state.session.user);
+    state.profile = buildAuthProfileFallback(activeUser);
     state.sessionWarning =
       'Sessió iniciada sense sincronitzar el perfil de Supabase. S\'utilitzen les dades del compte d\'accés.';
-    if (state.session?.user && state.profile?.role) {
-      await syncAuthMetadataRole(state.session.user, state.profile.role);
+    if (activeUser && state.profile?.role) {
+      await syncAuthMetadataRole(activeUser, state.profile.role);
     }
   }
 
@@ -1631,10 +1661,10 @@ async function handleLogin(event) {
 
     const session = data?.session ?? null;
     if (session) {
-      await applySession(session);
+      await applySession(session, data?.user ?? null);
     } else {
       const { data: refreshed } = await state.supabase.auth.getSession();
-      await applySession(refreshed?.session ?? null);
+      await applySession(refreshed?.session ?? null, data?.user ?? null);
     }
   } catch (error) {
     const message = error?.message || 'No s\'ha pogut iniciar sessió.';
@@ -2022,10 +2052,10 @@ async function init() {
   wireEvents();
 
   const { data: initialSession } = await state.supabase.auth.getSession();
-  await applySession(initialSession?.session ?? null);
+  await applySession(initialSession?.session ?? null, initialSession?.session?.user ?? null);
 
   state.supabase.auth.onAuthStateChange(async (_event, session) => {
-    await applySession(session);
+    await applySession(session, session?.user ?? null);
   });
 }
 
