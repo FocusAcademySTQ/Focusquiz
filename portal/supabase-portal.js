@@ -20,6 +20,7 @@ const sortedModules = [...MODULES].sort((a, b) => {
 const state = {
   supabase: null,
   session: null,
+  user: null,
   profile: null,
   students: [],
   modules: sortedModules,
@@ -29,6 +30,9 @@ const state = {
   moduleFilter: 'all',
   moduleSearch: '',
   supportsQuizConfigColumn: true,
+  activeTab: null,
+  profileSupportsEmail: true,
+  sessionWarning: '',
 };
 
 const el = {
@@ -36,10 +40,19 @@ const el = {
   authPanel: document.getElementById('authPanel'),
   loginForm: document.getElementById('loginForm'),
   authError: document.getElementById('authError'),
+  registerPanel: document.getElementById('registerPanel'),
+  signupForm: document.getElementById('signupForm'),
+  signupError: document.getElementById('signupError'),
+  signupSuccess: document.getElementById('signupSuccess'),
+  signupTeacherFields: Array.from(document.querySelectorAll('[data-signup-role="teacher"]')),
   sessionPanel: document.getElementById('sessionPanel'),
   sessionName: document.getElementById('sessionName'),
   sessionRole: document.getElementById('sessionRole'),
   logoutBtn: document.getElementById('logoutBtn'),
+  sessionWarning: document.getElementById('sessionWarning'),
+  tabList: document.getElementById('portalTabs'),
+  tabButtons: Array.from(document.querySelectorAll('[data-tab]')),
+  teacherPanel: document.getElementById('teacherPanel'),
   teacherView: document.getElementById('teacherView'),
   teacherAssignments: document.getElementById('teacherAssignments'),
   assignmentForm: document.getElementById('assignmentForm'),
@@ -56,6 +69,7 @@ const el = {
   studentChecklist: document.getElementById('studentChecklist'),
   assignmentList: document.getElementById('assignmentList'),
   reloadAssignments: document.getElementById('reloadAssignments'),
+  studentPanel: document.getElementById('studentPanel'),
   studentView: document.getElementById('studentView'),
   studentAssignmentList: document.getElementById('studentAssignmentList'),
 };
@@ -66,6 +80,26 @@ const statusLabels = {
   submitted: 'Entregada',
   completed: 'Completada',
 };
+
+const gradeFormatter = new Intl.NumberFormat('ca-ES', {
+  maximumFractionDigits: 2,
+  minimumFractionDigits: 0,
+});
+
+function parseGradeValue(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const numeric = Number.parseFloat(value);
+  if (!Number.isFinite(numeric)) {
+    return null;
+  }
+  return numeric;
+}
+
+function formatGradeDisplay(value) {
+  const grade = parseGradeValue(value);
+  if (grade === null) return null;
+  return gradeFormatter.format(grade);
+}
 
 const QUIZ_DEFAULTS = Object.freeze({
   count: 10,
@@ -213,6 +247,34 @@ function buildAssignmentSelect(includeAssignees = false) {
   return select;
 }
 
+function isMissingProfileEmailColumn(error) {
+  if (!error) return false;
+  if (error.code === '42703') return true;
+  const haystack = `${error.message || ''} ${error.details || ''}`.toLowerCase();
+  return haystack.includes('profiles') && haystack.includes('email') && haystack.includes('column');
+}
+
+function normalizeProfileRow(row, user) {
+  if (!row && !user) return null;
+  const normalized = { ...row };
+  if (!('id' in normalized) || !normalized.id) {
+    normalized.id = user?.id || null;
+  }
+  if (!('full_name' in normalized) || !normalized.full_name) {
+    normalized.full_name = deriveProfileName(user);
+  }
+  if (!('email' in normalized)) {
+    normalized.email = typeof user?.email === 'string' ? user.email : null;
+  } else if (normalized.email === undefined) {
+    normalized.email = null;
+  }
+  const role = normalized.role;
+  if (role !== 'teacher' && role !== 'student') {
+    normalized.role = deriveProfileRole(user);
+  }
+  return normalized;
+}
+
 function isQuizConfigSchemaError(error) {
   if (!error) return false;
   if (error.code === '42703') return true;
@@ -269,6 +331,11 @@ function buildQuizLink(moduleId, config, meta = {}) {
     params.set('label', label);
   }
 
+  const assignmentId = typeof meta.assignmentId === 'string' ? meta.assignmentId.trim() : '';
+  if (assignmentId) {
+    params.set('assignment', assignmentId);
+  }
+
   params.set('autostart', '1');
   return `../index.html?${params.toString()}`;
 }
@@ -276,6 +343,113 @@ function buildQuizLink(moduleId, config, meta = {}) {
 function toggle(element, show) {
   if (!element) return;
   element.classList.toggle('hidden', !show);
+  if (typeof show === 'boolean') {
+    element.setAttribute('aria-hidden', show ? 'false' : 'true');
+  }
+}
+
+function resetTabs() {
+  state.activeTab = null;
+  if (Array.isArray(el.tabButtons)) {
+    el.tabButtons.forEach((button) => {
+      if (!button) return;
+      button.hidden = false;
+      button.disabled = false;
+      button.setAttribute('aria-selected', 'false');
+      button.setAttribute('aria-disabled', 'false');
+      button.classList.remove('portal-tab--active');
+      button.tabIndex = -1;
+    });
+  }
+  toggle(el.teacherPanel, false);
+  toggle(el.studentPanel, false);
+}
+
+function setActiveTab(tabId, options = {}) {
+  if (!Array.isArray(el.tabButtons) || !el.tabButtons.length) return;
+  if (!tabId) {
+    state.activeTab = null;
+    toggle(el.teacherPanel, false);
+    toggle(el.studentPanel, false);
+    el.tabButtons.forEach((button) => {
+      if (!button) return;
+      button.setAttribute('aria-selected', 'false');
+      button.classList.remove('portal-tab--active');
+      if (!button.hidden && !button.disabled) {
+        button.tabIndex = 0;
+      } else {
+        button.tabIndex = -1;
+      }
+    });
+    return;
+  }
+
+  const targetButton = el.tabButtons.find(
+    (button) => button && !button.hidden && !button.disabled && button.dataset.tab === tabId
+  );
+  if (!targetButton) return;
+
+  state.activeTab = tabId;
+  el.tabButtons.forEach((button) => {
+    if (!button) return;
+    const isActive = button === targetButton;
+    button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    button.classList.toggle('portal-tab--active', isActive);
+    if (button.hidden || button.disabled) {
+      button.tabIndex = -1;
+      button.setAttribute('aria-disabled', 'true');
+    } else {
+      button.tabIndex = isActive ? 0 : -1;
+      button.setAttribute('aria-disabled', 'false');
+    }
+  });
+
+  toggle(el.teacherPanel, tabId === 'teacher');
+  toggle(el.studentPanel, tabId === 'student');
+
+  if (options.focus) {
+    targetButton.focus();
+  }
+}
+
+function configureTabsForRole(role) {
+  if (!Array.isArray(el.tabButtons) || !el.tabButtons.length) return;
+  const isTeacher = role === 'teacher';
+  el.tabButtons.forEach((button) => {
+    if (!button) return;
+    const tabId = button.dataset.tab;
+    const allowed = tabId === 'teacher' ? isTeacher : tabId === 'student' ? !isTeacher : false;
+    button.hidden = !allowed;
+    button.disabled = !allowed;
+    button.setAttribute('aria-disabled', allowed ? 'false' : 'true');
+    if (!allowed) {
+      button.setAttribute('aria-selected', 'false');
+      button.classList.remove('portal-tab--active');
+      button.tabIndex = -1;
+    }
+  });
+
+  const defaultTab = isTeacher ? 'teacher' : 'student';
+  setActiveTab(defaultTab);
+}
+
+function clearSignupMessages() {
+  if (el.signupError) el.signupError.classList.add('hidden');
+  if (el.signupSuccess) el.signupSuccess.classList.add('hidden');
+}
+
+function updateSignupRoleFields() {
+  if (!el.signupForm) return;
+  const selected = el.signupForm.querySelector('input[name="signup_role"]:checked');
+  const role = selected ? selected.value : 'student';
+  const showTeacherFields = role === 'teacher';
+
+  if (Array.isArray(el.signupTeacherFields)) {
+    el.signupTeacherFields.forEach((field) => {
+      if (!field) return;
+      toggle(field, showTeacherFields);
+    });
+  }
 }
 
 function resetAlerts() {
@@ -655,18 +829,75 @@ function renderTeacherAssignments(assignments) {
       ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
       : '';
     const quizLink = module && quizConfig
-      ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
+      ? buildQuizLink(module.id, quizConfig, {
+          label: assignment.title || module?.name,
+          assignmentId: assignment.id,
+        })
       : '';
     const moduleLink = module ? `../index.html?module=${encodeURIComponent(module.id)}` : '';
 
-    const assignees = (assignment.assignment_assignees || []).map((row) => {
+    const assigneeRows = Array.isArray(assignment.assignment_assignees)
+      ? assignment.assignment_assignees
+      : [];
+
+    const gradeNumbers = assigneeRows
+      .map((row) => parseGradeValue(row?.submission?.grade))
+      .filter((value) => value !== null);
+    const averageGrade = gradeNumbers.length
+      ? gradeFormatter.format(
+          gradeNumbers.reduce((total, value) => total + value, 0) / gradeNumbers.length
+        )
+      : null;
+    const deliveredCount = assigneeRows.filter((row) => Boolean(row?.submission)).length;
+
+    const summaryChips = [];
+    if (assigneeRows.length) {
+      summaryChips.push(
+        `<span class="portal-chip portal-chip--muted">Lliuraments: ${escapeHTML(
+          `${deliveredCount}/${assigneeRows.length}`
+        )}</span>`
+      );
+    }
+    if (averageGrade !== null) {
+      summaryChips.push(
+        `<span class="portal-chip portal-chip--positive">Mitjana ${escapeHTML(averageGrade)}</span>`
+      );
+    }
+
+    const summaryBlock = summaryChips.length
+      ? `<div class="portal-assignment-summary">${summaryChips.join('')}</div>`
+      : '';
+
+    const assignees = assigneeRows.map((row) => {
       const student = state.students.find((s) => s.id === row.profile_id);
       const name = escapeHTML(student?.full_name || 'Alumne');
       const statusValue = escapeHTML(row.status);
+      const statusLabel = escapeHTML(statusLabels[row.status] || row.status);
+      const gradeValue = formatGradeDisplay(row?.submission?.grade);
+      const submittedAt = row?.submission?.submitted_at
+        ? new Date(row.submission.submitted_at).toLocaleString('ca-ES')
+        : '';
+      const feedback = row?.submission?.feedback ? escapeHTML(row.submission.feedback) : '';
+      const detailParts = [];
+      detailParts.push(
+        gradeValue !== null
+          ? `Nota: <strong>${escapeHTML(gradeValue)}</strong>`
+          : 'Sense nota'
+      );
+      if (submittedAt) {
+        detailParts.push(`Entrega: ${escapeHTML(submittedAt)}`);
+      }
+      if (feedback) {
+        detailParts.push(`Feedback: ${feedback}`);
+      }
+      const detailHTML = detailParts.join(' · ');
       return `
         <li>
-          ${name}
-          <span class="portal-status-chip" data-status="${statusValue}">${escapeHTML(statusLabels[row.status] || row.status)}</span>
+          <div class="portal-assignee-line">
+            <span>${name}</span>
+            <span class="portal-status-chip" data-status="${statusValue}">${statusLabel}</span>
+          </div>
+          <p class="portal-assignee-details">${detailHTML}</p>
         </li>
       `;
     });
@@ -687,6 +918,7 @@ function renderTeacherAssignments(assignments) {
       </div>
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
       ${configBlock}
+      ${summaryBlock}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       <div>
         <p class="portal-muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
@@ -751,7 +983,10 @@ function renderStudentAssignments(rows) {
       ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
       : '';
     const quizLink = module && quizConfig
-      ? buildQuizLink(module.id, quizConfig, { label: assignment.title || module?.name })
+      ? buildQuizLink(module.id, quizConfig, {
+          label: assignment.title || module?.name,
+          assignmentId: assignment.id,
+        })
       : '';
     const fallbackModuleLink = !quizLink && module
       ? `../index.html?module=${encodeURIComponent(module.id)}`
@@ -807,31 +1042,219 @@ function renderStudentAssignments(rows) {
   });
 }
 
+function deriveProfileRole(user) {
+  const metaRole = user?.user_metadata?.role;
+  if (metaRole === 'teacher' || metaRole === 'student') {
+    return metaRole;
+  }
+
+  const appRole = user?.app_metadata?.role;
+  if (appRole === 'teacher' || appRole === 'student') {
+    return appRole;
+  }
+
+  const claimRole = user?.app_metadata?.claims?.role;
+  if (claimRole === 'teacher' || claimRole === 'student') {
+    return claimRole;
+  }
+
+  return 'student';
+}
+
+function buildAuthProfileFallback(user) {
+  if (!user) return null;
+  return {
+    id: user.id || null,
+    full_name: deriveProfileName(user),
+    email: typeof user.email === 'string' ? user.email : null,
+    role: deriveProfileRole(user),
+  };
+}
+
+async function syncAuthMetadataRole(user, role) {
+  if (!state.supabase || !user || !role) return;
+  const currentRole = user?.user_metadata?.role;
+  if (currentRole === role) return;
+
+  try {
+    await state.supabase.auth.updateUser({ data: { role } });
+  } catch (error) {
+    console.warn('No s\'ha pogut sincronitzar el rol amb Supabase Auth', error);
+  }
+}
+
+function deriveProfileName(user) {
+  const metadata = user?.user_metadata || {};
+  const candidates = [metadata.full_name, metadata.name, metadata.user_name, user?.email];
+  for (const value of candidates) {
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+  return 'Usuari FocusQuiz';
+}
+
 async function ensureProfile(user) {
+  if (!user || !user.id) {
+    state.profile = null;
+    return null;
+  }
+  const selectColumns = state.profileSupportsEmail
+    ? 'id, full_name, role, email'
+    : 'id, full_name, role';
+
   const { data, error } = await state.supabase
     .from('profiles')
-    .select('id, full_name, role, email')
+    .select(selectColumns)
     .eq('id', user.id)
     .maybeSingle();
 
-  if (error) throw error;
-  if (!data) {
-    throw new Error('No s\'ha trobat el perfil a la taula profiles.');
+  if (error) {
+    if (state.profileSupportsEmail && isMissingProfileEmailColumn(error)) {
+      state.profileSupportsEmail = false;
+      return ensureProfile(user);
+    }
+    throw error;
   }
 
-  state.profile = data;
-  return data;
+  if (data) {
+    const normalized = normalizeProfileRow(data, user);
+    state.profile = normalized;
+    if (user) {
+      await syncAuthMetadataRole(user, normalized.role);
+    }
+    return normalized;
+  }
+
+  const payload = {
+    id: user.id,
+    full_name: deriveProfileName(user),
+    role: deriveProfileRole(user),
+  };
+
+  if (state.profileSupportsEmail) {
+    payload.email = typeof user.email === 'string' ? user.email : null;
+  }
+
+  const { data: upserted, error: upsertError } = await state.supabase
+    .from('profiles')
+    .upsert(payload, { onConflict: 'id' })
+    .select(selectColumns)
+    .maybeSingle();
+
+  if (upsertError) {
+    if (state.profileSupportsEmail && isMissingProfileEmailColumn(upsertError)) {
+      state.profileSupportsEmail = false;
+      return ensureProfile(user);
+    }
+    throw upsertError;
+  }
+
+  if (!upserted) {
+    throw new Error('No s\'ha pogut crear el perfil de l\'usuari.');
+  }
+
+  const normalized = normalizeProfileRow(upserted, user);
+  state.profile = normalized;
+  if (user) {
+    await syncAuthMetadataRole(user, normalized.role);
+  }
+  return normalized;
+}
+
+async function applySession(session, fallbackUser = null) {
+  state.session = session ?? null;
+
+  if (!state.session) {
+    state.user = null;
+    state.profile = null;
+    state.sessionWarning = '';
+    updateSessionUI();
+    return;
+  }
+
+  let activeUser = state.session?.user ?? null;
+
+  if (!activeUser && fallbackUser) {
+    activeUser = fallbackUser;
+  }
+
+  if (!activeUser) {
+    activeUser = state.user ?? null;
+  }
+
+  if (!activeUser && state.supabase) {
+    try {
+      const { data, error } = await state.supabase.auth.getUser();
+      if (error) {
+        console.warn('No s\'ha pogut recuperar l\'usuari actiu de Supabase', error);
+      } else if (data?.user) {
+        activeUser = data.user;
+      }
+    } catch (error) {
+      console.warn('Error inesperat recuperant l\'usuari actiu de Supabase', error);
+    }
+  }
+
+  if (!activeUser) {
+    state.user = null;
+    state.profile = null;
+    state.sessionWarning =
+      'No s\'ha pogut obtenir l\'usuari actiu de Supabase. Revisa la configuració o intenta-ho més tard.';
+    showError(el.authError, state.sessionWarning);
+    updateSessionUI();
+    return;
+  }
+
+  state.user = activeUser;
+
+  try {
+    await ensureProfile(activeUser);
+    state.sessionWarning = '';
+  } catch (error) {
+    console.error('No s\'ha pogut sincronitzar el perfil de Supabase', error);
+    state.profile = buildAuthProfileFallback(activeUser);
+    state.sessionWarning =
+      'Sessió iniciada sense sincronitzar el perfil de Supabase. S\'utilitzen les dades del compte d\'accés.';
+    if (activeUser && state.profile?.role) {
+      await syncAuthMetadataRole(activeUser, state.profile.role);
+    }
+  }
+
+  updateSessionUI();
+
+  if (!state.profile) {
+    return;
+  }
+
+  if (state.profile.role === 'teacher') {
+    await Promise.all([loadStudents(), loadTeacherAssignments()]);
+  } else {
+    await loadStudentAssignments();
+  }
 }
 
 function updateSessionUI() {
   const loggedIn = Boolean(state.session && state.profile);
   toggle(el.authPanel, !loggedIn);
+  toggle(el.registerPanel, !loggedIn);
   toggle(el.sessionPanel, loggedIn);
+  toggle(el.tabList, loggedIn);
 
   if (!loggedIn) {
+    state.sessionWarning = '';
+    resetTabs();
+    toggle(el.teacherPanel, false);
+    toggle(el.studentPanel, false);
     toggle(el.teacherView, false);
     toggle(el.teacherAssignments, false);
     toggle(el.studentView, false);
+    if (el.sessionWarning) {
+      el.sessionWarning.textContent = '';
+      el.sessionWarning.classList.add('hidden');
+    }
+    clearSignupMessages();
+    updateSignupRoleFields();
     return;
   }
 
@@ -843,8 +1266,18 @@ function updateSessionUI() {
       ? 'Rol: Mestre/a'
       : 'Rol: Alumne/a';
   }
+  if (el.sessionWarning) {
+    if (state.sessionWarning) {
+      el.sessionWarning.textContent = state.sessionWarning;
+      el.sessionWarning.classList.remove('hidden');
+    } else {
+      el.sessionWarning.textContent = '';
+      el.sessionWarning.classList.add('hidden');
+    }
+  }
 
   const isTeacher = state.profile.role === 'teacher';
+  configureTabsForRole(isTeacher ? 'teacher' : 'student');
   toggle(el.teacherView, isTeacher);
   toggle(el.teacherAssignments, isTeacher);
   toggle(el.studentView, !isTeacher);
@@ -852,18 +1285,27 @@ function updateSessionUI() {
 
 async function loadStudents() {
   if (!state.supabase) return;
+  const selectColumns = state.profileSupportsEmail ? 'id, full_name, email' : 'id, full_name';
   const { data, error } = await state.supabase
     .from('profiles')
-    .select('id, full_name, email')
+    .select(selectColumns)
     .eq('role', 'student')
     .order('full_name', { ascending: true });
 
   if (error) {
+    if (state.profileSupportsEmail && isMissingProfileEmailColumn(error)) {
+      state.profileSupportsEmail = false;
+      await loadStudents();
+      return;
+    }
     showError(el.assignmentError, error.message);
     return;
   }
 
-  state.students = data || [];
+  const rows = Array.isArray(data) ? data : [];
+  state.students = rows
+    .map((row) => normalizeProfileRow(row, null))
+    .filter(Boolean);
   renderStudents();
 }
 
@@ -886,7 +1328,52 @@ async function loadTeacherAssignments() {
     return;
   }
 
-  renderTeacherAssignments(data || []);
+  const assignments = Array.isArray(data) ? data : [];
+
+  if (!assignments.length) {
+    renderTeacherAssignments([]);
+    return;
+  }
+
+  const assignmentIds = assignments.map((assignment) => assignment.id).filter(Boolean);
+  let submissions = [];
+
+  if (assignmentIds.length) {
+    const { data: submissionRows, error: submissionError } = await state.supabase
+      .from('submissions')
+      .select('assignment_id, profile_id, grade, feedback, submitted_at')
+      .in('assignment_id', assignmentIds);
+
+    if (submissionError) {
+      showError(el.assignmentError, submissionError.message);
+      return;
+    }
+
+    submissions = Array.isArray(submissionRows) ? submissionRows : [];
+  }
+
+  const submissionMap = new Map(
+    submissions.map((submission) => [`${submission.assignment_id}:${submission.profile_id}`, submission])
+  );
+
+  const enrichedAssignments = assignments.map((assignment) => {
+    const assignees = Array.isArray(assignment.assignment_assignees)
+      ? assignment.assignment_assignees.map((assignee) => {
+          const key = `${assignment.id}:${assignee.profile_id}`;
+          return {
+            ...assignee,
+            submission: submissionMap.get(key) || null,
+          };
+        })
+      : [];
+
+    return {
+      ...assignment,
+      assignment_assignees: assignees,
+    };
+  });
+
+  renderTeacherAssignments(enrichedAssignments);
 }
 
 async function loadStudentAssignments() {
@@ -984,19 +1471,151 @@ async function loadStudentAssignments() {
   renderStudentAssignments(normalizedRows);
 }
 
+function handleTabClick(event) {
+  const button = event.target.closest('[data-tab]');
+  if (!button || button.disabled || button.hidden) return;
+  const tabId = button.dataset.tab;
+  if (!tabId || tabId === state.activeTab) return;
+  setActiveTab(tabId, { focus: false });
+}
+
+function handleSignupRoleChange(event) {
+  if (!event.target.matches('input[name="signup_role"]')) return;
+  clearSignupMessages();
+  updateSignupRoleFields();
+}
+
+async function handleSignup(event) {
+  event.preventDefault();
+  if (!state.supabase) return;
+
+  clearSignupMessages();
+
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  const fullName = (formData.get('full_name') || '').toString().trim();
+  const email = (formData.get('signup_email') || '').toString().trim();
+  const password = (formData.get('signup_password') || '').toString();
+  const roleValue = (formData.get('signup_role') || '').toString();
+  const role = roleValue === 'teacher' ? 'teacher' : 'student';
+
+  if (!fullName) {
+    showError(el.signupError, 'Introdueix el teu nom complet.');
+    return;
+  }
+  if (!email) {
+    showError(el.signupError, 'Cal un correu electrònic vàlid.');
+    return;
+  }
+  if (!password || password.length < 6) {
+    showError(el.signupError, 'La contrasenya ha de tenir com a mínim 6 caràcters.');
+    return;
+  }
+
+  const submitButton = form.querySelector('button[type="submit"]');
+  const originalLabel = submitButton ? submitButton.textContent : '';
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = 'Creant compte…';
+  }
+
+  try {
+    const { data, error } = await state.supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          role,
+        },
+      },
+    });
+
+    if (error) throw error;
+
+    const userId = data?.user?.id;
+    if (userId) {
+      const { error: profileError } = await state.supabase
+        .from('profiles')
+        .upsert(
+          {
+            id: userId,
+            full_name: fullName,
+            email,
+            role,
+          },
+          { onConflict: 'id' }
+        );
+
+      if (profileError) throw profileError;
+    }
+
+    const successMessage = data?.session
+      ? 'Compte creat correctament! Ja pots iniciar sessió.'
+      : 'Compte creat! Revisa el correu electrònic per confirmar-lo abans d\'iniciar sessió.';
+
+    showSuccess(el.signupSuccess, successMessage);
+    form.reset();
+    updateSignupRoleFields();
+  } catch (error) {
+    const message = error?.message || 'No s\'ha pogut completar el registre.';
+    showError(el.signupError, message);
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = originalLabel || 'Crear compte';
+    }
+  }
+}
+
 async function handleLogin(event) {
   event.preventDefault();
   if (!state.supabase) return;
 
-  const formData = new FormData(event.currentTarget);
-  const email = formData.get('email');
-  const password = formData.get('password');
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  const email = (formData.get('email') || '').toString().trim();
+  const password = (formData.get('password') || '').toString();
 
   toggle(el.authError, false);
 
-  const { error } = await state.supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    showError(el.authError, error.message);
+  if (!email || !password) {
+    showError(el.authError, 'Introdueix el correu electrònic i la contrasenya.');
+    return;
+  }
+
+  const submitButton = form.querySelector('button[type="submit"]');
+  const originalLabel = submitButton ? submitButton.textContent : '';
+
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = 'Entrant…';
+  }
+
+  try {
+    const { data, error } = await state.supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+
+    const session = data?.session ?? null;
+    if (session) {
+      await applySession(session, data?.user ?? null);
+    } else {
+      const { data: refreshed } = await state.supabase.auth.getSession();
+      await applySession(refreshed?.session ?? null, data?.user ?? null);
+    }
+  } catch (error) {
+    const message = error?.message || 'No s\'ha pogut iniciar sessió.';
+    showError(el.authError, message);
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = originalLabel || 'Entrar';
+    }
+    return;
+  }
+
+  if (submitButton) {
+    submitButton.disabled = false;
+    submitButton.textContent = originalLabel || 'Entrar';
   }
 }
 
@@ -1017,9 +1636,7 @@ async function handleLogout() {
     return;
   }
 
-  state.session = null;
-  state.profile = null;
-  updateSessionUI();
+  await applySession(null);
 
   if (el.logoutBtn) {
     el.logoutBtn.disabled = false;
@@ -1315,16 +1932,31 @@ function wireEvents() {
   if (el.modulePicker) el.modulePicker.addEventListener('click', handleModuleClick);
   if (el.moduleFilter) el.moduleFilter.addEventListener('change', handleModuleFilterChange);
   if (el.moduleSearch) el.moduleSearch.addEventListener('input', handleModuleSearch);
+  if (el.tabList) el.tabList.addEventListener('click', handleTabClick);
+  if (el.signupForm) {
+    el.signupForm.addEventListener('submit', handleSignup);
+    el.signupForm.addEventListener('change', handleSignupRoleChange);
+  }
   document.addEventListener('change', handleStatusChange);
   document.addEventListener('submit', handleSubmission, true);
 }
 
 function disableUI() {
   toggle(el.authPanel, false);
+  toggle(el.registerPanel, false);
   toggle(el.sessionPanel, false);
+  toggle(el.tabList, false);
+  toggle(el.teacherPanel, false);
+  toggle(el.studentPanel, false);
   toggle(el.teacherView, false);
   toggle(el.teacherAssignments, false);
   toggle(el.studentView, false);
+  state.sessionWarning = '';
+  if (el.sessionWarning) {
+    el.sessionWarning.textContent = '';
+    el.sessionWarning.classList.add('hidden');
+  }
+  resetTabs();
 }
 
 async function init() {
@@ -1332,6 +1964,7 @@ async function init() {
   renderModulePicker();
   updateSelectedModulesInfo();
   renderModuleConfigCards();
+  updateSignupRoleFields();
 
   const config = await import('./supabase-config.js').catch(() => null);
 
@@ -1352,40 +1985,10 @@ async function init() {
   wireEvents();
 
   const { data: initialSession } = await state.supabase.auth.getSession();
-  state.session = initialSession?.session ?? null;
-  if (state.session?.user) {
-    await ensureProfile(state.session.user);
-    updateSessionUI();
-    if (state.profile.role === 'teacher') {
-      await Promise.all([loadStudents(), loadTeacherAssignments()]);
-    } else {
-      await loadStudentAssignments();
-    }
-  } else {
-    updateSessionUI();
-  }
+  await applySession(initialSession?.session ?? null, initialSession?.session?.user ?? null);
 
   state.supabase.auth.onAuthStateChange(async (_event, session) => {
-    state.session = session;
-    if (session?.user) {
-      try {
-        await ensureProfile(session.user);
-      } catch (error) {
-        showError(el.authError, error.message);
-        await state.supabase.auth.signOut();
-        return;
-      }
-
-      updateSessionUI();
-      if (state.profile.role === 'teacher') {
-        await Promise.all([loadStudents(), loadTeacherAssignments()]);
-      } else {
-        await loadStudentAssignments();
-      }
-    } else {
-      state.profile = null;
-      updateSessionUI();
-    }
+    await applySession(session, session?.user ?? null);
   });
 }
 
