@@ -105,6 +105,13 @@
   font-weight: 700;
 }
 
+.portal-field-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
 .portal-module-toolbar {
   display: flex;
   flex-wrap: wrap;

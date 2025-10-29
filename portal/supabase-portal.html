@@ -48,7 +48,7 @@
 
     <section id="registerPanel" class="panel card">
       <h2 style="margin-bottom:0.75rem">Encara no tens compte?</h2>
-      <p class="portal-muted" style="margin-top:0; margin-bottom:1rem;">Registra't i rebràs un correu de confirmació. El teu rol es podrà actualitzar més endavant des del centre.</p>
+      <p class="portal-muted" style="margin-top:0; margin-bottom:1rem;">Registra't i rebràs un correu de confirmació. Per als comptes docents cal un codi de centre facilitat per l'equip.</p>
       <form id="signupForm" class="portal-form portal-form--two" autocomplete="on">
         <label>
           <span class="portal-field-label">Nom i cognoms</span>
@@ -71,6 +71,18 @@
             <input type="radio" name="signup_role" value="teacher" /> Mestre/a
           </label>
         </fieldset>
+        <label class="hidden" data-signup-role="teacher">
+          <span class="portal-field-label">Codi de centre</span>
+          <input
+            class="input"
+            name="signup_teacher_code"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="Introdueix el codi de centre"
+          />
+          <span class="portal-field-hint">Només el professorat autoritzat pot utilitzar aquest codi.</span>
+        </label>
         <div class="portal-actions" style="margin-top:0.5rem;">
           <button class="btn-secondary" type="submit">Crear compte</button>
         </div>

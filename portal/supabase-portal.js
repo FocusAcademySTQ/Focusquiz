@@ -27,6 +27,8 @@ function setupFocusPortal() {
     return catA.localeCompare(catB, 'ca', { sensitivity: 'base' });
   });
 
+  const TEACHER_ACCESS_CODE = '12345';
+
   const state = {
     supabase: null,
     session: null,
@@ -95,6 +97,13 @@ function setupFocusPortal() {
     maximumFractionDigits: 2,
     minimumFractionDigits: 0,
   });
+
+  function isRowLevelSecurityError(error) {
+    if (!error) return false;
+    if (error.code === '42501') return true;
+    const haystack = `${error.message || ''} ${error.details || ''}`.toLowerCase();
+    return haystack.includes('row-level security');
+  }
 
   function parseGradeValue(value) {
     if (value === null || value === undefined || value === '') return null;
@@ -1488,15 +1497,6 @@ function setupFocusPortal() {
     if (!tabId || tabId === state.activeTab) return;
     setActiveTab(tabId, { focus: false });
   }
-  if (el.sessionWarning) {
-    if (state.sessionWarning) {
-      el.sessionWarning.textContent = state.sessionWarning;
-      el.sessionWarning.classList.remove('hidden');
-    } else {
-      el.sessionWarning.textContent = '';
-      el.sessionWarning.classList.add('hidden');
-    }
-  }
 
   function handleSignupRoleChange(event) {
     if (!event.target.matches('input[name="signup_role"]')) return;
@@ -1517,6 +1517,7 @@ function setupFocusPortal() {
     const password = (formData.get('signup_password') || '').toString();
     const roleValue = (formData.get('signup_role') || '').toString();
     const role = roleValue === 'teacher' ? 'teacher' : 'student';
+    const teacherCode = (formData.get('signup_teacher_code') || '').toString().trim();
 
     if (!fullName) {
       showError(el.signupError, 'Introdueix el teu nom complet.');
@@ -1528,6 +1529,10 @@ function setupFocusPortal() {
     }
     if (!password || password.length < 6) {
       showError(el.signupError, 'La contrasenya ha de tenir com a mínim 6 caràcters.');
+      return;
+    }
+    if (role === 'teacher' && teacherCode !== TEACHER_ACCESS_CODE) {
+      showError(el.signupError, 'Cal el codi de centre per registrar-te com a mestre/a.');
       return;
     }
 
@@ -1553,25 +1558,73 @@ function setupFocusPortal() {
       if (error) throw error;
 
       const userId = data?.user?.id;
-      if (userId) {
-        const { error: profileError } = await state.supabase
-          .from('profiles')
-          .upsert(
-            {
-              id: userId,
-              full_name: fullName,
-              email,
-              role,
-            },
-            { onConflict: 'id' }
-          );
-
-        if (profileError) throw profileError;
+      const immediateSession = data?.session || null;
+      let activeSession = immediateSession;
+      if (!activeSession) {
+        const { data: sessionData } = await state.supabase.auth.getSession();
+        activeSession = sessionData?.session || null;
       }
 
-      const successMessage = data?.session
-        ? 'Compte creat correctament! Ja pots iniciar sessió.'
-        : 'Compte creat! Revisa el correu electrònic per confirmar-lo abans d\'iniciar sessió.';
+      let profileCreated = false;
+
+      if (userId && activeSession?.access_token) {
+        const payload = {
+          id: userId,
+          full_name: fullName,
+          role,
+        };
+        if (state.profileSupportsEmail) {
+          payload.email = email;
+        }
+
+        const { error: profileError } = await state.supabase
+          .from('profiles')
+          .upsert(payload, { onConflict: 'id' });
+
+        if (profileError) {
+          if (state.profileSupportsEmail && isMissingProfileEmailColumn(profileError)) {
+            state.profileSupportsEmail = false;
+            const retryPayload = { id: userId, full_name: fullName, role };
+            const { error: retryError } = await state.supabase
+              .from('profiles')
+              .upsert(retryPayload, { onConflict: 'id' });
+            if (retryError) {
+              if (isRowLevelSecurityError(retryError)) {
+                console.warn(
+                  'No s\'ha pogut crear el perfil automàticament per RLS. Es crearà en iniciar sessió.',
+                  retryError
+                );
+              } else {
+                throw retryError;
+              }
+            } else {
+              profileCreated = true;
+            }
+          } else if (isRowLevelSecurityError(profileError)) {
+            console.warn(
+              'No s\'ha pogut crear el perfil automàticament per RLS. Es crearà en iniciar sessió.',
+              profileError
+            );
+          } else {
+            throw profileError;
+          }
+        } else {
+          profileCreated = true;
+        }
+      } else if (userId) {
+        console.info('El perfil es crearà automàticament quan es confirmi el correu i s\'iniciï sessió.');
+      }
+
+      let successMessage;
+      if (activeSession?.access_token) {
+        successMessage = 'Compte creat correctament! Ja pots iniciar sessió.';
+        if (!profileCreated) {
+          successMessage += ' El perfil es completarà quan entris al portal.';
+        }
+      } else {
+        successMessage =
+          "Compte creat! Revisa el correu electrònic per confirmar-lo abans d'iniciar sessió. Un cop entris, es completarà el teu perfil.";
+      }
 
       showSuccess(el.signupSuccess, successMessage);
       form.reset();
