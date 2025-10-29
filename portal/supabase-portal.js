@@ -464,6 +464,120 @@ function updateSignupRoleFields() {
   }
 }
 
+function resetTabs() {
+  state.activeTab = null;
+  if (Array.isArray(el.tabButtons)) {
+    el.tabButtons.forEach((button) => {
+      if (!button) return;
+      button.hidden = false;
+      button.disabled = false;
+      button.setAttribute('aria-selected', 'false');
+      button.setAttribute('aria-disabled', 'false');
+      button.classList.remove('portal-tab--active');
+      button.tabIndex = -1;
+    });
+  }
+  toggle(el.teacherPanel, false);
+  toggle(el.studentPanel, false);
+}
+
+function setActiveTab(tabId, options = {}) {
+  if (!Array.isArray(el.tabButtons) || !el.tabButtons.length) return;
+  if (!tabId) {
+    state.activeTab = null;
+    toggle(el.teacherPanel, false);
+    toggle(el.studentPanel, false);
+    el.tabButtons.forEach((button) => {
+      if (!button) return;
+      button.setAttribute('aria-selected', 'false');
+      button.classList.remove('portal-tab--active');
+      if (!button.hidden && !button.disabled) {
+        button.tabIndex = 0;
+      } else {
+        button.tabIndex = -1;
+      }
+    });
+    return;
+  }
+
+  const targetButton = el.tabButtons.find(
+    (button) => button && !button.hidden && !button.disabled && button.dataset.tab === tabId
+  );
+  if (!targetButton) return;
+
+  state.activeTab = tabId;
+  el.tabButtons.forEach((button) => {
+    if (!button) return;
+    const isActive = button === targetButton;
+    button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    button.classList.toggle('portal-tab--active', isActive);
+    if (button.hidden || button.disabled) {
+      button.tabIndex = -1;
+      button.setAttribute('aria-disabled', 'true');
+    } else {
+      button.tabIndex = isActive ? 0 : -1;
+      button.setAttribute('aria-disabled', 'false');
+    }
+  });
+
+  toggle(el.teacherPanel, tabId === 'teacher');
+  toggle(el.studentPanel, tabId === 'student');
+
+  if (options.focus) {
+    targetButton.focus();
+  }
+}
+
+function configureTabsForRole(role) {
+  if (!Array.isArray(el.tabButtons) || !el.tabButtons.length) return;
+  const isTeacher = role === 'teacher';
+  el.tabButtons.forEach((button) => {
+    if (!button) return;
+    const tabId = button.dataset.tab;
+    const allowed = tabId === 'teacher' ? isTeacher : tabId === 'student' ? !isTeacher : false;
+    button.hidden = !allowed;
+    button.disabled = !allowed;
+    button.setAttribute('aria-disabled', allowed ? 'false' : 'true');
+    if (!allowed) {
+      button.setAttribute('aria-selected', 'false');
+      button.classList.remove('portal-tab--active');
+      button.tabIndex = -1;
+    }
+  });
+
+  const defaultTab = isTeacher ? 'teacher' : 'student';
+  setActiveTab(defaultTab);
+}
+
+function clearSignupMessages() {
+  if (el.signupError) el.signupError.classList.add('hidden');
+  if (el.signupSuccess) el.signupSuccess.classList.add('hidden');
+}
+
+function updateSignupRoleFields() {
+  if (!el.signupForm) return;
+  const selected = el.signupForm.querySelector('input[name="signup_role"]:checked');
+  const role = selected ? selected.value : 'student';
+  const showTeacherFields = role === 'teacher';
+
+  if (Array.isArray(el.signupTeacherFields)) {
+    el.signupTeacherFields.forEach((field) => {
+      if (!field) return;
+      const requiresCode = field.dataset.signupRequiresCode === 'true';
+      const shouldShow = requiresCode ? showTeacherFields && state.requireTeacherCode : showTeacherFields;
+      toggle(field, shouldShow);
+    });
+  }
+
+  if (el.teacherAccessHint) {
+    if (showTeacherFields) {
+      el.teacherAccessHint.textContent = state.requireTeacherCode
+        ? 'Introdueix el codi proporcionat pel centre per validar el rol docent.'
+        : 'Si no disposes de codi, el centre et podrà assignar el rol docent manualment.';
+    }
+  }
+}
+
 function resetAlerts() {
   if (el.assignmentFeedback) el.assignmentFeedback.classList.add('hidden');
   if (el.assignmentError) el.assignmentError.classList.add('hidden');
@@ -508,6 +622,18 @@ function formatDescription(value) {
 
 function getCategoryLabel(category) {
   return CATEGORY_LABELS[category] || 'Mòdul FocusQuiz';
+}
+
+function formatGradeValue(value) {
+  if (value === null || value === undefined) return null;
+  const num = Number(value);
+  if (!Number.isFinite(num)) return String(value);
+  return Number.isInteger(num) ? `${num}%` : `${num.toFixed(1)}%`;
+}
+
+function buildSubmissionKey(assignmentId, profileId) {
+  if (!assignmentId || !profileId) return '';
+  return `${assignmentId}::${profileId}`;
 }
 
 function cssEscape(value) {
@@ -801,7 +927,7 @@ function renderStudents() {
   });
 }
 
-function renderTeacherAssignments(assignments) {
+function renderTeacherAssignments(assignments, submissionMap = new Map()) {
   if (!el.assignmentList) return;
   el.assignmentList.innerHTML = '';
 
@@ -817,7 +943,7 @@ function renderTeacherAssignments(assignments) {
 
   normalizedAssignments.forEach((assignment) => {
     const item = document.createElement('article');
-    item.className = 'list-item';
+    item.className = 'list-item portal-assignment-card';
 
     const dueDate = assignment.due_date
       ? new Date(assignment.due_date + 'T00:00:00').toLocaleDateString('ca-ES')
@@ -826,19 +952,31 @@ function renderTeacherAssignments(assignments) {
     const assignmentId = escapeHTML(assignment.id);
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
     const title = escapeHTML(assignment.title || module?.name || 'Prova assignada');
-    const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
-    const descriptionHTML = formatDescription(descriptionSource);
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
     const quizConfig = assignment.quiz_config || null;
     const quizSummary = quizConfig ? formatQuizConfig(quizConfig) : '';
     const moduleSummary = module && quizConfig?.options
       ? summarizeModuleOptions(module.id, quizConfig.options)
       : '';
-    const configDetails = [];
-    if (quizSummary) configDetails.push(`<strong>${escapeHTML(quizSummary)}</strong>`);
-    if (moduleSummary) configDetails.push(escapeHTML(moduleSummary));
-    const configBlock = configDetails.length
-      ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
+
+    const summaryChips = [];
+    if (quizSummary) {
+      summaryChips.push(`<span class="portal-chip portal-chip--muted" title="Configuració">${escapeHTML(quizSummary)}</span>`);
+    }
+    if (moduleSummary) {
+      summaryChips.push(`<span class="portal-chip portal-chip--muted" title="Subtemes">${escapeHTML(moduleSummary)}</span>`);
+    }
+    const dueLabel = assignment.due_date ? `Límit: ${dueDate}` : 'Sense data límit';
+    summaryChips.push(`<span class="portal-chip portal-chip--muted">${escapeHTML(dueLabel)}</span>`);
+    const assigneeCount = Array.isArray(assignment.assignment_assignees) ? assignment.assignment_assignees.length : 0;
+    const assigneeLabel = assigneeCount === 0
+      ? 'Sense alumnes'
+      : assigneeCount === 1
+        ? '1 alumne'
+        : `${assigneeCount} alumnes`;
+    summaryChips.push(`<span class="portal-chip portal-chip--muted">${escapeHTML(assigneeLabel)}</span>`);
+    const summaryRow = summaryChips.length
+      ? `<div class="portal-assignment-summary">${summaryChips.join('')}</div>`
       : '';
     const quizLink = module && quizConfig
       ? buildQuizLink(module.id, quizConfig, {
@@ -846,7 +984,6 @@ function renderTeacherAssignments(assignments) {
           assignmentId: assignment.id,
         })
       : '';
-    const moduleLink = module ? `../index.html?module=${encodeURIComponent(module.id)}` : '';
 
     const assigneeRows = Array.isArray(assignment.assignment_assignees)
       ? assignment.assignment_assignees
@@ -914,6 +1051,21 @@ function renderTeacherAssignments(assignments) {
       `;
     });
 
+    const quizLink = module && quizConfig
+      ? buildQuizLink(module.id, quizConfig, {
+          label: assignment.title || module?.name,
+          assignmentId: assignment.id,
+        })
+      : '';
+    const moduleLink = module
+      ? (() => {
+          const params = new URLSearchParams();
+          params.set('module', module.id);
+          if (assignment.id) params.set('assignment', assignment.id);
+          return `../index.html?${params.toString()}`;
+        })()
+      : '';
+
     const actions = [];
     if (quizLink) {
       actions.push(`<a class="btn-primary" href="${quizLink}" target="_blank" rel="noopener">Obre la prova</a>`);
@@ -924,18 +1076,21 @@ function renderTeacherAssignments(assignments) {
     actions.push(`<button class="btn-ghost portal-delete-assignment" type="button" data-assignment-delete="${assignmentId}">🗑️ Elimina</button>`);
 
     item.innerHTML = `
-      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
-        <h4 style="margin:0;">${title}</h4>
-        ${moduleTag}
+      <div class="portal-assignment-header">
+        <div class="portal-assignment-title">
+          <h4 class="portal-assignment-heading">${title}</h4>
+          ${moduleTag}
+        </div>
+        ${summaryRow}
       </div>
       <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
       ${configBlock}
       ${summaryBlock}
       <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
       <div>
-        <p class="portal-muted" style="margin-bottom:0.35rem">Alumnes assignats:</p>
-        <ul class="portal-meta-list portal-muted">
-          ${assignees.join('') || '<li>Sense alumnes assignats</li>'}
+        <p class="portal-assignees-title">Alumnes assignats</p>
+        <ul class="portal-meta-list portal-assignee-list">
+          ${assignees.join('') || '<li class="portal-assignee-empty">Sense alumnes assignats</li>'}
         </ul>
       </div>
       <div class="portal-assignment-actions">
@@ -981,6 +1136,7 @@ function renderStudentAssignments(rows) {
     const rowId = escapeHTML(row.id);
     const assignmentId = escapeHTML(assignment.id);
     const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
+    const assignmentUuid = assignment.id || row.assignment_id || null;
     const assignmentTitle = escapeHTML(assignment.title || module?.name || 'Prova');
     const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
     const quizConfig = assignment.quiz_config || null;
@@ -1001,7 +1157,12 @@ function renderStudentAssignments(rows) {
         })
       : '';
     const fallbackModuleLink = !quizLink && module
-      ? `../index.html?module=${encodeURIComponent(module.id)}`
+      ? (() => {
+          const params = new URLSearchParams();
+          params.set('module', module.id);
+          if (assignmentUuid) params.set('assignment', assignmentUuid);
+          return `../index.html?${params.toString()}`;
+        })()
       : '';
     const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
     const descriptionHTML = formatDescription(descriptionSource);
@@ -1294,6 +1455,10 @@ async function loadStudents() {
 
 async function loadTeacherAssignments() {
   if (!state.supabase) return;
+  if (el.assignmentError) {
+    el.assignmentError.textContent = '';
+    el.assignmentError.classList.add('hidden');
+  }
   const assignmentSelect = buildAssignmentSelect(true);
   const { data, error } = await state.supabase
     .from('assignments')
