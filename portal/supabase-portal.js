@@ -1488,6 +1488,15 @@ function setupFocusPortal() {
     if (!tabId || tabId === state.activeTab) return;
     setActiveTab(tabId, { focus: false });
   }
+  if (el.sessionWarning) {
+    if (state.sessionWarning) {
+      el.sessionWarning.textContent = state.sessionWarning;
+      el.sessionWarning.classList.remove('hidden');
+    } else {
+      el.sessionWarning.textContent = '';
+      el.sessionWarning.classList.add('hidden');
+    }
+  }
 
   function handleSignupRoleChange(event) {
     if (!event.target.matches('input[name="signup_role"]')) return;
