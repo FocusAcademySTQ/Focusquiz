@@ -29,8 +29,6 @@ const state = {
   moduleFilter: 'all',
   moduleSearch: '',
   supportsQuizConfigColumn: true,
-  teacherAccessCode: '',
-  requireTeacherCode: false,
   activeTab: null,
   profileSupportsEmail: true,
   sessionWarning: '',
@@ -46,7 +44,6 @@ const el = {
   signupError: document.getElementById('signupError'),
   signupSuccess: document.getElementById('signupSuccess'),
   signupTeacherFields: Array.from(document.querySelectorAll('[data-signup-role="teacher"]')),
-  teacherAccessHint: document.getElementById('teacherAccessHint'),
   sessionPanel: document.getElementById('sessionPanel'),
   sessionName: document.getElementById('sessionName'),
   sessionRole: document.getElementById('sessionRole'),
@@ -449,18 +446,8 @@ function updateSignupRoleFields() {
   if (Array.isArray(el.signupTeacherFields)) {
     el.signupTeacherFields.forEach((field) => {
       if (!field) return;
-      const requiresCode = field.dataset.signupRequiresCode === 'true';
-      const shouldShow = requiresCode ? showTeacherFields && state.requireTeacherCode : showTeacherFields;
-      toggle(field, shouldShow);
+      toggle(field, showTeacherFields);
     });
-  }
-
-  if (el.teacherAccessHint) {
-    if (showTeacherFields) {
-      el.teacherAccessHint.textContent = state.requireTeacherCode
-        ? 'Introdueix el codi proporcionat pel centre per validar el rol docent.'
-        : 'Si no disposes de codi, el centre et podrà assignar el rol docent manualment.';
-    }
   }
 }
 
@@ -1555,7 +1542,6 @@ async function handleSignup(event) {
   const password = (formData.get('signup_password') || '').toString();
   const roleValue = (formData.get('signup_role') || '').toString();
   const role = roleValue === 'teacher' ? 'teacher' : 'student';
-  const teacherCode = (formData.get('teacher_code') || '').toString().trim();
 
   if (!fullName) {
     showError(el.signupError, 'Introdueix el teu nom complet.');
@@ -1567,11 +1553,6 @@ async function handleSignup(event) {
   }
   if (!password || password.length < 6) {
     showError(el.signupError, 'La contrasenya ha de tenir com a mínim 6 caràcters.');
-    return;
-  }
-
-  if (role === 'teacher' && state.requireTeacherCode && teacherCode !== state.teacherAccessCode) {
-    showError(el.signupError, 'El codi docent no és correcte. Demana el codi al teu centre.');
     return;
   }
 
