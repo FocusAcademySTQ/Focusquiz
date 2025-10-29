@@ -31,10 +31,17 @@ function setupFocusPortal() {
 
   const state = {
     supabase: null,
+    supabaseUrl: '',
+    supabaseAnonKey: '',
     session: null,
     user: null,
     profile: null,
     students: [],
+    studentMap: new Map(),
+    selectedStudentIds: new Set(),
+    studentGroups: [],
+    studentGroupFilter: 'all',
+    supportsStudentGroups: true,
     modules: sortedModules,
     moduleIndex: new Map(sortedModules.map((module) => [module.id, module])),
     selectedModules: new Set(),
@@ -43,8 +50,10 @@ function setupFocusPortal() {
     moduleSearch: '',
     supportsQuizConfigColumn: true,
     activeTab: null,
+    teacherActiveSubtab: null,
     profileSupportsEmail: true,
     sessionWarning: '',
+    studentAdminGroupFilter: 'all',
   };
 
   const el = {
@@ -64,7 +73,13 @@ function setupFocusPortal() {
     sessionWarning: document.getElementById('sessionWarning'),
     tabList: document.getElementById('portalTabs'),
     tabButtons: Array.from(document.querySelectorAll('[data-tab]')),
+    teacherTabList: document.getElementById('teacherTabs'),
+    teacherTabButtons: Array.from(document.querySelectorAll('[data-teacher-tab]')),
+    teacherSubPanels: Array.from(document.querySelectorAll('[data-teacher-panel]')),
     teacherPanel: document.getElementById('teacherPanel'),
+    teacherPlannerPanel: document.getElementById('teacherPlannerPanel'),
+    teacherReportsPanel: document.getElementById('teacherReportsPanel'),
+    teacherStudentsPanel: document.getElementById('teacherStudentsPanel'),
     teacherView: document.getElementById('teacherView'),
     teacherAssignments: document.getElementById('teacherAssignments'),
     assignmentForm: document.getElementById('assignmentForm'),
@@ -79,8 +94,21 @@ function setupFocusPortal() {
     moduleConfigPanel: document.getElementById('moduleConfigPanel'),
     moduleConfigList: document.getElementById('moduleConfigList'),
     studentChecklist: document.getElementById('studentChecklist'),
+    studentGroupFilter: document.getElementById('studentGroupFilter'),
+    studentSelectionCount: document.getElementById('studentSelectionCount'),
+    studentAdminFilter: document.getElementById('studentAdminFilter'),
+    studentAdminToolbar: document.getElementById('studentAdminToolbar'),
+    studentAdminList: document.getElementById('studentAdminList'),
+    studentAdminRefresh: document.getElementById('studentAdminRefresh'),
+    studentAdminFeedback: document.getElementById('studentAdminFeedback'),
+    studentAdminError: document.getElementById('studentAdminError'),
+    studentCreateForm: document.getElementById('studentCreateForm'),
+    studentGroupSuggestions: document.getElementById('studentGroupSuggestions'),
     assignmentList: document.getElementById('assignmentList'),
     reloadAssignments: document.getElementById('reloadAssignments'),
+    teacherGrades: document.getElementById('teacherGrades'),
+    teacherGradesList: document.getElementById('teacherGradesList'),
+    refreshGrades: document.getElementById('refreshGrades'),
     studentPanel: document.getElementById('studentPanel'),
     studentView: document.getElementById('studentView'),
     studentAssignmentList: document.getElementById('studentAssignmentList'),
@@ -273,6 +301,13 @@ function setupFocusPortal() {
     return haystack.includes('profiles') && haystack.includes('email') && haystack.includes('column');
   }
 
+  function isMissingGroupColumn(error) {
+    if (!error) return false;
+    if (error.code === '42703') return true;
+    const haystack = `${error.message || ''} ${error.details || ''}`.toLowerCase();
+    return haystack.includes('profiles') && haystack.includes('group');
+  }
+
   function normalizeProfileRow(row, user) {
     if (!row && !user) return null;
     const normalized = { ...row };
@@ -286,6 +321,11 @@ function setupFocusPortal() {
       normalized.email = typeof user?.email === 'string' ? user.email : null;
     } else if (normalized.email === undefined) {
       normalized.email = null;
+    }
+    if (!('group_name' in normalized)) {
+      normalized.group_name = typeof row?.group_name === 'string' ? row.group_name : typeof row?.group === 'string' ? row.group : null;
+    } else if (normalized.group_name === undefined) {
+      normalized.group_name = null;
     }
     const role = normalized.role;
     if (role !== 'teacher' && role !== 'student') {
@@ -367,6 +407,22 @@ function setupFocusPortal() {
     }
   }
 
+  function resetTeacherTabs() {
+    state.teacherActiveSubtab = null;
+    if (Array.isArray(el.teacherTabButtons)) {
+      el.teacherTabButtons.forEach((button) => {
+        if (!button) return;
+        button.setAttribute('aria-selected', 'false');
+        button.setAttribute('aria-disabled', button.disabled ? 'true' : 'false');
+        button.classList.remove('portal-subtab--active');
+        button.tabIndex = -1;
+      });
+    }
+    if (Array.isArray(el.teacherSubPanels)) {
+      el.teacherSubPanels.forEach((panel) => toggle(panel, false));
+    }
+  }
+
   function resetTabs() {
     state.activeTab = null;
     if (Array.isArray(el.tabButtons)) {
@@ -382,6 +438,8 @@ function setupFocusPortal() {
     }
     toggle(el.teacherPanel, false);
     toggle(el.studentPanel, false);
+    toggle(el.teacherTabList, false);
+    resetTeacherTabs();
   }
 
   function setActiveTab(tabId, options = {}) {
@@ -390,6 +448,8 @@ function setupFocusPortal() {
       state.activeTab = null;
       toggle(el.teacherPanel, false);
       toggle(el.studentPanel, false);
+      toggle(el.teacherTabList, false);
+      resetTeacherTabs();
       el.tabButtons.forEach((button) => {
         if (!button) return;
         button.setAttribute('aria-selected', 'false');
@@ -425,6 +485,58 @@ function setupFocusPortal() {
 
     toggle(el.teacherPanel, tabId === 'teacher');
     toggle(el.studentPanel, tabId === 'student');
+
+    if (tabId === 'teacher') {
+      toggle(el.teacherTabList, true);
+      const defaultSubtab = state.teacherActiveSubtab || 'planner';
+      setActiveTeacherTab(defaultSubtab);
+    } else {
+      toggle(el.teacherTabList, false);
+      resetTeacherTabs();
+    }
+
+    if (options.focus) {
+      targetButton.focus();
+    }
+  }
+
+  function setActiveTeacherTab(tabId, options = {}) {
+    if (!Array.isArray(el.teacherTabButtons) || !el.teacherTabButtons.length) return;
+    if (!tabId) {
+      resetTeacherTabs();
+      return;
+    }
+
+    const targetButton = el.teacherTabButtons.find(
+      (button) => button && !button.hidden && !button.disabled && button.dataset.teacherTab === tabId
+    );
+    if (!targetButton) {
+      resetTeacherTabs();
+      return;
+    }
+
+    state.teacherActiveSubtab = tabId;
+    el.teacherTabButtons.forEach((button) => {
+      if (!button) return;
+      const isActive = button === targetButton;
+      button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      button.classList.toggle('portal-subtab--active', isActive);
+      button.setAttribute('aria-disabled', button.hidden || button.disabled ? 'true' : 'false');
+      button.tabIndex = button.hidden || button.disabled ? -1 : isActive ? 0 : -1;
+    });
+
+    if (Array.isArray(el.teacherSubPanels)) {
+      el.teacherSubPanels.forEach((panel) => {
+        if (!panel) return;
+        const matches = panel.dataset.teacherPanel === tabId;
+        toggle(panel, matches);
+      });
+    }
+
+    toggle(el.teacherView, tabId === 'planner');
+    toggle(el.teacherAssignments, tabId === 'reports');
+    toggle(el.teacherGrades, tabId === 'reports');
+    toggle(el.teacherStudentsPanel, tabId === 'students');
 
     if (options.focus) {
       targetButton.focus();
@@ -476,6 +588,11 @@ function setupFocusPortal() {
     if (el.assignmentError) el.assignmentError.classList.add('hidden');
   }
 
+  function clearStudentAdminMessages() {
+    if (el.studentAdminFeedback) el.studentAdminFeedback.classList.add('hidden');
+    if (el.studentAdminError) el.studentAdminError.classList.add('hidden');
+  }
+
   function showError(container, message) {
     if (!container) return;
     container.textContent = message;
@@ -511,6 +628,17 @@ function setupFocusPortal() {
   function formatDescription(value) {
     const safe = escapeHTML(value || '');
     return safe.replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
+  }
+
+  function summarizeText(value, maxLength = 160) {
+    if (!value) return '';
+    const compact = String(value).replace(/\s+/g, ' ').trim();
+    if (!compact) return '';
+    if (compact.length <= maxLength) {
+      return compact;
+    }
+    const truncated = compact.slice(0, maxLength).replace(/\s+\S*$/, '');
+    return `${truncated}…`;
   }
 
   function getCategoryLabel(category) {
@@ -785,27 +913,388 @@ function setupFocusPortal() {
     renderModulePicker();
   }
 
+  function getStudentGroup(student) {
+    if (!student) return 'Sense grup';
+    const raw = student.group_name || student.group;
+    if (typeof raw === 'string' && raw.trim()) {
+      return raw.trim();
+    }
+    return 'Sense grup';
+  }
+
+  function computeStudentGroups() {
+    const groups = new Map();
+    state.students.forEach((student) => {
+      const groupId = getStudentGroup(student);
+      if (!groups.has(groupId)) {
+        groups.set(groupId, { id: groupId, label: groupId, count: 0 });
+      }
+      groups.get(groupId).count += 1;
+    });
+    const sorted = Array.from(groups.values()).sort((a, b) =>
+      a.label.localeCompare(b.label, 'ca', { sensitivity: 'base' })
+    );
+    state.studentGroups = sorted;
+    if (state.studentGroupFilter !== 'all') {
+      const exists = sorted.some((group) => group.id === state.studentGroupFilter);
+      if (!exists) {
+        state.studentGroupFilter = 'all';
+      }
+    }
+    if (state.studentAdminGroupFilter !== 'all') {
+      const existsAdmin = sorted.some((group) => group.id === state.studentAdminGroupFilter);
+      if (!existsAdmin) {
+        state.studentAdminGroupFilter = 'all';
+      }
+    }
+  }
+
+  function renderStudentGroupFilter() {
+    if (!el.studentGroupFilter) return;
+    const total = state.students.length;
+    if (!state.studentGroups.length) {
+      el.studentGroupFilter.innerHTML = total
+        ? `<button type="button" class="portal-group-chip is-active" data-group="all" title="Mostra tots els alumnes">Tots <small>${escapeHTML(total)}</small></button>`
+        : '';
+      return;
+    }
+
+    const chips = [];
+    const active = state.studentGroupFilter;
+    chips.push(
+      `<button type="button" class="portal-group-chip ${active === 'all' ? 'is-active' : ''}" data-group="all" title="Mostra tots els alumnes">Tots <small>${escapeHTML(total)}</small></button>`
+    );
+    state.studentGroups.forEach((group) => {
+      const count = group.count;
+      const label = escapeHTML(group.label);
+      const selected = active === group.id;
+      chips.push(
+        `<button type="button" class="portal-group-chip ${selected ? 'is-active' : ''}" data-group="${escapeHTML(group.id)}" title="Clic per filtrar · Maj+clic per seleccionar el grup">${label} <small>${escapeHTML(count)}</small></button>`
+      );
+    });
+    el.studentGroupFilter.innerHTML = chips.join('');
+  }
+
+  function updateStudentSelectionCount() {
+    if (!el.studentSelectionCount) return;
+    const count = state.selectedStudentIds.size;
+    let text = 'Cap alumne seleccionat';
+    if (count === 1) {
+      text = '1 alumne seleccionat';
+    } else if (count > 1) {
+      text = `${count} alumnes seleccionats`;
+    }
+    el.studentSelectionCount.textContent = text;
+  }
+
   function renderStudents() {
     if (!el.studentChecklist) return;
     el.studentChecklist.innerHTML = '';
+
     if (!state.students.length) {
       const span = document.createElement('span');
       span.className = 'muted';
       span.textContent = 'Encara no hi ha alumnes amb perfil.';
       el.studentChecklist.appendChild(span);
+      updateStudentSelectionCount();
       return;
     }
 
-    state.students.forEach((student) => {
+    const filteredStudents = state.studentGroupFilter === 'all'
+      ? state.students
+      : state.students.filter((student) => getStudentGroup(student) === state.studentGroupFilter);
+
+    if (!filteredStudents.length) {
+      const span = document.createElement('span');
+      span.className = 'muted';
+      span.textContent = 'No hi ha alumnes en aquest grup.';
+      el.studentChecklist.appendChild(span);
+      updateStudentSelectionCount();
+      return;
+    }
+
+    filteredStudents.forEach((student) => {
       const label = document.createElement('label');
-      const fullName = escapeHTML(student.full_name || 'Alumne sense nom');
-      const email = student.email ? ` · ${escapeHTML(student.email)}` : '';
-      label.innerHTML = `
-        <input type="checkbox" name="students" value="${student.id}" />
-        <span>${fullName}${email}</span>
-      `;
+      label.dataset.group = getStudentGroup(student);
+
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.name = 'students';
+      input.value = student.id;
+      input.checked = state.selectedStudentIds.has(student.id);
+
+      const textContainer = document.createElement('span');
+      const name = escapeHTML(student.full_name || 'Alumne sense nom');
+      const metaParts = [];
+      if (student.email) {
+        metaParts.push(escapeHTML(student.email));
+      }
+      const groupLabel = getStudentGroup(student);
+      if (groupLabel) {
+        metaParts.push(escapeHTML(groupLabel));
+      }
+      textContainer.innerHTML = `<strong>${name}</strong>${metaParts.length ? `<span class="portal-assignee-meta">${metaParts.join(' · ')}</span>` : ''}`;
+
+      label.appendChild(input);
+      label.appendChild(textContainer);
       el.studentChecklist.appendChild(label);
     });
+
+    updateStudentSelectionCount();
+  }
+
+  function renderStudentAdminFilter() {
+    if (!el.studentAdminFilter) return;
+    const total = state.students.length;
+    const active = state.studentAdminGroupFilter;
+    const chips = [];
+
+    chips.push(
+      `<button type="button" class="portal-group-chip ${active === 'all' ? 'is-active' : ''}" data-group="all" title="Mostra tots els alumnes">Tots <small>${escapeHTML(String(total))}</small></button>`
+    );
+
+    state.studentGroups.forEach((group) => {
+      const count = group.count;
+      const label = escapeHTML(group.label);
+      const selected = active === group.id;
+      chips.push(
+        `<button type="button" class="portal-group-chip ${selected ? 'is-active' : ''}" data-group="${escapeHTML(group.id)}" title="Mostra només aquest grup">${label} <small>${escapeHTML(String(count))}</small></button>`
+      );
+    });
+
+    el.studentAdminFilter.innerHTML = chips.join('');
+  }
+
+  function renderStudentAdminList() {
+    if (!el.studentAdminList) return;
+    el.studentAdminList.innerHTML = '';
+
+    if (!state.students.length) {
+      const empty = document.createElement('p');
+      empty.className = 'portal-muted';
+      empty.textContent = 'Encara no hi ha alumnes registrats.';
+      el.studentAdminList.appendChild(empty);
+      return;
+    }
+
+    const filtered = state.studentAdminGroupFilter === 'all'
+      ? state.students
+      : state.students.filter((student) => getStudentGroup(student) === state.studentAdminGroupFilter);
+
+    if (!filtered.length) {
+      const empty = document.createElement('p');
+      empty.className = 'portal-muted';
+      empty.textContent = 'No hi ha alumnes en aquest grup.';
+      el.studentAdminList.appendChild(empty);
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    filtered.forEach((student) => {
+      const form = document.createElement('form');
+      form.className = 'portal-student-card';
+      form.dataset.studentAdminForm = 'true';
+      form.dataset.studentId = student.id || '';
+      form.dataset.originalName = student.full_name || '';
+      form.dataset.originalEmail = student.email || '';
+      form.dataset.originalGroup = student.group_name || '';
+      form.setAttribute('autocomplete', 'off');
+
+      const grid = document.createElement('div');
+      grid.className = 'portal-student-card__grid';
+
+      const nameLabel = document.createElement('label');
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'portal-field-label';
+      nameSpan.textContent = 'Nom complet';
+      const nameInput = document.createElement('input');
+      nameInput.className = 'input';
+      nameInput.name = 'full_name';
+      nameInput.type = 'text';
+      nameInput.required = true;
+      nameInput.autocomplete = 'off';
+      nameInput.value = student.full_name || '';
+      nameLabel.append(nameSpan, nameInput);
+      grid.appendChild(nameLabel);
+
+      if (state.profileSupportsEmail) {
+        const emailLabel = document.createElement('label');
+        const emailSpan = document.createElement('span');
+        emailSpan.className = 'portal-field-label';
+        emailSpan.textContent = 'Correu electrònic';
+        const emailInput = document.createElement('input');
+        emailInput.className = 'input';
+        emailInput.name = 'email';
+        emailInput.type = 'email';
+        emailInput.autocomplete = 'off';
+        emailInput.placeholder = 'alumne@centre.cat';
+        emailInput.value = student.email || '';
+        emailLabel.append(emailSpan, emailInput);
+        grid.appendChild(emailLabel);
+      }
+
+      if (state.supportsStudentGroups) {
+        const groupLabel = document.createElement('label');
+        groupLabel.dataset.adminGroupField = 'true';
+        const groupSpan = document.createElement('span');
+        groupSpan.className = 'portal-field-label';
+        groupSpan.textContent = 'Grup';
+        const groupInput = document.createElement('input');
+        groupInput.className = 'input';
+        groupInput.name = 'group_name';
+        groupInput.type = 'text';
+        groupInput.autocomplete = 'off';
+        groupInput.placeholder = 'Sense grup';
+        if (el.studentGroupSuggestions) {
+          groupInput.setAttribute('list', el.studentGroupSuggestions.id);
+        }
+        groupInput.value = student.group_name || '';
+        groupLabel.append(groupSpan, groupInput);
+        grid.appendChild(groupLabel);
+      }
+
+      form.appendChild(grid);
+
+      const actions = document.createElement('div');
+      actions.className = 'portal-student-card__actions';
+
+      const saveButton = document.createElement('button');
+      saveButton.type = 'submit';
+      saveButton.className = 'btn-primary';
+      saveButton.textContent = 'Desa canvis';
+      actions.appendChild(saveButton);
+
+      const resetButton = document.createElement('button');
+      resetButton.type = 'button';
+      resetButton.className = 'btn-secondary';
+      resetButton.dataset.action = 'reset';
+      resetButton.textContent = 'Desfés canvis';
+      actions.appendChild(resetButton);
+
+      if (state.supportsStudentGroups) {
+        const clearButton = document.createElement('button');
+        clearButton.type = 'button';
+        clearButton.className = 'btn-ghost';
+        clearButton.dataset.action = 'clear-group';
+        clearButton.textContent = 'Sense grup';
+        actions.appendChild(clearButton);
+      }
+
+      form.appendChild(actions);
+      fragment.appendChild(form);
+    });
+
+    el.studentAdminList.appendChild(fragment);
+  }
+
+  function updateStudentGroupSuggestions() {
+    if (!el.studentGroupSuggestions) return;
+    const options = state.studentGroups
+      .filter((group) => group.id && group.id !== 'Sense grup')
+      .map((group) => `<option value="${escapeHTML(group.label)}"></option>`);
+    el.studentGroupSuggestions.innerHTML = options.join('');
+  }
+
+  function applyStudentGroupAvailability() {
+    const supported = state.supportsStudentGroups;
+    if (el.studentAdminToolbar) {
+      toggle(el.studentAdminToolbar, supported);
+    }
+    if (el.studentCreateForm) {
+      const groupField = el.studentCreateForm.querySelector('[data-admin-group-field]');
+      if (groupField) {
+        toggle(groupField, supported);
+      }
+    }
+  }
+
+  function renderTeacherGrades(entries) {
+    if (!el.teacherGrades || !el.teacherGradesList) return;
+    el.teacherGradesList.innerHTML = '';
+
+    if (!Array.isArray(entries) || !entries.length) {
+      const empty = document.createElement('p');
+      empty.className = 'portal-feed-empty';
+      empty.textContent = 'Encara no hi ha notes registrades.';
+      el.teacherGradesList.appendChild(empty);
+      toggle(el.teacherGrades, true);
+      return;
+    }
+
+    entries.forEach((entry) => {
+      const studentName = escapeHTML(entry.student?.full_name || 'Alumne anònim');
+      const gradeValue = formatGradeDisplay(entry.submission?.grade) || '—';
+      const assignmentTitle = escapeHTML(entry.assignment?.title || entry.module?.name || 'Prova FocusQuiz');
+      const groupLabel = getStudentGroup(entry.student);
+      const moduleLabel = entry.module ? escapeHTML(getCategoryLabel(entry.module.category)) : '';
+      const submittedAt = entry.submission?.submitted_at
+        ? new Date(entry.submission.submitted_at).toLocaleString('ca-ES')
+        : '';
+
+      const metaParts = [];
+      if (groupLabel && groupLabel !== 'Sense grup') {
+        metaParts.push(`Grup ${escapeHTML(groupLabel)}`);
+      }
+      if (moduleLabel) {
+        metaParts.push(moduleLabel);
+      }
+      if (submittedAt) {
+        metaParts.push(escapeHTML(submittedAt));
+      }
+
+      const metaBlock = metaParts.length
+        ? `<div class="portal-feed-meta">${metaParts.map((part) => `<span>${part}</span>`).join('')}</div>`
+        : '';
+
+      const item = document.createElement('article');
+      item.className = 'portal-feed-item';
+      item.innerHTML = `
+        <header>
+          <h3>${studentName}</h3>
+          <span class="portal-feed-grade">${escapeHTML(gradeValue)}</span>
+        </header>
+        <p class="portal-muted" style="margin:0;">${assignmentTitle}</p>
+        ${metaBlock}
+      `;
+
+      el.teacherGradesList.appendChild(item);
+    });
+
+    toggle(el.teacherGrades, true);
+  }
+
+  function handleStudentSelectionChange(event) {
+    const checkbox = event.target;
+    if (!checkbox.matches('#studentChecklist input[name="students"]')) return;
+    const { value } = checkbox;
+    if (checkbox.checked) {
+      state.selectedStudentIds.add(value);
+    } else {
+      state.selectedStudentIds.delete(value);
+    }
+    updateStudentSelectionCount();
+  }
+
+  function handleGroupFilterClick(event) {
+    const button = event.target.closest('.portal-group-chip');
+    if (!button) return;
+    const groupId = button.dataset.group || 'all';
+    const selectGroup = (event.shiftKey || event.altKey) && groupId !== 'all';
+    state.studentGroupFilter = groupId;
+    renderStudentGroupFilter();
+    if (selectGroup) {
+      const members = state.students.filter((student) => getStudentGroup(student) === groupId);
+      const shouldSelect = members.some((student) => !state.selectedStudentIds.has(student.id));
+      members.forEach((student) => {
+        if (shouldSelect) {
+          state.selectedStudentIds.add(student.id);
+        } else {
+          state.selectedStudentIds.delete(student.id);
+        }
+      });
+    }
+    renderStudents();
   }
 
   function renderTeacherAssignments(assignments) {
@@ -985,8 +1474,6 @@ function setupFocusPortal() {
         ? new Date(submission.submitted_at).toLocaleString('ca-ES')
         : null;
 
-      const rowId = escapeHTML(row.id);
-      const assignmentId = escapeHTML(assignment.id);
       const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
       const assignmentTitle = escapeHTML(assignment.title || module?.name || 'Prova');
       const moduleTag = module ? `<span class="portal-module-tag">${escapeHTML(getCategoryLabel(module.category))}</span>` : '';
@@ -994,12 +1481,6 @@ function setupFocusPortal() {
       const quizSummary = quizConfig ? formatQuizConfig(quizConfig) : '';
       const moduleSummary = module && quizConfig?.options
         ? summarizeModuleOptions(module.id, quizConfig.options)
-        : '';
-      const configDetails = [];
-      if (quizSummary) configDetails.push(`<strong>${escapeHTML(quizSummary)}</strong>`);
-      if (moduleSummary) configDetails.push(escapeHTML(moduleSummary));
-      const configBlock = configDetails.length
-        ? `<p class="portal-muted" style="margin-top:0.35rem">Configuració: ${configDetails.join('<br>')}</p>`
         : '';
       const studentQuizLink = module && quizConfig
         ? buildQuizLink(module.id, quizConfig, {
@@ -1010,53 +1491,73 @@ function setupFocusPortal() {
       const fallbackModuleLink = !studentQuizLink && module
         ? `../index.html?module=${encodeURIComponent(module.id)}`
         : '';
-      const descriptionSource = assignment.description || module?.desc || 'Sense descripció';
-      const descriptionHTML = formatDescription(descriptionSource);
+      const descriptionSource = assignment.description || module?.desc || '';
+      const summaryText = summarizeText(descriptionSource, 180) || 'Prova FocusQuiz preparada per tu.';
       const safeStatus = escapeHTML(row.status);
-      const statusChip = `<span class="portal-status-chip" data-status="${safeStatus}">${escapeHTML(statusLabels[row.status] || row.status)}</span>`;
-      const statusOptions = Object.entries(statusLabels)
-        .map(([value, label]) => `<option value="${escapeHTML(value)}" ${value === row.status ? 'selected' : ''}>${escapeHTML(label)}</option>`)
-        .join('');
-      const submissionContent = escapeHTML(submission?.content || '');
+      const statusLabel = escapeHTML(statusLabels[row.status] || row.status);
+
+      const metaChips = [];
+      if (moduleTag) {
+        metaChips.push(moduleTag);
+      }
+      const metaBlock = metaChips.length
+        ? `<div class="portal-student-card__meta">${metaChips.join('')}</div>`
+        : '';
+
+      const facts = [];
+      if (quizSummary) facts.push(escapeHTML(quizSummary));
+      if (moduleSummary) facts.push(escapeHTML(moduleSummary));
+      const factsBlock = facts.length
+        ? `<div class="portal-student-card__facts">${facts.map((fact) => `<span>${fact}</span>`).join('')}</div>`
+        : '';
+
+      const ctaHref = studentQuizLink || fallbackModuleLink;
+      let ctaLabel = 'Comença la prova';
+      if (row.status === 'in_progress') {
+        ctaLabel = 'Continua la prova';
+      } else if (row.status === 'submitted' || row.status === 'completed') {
+        ctaLabel = 'Repassa la prova';
+      }
+      const ctaButton = ctaHref
+        ? `<a class="portal-student-card__cta" href="${ctaHref}" target="_blank" rel="noopener">${ctaLabel}</a>`
+        : '';
+
+      const isFresh = !submittedAt && row.status === 'pending';
+      const badge = isFresh ? '<span class="portal-student-card__badge">Nova prova</span>' : '';
+
+      const gradeDisplay = submission?.grade !== null && submission?.grade !== undefined
+        ? formatGradeDisplay(submission.grade) || escapeHTML(submission.grade)
+        : null;
+      const gradeText = gradeDisplay ? `Nota: <strong>${escapeHTML(gradeDisplay)}</strong>` : '';
+
+      const submissionInfo = submittedAt
+        ? `<p class="portal-student-card__submitted">Entrega: <strong>${escapeHTML(submittedAt)}</strong>${gradeText ? ` · ${gradeText}` : ''}</p>`
+        : gradeText
+          ? `<p class="portal-student-card__submitted">${gradeText}</p>`
+          : '';
 
       const item = document.createElement('article');
-      item.className = 'list-item';
+      item.className = 'list-item portal-student-card';
       item.innerHTML = `
-        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.5rem;">
-          <h4 style="margin:0;">${assignmentTitle}</h4>
-          ${moduleTag}
+        <div class="portal-student-card__header">
+          ${badge}
+          <h4 class="portal-student-card__title">${assignmentTitle}</h4>
         </div>
-        <p class="portal-muted" style="margin-top:0.35rem">${descriptionHTML}</p>
-        ${configBlock}
-        <p class="portal-muted" style="margin-top:0.35rem">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
-        ${studentQuizLink
-          ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${studentQuizLink}" target="_blank" rel="noopener">Comença la prova</a></div>`
-          : fallbackModuleLink
-            ? `<div class="portal-assignment-actions"><a class="btn-primary" href="${fallbackModuleLink}" target="_blank" rel="noopener">Obre el mòdul</a></div>`
-            : ''}
-        <p style="margin-top:0.35rem;">
-          Estat actual: ${statusChip}
-        </p>
-        <label style="margin-top:0.75rem; display:block;">
-          <span style="display:block; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; margin-bottom:0.25rem;">Canvia l'estat</span>
-          <select class="input status-select" data-row="${rowId}">
-            ${statusOptions}
-          </select>
-        </label>
-        <form class="submission-form" data-assignment="${assignmentId}" data-row="${rowId}" style="margin-top:1rem; display:grid; gap:0.5rem;">
-          <label>
-            <span style="display:block; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; color:#94a3b8; margin-bottom:0.25rem;">Enllaç o comentaris</span>
-            <textarea class="input" name="content" placeholder="Afegeix informació de l'entrega">${submissionContent}</textarea>
-          </label>
-          <div class="portal-actions">
-            <button class="btn-primary" type="submit">Envia resposta</button>
+        ${metaBlock}
+        <p class="portal-student-card__desc">${escapeHTML(summaryText)}</p>
+        ${factsBlock}
+        <div class="portal-student-card__footer">
+          <div>
+            <div class="portal-student-card__status">
+              <span class="portal-status-chip" data-status="${safeStatus}">${statusLabel}</span>
+            </div>
+            <p class="portal-student-card__due">Data límit: <strong>${escapeHTML(dueDate)}</strong></p>
           </div>
-        </form>
-        ${submittedAt ? `<p class="portal-muted">Darrera entrega: ${escapeHTML(submittedAt)}</p>` : ''}
-        ${submission?.grade !== null && submission?.grade !== undefined
-          ? `<p class="portal-muted">Nota: <strong>${escapeHTML(submission.grade)}</strong>${submission.feedback ? ` · ${escapeHTML(submission.feedback)}` : ''}</p>`
-          : ''}
+          ${ctaButton}
+        </div>
+        ${submissionInfo}
       `;
+
       el.studentAssignmentList.appendChild(item);
     });
   }
@@ -1297,14 +1798,19 @@ function setupFocusPortal() {
 
     const isTeacher = state.profile.role === 'teacher';
     configureTabsForRole(isTeacher ? 'teacher' : 'student');
-    toggle(el.teacherView, isTeacher);
-    toggle(el.teacherAssignments, isTeacher);
     toggle(el.studentView, !isTeacher);
   }
 
   async function loadStudents() {
     if (!state.supabase) return;
-    const selectColumns = state.profileSupportsEmail ? 'id, full_name, email' : 'id, full_name';
+    const columns = ['id', 'full_name'];
+    if (state.profileSupportsEmail) {
+      columns.push('email');
+    }
+    if (state.supportsStudentGroups) {
+      columns.push('group_name');
+    }
+    const selectColumns = columns.join(', ');
     const { data, error } = await state.supabase
       .from('profiles')
       .select(selectColumns)
@@ -1317,6 +1823,11 @@ function setupFocusPortal() {
         await loadStudents();
         return;
       }
+      if (state.supportsStudentGroups && isMissingGroupColumn(error)) {
+        state.supportsStudentGroups = false;
+        await loadStudents();
+        return;
+      }
       showError(el.assignmentError, error.message);
       return;
     }
@@ -1325,7 +1836,23 @@ function setupFocusPortal() {
     state.students = rows
       .map((row) => normalizeProfileRow(row, null))
       .filter(Boolean);
+    state.studentMap = new Map(state.students.map((student) => [student.id, student]));
+
+    const retainedSelection = new Set();
+    state.selectedStudentIds.forEach((id) => {
+      if (state.studentMap.has(id)) {
+        retainedSelection.add(id);
+      }
+    });
+    state.selectedStudentIds = retainedSelection;
+
+    computeStudentGroups();
+    applyStudentGroupAvailability();
+    renderStudentGroupFilter();
+    renderStudentAdminFilter();
+    updateStudentGroupSuggestions();
     renderStudents();
+    renderStudentAdminList();
   }
 
   async function loadTeacherAssignments() {
@@ -1392,7 +1919,27 @@ function setupFocusPortal() {
       };
     });
 
+    const gradeFeed = [];
+    enrichedAssignments.forEach((assignment) => {
+      const module = assignment.module_id ? state.moduleIndex.get(assignment.module_id) : null;
+      assignment.assignment_assignees.forEach((assignee) => {
+        const submission = assignee.submission;
+        if (!submission || submission.grade === null || submission.grade === undefined) {
+          return;
+        }
+        const student = state.studentMap.get(assignee.profile_id) || null;
+        gradeFeed.push({ assignment, module, submission, student });
+      });
+    });
+
+    gradeFeed.sort((a, b) => {
+      const aTime = a.submission?.submitted_at ? new Date(a.submission.submitted_at).getTime() : 0;
+      const bTime = b.submission?.submitted_at ? new Date(b.submission.submitted_at).getTime() : 0;
+      return bTime - aTime;
+    });
+
     renderTeacherAssignments(enrichedAssignments);
+    renderTeacherGrades(gradeFeed);
   }
 
   async function loadStudentAssignments() {
@@ -1490,12 +2037,211 @@ function setupFocusPortal() {
     renderStudentAssignments(normalizedRows);
   }
 
+  function handleTeacherTabClick(event) {
+    const button = event.target.closest('[data-teacher-tab]');
+    if (!button || button.disabled || button.hidden) return;
+    const tabId = button.dataset.teacherTab;
+    if (!tabId || tabId === state.teacherActiveSubtab) return;
+    setActiveTeacherTab(tabId, { focus: false });
+  }
+
   function handleTabClick(event) {
     const button = event.target.closest('[data-tab]');
     if (!button || button.disabled || button.hidden) return;
     const tabId = button.dataset.tab;
     if (!tabId || tabId === state.activeTab) return;
     setActiveTab(tabId, { focus: false });
+  }
+
+  function handleStudentAdminFilterClick(event) {
+    const button = event.target.closest('.portal-group-chip');
+    if (!button || !el.studentAdminFilter || !el.studentAdminFilter.contains(button)) return;
+    const groupId = button.dataset.group || 'all';
+    state.studentAdminGroupFilter = groupId;
+    renderStudentAdminFilter();
+    renderStudentAdminList();
+  }
+
+  function handleStudentAdminClick(event) {
+    const actionButton = event.target.closest('[data-action]');
+    if (!actionButton) return;
+    const form = event.target.closest('[data-student-admin-form]');
+    if (!form) return;
+    const action = actionButton.dataset.action;
+    if (action === 'reset') {
+      const nameInput = form.querySelector('input[name="full_name"]');
+      if (nameInput) {
+        nameInput.value = form.dataset.originalName || '';
+      }
+      if (state.profileSupportsEmail) {
+        const emailInput = form.querySelector('input[name="email"]');
+        if (emailInput) {
+          emailInput.value = form.dataset.originalEmail || '';
+        }
+      }
+      if (state.supportsStudentGroups) {
+        const groupInput = form.querySelector('input[name="group_name"]');
+        if (groupInput) {
+          groupInput.value = form.dataset.originalGroup || '';
+        }
+      }
+    } else if (action === 'clear-group') {
+      const groupInput = form.querySelector('input[name="group_name"]');
+      if (groupInput) {
+        groupInput.value = '';
+        groupInput.focus();
+      }
+    }
+  }
+
+  async function handleStudentAdminSubmit(event) {
+    const form = event.target.closest('[data-student-admin-form]');
+    if (!form) return;
+    event.preventDefault();
+    if (!state.supabase) return;
+
+    clearStudentAdminMessages();
+
+    const studentId = form.dataset.studentId;
+    if (!studentId) {
+      showError(el.studentAdminError, 'No s\'ha trobat l\'identificador de l\'alumne.');
+      return;
+    }
+
+    const formData = new FormData(form);
+    const fullName = (formData.get('full_name') || '').toString().trim();
+    const email = state.profileSupportsEmail ? (formData.get('email') || '').toString().trim() : null;
+    const groupName = state.supportsStudentGroups ? (formData.get('group_name') || '').toString().trim() : '';
+
+    if (!fullName) {
+      showError(el.studentAdminError, 'El nom complet és obligatori.');
+      return;
+    }
+
+    const payload = { full_name: fullName };
+    if (state.profileSupportsEmail) {
+      payload.email = email || null;
+    }
+    if (state.supportsStudentGroups) {
+      payload.group_name = groupName || null;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalLabel = submitButton ? submitButton.textContent : '';
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Desant…';
+    }
+
+    try {
+      const { error } = await state.supabase.from('profiles').update(payload).eq('id', studentId);
+      if (error) throw error;
+      await loadStudents();
+      showSuccess(el.studentAdminFeedback, 'Canvis desats correctament.');
+    } catch (error) {
+      const message = error?.message || 'No s\'han pogut desar els canvis de l\'alumne.';
+      showError(el.studentAdminError, message);
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalLabel || 'Desa canvis';
+      }
+    }
+  }
+
+  async function handleStudentCreateSubmit(event) {
+    event.preventDefault();
+    if (!state.supabase || !state.supabaseUrl || !state.supabaseAnonKey) return;
+
+    clearStudentAdminMessages();
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const fullName = (formData.get('full_name') || '').toString().trim();
+    const email = (formData.get('email') || '').toString().trim();
+    const password = (formData.get('password') || '').toString();
+    const groupName = (formData.get('group_name') || '').toString().trim();
+
+    if (!fullName) {
+      showError(el.studentAdminError, 'Introdueix el nom complet de l\'alumne.');
+      return;
+    }
+    if (!email) {
+      showError(el.studentAdminError, 'Cal un correu electrònic per crear el compte.');
+      return;
+    }
+    if (!password || password.length < 6) {
+      showError(el.studentAdminError, 'La contrasenya ha de tenir com a mínim 6 caràcters.');
+      return;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalLabel = submitButton ? submitButton.textContent : '';
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Creant alumne…';
+    }
+
+    try {
+      const provisionClient = createClient(state.supabaseUrl, state.supabaseAnonKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: false,
+        },
+      });
+
+      const { data, error } = await provisionClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+            role: 'student',
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      const userId = data?.user?.id;
+      if (!userId) {
+        throw new Error('No s\'ha pogut crear l\'usuari de l\'alumne.');
+      }
+
+      const profilePayload = {
+        id: userId,
+        full_name: fullName,
+        role: 'student',
+      };
+      if (state.profileSupportsEmail) {
+        profilePayload.email = email;
+      }
+      if (state.supportsStudentGroups) {
+        profilePayload.group_name = groupName ? groupName : null;
+      }
+
+      const { error: profileError } = await state.supabase
+        .from('profiles')
+        .upsert(profilePayload, { onConflict: 'id' });
+
+      if (profileError) throw profileError;
+
+      form.reset();
+      await loadStudents();
+      showSuccess(
+        el.studentAdminFeedback,
+        'Alumne creat correctament. Rebrà un correu de confirmació per activar el compte.'
+      );
+    } catch (error) {
+      const message = error?.message || 'No s\'ha pogut crear l\'alumne.';
+      showError(el.studentAdminError, message);
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = originalLabel || 'Crear alumne';
+      }
+    }
   }
 
   function handleSignupRoleChange(event) {
@@ -1723,7 +2469,6 @@ function setupFocusPortal() {
 
     const formData = new FormData(event.currentTarget);
     const dueDate = formData.get('due_date') || null;
-    const note = (formData.get('note') || '').toString().trim();
     const titleInput = (formData.get('quiz_title') || '').toString().trim();
     const quizConfigInput = {
       count: formData.get('quiz_count'),
@@ -1733,7 +2478,7 @@ function setupFocusPortal() {
     const baseQuizConfig = normalizeQuizConfig(quizConfigInput);
     const selectedModuleIds = Array.from(state.selectedModules);
 
-    const selectedStudents = formData.getAll('students').filter((value) => Boolean(value));
+    const selectedStudents = Array.from(state.selectedStudentIds).filter(Boolean);
 
     if (!selectedModuleIds.length) {
       showError(el.assignmentError, 'Selecciona com a mínim un mòdul per crear les proves.');
@@ -1780,9 +2525,6 @@ function setupFocusPortal() {
       }
       if (moduleSummary) {
         descriptionParts.push(`\n— Subtemes configurats —\n${moduleSummary}`);
-      }
-      if (note) {
-        descriptionParts.push(`\n— Nota del docent —\n${note}`);
       }
       const description = descriptionParts.join('\n').replace(/\n{3,}/g, '\n\n');
       return {
@@ -1864,6 +2606,8 @@ function setupFocusPortal() {
 
     event.currentTarget.reset();
     resetModulePicker();
+    state.selectedStudentIds.clear();
+    renderStudentGroupFilter();
     renderStudents();
 
     const moduleCount = modulesToAssign.length;
@@ -1878,28 +2622,6 @@ function setupFocusPortal() {
     showSuccess(el.assignmentFeedback, feedbackMessage);
 
     loadTeacherAssignments();
-  }
-
-  async function handleStatusChange(event) {
-    const select = event.target;
-    if (!select.matches('.status-select')) return;
-    if (!state.supabase) return;
-
-    const rowId = select.dataset.row;
-    const value = select.value;
-    if (!rowId) return;
-
-    const { error } = await state.supabase
-      .from('assignment_assignees')
-      .update({ status: value })
-      .eq('id', rowId);
-
-    if (error) {
-      alert('No s\'ha pogut actualitzar l\'estat: ' + error.message);
-      return;
-    }
-
-    loadStudentAssignments();
   }
 
   async function handleAssignmentListClick(event) {
@@ -1931,69 +2653,6 @@ function setupFocusPortal() {
     loadTeacherAssignments();
   }
 
-  async function handleSubmission(event) {
-    const form = event.target;
-    if (!form.matches('.submission-form')) return;
-    event.preventDefault();
-    if (!state.supabase || !state.profile) return;
-
-    const formData = new FormData(form);
-    const assignmentId = form.dataset.assignment;
-    const rowId = form.dataset.row;
-    const rawContent = formData.get('content');
-    const content = rawContent ? rawContent.toString().trim() : '';
-
-    if (!assignmentId) {
-      alert('No s\'ha pogut identificar la tasca.');
-      return;
-    }
-
-    const submitButton = form.querySelector('button[type="submit"]');
-    const originalLabel = submitButton ? submitButton.textContent : '';
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = 'Guardant…';
-    }
-
-    const payload = {
-      assignment_id: assignmentId,
-      profile_id: state.profile.id,
-      content: content || null,
-      submitted_at: new Date().toISOString(),
-    };
-
-    const { error } = await state.supabase
-      .from('submissions')
-      .upsert(payload, {
-        onConflict: 'assignment_id,profile_id',
-      });
-
-    if (submitButton) {
-      submitButton.disabled = false;
-      submitButton.textContent = originalLabel || 'Envia resposta';
-    }
-
-    if (error) {
-      alert('Error en desar la resposta: ' + error.message);
-      return;
-    }
-
-    if (rowId) {
-      const { error: statusError } = await state.supabase
-        .from('assignment_assignees')
-        .update({ status: 'submitted' })
-        .eq('id', rowId);
-
-      if (statusError) {
-        alert('La resposta s\'ha desat però no s\'ha pogut actualitzar l\'estat: ' + statusError.message);
-      }
-    }
-
-    alert('Resposta desada correctament.');
-    form.reset();
-    loadStudentAssignments();
-  }
-
   function wireEvents() {
     if (el.loginForm) el.loginForm.addEventListener('submit', handleLogin);
     if (el.logoutBtn) el.logoutBtn.addEventListener('click', handleLogout);
@@ -2001,16 +2660,25 @@ function setupFocusPortal() {
     if (el.assignmentList) el.assignmentList.addEventListener('click', handleAssignmentListClick);
     if (el.refreshStudents) el.refreshStudents.addEventListener('click', loadStudents);
     if (el.reloadAssignments) el.reloadAssignments.addEventListener('click', loadTeacherAssignments);
+    if (el.refreshGrades) el.refreshGrades.addEventListener('click', loadTeacherAssignments);
     if (el.modulePicker) el.modulePicker.addEventListener('click', handleModuleClick);
     if (el.moduleFilter) el.moduleFilter.addEventListener('change', handleModuleFilterChange);
     if (el.moduleSearch) el.moduleSearch.addEventListener('input', handleModuleSearch);
     if (el.tabList) el.tabList.addEventListener('click', handleTabClick);
+    if (el.teacherTabList) el.teacherTabList.addEventListener('click', handleTeacherTabClick);
     if (el.signupForm) {
       el.signupForm.addEventListener('submit', handleSignup);
       el.signupForm.addEventListener('change', handleSignupRoleChange);
     }
-    document.addEventListener('change', handleStatusChange);
-    document.addEventListener('submit', handleSubmission, true);
+    if (el.studentChecklist) el.studentChecklist.addEventListener('change', handleStudentSelectionChange);
+    if (el.studentGroupFilter) el.studentGroupFilter.addEventListener('click', handleGroupFilterClick);
+    if (el.studentAdminFilter) el.studentAdminFilter.addEventListener('click', handleStudentAdminFilterClick);
+    if (el.studentAdminList) {
+      el.studentAdminList.addEventListener('submit', handleStudentAdminSubmit);
+      el.studentAdminList.addEventListener('click', handleStudentAdminClick);
+    }
+    if (el.studentCreateForm) el.studentCreateForm.addEventListener('submit', handleStudentCreateSubmit);
+    if (el.studentAdminRefresh) el.studentAdminRefresh.addEventListener('click', loadStudents);
   }
 
   function disableUI() {
@@ -2019,9 +2687,14 @@ function setupFocusPortal() {
     toggle(el.sessionPanel, false);
     toggle(el.tabList, false);
     toggle(el.teacherPanel, false);
+    toggle(el.teacherTabList, false);
+    toggle(el.teacherPlannerPanel, false);
+    toggle(el.teacherReportsPanel, false);
+    toggle(el.teacherStudentsPanel, false);
     toggle(el.studentPanel, false);
     toggle(el.teacherView, false);
     toggle(el.teacherAssignments, false);
+    toggle(el.teacherGrades, false);
     toggle(el.studentView, false);
     state.sessionWarning = '';
     if (el.sessionWarning) {
@@ -2029,6 +2702,7 @@ function setupFocusPortal() {
       el.sessionWarning.classList.add('hidden');
     }
     resetTabs();
+    clearStudentAdminMessages();
   }
 
   async function init() {
@@ -2045,6 +2719,9 @@ function setupFocusPortal() {
       disableUI();
       return;
     }
+
+    state.supabaseUrl = config.SUPABASE_URL;
+    state.supabaseAnonKey = config.SUPABASE_ANON_KEY;
 
     state.supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY, {
       auth: {

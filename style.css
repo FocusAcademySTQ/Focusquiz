@@ -671,30 +671,59 @@ a.btn-secondary{
 }
 .quiz .options{
   display:grid;
-  gap:10px;
-  margin-top:8px;
+  gap:14px;
+  margin-top:12px;
 }
 .quiz .options .option{
+  position:relative;
   display:flex;
   align-items:center;
   justify-content:flex-start;
-  background:#f8fafc;
-  border:1px solid #dbeafe;
-  border-radius:14px;
-  box-shadow:none;
-  padding:12px 14px;
+  gap:12px;
+  width:100%;
+  padding:18px 20px;
+  border-radius:18px;
+  border:1.5px solid rgba(148,163,184,0.35);
+  background:linear-gradient(150deg, rgba(255,255,255,0.98), rgba(236,244,255,0.88));
+  color:var(--ink);
   font-weight:700;
-  font-size:1rem;
-  color:#0f172a;
-  transition:background .2s, transform .2s;
-}
-.quiz .options .option:hover{
-  background:#e0e7ff;
-  transform:translateY(-1px);
+  font-size:1.02rem;
+  letter-spacing:.12px;
+  text-align:left;
+  line-height:1.3;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  overflow:hidden;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .24s ease;
 }
 .quiz .options .option::after{
-  display:none;
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:6px;
+  background: var(--choice-accent, var(--p-blue));
+  opacity:.55;
 }
+.quiz .options .option:hover,
+.quiz .options .option:focus-visible{
+  transform:translateY(-2px);
+  border-color:rgba(99,102,241,0.45);
+  background:linear-gradient(155deg, rgba(246,250,255,0.97), rgba(226,241,255,0.9));
+  box-shadow:0 16px 32px rgba(79,70,229,0.18), 0 0 0 3px rgba(122,162,255,0.18);
+}
+.quiz .options .option:focus-visible{
+  outline:none;
+}
+.quiz .options .option:active{
+  transform:translateY(-1px);
+  box-shadow:0 10px 22px rgba(79,70,229,0.16), 0 0 0 2px rgba(122,162,255,0.18);
+}
+.quiz .options .option:nth-child(4n+1){ --choice-accent: var(--p-blue); }
+.quiz .options .option:nth-child(4n+2){ --choice-accent: var(--p-mint); }
+.quiz .options .option:nth-child(4n+3){ --choice-accent: var(--p-lilac); }
+.quiz .options .option:nth-child(4n+4){ --choice-accent: var(--p-peach); }
 .quiz.no-right{
   grid-template-columns: 1fr;
 }
