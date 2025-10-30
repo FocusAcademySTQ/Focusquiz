@@ -56,8 +56,13 @@
         <button class="pill nav-btn" data-view="home" type="button" onclick="showView('home')">🏠 Inici</button>
         <button class="pill nav-btn" data-view="results" type="button" onclick="showView('results')">📊 Resultats</button>
         <button class="pill nav-btn" data-view="about" type="button" onclick="showView('about')">ℹ️ Qui som?</button>
-        <a class="pill" href="teoria.html" title="Teoria matemàtica">π</a>
-        <a class="pill" href="teoriacatala.html" title="Teoria catalana">à</a>
+        <details class="nav-dropdown">
+          <summary class="pill nav-btn" role="button" aria-haspopup="menu" aria-expanded="false">📘 Teoria</summary>
+          <div class="dropdown-menu" role="menu">
+            <a class="dropdown-item" href="teoria.html" role="menuitem">Matemàtiques · π</a>
+            <a class="dropdown-item" href="teoriacatala.html" role="menuitem">Català · à</a>
+          </div>
+        </details>
         <a class="pill" href="https://focuscat.onrender.com/" target="_blank" rel="noopener" title="Focus Exams">FE</a>
         <a class="pill" href="/portal/supabase-portal.html" title="Gestor Supabase">Accés professor/alumne</a>
       </nav>
