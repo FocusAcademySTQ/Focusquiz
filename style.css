@@ -63,7 +63,11 @@ body{
   position: sticky;
   top: 0;
   z-index: 100;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+
+.topbar::-webkit-scrollbar { display: none; }
 
 /* ===== Login overlay ===== */
 #loginOverlay.login-overlay {
@@ -184,9 +188,14 @@ body{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-wrap: nowrap;
+  gap: 1rem;
   padding: 0.6rem 1rem;
+  width: 100%;
+}
+
+.header-bar > * {
+  flex-shrink: 0;
 }
 
 /* Marca */
@@ -244,10 +253,16 @@ body{
 /* Navegació */
 .main-nav {
   display: flex;
+  align-items: center;
   gap: 0.4rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
 }
+
+.main-nav::-webkit-scrollbar { display: none; }
 
 .main-nav .pill {
   background: rgba(255, 255, 255, 0.9);
@@ -277,6 +292,73 @@ body{
   display: flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.nav-dropdown summary::-webkit-details-marker { display: none; }
+
+.nav-dropdown summary::after {
+  content: '\25BE';
+  font-size: 0.75rem;
+  margin-left: 0.35rem;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.nav-dropdown[open] > summary {
+  background: rgba(226, 237, 255, 0.9);
+  color: #1d4ed8;
+}
+
+.nav-dropdown[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.nav-dropdown:not([open]) .dropdown-menu {
+  display: none;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: #ffffff;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 12px;
+  padding: 0.45rem;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.12);
+  min-width: 180px;
+  z-index: 10;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 0.35rem 0.55rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1f2a5a;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus-visible {
+  background: #eef2ff;
+  color: #1d4ed8;
+  text-decoration: none;
+  outline: none;
 }
 .user-controls .pill.small {
   padding: 0.35rem 0.6rem;
@@ -309,27 +391,23 @@ body{
 
 @media (max-width: 900px) {
   .header-bar {
-    flex-direction: column;
-    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
   }
-  .brand,
-  .user-controls {
-    width: 100%;
-    justify-content: space-between;
+  .brand h1 {
+    font-size: 0.95rem;
   }
   .main-nav {
-    width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
   }
 }
 
 @media (max-width: 560px) {
-  .user-controls {
-    flex-wrap: wrap;
-    justify-content: center;
+  .brand .logo {
+    font-size: 0.9rem;
   }
   .user-controls .pill.small {
-    flex: 1 1 45%;
+    padding-inline: 0.5rem;
   }
 }
 .input, select{

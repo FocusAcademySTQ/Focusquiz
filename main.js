@@ -2409,6 +2409,47 @@ function init(){
 
 document.addEventListener('DOMContentLoaded', () => {
   init();
+
+  const dropdown = document.querySelector('.nav-dropdown');
+  if (dropdown) {
+    const summary = dropdown.querySelector('summary');
+
+    const updateExpanded = () => {
+      if (!summary) return;
+      summary.setAttribute('aria-expanded', dropdown.hasAttribute('open') ? 'true' : 'false');
+    };
+
+    const closeDropdown = () => {
+      dropdown.removeAttribute('open');
+      updateExpanded();
+      summary?.focus();
+    };
+
+    updateExpanded();
+    dropdown.addEventListener('toggle', updateExpanded);
+
+    dropdown.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDropdown();
+      }
+    });
+
+    dropdown.addEventListener('focusout', (event) => {
+      const next = event.relatedTarget;
+      if (!next || !dropdown.contains(next)) {
+        dropdown.removeAttribute('open');
+        updateExpanded();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!dropdown.contains(event.target)) {
+        dropdown.removeAttribute('open');
+        updateExpanded();
+      }
+    });
+  }
 });
 
 document.addEventListener('focusquiz:user-login', init);
