@@ -64,7 +64,7 @@
           </div>
         </details>
         <a class="pill" href="https://focuscat.onrender.com/" target="_blank" rel="noopener" title="Focus Exams">FE</a>
-        <a class="pill" href="/portal/supabase-portal.html" title="Gestor Supabase">Accés professor/alumne</a>
+        <a class="pill" href="/portal/supabase-portal.html" title="Gestor Supabase">Accés professorat</a>
       </nav>
 
       <!-- 🔹 Usuari actiu -->
@@ -85,6 +85,27 @@
       <div class="panel card">
         <h2 class="title">Benvingut/da! 👋</h2>
         <p class="subtitle">Tria un mòdul per configurar-lo i començar. Tot queda guardat en aquest dispositiu (sense comptes).</p>
+
+        <form id="classCodeForm" class="class-code-form" autocomplete="off">
+          <label class="class-code-label" for="classCodeInput">Has rebut un codi de prova?</label>
+          <div class="class-code-row">
+            <input
+              id="classCodeInput"
+              class="input"
+              type="text"
+              name="classCode"
+              minlength="4"
+              maxlength="12"
+              required
+              placeholder="Introdueix el codi del test"
+              aria-describedby="classCodeHelp"
+            />
+            <button class="pill" type="submit">Entra a l'aula</button>
+          </div>
+          <p id="classCodeHelp" class="portal-muted">
+            Els tests FocusQuiz ara es fan a l'espai d'aula. Escriu el codi que t'ha donat el teu professorat.
+          </p>
+        </form>
 
         <div id="moduleGrid"></div>
 
@@ -126,6 +147,23 @@
               const label = badge.querySelector('.label');
               if (label) label.textContent = current || 'Sessió no iniciada';
               badge.classList.toggle('is-empty', !current);
+            }
+
+            const form = document.getElementById('classCodeForm');
+            if (form) {
+              form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const input = document.getElementById('classCodeInput');
+                if (!input) return;
+                const code = (input.value || '').trim().toUpperCase();
+                if (!code) {
+                  input.focus();
+                  return;
+                }
+                const target = new URL('class.html', window.location.href);
+                target.searchParams.set('code', code);
+                window.location.href = target.toString();
+              });
             }
 
           });

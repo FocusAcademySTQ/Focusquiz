@@ -1165,3 +1165,204 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   }
   .quiz .options { grid-template-columns: 1fr; }
 }
+
+/* ===================== Aula FocusQuiz ===================== */
+.class-code-form {
+  margin: 1.5rem 0 2.5rem;
+  padding: 1.25rem;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15), rgba(236, 72, 153, 0.12));
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 18px 45px -20px rgba(79, 70, 229, 0.55);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.class-code-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #1f2937;
+}
+
+.class-code-row {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.class-code-row .input {
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+}
+
+.class-code-row .pill {
+  min-width: 11rem;
+}
+
+@media (max-width: 720px) {
+  .class-code-row {
+    grid-template-columns: 1fr;
+  }
+
+  .class-code-row .pill {
+    width: 100%;
+  }
+}
+
+.class-page {
+  background: radial-gradient(circle at top, rgba(165, 180, 252, 0.25), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.94));
+}
+
+.class-main {
+  display: grid;
+  gap: 1.5rem;
+  padding-bottom: 4rem;
+}
+
+.class-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: linear-gradient(145deg, rgba(129, 140, 248, 0.12), rgba(236, 72, 153, 0.12));
+  border: 1px solid rgba(129, 140, 248, 0.25);
+}
+
+.class-name {
+  font-size: clamp(1.75rem, 4vw, 2.65rem);
+  margin: 0.15rem 0 0;
+}
+
+.class-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.class-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 1.5rem;
+}
+
+.class-roster__body {
+  min-height: 16rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: stretch;
+}
+
+.class-student-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.class-student {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.class-student:hover,
+.class-student:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(99, 102, 241, 0.9);
+  box-shadow: 0 12px 24px -14px rgba(99, 102, 241, 0.65);
+}
+
+.class-student.is-active {
+  background: linear-gradient(130deg, rgba(129, 140, 248, 0.22), rgba(236, 72, 153, 0.2));
+  border-color: rgba(99, 102, 241, 0.95);
+  color: #111827;
+}
+
+.class-assignment-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.class-assignment-card {
+  padding: 1.25rem;
+  border-radius: 18px;
+  border: 1px solid rgba(129, 140, 248, 0.28);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 24px 50px -28px rgba(30, 64, 175, 0.55);
+  display: grid;
+  gap: 0.85rem;
+}
+
+.class-assignment-card header p {
+  margin: 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(79, 70, 229, 0.85);
+}
+
+.class-assignment-card header h3 {
+  margin: 0.1rem 0 0;
+  font-size: 1.35rem;
+}
+
+.class-assignment-card dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+}
+
+.class-assignment-card dt {
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(71, 85, 105, 0.9);
+}
+
+.class-assignment-card dd {
+  margin: 0;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.class-assignment-card footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.class-assignment-card .pill {
+  min-width: 12rem;
+}
+
+.class-assignment-card .pill.is-secondary {
+  background: rgba(148, 163, 184, 0.15);
+  color: #1f2937;
+}
+
+.class-error {
+  margin-top: 4rem;
+  text-align: center;
+  max-width: 640px;
+}
+
+@media (max-width: 1024px) {
+  .class-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .class-meta {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
