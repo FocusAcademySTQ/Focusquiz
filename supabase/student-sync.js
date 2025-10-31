@@ -1,156 +1,133 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../portal/supabase-config.js';
+import { resolveSupabaseConfig } from '../portal/supabase-config.js';
 
-const CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+let cachedConfig = resolveSupabaseConfig();
 const state = {
   client: null,
-  initPromise: null,
-  profile: null,
-  profilePromise: null,
 };
 
-function buildClient() {
-  if (!CONFIGURED) return null;
+function getActiveSupabaseConfig() {
+  const resolved = resolveSupabaseConfig();
+  if (!resolved.configured) {
+    return null;
+  }
+  if (
+    !cachedConfig ||
+    cachedConfig.url !== resolved.url ||
+    cachedConfig.anonKey !== resolved.anonKey
+  ) {
+    cachedConfig = resolved;
+    if (state.client) {
+      state.client = null;
+    }
+  }
+  return cachedConfig;
+}
+
+function getClient() {
+  const config = getActiveSupabaseConfig();
+  if (!config) return null;
+  if (state.client) return state.client;
   try {
-    return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    state.client = createClient(config.url, config.anonKey, {
       auth: {
-        persistSession: true,
-        autoRefreshToken: true,
+        persistSession: false,
+        autoRefreshToken: false,
       },
     });
-  } catch (error) {
-    console.error('FocusSupabase: no s\'ha pogut crear el client de Supabase.', error);
-    return null;
-  }
-}
-
-async function init() {
-  if (state.client) return state.client;
-  if (!CONFIGURED) {
-    return null;
-  }
-  if (state.initPromise) return state.initPromise;
-  state.initPromise = (async () => {
-    const client = buildClient();
-    if (!client) {
-      state.client = null;
-      return null;
-    }
-    state.client = client;
     return state.client;
-  })();
-  try {
-    return await state.initPromise;
-  } finally {
-    state.initPromise = null;
+  } catch (error) {
+    console.error('FocusSupabase: no s\'ha pogut crear el client.', error);
+    state.client = null;
+    return null;
   }
 }
 
-async function getProfile() {
-  const client = await init();
-  if (!client) return null;
-  if (state.profile) return state.profile;
-  if (state.profilePromise) return state.profilePromise;
+function normalizeNumber(value) {
+  const num = Number.parseFloat(value);
+  return Number.isFinite(num) ? num : null;
+}
 
-  state.profilePromise = (async () => {
-    try {
-      const { data: sessionData, error: sessionError } = await client.auth.getSession();
-      if (sessionError) throw sessionError;
-      const userId = sessionData?.session?.user?.id;
-      if (!userId) return null;
-      if (state.profile && state.profile.id === userId) {
-        return state.profile;
-      }
-
-      const { data, error } = await client
-        .from('profiles')
-        .select('id, full_name, role, email')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (error) throw error;
-      state.profile = data || null;
-      return state.profile;
-    } catch (error) {
-      console.warn('FocusSupabase: no s\'ha pogut obtenir el perfil.', error);
-      return null;
-    } finally {
-      state.profilePromise = null;
-    }
-  })();
-
-  return state.profilePromise;
+function safeString(value) {
+  if (value === null || value === undefined) return '';
+  return String(value).trim();
 }
 
 async function submitResult(entry, session = {}) {
-  if (!session || !session.assignmentId) {
-    return { ok: false, reason: 'missing-assignment' };
-  }
-  const client = await init();
-  if (!client) {
+  if (!getActiveSupabaseConfig()) {
     return { ok: false, reason: 'disabled' };
   }
-
-  const profile = await getProfile();
-  if (!profile) {
-    return { ok: false, reason: 'no-profile' };
+  const client = getClient();
+  if (!client) {
+    return { ok: false, reason: 'client-error' };
   }
 
-  const status = entry && entry.count && entry.correct >= entry.count ? 'completed' : 'submitted';
-  const payloadMeta = {
-    assignmentId: session.assignmentId,
-    assignmentLabel: session.assignmentLabel || null,
-    assignmentTitle: session.assignmentTitle || null,
-    module: session.module || session.moduleName || entry?.module || null,
-    tags: Array.isArray(session.assignmentTags) ? session.assignmentTags : [],
+  const assignmentId = safeString(session.assignmentId);
+  const classId = safeString(session.classId);
+  const classCode = safeString(session.classCode);
+  const studentName = safeString(session.studentName || entry?.name);
+
+  if (!assignmentId || !classId || !classCode || !studentName) {
+    return { ok: false, reason: 'missing-context' };
+  }
+
+  const score = normalizeNumber(entry?.score);
+  const correct = normalizeNumber(entry?.correct);
+  const count = normalizeNumber(entry?.count);
+  const timeSpent = normalizeNumber(entry?.time_spent);
+
+  let details = null;
+  try {
+    details = {
+      entry,
+      meta: {
+        module: session.module || entry?.module || null,
+        moduleTitle: session.moduleTitle || null,
+        assignmentLabel: session.assignmentLabel || null,
+      },
+    };
+  } catch (error) {
+    console.warn('FocusSupabase: no s\'ha pogut preparar el detall del resultat.', error);
+  }
+
+  const status = correct !== null && count !== null && correct >= count ? 'completed' : 'submitted';
+
+  const payload = {
+    assignment_id: assignmentId,
+    class_id: classId,
+    class_code: classCode,
+    student_name: studentName,
+    score,
+    correct,
+    count,
+    time_spent: timeSpent,
+    status,
+    details,
+    submitted_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   };
 
-  let content = null;
   try {
-    content = JSON.stringify({ entry, meta: payloadMeta });
-  } catch (error) {
-    console.warn('FocusSupabase: no s\'ha pogut serialitzar el resultat, s\'enviarà buit.', error);
-  }
-
-  try {
-    const { error: upsertError } = await client
+    const { error } = await client
       .from('submissions')
-      .upsert(
-        {
-          assignment_id: session.assignmentId,
-          profile_id: profile.id,
-          submitted_at: new Date().toISOString(),
-          content,
-        },
-        { onConflict: 'assignment_id,profile_id' }
-      );
+      .upsert(payload, { onConflict: 'assignment_id,student_name' });
 
-    if (upsertError) throw upsertError;
-
-    const { error: statusError } = await client
-      .from('assignment_assignees')
-      .update({ status })
-      .eq('assignment_id', session.assignmentId)
-      .eq('profile_id', profile.id);
-
-    if (statusError) throw statusError;
+    if (error) throw error;
 
     return { ok: true };
   } catch (error) {
-    console.error('FocusSupabase: error en sincronitzar el resultat.', error);
+    console.error('FocusSupabase: error en enviar el resultat.', error);
     return { ok: false, error };
   }
 }
 
 const FocusSupabase = {
-  init,
-  getProfile,
   submitResult,
 };
 
 if (typeof window !== 'undefined') {
   window.FocusSupabase = FocusSupabase;
-  if (!CONFIGURED) {
+  if (!getActiveSupabaseConfig()) {
     console.info('FocusSupabase: Supabase no està configurat. La sincronització quedarà desactivada.');
   }
 }

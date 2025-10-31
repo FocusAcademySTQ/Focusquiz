@@ -396,10 +396,32 @@ function genCoordBuild(level){
 }
 
 function genCoordinates(level, opts={}){
-  // Temporalment només exposem preguntes de lectura de coordenades.
-  if(opts && Array.isArray(opts.types) && opts.types.includes('read')){
-    return genCoordRead(level);
+  const allowed = ['read','quadrant','build'];
+  let mode = null;
+
+  if (opts && typeof opts.sub === 'string') {
+    const sub = opts.sub.trim().toLowerCase();
+    if (allowed.includes(sub)) {
+      mode = sub;
+    } else if (sub === 'mix' || sub === 'all') {
+      mode = null;
+    }
   }
+
+  if (!mode && Array.isArray(opts.types)) {
+    const filtered = opts.types
+      .map((type) => String(type).toLowerCase())
+      .filter((type) => allowed.includes(type));
+    if (filtered.length === 1) mode = filtered[0];
+    else if (filtered.length > 1) mode = choice(filtered);
+  }
+
+  if (!mode) {
+    mode = choice(allowed);
+  }
+
+  if (mode === 'quadrant') return genCoordQuadrant(level);
+  if (mode === 'build') return genCoordBuild(level);
   return genCoordRead(level);
 }
 
@@ -880,7 +902,7 @@ function genGeometry(level, opts={}){
 
 /* ===== Percentatges ===== */
 
-function genPercent(level){
+function genPercent(level, opts = {}){
   const L = clamp(level,1,4);
   const easy = [5,10,15,20,25,50];
   const mid  = easy.concat([30,40]);
@@ -890,7 +912,26 @@ function genPercent(level){
   const poolP = [null, easy, mid, hard, xhard][L];
   const baseMax = [0, 200, 600, 1000, 1500][L];
 
-  const mode = Math.random()<.33? 'of' : (Math.random()<.5? 'is-of' : 'discount');
+  const allowedModes = ['of','is-of','discount'];
+  let mode = null;
+  if (opts && typeof opts.sub === 'string') {
+    const sub = opts.sub.trim().toLowerCase();
+    if (sub === 'mix' || sub === 'all') {
+      mode = null;
+    } else if (allowedModes.includes(sub)) {
+      mode = sub;
+    }
+  }
+  if (!mode && Array.isArray(opts.modes)) {
+    const filtered = opts.modes
+      .map((m) => String(m).toLowerCase())
+      .filter((m) => allowedModes.includes(m));
+    if (filtered.length === 1) mode = filtered[0];
+    else if (filtered.length > 1) mode = choice(filtered);
+  }
+  if (!mode) {
+    mode = choice(allowedModes);
+  }
 
   if(mode==='of'){
     const p = choice(poolP);
@@ -902,12 +943,12 @@ function genPercent(level){
     const part = rng(10, Math.max(60, Math.floor(baseMax/2)));
     const whole = +(part * 100 / p).toFixed(L>=3? 2 : 0);
     return { type:'percent-is-of', text:`${part} és el ${p}% de ?`, answer: whole };
-  } else {
-    const n = rng(20, baseMax);
-    const off = choice([5,10,12,15,20,25,30,40]);
-    const ans = +(n * (1 - off/100)).toFixed(L>=3? 2 : 0);
-    return { type:'percent-discount', text:`Descompte del ${off}% sobre ${n} → preu final = ?`, answer: ans };
   }
+
+  const n = rng(20, baseMax);
+  const off = choice([5,10,12,15,20,25,30,40]);
+  const ans = +(n * (1 - off/100)).toFixed(L>=3? 2 : 0);
+  return { type:'percent-discount', text:`Descompte del ${off}% sobre ${n} → preu final = ?`, answer: ans };
 }
 
 /* ===== Equacions ===== */
