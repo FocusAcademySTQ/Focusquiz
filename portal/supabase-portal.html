@@ -141,7 +141,7 @@
             <h2>Escull un mòdul i configura la prova</h2>
           </div>
           <div class="portal-actions">
-            <button id="previewModule" class="btn-ghost" type="button">Previsualitza mòdul</button>
+            <button id="previewModule" class="btn-ghost" type="button">Previsualitza l'examen</button>
             <button id="refreshAssignments" class="btn-ghost" type="button">Actualitza</button>
           </div>
         </div>
@@ -154,6 +154,21 @@
             <span class="portal-field-label">Mòdul FocusQuiz</span>
             <select class="input" name="module_id" id="assignmentModule" required></select>
           </label>
+          <div id="moduleConfig" class="portal-module-config hidden" aria-live="polite">
+            <article class="portal-module-config-card" id="moduleConfigCard">
+              <div class="portal-module-config-header">
+                <div>
+                  <p class="portal-chip portal-chip--muted" id="moduleConfigKicker">Personalitza el mòdul</p>
+                  <h3 id="moduleConfigTitle">Opcions específiques</h3>
+                </div>
+                <button id="resetModuleConfig" class="btn-ghost" type="button">Reinicia opcions</button>
+              </div>
+              <p id="moduleConfigSummary" class="portal-module-config-summary hidden"></p>
+              <div id="moduleConfigBody"></div>
+              <p id="moduleConfigError" class="portal-error hidden" role="status"></p>
+            </article>
+            <p id="moduleConfigNotice" class="portal-muted hidden"></p>
+          </div>
           <label>
             <span class="portal-field-label">Nom visible per a l'alumnat</span>
             <input class="input" name="assignment_label" type="text" placeholder="Control de fraccions" />

@@ -342,6 +342,10 @@ let pendingUrlQuizOverrides = null;
 const DEFAULTS = { count: 10, time: 0, level: 1 };
 let session = null;
 let timerHandle = null;
+let pendingPreviewRequested = false;
+let previewContext = null;
+let previewOverlay = null;
+let previewStatusTimer = null;
 
 /* ===================== VIEWS ===================== */
 
@@ -448,6 +452,7 @@ function extractQuizConfigFromParams(params) {
   const optionsParam = params.get('opts') || params.get('options');
   const options = optionsParam ? decodeQuizOptionsParam(optionsParam) : null;
   const autostart = parseUrlBoolean(params.get('autostart') ?? params.get('start'));
+  const preview = parseUrlBoolean(params.get('preview') ?? params.get('portalPreview'));
   const tags = [];
   const tagParams = params.getAll ? params.getAll('tag') : [];
   tagParams.forEach((tag) => {
@@ -482,6 +487,7 @@ function extractQuizConfigFromParams(params) {
     config.moduleTitle = titleRaw.trim();
   }
   if (autostart) config.autostart = true;
+  if (preview) config.preview = true;
   if (tags.length) {
     config.assignmentTags = Array.from(new Set(tags));
   }
@@ -491,6 +497,7 @@ function extractQuizConfigFromParams(params) {
 
 function applyUrlQuizConfig(config) {
   if (!config) return;
+  pendingPreviewRequested = Boolean(config.preview);
   const countInput = $('#cfg-count');
   if (countInput && Number.isFinite(config.count)) {
     countInput.value = String(clamp(config.count, 1, 200));
@@ -558,6 +565,7 @@ function openModuleFromURL(){
         classId: pendingUrlQuizConfig.classId || '',
         studentName: pendingUrlQuizConfig.studentName || '',
         moduleTitle: pendingUrlQuizConfig.moduleTitle || '',
+        preview: Boolean(pendingUrlQuizConfig.preview),
       }
     : null;
 
@@ -935,6 +943,19 @@ function startFromConfig(meta){
   if (!metaData.moduleTitle && pendingUrlQuizOverrides && pendingUrlQuizOverrides.moduleTitle) {
     metaData.moduleTitle = pendingUrlQuizOverrides.moduleTitle;
   }
+  const previewRequested = Boolean((pendingUrlQuizOverrides && pendingUrlQuizOverrides.preview) || pendingPreviewRequested);
+  if (previewRequested) {
+    pendingPreviewRequested = false;
+    if (pendingUrlQuizOverrides) {
+      pendingUrlQuizOverrides.preview = false;
+    }
+    if (pendingModule) {
+      startPreviewSession(pendingModule.id, cfg, metaData);
+    }
+    pendingUrlQuizConfig = null;
+    pendingUrlQuizOverrides = null;
+    return;
+  }
   if (cfg.options?.mode === 'map') {
     if (pendingModule?.id === 'geo-europe') {
       openEuropeMap();
@@ -977,6 +998,12 @@ function startQuiz(moduleId, cfg, meta = {}){
   const genLevel = usesLevels ? clamp(rawLevel||1, 1, 4) : clamp(rawLevel||4, 1, 4);
   const levelLabel = usesLevels ? `Nivell ${genLevel}` : (module?.levelLabel || 'Mode lliure');
   const storedLevel = usesLevels ? genLevel : 0;
+  const optionsClone = cfg && typeof cfg.options === 'object' ? cloneObject(cfg.options) : {};
+  let prebuiltQuestions = null;
+  if (Array.isArray(optionsClone.questions) && optionsClone.questions.length) {
+    prebuiltQuestions = optionsClone.questions.map(cloneQuizQuestion);
+    delete optionsClone.questions;
+  }
   const metaData = (meta && typeof meta === 'object') ? meta : {};
   const customLabel = typeof metaData.label === 'string' ? metaData.label.trim() : '';
   const assignmentId = typeof metaData.assignmentId === 'string' ? metaData.assignmentId.trim() : '';
@@ -991,6 +1018,12 @@ function startQuiz(moduleId, cfg, meta = {}){
     : module?.name || moduleId;
   const quizTitle = customLabel || moduleTitle;
 
+  if (prebuiltQuestions && prebuiltQuestions.length) {
+    const metaOverrides = { ...metaData, level: storedLevel, time };
+    startQuizFromExisting(moduleId, optionsClone, prebuiltQuestions, metaOverrides);
+    return;
+  }
+
   session = {
     module: moduleId,
     count,
@@ -1002,7 +1035,7 @@ function startQuiz(moduleId, cfg, meta = {}){
     startedAt: Date.now(),
     secondsLeft: time > 0 ? time * 60 : 0,
     questions: [],
-    options: cfg.options || {},
+    options: optionsClone,
     levelLabel,
     assignmentId: assignmentId || null,
     assignmentLabel: customLabel || null,
@@ -1036,19 +1069,10 @@ function startQuiz(moduleId, cfg, meta = {}){
 // Nova: començar amb preguntes existents (repàs d'errors)
 function startQuizFromExisting(moduleId, options, questions, meta={}){
   const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
-  const normalized = Array.isArray(questions) ? questions.map(q => ({
-    type: q.type,
-    text: q.text,
-    title: q.title,
-    html: q.html,
-    answer: q.answer,
-    meta: q.meta,
-    numeric: q.numeric,
-    piCoef: q.piCoef,
-    sol: q.sol,
-    sols: q.sols
-  })) : [];
-  const opts = options ? JSON.parse(JSON.stringify(options)) : {};
+  const normalized = Array.isArray(questions)
+    ? questions.map((question) => cloneQuizQuestion(question))
+    : [];
+  const opts = options ? cloneObject(options) : {};
   const level = meta.level !== undefined ? meta.level : 0;
   const timeLimit = meta.time ? Math.max(0, parseInt(meta.time)) : 0;
 
@@ -1088,6 +1112,313 @@ function startQuizFromExisting(moduleId, options, questions, meta={}){
   } else {
     $('#answer').focus();
   }
+}
+
+function cloneObject(value) {
+  if (value === null || value === undefined) return {};
+  if (typeof value !== 'object') return {};
+  try {
+    return JSON.parse(JSON.stringify(value));
+  } catch (_error) {
+    if (Array.isArray(value)) return value.slice();
+    return { ...value };
+  }
+}
+
+function cloneQuizQuestion(question) {
+  if (!question || typeof question !== 'object') {
+    return { type: 'unknown', text: '', answer: '' };
+  }
+  try {
+    return JSON.parse(JSON.stringify(question));
+  } catch (_error) {
+    return {
+      type: question.type,
+      text: question.text,
+      title: question.title,
+      html: question.html,
+      answer: question.answer,
+      options: Array.isArray(question.options) ? question.options.slice() : question.options,
+      input: question.input,
+      meta: question.meta,
+      numeric: question.numeric,
+      piCoef: question.piCoef,
+      sol: question.sol,
+      sols: Array.isArray(question.sols) ? question.sols.slice() : question.sols,
+    };
+  }
+}
+
+function startPreviewSession(moduleId, cfg, meta = {}) {
+  const module = MODULES.find((m) => m.id === moduleId) || MODULES[0];
+  if (!module) return;
+  const count = clamp(parseInt(cfg.count) || DEFAULTS.count, 1, 200);
+  const time = clamp(parseInt(cfg.time) || 0, 0, 180);
+  const usesLevels = module?.usesLevels !== false;
+  const rawLevel = parseInt(cfg.level);
+  const level = usesLevels ? clamp(rawLevel || DEFAULTS.level, 1, 4) : clamp(rawLevel || 4, 1, 4);
+  const baseOptions = cfg.options && typeof cfg.options === 'object' ? cloneObject(cfg.options) : {};
+  let questions = [];
+  if (Array.isArray(baseOptions.questions) && baseOptions.questions.length) {
+    questions = baseOptions.questions.map((question) => cloneQuizQuestion(question));
+  }
+  if (baseOptions.questions) {
+    delete baseOptions.questions;
+  }
+  if (!questions.length) {
+    for (let i = 0; i < count; i += 1) {
+      questions.push(generatePreviewQuestion(module, level, baseOptions));
+    }
+  }
+  previewContext = {
+    moduleId,
+    module,
+    moduleName: module?.name || moduleId,
+    moduleTitle: meta.moduleTitle || module?.name || moduleId,
+    label: meta.label || '',
+    count: questions.length,
+    time,
+    level,
+    options: baseOptions,
+    questions,
+  };
+  renderPreviewOverlay();
+}
+
+function generatePreviewQuestion(module, level, options) {
+  try {
+    const opts = options ? cloneObject(options) : {};
+    const generated = module.gen(level, opts);
+    return cloneQuizQuestion(generated);
+  } catch (error) {
+    console.error('No s\'ha pogut generar una pregunta de previsualització', error);
+    return {
+      type: module?.id || 'preview',
+      text: 'No s\'ha pogut generar aquesta pregunta.',
+      answer: '—',
+      options: null,
+    };
+  }
+}
+
+function renderPreviewOverlay() {
+  if (!previewContext) return;
+  destroyPreviewOverlay();
+  previewOverlay = document.createElement('div');
+  previewOverlay.className = 'preview-overlay';
+  const timeLabel = previewContext.time > 0 ? `${previewContext.time} min` : 'Sense límit';
+  const subtitleParts = [
+    `${previewContext.count} preguntes`,
+    previewContext.moduleName,
+  ];
+  if (previewContext.level && previewContext.level > 0 && previewContext.module?.usesLevels !== false) {
+    subtitleParts.push(`Nivell ${previewContext.level}`);
+  }
+  subtitleParts.push(timeLabel);
+  const subtitle = subtitleParts.join(' · ');
+  const safeTitle = escapeHTML(previewContext.label || previewContext.moduleTitle || previewContext.moduleName);
+  previewOverlay.innerHTML = `
+    <div class="preview-panel panel card" role="dialog" aria-modal="true" aria-label="Previsualització de l'examen">
+      <header class="preview-header">
+        <div>
+          <p class="preview-kicker">Previsualització de l'examen</p>
+          <h2>${safeTitle}</h2>
+          <p class="preview-subtitle">${escapeHTML(subtitle)}</p>
+        </div>
+        <div class="preview-actions">
+          <button type="button" class="pill" data-preview-action="regenerate">Canvia totes les preguntes</button>
+          <button type="button" class="btn-secondary" data-preview-action="save">Desa i torna</button>
+          <button type="button" class="btn-ghost" data-preview-action="close">Tanca</button>
+        </div>
+      </header>
+      <div class="preview-status" role="status" aria-live="polite"></div>
+      <div class="preview-body" id="previewQuestionList"></div>
+    </div>
+  `;
+  document.body.appendChild(previewOverlay);
+  const list = previewOverlay.querySelector('#previewQuestionList');
+  if (list) {
+    list.addEventListener('click', handlePreviewQuestionClick);
+    renderPreviewQuestionList(list);
+  }
+  const actions = previewOverlay.querySelector('.preview-actions');
+  actions?.addEventListener('click', handlePreviewAction);
+  previewOverlay.addEventListener('click', handlePreviewOverlayClick);
+  document.addEventListener('keydown', handlePreviewKeydown);
+  if (previewContext.questions.length) {
+    setPreviewStatus(`Mostrant ${previewContext.questions.length} preguntes.`, 2200);
+  }
+}
+
+function renderPreviewQuestionList(container) {
+  if (!container || !previewContext) return;
+  container.innerHTML = '';
+  previewContext.questions.forEach((question, index) => {
+    const card = document.createElement('article');
+    card.className = 'preview-question';
+    const questionIndex = index + 1;
+    const titleHtml = question.title ? `<h3>${question.title}</h3>` : '';
+    const textHtml = question.text ? `<div class="preview-question__text">${question.text}</div>` : '';
+    const mediaHtml = question.html ? `<div class="preview-question__media">${question.html}</div>` : '';
+    let optionsHtml = '';
+    if (Array.isArray(question.options) && question.options.length) {
+      const optionItems = question.options.map((opt) => `<li>${escapeHTML(String(opt))}</li>`).join('');
+      optionsHtml = `<ul class="preview-question__options">${optionItems}</ul>`;
+    }
+    const answerHtml = escapeHTML(String(fmtAns(question.answer !== undefined ? question.answer : '—')));
+    card.innerHTML = `
+      <header class="preview-question__header">
+        <span class="preview-question__index">Pregunta ${questionIndex}</span>
+        <button type="button" class="btn-ghost preview-question__replace" data-preview-index="${index}">Canvia</button>
+      </header>
+      <div class="preview-question__body">
+        ${titleHtml}
+        ${textHtml}
+        ${mediaHtml}
+        ${optionsHtml}
+      </div>
+      <details class="preview-question__answer">
+        <summary>Resposta correcta</summary>
+        <p>${answerHtml}</p>
+      </details>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function handlePreviewAction(event) {
+  const button = event.target.closest('[data-preview-action]');
+  if (!button) return;
+  event.preventDefault();
+  const action = button.dataset.previewAction;
+  if (action === 'regenerate') {
+    regenerateAllPreviewQuestions();
+  } else if (action === 'save') {
+    sendPreviewSelection();
+  } else if (action === 'close') {
+    closePreviewWindow();
+  }
+}
+
+function handlePreviewQuestionClick(event) {
+  const button = event.target.closest('[data-preview-index]');
+  if (!button) return;
+  event.preventDefault();
+  const index = Number.parseInt(button.dataset.previewIndex, 10);
+  if (!Number.isInteger(index)) return;
+  replacePreviewQuestion(index);
+}
+
+function handlePreviewOverlayClick(event) {
+  if (event.target === previewOverlay) {
+    closePreviewWindow();
+  }
+}
+
+function replacePreviewQuestion(index) {
+  if (!previewContext || !previewContext.module) return;
+  if (index < 0 || index >= previewContext.questions.length) return;
+  previewContext.questions[index] = generatePreviewQuestion(previewContext.module, previewContext.level, previewContext.options);
+  previewContext.count = previewContext.questions.length;
+  const list = previewOverlay?.querySelector('#previewQuestionList');
+  if (list) {
+    renderPreviewQuestionList(list);
+  }
+  setPreviewStatus(`Pregunta ${index + 1} actualitzada.`, 2000);
+}
+
+function regenerateAllPreviewQuestions() {
+  if (!previewContext || !previewContext.module) return;
+  const targetCount = previewContext.questions.length || previewContext.count || DEFAULTS.count;
+  const refreshed = [];
+  for (let i = 0; i < targetCount; i += 1) {
+    refreshed.push(generatePreviewQuestion(previewContext.module, previewContext.level, previewContext.options));
+  }
+  previewContext.questions = refreshed;
+  previewContext.count = refreshed.length;
+  const list = previewOverlay?.querySelector('#previewQuestionList');
+  if (list) {
+    renderPreviewQuestionList(list);
+  }
+  setPreviewStatus('S\'han regenerat totes les preguntes.', 2200);
+}
+
+function setPreviewStatus(message, timeout = 2400) {
+  const statusNode = previewOverlay?.querySelector('.preview-status');
+  if (!statusNode) return;
+  statusNode.textContent = message || '';
+  statusNode.classList.toggle('is-visible', Boolean(message));
+  if (previewStatusTimer) {
+    clearTimeout(previewStatusTimer);
+    previewStatusTimer = null;
+  }
+  if (message && timeout > 0) {
+    previewStatusTimer = setTimeout(() => {
+      if (statusNode.textContent === message) {
+        statusNode.textContent = '';
+        statusNode.classList.remove('is-visible');
+      }
+      previewStatusTimer = null;
+    }, timeout);
+  }
+}
+
+function sendPreviewSelection() {
+  if (!previewContext) return;
+  const target = window.opener;
+  if (!target || target.closed) {
+    setPreviewStatus('No s\'ha pogut enviar la previsualització. Obre-la des del gestor.', 3200);
+    return;
+  }
+  const payload = {
+    type: 'focusquiz-preview',
+    moduleId: previewContext.moduleId,
+    options: cloneObject(previewContext.options || {}),
+    questions: previewContext.questions.map((question) => cloneQuizQuestion(question)),
+  };
+  try {
+    target.postMessage(payload, window.location.origin || '*');
+    setPreviewStatus('Examen guardat. Pots tancar aquesta finestra.', 3200);
+  } catch (error) {
+    console.error('No s\'ha pogut enviar la previsualització', error);
+    setPreviewStatus('Error en guardar la previsualització.', 3200);
+  }
+}
+
+function handlePreviewKeydown(event) {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closePreviewWindow();
+  }
+}
+
+function closePreviewWindow() {
+  destroyPreviewOverlay();
+  try {
+    window.close();
+  } catch (_error) {
+    // ignore close errors
+  }
+  previewContext = null;
+}
+
+function destroyPreviewOverlay() {
+  if (previewOverlay) {
+    const list = previewOverlay.querySelector('#previewQuestionList');
+    if (list) {
+      list.removeEventListener('click', handlePreviewQuestionClick);
+    }
+    const actions = previewOverlay.querySelector('.preview-actions');
+    actions?.removeEventListener('click', handlePreviewAction);
+    previewOverlay.removeEventListener('click', handlePreviewOverlayClick);
+    previewOverlay.remove();
+  }
+  previewOverlay = null;
+  if (previewStatusTimer) {
+    clearTimeout(previewStatusTimer);
+    previewStatusTimer = null;
+  }
+  document.removeEventListener('keydown', handlePreviewKeydown);
 }
 
 function removeCoordAnswerUI(){
@@ -1705,7 +2036,7 @@ function redoWrongs(){
   if(!session || !session.wrongs || !session.wrongs.length){
     flashFeedback('No hi ha errors per repassar.', 'warn'); return;
   }
-  const qs = session.wrongs.map(w=>({type:w.type, text:w.text, title:w.title, html:w.html, answer:w.answer, meta:w.meta, numeric:w.numeric, piCoef:w.piCoef, sol:w.sol, sols:w.sols}));
+  const qs = session.wrongs.map((wrong) => cloneQuizQuestion(wrong));
   closeModal();
   const meta = {
     label: "Repàs d'errors",

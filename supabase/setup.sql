@@ -95,24 +95,30 @@ alter table public.assignments enable row level security;
 alter table public.submissions enable row level security;
 
 -- Profiles policies
-create policy if not exists "Own profile" on public.profiles
+drop policy if exists "Own profile" on public.profiles;
+create policy "Own profile" on public.profiles
   for select using (auth.uid() = id);
 
-create policy if not exists "Insert own profile" on public.profiles
+drop policy if exists "Insert own profile" on public.profiles;
+create policy "Insert own profile" on public.profiles
   for insert with check (auth.uid() = id);
 
-create policy if not exists "Update own profile" on public.profiles
+drop policy if exists "Update own profile" on public.profiles;
+create policy "Update own profile" on public.profiles
   for update using (auth.uid() = id) with check (auth.uid() = id);
 
 -- Classes policies
-create policy if not exists "Teachers manage classes" on public.classes
+drop policy if exists "Teachers manage classes" on public.classes;
+create policy "Teachers manage classes" on public.classes
   for all using (auth.uid() = teacher_id) with check (auth.uid() = teacher_id);
 
-create policy if not exists "Public can read classes" on public.classes
+drop policy if exists "Public can read classes" on public.classes;
+create policy "Public can read classes" on public.classes
   for select using (true);
 
 -- Assignments policies
-create policy if not exists "Teachers manage assignments" on public.assignments
+drop policy if exists "Teachers manage assignments" on public.assignments;
+create policy "Teachers manage assignments" on public.assignments
   for all using (
     exists (
       select 1
@@ -129,11 +135,13 @@ create policy if not exists "Teachers manage assignments" on public.assignments
     )
   );
 
-create policy if not exists "Public read published assignments" on public.assignments
+drop policy if exists "Public read published assignments" on public.assignments;
+create policy "Public read published assignments" on public.assignments
   for select using (status = 'published');
 
 -- Submissions policies
-create policy if not exists "Teachers review submissions" on public.submissions
+drop policy if exists "Teachers review submissions" on public.submissions;
+create policy "Teachers review submissions" on public.submissions
   for select using (
     exists (
       select 1
@@ -143,7 +151,8 @@ create policy if not exists "Teachers review submissions" on public.submissions
     )
   );
 
-create policy if not exists "Teachers update submissions" on public.submissions
+drop policy if exists "Teachers update submissions" on public.submissions;
+create policy "Teachers update submissions" on public.submissions
   for update using (
     exists (
       select 1
@@ -160,7 +169,8 @@ create policy if not exists "Teachers update submissions" on public.submissions
     )
   );
 
-create policy if not exists "Public submit results" on public.submissions
+drop policy if exists "Public submit results" on public.submissions;
+create policy "Public submit results" on public.submissions
   for insert with check (
     exists (
       select 1
@@ -173,7 +183,8 @@ create policy if not exists "Public submit results" on public.submissions
     )
   );
 
-create policy if not exists "Public read own submission" on public.submissions
+drop policy if exists "Public read own submission" on public.submissions;
+create policy "Public read own submission" on public.submissions
   for select using (
     exists (
       select 1

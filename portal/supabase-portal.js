@@ -1,5 +1,13 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { MODULES, CATEGORY_LABELS } from './modules-data.js';
+import {
+  getDefaultModuleOptions,
+  getModuleOptionDefinition,
+  normalizeModuleOptions,
+  summarizeModuleOptions,
+  validateModuleOptions,
+  cloneModuleOptions,
+} from './module-config.js';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
 
 const CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
@@ -17,6 +25,12 @@ const state = {
   classes: [],
   assignments: [],
   submissions: [],
+  assignmentDraft: {
+    moduleId: '',
+    options: {},
+    questionSet: [],
+    notice: '',
+  },
 };
 
 const elements = {
@@ -46,6 +60,15 @@ const elements = {
   assignmentClassSelect: document.getElementById('assignmentClass'),
   assignmentModuleSelect: document.getElementById('assignmentModule'),
   previewModule: document.getElementById('previewModule'),
+  moduleConfig: document.getElementById('moduleConfig'),
+  moduleConfigCard: document.getElementById('moduleConfigCard'),
+  moduleConfigTitle: document.getElementById('moduleConfigTitle'),
+  moduleConfigKicker: document.getElementById('moduleConfigKicker'),
+  moduleConfigBody: document.getElementById('moduleConfigBody'),
+  moduleConfigSummary: document.getElementById('moduleConfigSummary'),
+  moduleConfigError: document.getElementById('moduleConfigError'),
+  moduleConfigNotice: document.getElementById('moduleConfigNotice'),
+  resetModuleConfig: document.getElementById('resetModuleConfig'),
   assignmentList: document.getElementById('assignmentList'),
   assignmentEmpty: document.getElementById('assignmentEmptyState'),
   refreshAssignments: document.getElementById('refreshAssignments'),
@@ -236,6 +259,207 @@ function renderModuleOptions() {
     option.textContent = module.name;
     elements.assignmentModuleSelect.appendChild(option);
   });
+  const previousModule = state.assignmentDraft.moduleId;
+  const desiredModule = sorted.some((module) => module.id === previousModule)
+    ? previousModule
+    : sorted[0]?.id || '';
+  if (desiredModule) {
+    elements.assignmentModuleSelect.value = desiredModule;
+    syncAssignmentModuleFromSelect({ preserveQuestions: desiredModule === previousModule });
+  } else {
+    setCurrentModule('', { preserveQuestions: false });
+  }
+}
+
+function setCurrentModule(moduleId, { preserveQuestions = false, presetOptions = null } = {}) {
+  state.assignmentDraft.moduleId = moduleId || '';
+  let normalizedOptions = {};
+  if (moduleId) {
+    const baseOptions = presetOptions || getDefaultModuleOptions(moduleId) || {};
+    normalizedOptions = normalizeModuleOptions(moduleId, cloneModuleOptions(baseOptions));
+  }
+  state.assignmentDraft.options = normalizedOptions;
+  if (!preserveQuestions) {
+    state.assignmentDraft.questionSet = [];
+    state.assignmentDraft.notice = '';
+  }
+  renderModuleConfigUI(moduleId);
+}
+
+function syncAssignmentModuleFromSelect({ preserveQuestions = false } = {}) {
+  if (!elements.assignmentModuleSelect) {
+    setCurrentModule('', { preserveQuestions: false });
+    return;
+  }
+  const moduleId = elements.assignmentModuleSelect.value || '';
+  setCurrentModule(moduleId, { preserveQuestions });
+}
+
+function renderModuleConfigUI(moduleId) {
+  const container = elements.moduleConfig;
+  const body = elements.moduleConfigBody;
+  if (!container || !body) return;
+  body.innerHTML = '';
+  if (!moduleId) {
+    container.classList.add('hidden');
+    updateModuleSummary();
+    return;
+  }
+  const definition = getModuleOptionDefinition(moduleId);
+  if (!definition) {
+    container.classList.add('hidden');
+    updateModuleSummary();
+    return;
+  }
+  const moduleInfo = MODULES.find((mod) => mod.id === moduleId);
+  if (elements.moduleConfigTitle) {
+    elements.moduleConfigTitle.textContent = moduleInfo ? `Opcions per a ${moduleInfo.name}` : 'Opcions específiques';
+  }
+  if (elements.moduleConfigKicker) {
+    const categoryLabel = moduleInfo?.category ? CATEGORY_LABELS[moduleInfo.category] || moduleInfo.category : null;
+    elements.moduleConfigKicker.textContent = categoryLabel ? `Categoria ${categoryLabel}` : 'Personalitza el mòdul';
+  }
+  const optionsClone = cloneModuleOptions(state.assignmentDraft.options || {});
+  const node = definition.render(optionsClone) || document.createElement('div');
+  body.appendChild(node);
+  container.classList.remove('hidden');
+  const inputs = body.querySelectorAll('input, select, textarea');
+  inputs.forEach((input) => {
+    input.addEventListener('change', () => handleModuleConfigChanged({ fromUser: true }));
+    input.addEventListener('input', () => handleModuleConfigChanged({ fromUser: true }));
+  });
+  handleModuleConfigChanged({ fromUser: false });
+}
+
+function handleModuleConfigChanged({ fromUser = false } = {}) {
+  const moduleId = state.assignmentDraft.moduleId;
+  if (!moduleId) {
+    updateModuleSummary();
+    return;
+  }
+  const definition = getModuleOptionDefinition(moduleId);
+  if (!definition || !elements.moduleConfigCard) {
+    updateModuleSummary();
+    return;
+  }
+  const raw = definition.collect(elements.moduleConfigCard) || {};
+  const normalized = normalizeModuleOptions(moduleId, raw);
+  const previous = JSON.stringify(state.assignmentDraft.options || {});
+  const next = JSON.stringify(normalized || {});
+  const changed = previous !== next;
+  state.assignmentDraft.options = normalized;
+  if (fromUser && changed) {
+    if (state.assignmentDraft.questionSet.length) {
+      state.assignmentDraft.questionSet = [];
+    }
+    state.assignmentDraft.notice = 'Has canviat les opcions. Previsualitza de nou per regenerar les preguntes.';
+  } else if (!fromUser && !state.assignmentDraft.questionSet.length) {
+    state.assignmentDraft.notice = '';
+  }
+  updateModuleSummary();
+}
+
+function updateModuleSummary() {
+  const summaryNode = elements.moduleConfigSummary;
+  const errorNode = elements.moduleConfigError;
+  const noticeNode = elements.moduleConfigNotice;
+  if (summaryNode) {
+    const moduleId = state.assignmentDraft.moduleId;
+    const options = state.assignmentDraft.options || {};
+    const parts = [];
+    const summary = moduleId ? summarizeModuleOptions(moduleId, options) : '';
+    if (summary) parts.push(summary);
+    if (state.assignmentDraft.questionSet.length) {
+      parts.push(`Preguntes personalitzades (${state.assignmentDraft.questionSet.length})`);
+    }
+    const summaryText = parts.join(' · ');
+    summaryNode.textContent = summaryText;
+    summaryNode.classList.toggle('hidden', !summaryText);
+    if (errorNode) {
+      const errorText = moduleId ? validateModuleOptions(moduleId, options) : '';
+      if (errorText) {
+        errorNode.textContent = errorText;
+        errorNode.classList.remove('hidden');
+      } else {
+        errorNode.textContent = '';
+        errorNode.classList.add('hidden');
+      }
+    }
+    if (noticeNode) {
+      const noticeText = state.assignmentDraft.notice || '';
+      noticeNode.textContent = noticeText;
+      noticeNode.classList.toggle('hidden', !noticeText);
+    }
+  }
+}
+
+function collectModuleOptions() {
+  const moduleId = state.assignmentDraft.moduleId;
+  if (!moduleId) return {};
+  const definition = getModuleOptionDefinition(moduleId);
+  if (!definition || !elements.moduleConfigCard) return {};
+  const raw = definition.collect(elements.moduleConfigCard) || {};
+  const normalized = normalizeModuleOptions(moduleId, raw);
+  state.assignmentDraft.options = normalized;
+  return normalized;
+}
+
+function encodeQuizOptions(options) {
+  if (!options || typeof options !== 'object') return '';
+  try {
+    const json = JSON.stringify(options);
+    if (!json) return '';
+    let binary = '';
+    if (typeof TextEncoder !== 'undefined') {
+      const bytes = new TextEncoder().encode(json);
+      for (let i = 0; i < bytes.length; i += 1) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+    } else {
+      binary = unescape(encodeURIComponent(json));
+    }
+    if (typeof btoa === 'function') {
+      return btoa(binary).replace(/=+$/, '');
+    }
+  } catch (error) {
+    console.error('No s\'ha pogut codificar la configuració de la prova', error);
+  }
+  return '';
+}
+
+function handlePreviewMessage(event) {
+  if (!event || !event.data || typeof event.data !== 'object') return;
+  const { origin, data } = event;
+  if (data.type !== 'focusquiz-preview') return;
+  const sameOrigin = !origin || origin === 'null' || origin === window.location.origin;
+  if (!sameOrigin) return;
+  if (!data.moduleId || data.moduleId !== state.assignmentDraft.moduleId) return;
+  if (data.options && typeof data.options === 'object') {
+    state.assignmentDraft.options = normalizeModuleOptions(data.moduleId, data.options);
+    renderModuleConfigUI(data.moduleId);
+  }
+  const questions = Array.isArray(data.questions)
+    ? data.questions.map((question) => {
+        try {
+          return JSON.parse(JSON.stringify(question));
+        } catch (_error) {
+          return question;
+        }
+      })
+    : [];
+  state.assignmentDraft.questionSet = questions;
+  state.assignmentDraft.notice = questions.length
+    ? `Preguntes personalitzades guardades (${questions.length}).`
+    : '';
+  updateModuleSummary();
+  if (elements.assignmentFeedback) {
+    elements.assignmentFeedback.textContent = 'Previsualització guardada';
+    setTimeout(() => {
+      if (elements.assignmentFeedback.textContent === 'Previsualització guardada') {
+        elements.assignmentFeedback.textContent = '';
+      }
+    }, 2500);
+  }
 }
 
 function renderClasses() {
@@ -311,6 +535,9 @@ function renderAssignments() {
     addMeta('Preguntes', assignment.quiz_config?.count ?? '—');
     addMeta('Temps', assignment.quiz_config?.time ? `${assignment.quiz_config.time} min` : 'Sense límit');
     addMeta('Nivell', assignment.quiz_config?.level ?? '—');
+    if (assignment.quiz_config?.summary) {
+      addMeta('Configuració', assignment.quiz_config.summary);
+    }
     addMeta('Publicada', new Date(assignment.date_assigned).toLocaleString('ca-ES'));
     if (assignment.due_at) {
       addMeta('Data límit', new Date(assignment.due_at).toLocaleString('ca-ES'));
@@ -368,6 +595,8 @@ function stringifyValue(value) {
       console.warn('No s\'ha pogut convertir el valor', value, error);
       return String(value);
     }
+  } catch (error) {
+    console.error('No s\'ha pogut copiar l\'enllaç', error);
   }
   return String(value);
 }
@@ -473,6 +702,9 @@ function renderResults() {
     addMeta('Nota', formatPercent(submission.score));
     addMeta('Encerts', submission.correct !== null ? `${submission.correct}/${submission.count ?? '?'}` : '—');
     addMeta('Temps', submission.time_spent ? `${Math.round(submission.time_spent / 60)} min` : '—');
+    if (submission.assignment?.quiz_config?.summary) {
+      addMeta('Configuració', submission.assignment.quiz_config.summary);
+    }
     addMeta('Estat', statusLabel(submission.status));
     const extra = node.querySelector('.result-extra');
     if (extra) {
@@ -682,12 +914,37 @@ async function createAssignment(formData) {
   const level = Number.parseInt(formData.get('level'), 10) || null;
   const dueAtRaw = formData.get('due_at')?.toString().trim();
   const notes = formData.get('notes')?.toString().trim() || null;
+  const moduleOptions = collectModuleOptions();
+  const questionSet = Array.isArray(state.assignmentDraft.questionSet)
+    ? state.assignmentDraft.questionSet.map((question) => {
+        try {
+          return JSON.parse(JSON.stringify(question));
+        } catch (_error) {
+          return question;
+        }
+      })
+    : [];
   const quizConfig = {
     label,
     count: Number.isFinite(count) ? count : null,
     time: Number.isFinite(time) ? time : 0,
     level: Number.isFinite(level) ? level : 1,
   };
+  const summaryParts = [];
+  const optionsSummary = summarizeModuleOptions(moduleId, moduleOptions);
+  if (optionsSummary) summaryParts.push(optionsSummary);
+  if (questionSet.length) summaryParts.push(`Preguntes personalitzades (${questionSet.length})`);
+  if (summaryParts.length) {
+    quizConfig.summary = summaryParts.join(' · ');
+  }
+  const hasModuleOptions = moduleOptions && Object.keys(moduleOptions).length > 0;
+  if (hasModuleOptions || questionSet.length) {
+    const optionsPayload = cloneModuleOptions(moduleOptions) || {};
+    if (questionSet.length) {
+      optionsPayload.questions = questionSet;
+    }
+    quizConfig.options = optionsPayload;
+  }
   elements.assignmentFeedback.textContent = 'Publicant la prova...';
   try {
     const payload = {
@@ -703,6 +960,9 @@ async function createAssignment(formData) {
     if (error) throw error;
     elements.assignmentFeedback.textContent = 'Prova publicada';
     elements.assignmentForm.reset();
+    state.assignmentDraft.questionSet = [];
+    state.assignmentDraft.notice = '';
+    syncAssignmentModuleFromSelect();
     await Promise.all([loadAssignments(), loadSubmissions()]);
     renderAll();
   } catch (error) {
@@ -715,10 +975,55 @@ async function createAssignment(formData) {
 }
 
 async function previewSelectedModule() {
-  const moduleId = elements.assignmentModuleSelect?.value;
+  const moduleId = elements.assignmentModuleSelect?.value || '';
   if (!moduleId) return;
-  const params = new URLSearchParams({ module: moduleId });
-  window.open(`../index.html?${params.toString()}`, '_blank', 'noopener');
+  const formData = elements.assignmentForm ? new FormData(elements.assignmentForm) : new FormData();
+  const module = MODULES.find((mod) => mod.id === moduleId);
+  const classId = formData.get('class_id');
+  const selectedClass = state.classes.find((cls) => cls.id === classId);
+  const rawLabel = formData.get('assignment_label');
+  const label = rawLabel && typeof rawLabel === 'string' && rawLabel.trim()
+    ? rawLabel.trim()
+    : `${selectedClass?.class_name || 'Classe'} · ${module?.name || 'Prova'}`;
+  const count = Number.parseInt(formData.get('count'), 10);
+  const time = Number.parseInt(formData.get('time'), 10);
+  const level = Number.parseInt(formData.get('level'), 10);
+  const moduleOptions = collectModuleOptions();
+  const validationError = validateModuleOptions(moduleId, moduleOptions);
+  if (validationError) {
+    updateModuleSummary();
+    if (elements.assignmentFeedback) {
+      elements.assignmentFeedback.textContent = 'Revisa les opcions del mòdul abans de previsualitzar.';
+      setTimeout(() => {
+        if (elements.assignmentFeedback.textContent === 'Revisa les opcions del mòdul abans de previsualitzar.') {
+          elements.assignmentFeedback.textContent = '';
+        }
+      }, 2500);
+    }
+    return;
+  }
+  const previewOptions = cloneModuleOptions(moduleOptions) || {};
+  if (state.assignmentDraft.questionSet.length) {
+    previewOptions.questions = state.assignmentDraft.questionSet.map((question) => {
+      try {
+        return JSON.parse(JSON.stringify(question));
+      } catch (_error) {
+        return question;
+      }
+    });
+  }
+  const encodedOptions = encodeQuizOptions(previewOptions);
+  const url = new URL('../index.html', window.location.href);
+  url.searchParams.set('module', moduleId);
+  if (label) url.searchParams.set('label', label);
+  if (module?.name) url.searchParams.set('title', module.name);
+  if (Number.isFinite(count) && count > 0) url.searchParams.set('count', String(Math.min(Math.max(count, 1), 200)));
+  if (Number.isFinite(time) && time > 0) url.searchParams.set('time', String(Math.min(Math.max(time, 0), 180)));
+  if (Number.isFinite(level)) url.searchParams.set('level', String(Math.min(Math.max(level, 1), 4)));
+  if (encodedOptions) url.searchParams.set('opts', encodedOptions);
+  url.searchParams.set('preview', '1');
+  url.searchParams.set('autostart', '1');
+  window.open(url.toString(), '_blank', 'noopener');
 }
 
 async function loadClasses() {
@@ -874,6 +1179,7 @@ async function handleLogout() {
   state.classes = [];
   state.assignments = [];
   state.submissions = [];
+  setCurrentModule('', { preserveQuestions: false });
   updateAuthUI();
 }
 
@@ -925,265 +1231,22 @@ function setupEventListeners() {
       const formData = new FormData(elements.assignmentForm);
       createAssignment(formData);
     });
-
-    updateStudentSelectionCount();
   }
-
-  function renderStudentAdminFilter() {
-    if (!el.studentAdminFilter) return;
-    const total = state.students.length;
-    const active = state.studentAdminGroupFilter;
-    const chips = [];
-
-    chips.push(
-      `<button type="button" class="portal-group-chip ${active === 'all' ? 'is-active' : ''}" data-group="all" title="Mostra tots els alumnes">Tots <small>${escapeHTML(String(total))}</small></button>`
-    );
-
-    state.studentGroups.forEach((group) => {
-      const count = group.count;
-      const label = escapeHTML(group.label);
-      const selected = active === group.id;
-      chips.push(
-        `<button type="button" class="portal-group-chip ${selected ? 'is-active' : ''}" data-group="${escapeHTML(group.id)}" title="Mostra només aquest grup">${label} <small>${escapeHTML(String(count))}</small></button>`
-      );
+  if (elements.assignmentModuleSelect) {
+    elements.assignmentModuleSelect.addEventListener('change', () => {
+      syncAssignmentModuleFromSelect();
     });
-
-    el.studentAdminFilter.innerHTML = chips.join('');
-  }
-
-  function renderStudentAdminList() {
-    if (!el.studentAdminList) return;
-    el.studentAdminList.innerHTML = '';
-
-    if (!state.students.length) {
-      const empty = document.createElement('p');
-      empty.className = 'portal-muted';
-      empty.textContent = 'Encara no hi ha alumnes registrats.';
-      el.studentAdminList.appendChild(empty);
-      return;
-    }
-
-    const filtered = state.studentAdminGroupFilter === 'all'
-      ? state.students
-      : state.students.filter((student) => getStudentGroup(student) === state.studentAdminGroupFilter);
-
-    if (!filtered.length) {
-      const empty = document.createElement('p');
-      empty.className = 'portal-muted';
-      empty.textContent = 'No hi ha alumnes en aquest grup.';
-      el.studentAdminList.appendChild(empty);
-      return;
-    }
-
-    const fragment = document.createDocumentFragment();
-
-    filtered.forEach((student) => {
-      const form = document.createElement('form');
-      form.className = 'portal-student-card';
-      form.dataset.studentAdminForm = 'true';
-      form.dataset.studentId = student.id || '';
-      form.dataset.originalName = student.full_name || '';
-      form.dataset.originalEmail = student.email || '';
-      form.dataset.originalGroup = student.group_name || '';
-      form.setAttribute('autocomplete', 'off');
-
-      const grid = document.createElement('div');
-      grid.className = 'portal-student-card__grid';
-
-      const nameLabel = document.createElement('label');
-      const nameSpan = document.createElement('span');
-      nameSpan.className = 'portal-field-label';
-      nameSpan.textContent = 'Nom complet';
-      const nameInput = document.createElement('input');
-      nameInput.className = 'input';
-      nameInput.name = 'full_name';
-      nameInput.type = 'text';
-      nameInput.required = true;
-      nameInput.autocomplete = 'off';
-      nameInput.value = student.full_name || '';
-      nameLabel.append(nameSpan, nameInput);
-      grid.appendChild(nameLabel);
-
-      if (state.profileSupportsEmail) {
-        const emailLabel = document.createElement('label');
-        const emailSpan = document.createElement('span');
-        emailSpan.className = 'portal-field-label';
-        emailSpan.textContent = 'Correu electrònic';
-        const emailInput = document.createElement('input');
-        emailInput.className = 'input';
-        emailInput.name = 'email';
-        emailInput.type = 'email';
-        emailInput.autocomplete = 'off';
-        emailInput.placeholder = 'alumne@centre.cat';
-        emailInput.value = student.email || '';
-        emailLabel.append(emailSpan, emailInput);
-        grid.appendChild(emailLabel);
-      }
-
-      if (state.supportsStudentGroups) {
-        const groupLabel = document.createElement('label');
-        groupLabel.dataset.adminGroupField = 'true';
-        const groupSpan = document.createElement('span');
-        groupSpan.className = 'portal-field-label';
-        groupSpan.textContent = 'Grup';
-        const groupInput = document.createElement('input');
-        groupInput.className = 'input';
-        groupInput.name = 'group_name';
-        groupInput.type = 'text';
-        groupInput.autocomplete = 'off';
-        groupInput.placeholder = 'Sense grup';
-        if (el.studentGroupSuggestions) {
-          groupInput.setAttribute('list', el.studentGroupSuggestions.id);
-        }
-        groupInput.value = student.group_name || '';
-        groupLabel.append(groupSpan, groupInput);
-        grid.appendChild(groupLabel);
-      }
-
-      form.appendChild(grid);
-
-      const actions = document.createElement('div');
-      actions.className = 'portal-student-card__actions';
-
-      const saveButton = document.createElement('button');
-      saveButton.type = 'submit';
-      saveButton.className = 'btn-primary';
-      saveButton.textContent = 'Desa canvis';
-      actions.appendChild(saveButton);
-
-      const resetButton = document.createElement('button');
-      resetButton.type = 'button';
-      resetButton.className = 'btn-secondary';
-      resetButton.dataset.action = 'reset';
-      resetButton.textContent = 'Desfés canvis';
-      actions.appendChild(resetButton);
-
-      if (state.supportsStudentGroups) {
-        const clearButton = document.createElement('button');
-        clearButton.type = 'button';
-        clearButton.className = 'btn-ghost';
-        clearButton.dataset.action = 'clear-group';
-        clearButton.textContent = 'Sense grup';
-        actions.appendChild(clearButton);
-      }
-
-      form.appendChild(actions);
-      fragment.appendChild(form);
-    });
-
-    el.studentAdminList.appendChild(fragment);
-  }
-
-  function updateStudentGroupSuggestions() {
-    if (!el.studentGroupSuggestions) return;
-    const options = state.studentGroups
-      .filter((group) => group.id && group.id !== 'Sense grup')
-      .map((group) => `<option value="${escapeHTML(group.label)}"></option>`);
-    el.studentGroupSuggestions.innerHTML = options.join('');
-  }
-
-  function applyStudentGroupAvailability() {
-    const supported = state.supportsStudentGroups;
-    if (el.studentAdminToolbar) {
-      toggle(el.studentAdminToolbar, supported);
-    }
-    if (el.studentCreateForm) {
-      const groupField = el.studentCreateForm.querySelector('[data-admin-group-field]');
-      if (groupField) {
-        toggle(groupField, supported);
-      }
-    }
-  }
-
-  function renderTeacherGrades(entries) {
-    if (!el.teacherGrades || !el.teacherGradesList) return;
-    el.teacherGradesList.innerHTML = '';
-
-    if (!Array.isArray(entries) || !entries.length) {
-      const empty = document.createElement('p');
-      empty.className = 'portal-feed-empty';
-      empty.textContent = 'Encara no hi ha notes registrades.';
-      el.teacherGradesList.appendChild(empty);
-      toggle(el.teacherGrades, true);
-      return;
-    }
-
-    entries.forEach((entry) => {
-      const studentName = escapeHTML(entry.student?.full_name || 'Alumne anònim');
-      const gradeValue = formatGradeDisplay(entry.submission?.grade) || '—';
-      const assignmentTitle = escapeHTML(entry.assignment?.title || entry.module?.name || 'Prova FocusQuiz');
-      const groupLabel = getStudentGroup(entry.student);
-      const moduleLabel = entry.module ? escapeHTML(getCategoryLabel(entry.module.category)) : '';
-      const submittedAt = entry.submission?.submitted_at
-        ? new Date(entry.submission.submitted_at).toLocaleString('ca-ES')
-        : '';
-
-      const metaParts = [];
-      if (groupLabel && groupLabel !== 'Sense grup') {
-        metaParts.push(`Grup ${escapeHTML(groupLabel)}`);
-      }
-      if (moduleLabel) {
-        metaParts.push(moduleLabel);
-      }
-      if (submittedAt) {
-        metaParts.push(escapeHTML(submittedAt));
-      }
-
-      const metaBlock = metaParts.length
-        ? `<div class="portal-feed-meta">${metaParts.map((part) => `<span>${part}</span>`).join('')}</div>`
-        : '';
-
-      const item = document.createElement('article');
-      item.className = 'portal-feed-item';
-      item.innerHTML = `
-        <header>
-          <h3>${studentName}</h3>
-          <span class="portal-feed-grade">${escapeHTML(gradeValue)}</span>
-        </header>
-        <p class="portal-muted" style="margin:0;">${assignmentTitle}</p>
-        ${metaBlock}
-      `;
-
-      el.teacherGradesList.appendChild(item);
-    });
-
-    toggle(el.teacherGrades, true);
-  }
-
-  function handleStudentSelectionChange(event) {
-    const checkbox = event.target;
-    if (!checkbox.matches('#studentChecklist input[name="students"]')) return;
-    const { value } = checkbox;
-    if (checkbox.checked) {
-      state.selectedStudentIds.add(value);
-    } else {
-      state.selectedStudentIds.delete(value);
-    }
-    updateStudentSelectionCount();
-  }
-
-  function handleGroupFilterClick(event) {
-    const button = event.target.closest('.portal-group-chip');
-    if (!button) return;
-    const groupId = button.dataset.group || 'all';
-    const selectGroup = (event.shiftKey || event.altKey) && groupId !== 'all';
-    state.studentGroupFilter = groupId;
-    renderStudentGroupFilter();
-    if (selectGroup) {
-      const members = state.students.filter((student) => getStudentGroup(student) === groupId);
-      const shouldSelect = members.some((student) => !state.selectedStudentIds.has(student.id));
-      members.forEach((student) => {
-        if (shouldSelect) {
-          state.selectedStudentIds.add(student.id);
-        } else {
-          state.selectedStudentIds.delete(student.id);
-        }
-      });
-    }
-    renderStudents();
   }
   if (elements.previewModule) {
     elements.previewModule.addEventListener('click', previewSelectedModule);
+  }
+  if (elements.resetModuleConfig) {
+    elements.resetModuleConfig.addEventListener('click', () => {
+      if (!state.assignmentDraft.moduleId) return;
+      setCurrentModule(state.assignmentDraft.moduleId, { preserveQuestions: false });
+      state.assignmentDraft.notice = 'Opcions restablertes. Previsualitza per generar noves preguntes.';
+      updateModuleSummary();
+    });
   }
   if (elements.refreshAssignments) {
     elements.refreshAssignments.addEventListener('click', async () => {
@@ -1197,6 +1260,8 @@ function setupEventListeners() {
       await loadSubmissions();
       renderResults();
     });
+
+    el.studentAdminList.appendChild(fragment);
   }
   if (elements.resultsClassFilter) {
     elements.resultsClassFilter.addEventListener('change', renderResults);
@@ -1204,6 +1269,7 @@ function setupEventListeners() {
   if (elements.resultsAssignmentFilter) {
     elements.resultsAssignmentFilter.addEventListener('change', renderResults);
   }
+  window.addEventListener('message', handlePreviewMessage);
 }
 
 async function init() {

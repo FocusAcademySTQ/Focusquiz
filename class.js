@@ -48,6 +48,29 @@ function statusLabel(value) {
   return STATUS_LABELS[value] || value;
 }
 
+function encodeQuizOptions(options) {
+  if (!options || typeof options !== 'object') return '';
+  try {
+    const json = JSON.stringify(options);
+    if (!json) return '';
+    let binary = '';
+    if (typeof TextEncoder !== 'undefined') {
+      const bytes = new TextEncoder().encode(json);
+      for (let i = 0; i < bytes.length; i += 1) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+    } else {
+      binary = unescape(encodeURIComponent(json));
+    }
+    if (typeof btoa === 'function') {
+      return btoa(binary).replace(/=+$/, '');
+    }
+  } catch (error) {
+    console.error('No s\'ha pogut codificar la configuració de la prova', error);
+  }
+  return '';
+}
+
 function showError(message) {
   if (elements.error) {
     elements.error.hidden = false;
@@ -180,6 +203,9 @@ function renderAssignments() {
     if (assignment.quiz_config?.level) {
       addMeta('Nivell', assignment.quiz_config.level);
     }
+    if (assignment.quiz_config?.summary) {
+      addMeta('Configuració', assignment.quiz_config.summary);
+    }
 
     if (existing) {
       startBtn.textContent = 'Torna a veure la nota';
@@ -222,6 +248,12 @@ function launchAssignment(assignment) {
   if (assignment.quiz_config?.time) params.set('time', assignment.quiz_config.time);
   if (assignment.quiz_config?.level) params.set('level', assignment.quiz_config.level);
   if (assignment.module_title) params.set('title', assignment.module_title);
+  if (assignment.quiz_config?.options) {
+    const encodedOptions = encodeQuizOptions(assignment.quiz_config.options);
+    if (encodedOptions) {
+      params.set('opts', encodedOptions);
+    }
+  }
   baseUrl.search = params.toString();
   baseUrl.hash = '';
   window.location.href = baseUrl.toString();

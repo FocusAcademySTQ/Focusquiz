@@ -1834,7 +1834,7 @@ const SUBS_MORF = [
 }
 
 function genCatMorf(level, opts = {}){
-  const subKey = opts.sub || 'categories';
+  const subKey = opts.sub || 'basiques';
   const sub = SUBS_MORF.find(s => s.key === subKey) || SUBS_MORF[0];
   const q = choice(sub.bank);
   return { 
@@ -1891,7 +1891,7 @@ function genCatMorf(level, opts = {}){
       return wrap;
     },
     collect(){
-      const v = (document.querySelector('input[name="cat-morf-sub"]:checked') || {}).value || 'categories';
+      const v = (document.querySelector('input[name="cat-morf-sub"]:checked') || {}).value || 'basiques';
       return { sub: v };
     }
   };
