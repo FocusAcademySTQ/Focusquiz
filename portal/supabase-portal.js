@@ -925,6 +925,262 @@ function setupEventListeners() {
       const formData = new FormData(elements.assignmentForm);
       createAssignment(formData);
     });
+
+    updateStudentSelectionCount();
+  }
+
+  function renderStudentAdminFilter() {
+    if (!el.studentAdminFilter) return;
+    const total = state.students.length;
+    const active = state.studentAdminGroupFilter;
+    const chips = [];
+
+    chips.push(
+      `<button type="button" class="portal-group-chip ${active === 'all' ? 'is-active' : ''}" data-group="all" title="Mostra tots els alumnes">Tots <small>${escapeHTML(String(total))}</small></button>`
+    );
+
+    state.studentGroups.forEach((group) => {
+      const count = group.count;
+      const label = escapeHTML(group.label);
+      const selected = active === group.id;
+      chips.push(
+        `<button type="button" class="portal-group-chip ${selected ? 'is-active' : ''}" data-group="${escapeHTML(group.id)}" title="Mostra només aquest grup">${label} <small>${escapeHTML(String(count))}</small></button>`
+      );
+    });
+
+    el.studentAdminFilter.innerHTML = chips.join('');
+  }
+
+  function renderStudentAdminList() {
+    if (!el.studentAdminList) return;
+    el.studentAdminList.innerHTML = '';
+
+    if (!state.students.length) {
+      const empty = document.createElement('p');
+      empty.className = 'portal-muted';
+      empty.textContent = 'Encara no hi ha alumnes registrats.';
+      el.studentAdminList.appendChild(empty);
+      return;
+    }
+
+    const filtered = state.studentAdminGroupFilter === 'all'
+      ? state.students
+      : state.students.filter((student) => getStudentGroup(student) === state.studentAdminGroupFilter);
+
+    if (!filtered.length) {
+      const empty = document.createElement('p');
+      empty.className = 'portal-muted';
+      empty.textContent = 'No hi ha alumnes en aquest grup.';
+      el.studentAdminList.appendChild(empty);
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    filtered.forEach((student) => {
+      const form = document.createElement('form');
+      form.className = 'portal-student-card';
+      form.dataset.studentAdminForm = 'true';
+      form.dataset.studentId = student.id || '';
+      form.dataset.originalName = student.full_name || '';
+      form.dataset.originalEmail = student.email || '';
+      form.dataset.originalGroup = student.group_name || '';
+      form.setAttribute('autocomplete', 'off');
+
+      const grid = document.createElement('div');
+      grid.className = 'portal-student-card__grid';
+
+      const nameLabel = document.createElement('label');
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'portal-field-label';
+      nameSpan.textContent = 'Nom complet';
+      const nameInput = document.createElement('input');
+      nameInput.className = 'input';
+      nameInput.name = 'full_name';
+      nameInput.type = 'text';
+      nameInput.required = true;
+      nameInput.autocomplete = 'off';
+      nameInput.value = student.full_name || '';
+      nameLabel.append(nameSpan, nameInput);
+      grid.appendChild(nameLabel);
+
+      if (state.profileSupportsEmail) {
+        const emailLabel = document.createElement('label');
+        const emailSpan = document.createElement('span');
+        emailSpan.className = 'portal-field-label';
+        emailSpan.textContent = 'Correu electrònic';
+        const emailInput = document.createElement('input');
+        emailInput.className = 'input';
+        emailInput.name = 'email';
+        emailInput.type = 'email';
+        emailInput.autocomplete = 'off';
+        emailInput.placeholder = 'alumne@centre.cat';
+        emailInput.value = student.email || '';
+        emailLabel.append(emailSpan, emailInput);
+        grid.appendChild(emailLabel);
+      }
+
+      if (state.supportsStudentGroups) {
+        const groupLabel = document.createElement('label');
+        groupLabel.dataset.adminGroupField = 'true';
+        const groupSpan = document.createElement('span');
+        groupSpan.className = 'portal-field-label';
+        groupSpan.textContent = 'Grup';
+        const groupInput = document.createElement('input');
+        groupInput.className = 'input';
+        groupInput.name = 'group_name';
+        groupInput.type = 'text';
+        groupInput.autocomplete = 'off';
+        groupInput.placeholder = 'Sense grup';
+        if (el.studentGroupSuggestions) {
+          groupInput.setAttribute('list', el.studentGroupSuggestions.id);
+        }
+        groupInput.value = student.group_name || '';
+        groupLabel.append(groupSpan, groupInput);
+        grid.appendChild(groupLabel);
+      }
+
+      form.appendChild(grid);
+
+      const actions = document.createElement('div');
+      actions.className = 'portal-student-card__actions';
+
+      const saveButton = document.createElement('button');
+      saveButton.type = 'submit';
+      saveButton.className = 'btn-primary';
+      saveButton.textContent = 'Desa canvis';
+      actions.appendChild(saveButton);
+
+      const resetButton = document.createElement('button');
+      resetButton.type = 'button';
+      resetButton.className = 'btn-secondary';
+      resetButton.dataset.action = 'reset';
+      resetButton.textContent = 'Desfés canvis';
+      actions.appendChild(resetButton);
+
+      if (state.supportsStudentGroups) {
+        const clearButton = document.createElement('button');
+        clearButton.type = 'button';
+        clearButton.className = 'btn-ghost';
+        clearButton.dataset.action = 'clear-group';
+        clearButton.textContent = 'Sense grup';
+        actions.appendChild(clearButton);
+      }
+
+      form.appendChild(actions);
+      fragment.appendChild(form);
+    });
+
+    el.studentAdminList.appendChild(fragment);
+  }
+
+  function updateStudentGroupSuggestions() {
+    if (!el.studentGroupSuggestions) return;
+    const options = state.studentGroups
+      .filter((group) => group.id && group.id !== 'Sense grup')
+      .map((group) => `<option value="${escapeHTML(group.label)}"></option>`);
+    el.studentGroupSuggestions.innerHTML = options.join('');
+  }
+
+  function applyStudentGroupAvailability() {
+    const supported = state.supportsStudentGroups;
+    if (el.studentAdminToolbar) {
+      toggle(el.studentAdminToolbar, supported);
+    }
+    if (el.studentCreateForm) {
+      const groupField = el.studentCreateForm.querySelector('[data-admin-group-field]');
+      if (groupField) {
+        toggle(groupField, supported);
+      }
+    }
+  }
+
+  function renderTeacherGrades(entries) {
+    if (!el.teacherGrades || !el.teacherGradesList) return;
+    el.teacherGradesList.innerHTML = '';
+
+    if (!Array.isArray(entries) || !entries.length) {
+      const empty = document.createElement('p');
+      empty.className = 'portal-feed-empty';
+      empty.textContent = 'Encara no hi ha notes registrades.';
+      el.teacherGradesList.appendChild(empty);
+      toggle(el.teacherGrades, true);
+      return;
+    }
+
+    entries.forEach((entry) => {
+      const studentName = escapeHTML(entry.student?.full_name || 'Alumne anònim');
+      const gradeValue = formatGradeDisplay(entry.submission?.grade) || '—';
+      const assignmentTitle = escapeHTML(entry.assignment?.title || entry.module?.name || 'Prova FocusQuiz');
+      const groupLabel = getStudentGroup(entry.student);
+      const moduleLabel = entry.module ? escapeHTML(getCategoryLabel(entry.module.category)) : '';
+      const submittedAt = entry.submission?.submitted_at
+        ? new Date(entry.submission.submitted_at).toLocaleString('ca-ES')
+        : '';
+
+      const metaParts = [];
+      if (groupLabel && groupLabel !== 'Sense grup') {
+        metaParts.push(`Grup ${escapeHTML(groupLabel)}`);
+      }
+      if (moduleLabel) {
+        metaParts.push(moduleLabel);
+      }
+      if (submittedAt) {
+        metaParts.push(escapeHTML(submittedAt));
+      }
+
+      const metaBlock = metaParts.length
+        ? `<div class="portal-feed-meta">${metaParts.map((part) => `<span>${part}</span>`).join('')}</div>`
+        : '';
+
+      const item = document.createElement('article');
+      item.className = 'portal-feed-item';
+      item.innerHTML = `
+        <header>
+          <h3>${studentName}</h3>
+          <span class="portal-feed-grade">${escapeHTML(gradeValue)}</span>
+        </header>
+        <p class="portal-muted" style="margin:0;">${assignmentTitle}</p>
+        ${metaBlock}
+      `;
+
+      el.teacherGradesList.appendChild(item);
+    });
+
+    toggle(el.teacherGrades, true);
+  }
+
+  function handleStudentSelectionChange(event) {
+    const checkbox = event.target;
+    if (!checkbox.matches('#studentChecklist input[name="students"]')) return;
+    const { value } = checkbox;
+    if (checkbox.checked) {
+      state.selectedStudentIds.add(value);
+    } else {
+      state.selectedStudentIds.delete(value);
+    }
+    updateStudentSelectionCount();
+  }
+
+  function handleGroupFilterClick(event) {
+    const button = event.target.closest('.portal-group-chip');
+    if (!button) return;
+    const groupId = button.dataset.group || 'all';
+    const selectGroup = (event.shiftKey || event.altKey) && groupId !== 'all';
+    state.studentGroupFilter = groupId;
+    renderStudentGroupFilter();
+    if (selectGroup) {
+      const members = state.students.filter((student) => getStudentGroup(student) === groupId);
+      const shouldSelect = members.some((student) => !state.selectedStudentIds.has(student.id));
+      members.forEach((student) => {
+        if (shouldSelect) {
+          state.selectedStudentIds.add(student.id);
+        } else {
+          state.selectedStudentIds.delete(student.id);
+        }
+      });
+    }
+    renderStudents();
   }
   if (elements.previewModule) {
     elements.previewModule.addEventListener('click', previewSelectedModule);
