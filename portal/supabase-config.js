@@ -1,2 +1,47 @@
-export const SUPABASE_URL = window?.SUPABASE_URL || '';
-export const SUPABASE_ANON_KEY = window?.SUPABASE_ANON_KEY || '';
+const globalScope = typeof globalThis !== 'undefined' ? globalThis : {};
+const env = typeof process !== 'undefined' && process?.env ? process.env : {};
+
+// Edit these values if you prefer to codify the Supabase credentials here.
+// They will be used when no runtime or environment configuration is provided.
+const HARDCODED_SUPABASE_URL = '';
+const HARDCODED_SUPABASE_ANON_KEY = '';
+
+function readRuntimeValue(key) {
+  if (typeof window !== 'undefined' && window && typeof window[key] === 'string') {
+    return window[key];
+  }
+  if (globalScope && typeof globalScope[key] === 'string') {
+    return globalScope[key];
+  }
+  return '';
+}
+
+function readEnvValue(key) {
+  if (env && typeof env[key] === 'string') {
+    return env[key];
+  }
+  return '';
+}
+
+export function resolveSupabaseConfig() {
+  const url =
+    readRuntimeValue('SUPABASE_URL') ||
+    HARDCODED_SUPABASE_URL ||
+    readEnvValue('SUPABASE_URL') ||
+    '';
+
+  const anonKey =
+    readRuntimeValue('SUPABASE_ANON_KEY') ||
+    HARDCODED_SUPABASE_ANON_KEY ||
+    readEnvValue('SUPABASE_ANON_KEY') ||
+    '';
+
+  return {
+    url,
+    anonKey,
+    configured: Boolean(url && anonKey),
+  };
+}
+
+export const SUPABASE_URL = resolveSupabaseConfig().url;
+export const SUPABASE_ANON_KEY = resolveSupabaseConfig().anonKey;

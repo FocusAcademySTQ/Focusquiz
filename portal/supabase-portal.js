@@ -8,9 +8,9 @@ import {
   validateModuleOptions,
   cloneModuleOptions,
 } from './module-config.js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './supabase-config.js';
+import { resolveSupabaseConfig } from './supabase-config.js';
 
-const CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+let cachedConfig = resolveSupabaseConfig();
 const STATUS_LABELS = {
   submitted: 'Enviada',
   completed: 'Completada',
@@ -79,16 +79,44 @@ const elements = {
   resultsAssignmentFilter: document.getElementById('resultsAssignmentFilter'),
 };
 
+function getActiveSupabaseConfig() {
+  const resolved = resolveSupabaseConfig();
+  if (!resolved.configured) {
+    return null;
+  }
+  if (
+    !cachedConfig ||
+    cachedConfig.url !== resolved.url ||
+    cachedConfig.anonKey !== resolved.anonKey
+  ) {
+    cachedConfig = resolved;
+    if (state.supabase) {
+      try {
+        const authApi = state.supabase?.auth;
+        if (authApi?.signOut) {
+          Promise.resolve(authApi.signOut({ scope: 'local' })).catch(() => {});
+        }
+      } catch (error) {
+        console.warn('No s\'ha pogut reinicialitzar el client Supabase existent.', error);
+      }
+      state.supabase = null;
+    }
+  }
+  return cachedConfig;
+}
+
 function createSupabaseClient() {
-  if (!CONFIGURED) return null;
+  const config = getActiveSupabaseConfig();
+  if (!config) return null;
   if (state.supabase) return state.supabase;
   try {
-    state.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    state.supabase = createClient(config.url, config.anonKey, {
       auth: { persistSession: true, autoRefreshToken: true },
     });
     return state.supabase;
   } catch (error) {
     console.error('No s\'ha pogut inicialitzar Supabase.', error);
+    state.supabase = null;
     return null;
   }
 }
@@ -1260,8 +1288,6 @@ function setupEventListeners() {
       await loadSubmissions();
       renderResults();
     });
-
-    el.studentAdminList.appendChild(fragment);
   }
   if (elements.resultsClassFilter) {
     elements.resultsClassFilter.addEventListener('change', renderResults);
@@ -1273,7 +1299,8 @@ function setupEventListeners() {
 }
 
 async function init() {
-  if (!CONFIGURED) {
+  const config = getActiveSupabaseConfig();
+  if (!config) {
     setVisibility(elements.configWarning, true);
     return;
   }

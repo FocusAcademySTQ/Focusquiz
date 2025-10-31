@@ -1,16 +1,35 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../portal/supabase-config.js';
+import { resolveSupabaseConfig } from '../portal/supabase-config.js';
 
-const CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+let cachedConfig = resolveSupabaseConfig();
 const state = {
   client: null,
 };
 
+function getActiveSupabaseConfig() {
+  const resolved = resolveSupabaseConfig();
+  if (!resolved.configured) {
+    return null;
+  }
+  if (
+    !cachedConfig ||
+    cachedConfig.url !== resolved.url ||
+    cachedConfig.anonKey !== resolved.anonKey
+  ) {
+    cachedConfig = resolved;
+    if (state.client) {
+      state.client = null;
+    }
+  }
+  return cachedConfig;
+}
+
 function getClient() {
-  if (!CONFIGURED) return null;
+  const config = getActiveSupabaseConfig();
+  if (!config) return null;
   if (state.client) return state.client;
   try {
-    state.client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    state.client = createClient(config.url, config.anonKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
@@ -35,7 +54,7 @@ function safeString(value) {
 }
 
 async function submitResult(entry, session = {}) {
-  if (!CONFIGURED) {
+  if (!getActiveSupabaseConfig()) {
     return { ok: false, reason: 'disabled' };
   }
   const client = getClient();
@@ -108,7 +127,7 @@ const FocusSupabase = {
 
 if (typeof window !== 'undefined') {
   window.FocusSupabase = FocusSupabase;
-  if (!CONFIGURED) {
+  if (!getActiveSupabaseConfig()) {
     console.info('FocusSupabase: Supabase no està configurat. La sincronització quedarà desactivada.');
   }
 }

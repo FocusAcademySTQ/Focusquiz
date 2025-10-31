@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './portal/supabase-config.js';
+import { resolveSupabaseConfig } from './portal/supabase-config.js';
 
-const CONFIGURED = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
+let cachedConfig = resolveSupabaseConfig();
 const state = {
   supabase: null,
   classCode: '',
@@ -96,11 +96,30 @@ function parseCodeFromLocation() {
   return code.trim().toUpperCase();
 }
 
+function getActiveSupabaseConfig() {
+  const resolved = resolveSupabaseConfig();
+  if (!resolved.configured) {
+    return null;
+  }
+  if (
+    !cachedConfig ||
+    cachedConfig.url !== resolved.url ||
+    cachedConfig.anonKey !== resolved.anonKey
+  ) {
+    cachedConfig = resolved;
+    if (state.supabase) {
+      state.supabase = null;
+    }
+  }
+  return cachedConfig;
+}
+
 function ensureClient() {
-  if (!CONFIGURED) return null;
+  const config = getActiveSupabaseConfig();
+  if (!config) return null;
   if (state.supabase) return state.supabase;
   try {
-    state.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    state.supabase = createClient(config.url, config.anonKey, {
       auth: {
         persistSession: false,
         autoRefreshToken: false,
@@ -109,6 +128,7 @@ function ensureClient() {
     return state.supabase;
   } catch (error) {
     console.error('No s\'ha pogut inicialitzar Supabase.', error);
+    state.supabase = null;
     return null;
   }
 }
@@ -345,7 +365,8 @@ async function loadData() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (!CONFIGURED) {
+  const config = getActiveSupabaseConfig();
+  if (!config) {
     showError('Configura Supabase abans de compartir les classes.');
     return;
   }
