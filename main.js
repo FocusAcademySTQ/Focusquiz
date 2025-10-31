@@ -14,6 +14,15 @@ function closeModal(){
   if(m) m.remove();
 }
 
+function closeModalAndGoHome(){
+  closeModal();
+  try {
+    showView('home');
+  } catch (err) {
+    console.error('No s\'ha pogut tornar a l\'inici.', err);
+  }
+}
+
 function openMapOverlay(title, src){
   const existing = document.querySelector('.map-overlay');
   if (existing) existing.remove();
@@ -1443,6 +1452,7 @@ function renderQuestion(){
   $('#qText').innerHTML = q.title || q.text;
   $('#qMedia').innerHTML = q.html ? `<div class="fade-in">${q.html}</div>` : '';
   $('#answer').value = '';
+  $('#answer').removeAttribute('placeholder');
   $('#feedback').innerHTML = '';
   const rightCol = $('#rightCol');
   const keypad = $('#keypad');
@@ -1528,6 +1538,12 @@ function renderQuestion(){
       toggleRightCol(false);
       quizEl?.classList.add('coord-mode');
       renderCoordAnswerUI();
+    } else if (session.module === 'stats' && q.type === 'stats-cat') {
+      $('#answer').style.display = 'block';
+      $('#answer').setAttribute('inputmode','text');
+      $('#answer').setAttribute('placeholder','Escriu la lletra correcta');
+      toggleRightCol(true);
+      renderStatsLegend(q);
     } else {
       $('#answer').style.display = 'block';
       $('#answer').setAttribute('inputmode','decimal');
@@ -1557,6 +1573,36 @@ function renderKeypad(){
     <div style="margin-top:10px; display:flex; gap:10px; align-items:center">
       <span class="kbd">↵</span> <span class="subtitle">comprova</span>
       <span class="kbd">→</span> <span class="subtitle">omet</span>
+    </div>
+  `;
+}
+
+function renderStatsLegend(q){
+  const container = $('#keypad');
+  if(!container) return;
+  const meta = q && typeof q === 'object' ? (q.meta || {}) : {};
+  const labels = Array.isArray(meta.labels) ? meta.labels : [];
+  const colors = Array.isArray(meta.colors) ? meta.colors : [];
+  const items = labels.map((label, idx) => {
+    const color = colors[idx] || '#cbd5f5';
+    const safeLabel = escapeHTML(label);
+    return `
+      <div class="stats-legend__item">
+        <span class="stats-legend__swatch" style="background:${color}"></span>
+        <span class="stats-legend__letter">${safeLabel}</span>
+      </div>
+    `;
+  }).join('');
+  const info = meta.chartType === 'pie'
+    ? 'Introdueix la lletra de la porció més gran del gràfic.'
+    : 'Introdueix la lletra de la categoria amb el valor més alt.';
+  container.innerHTML = `
+    <div class="stats-legend">
+      <h3 class="title" style="margin-top:0">Llegenda del gràfic</h3>
+      <p class="subtitle">${info}</p>
+      <div class="stats-legend__grid">
+        ${items || '<div class="chip">Escriu la lletra corresponent.</div>'}
+      </div>
     </div>
   `;
 }
@@ -1975,7 +2021,7 @@ function finishQuiz(timeUp){
       ${wrongsBtn}
       <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
       <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
-      <button class="btn-ghost" onclick="closeModal()">Tanca</button>
+      <button class="btn-ghost" onclick="closeModalAndGoHome()">Tanca</button>
     </div>
   </div>
   <div style="flex:1"></div>
@@ -2465,6 +2511,47 @@ function init(){
 
 document.addEventListener('DOMContentLoaded', () => {
   init();
+
+  const dropdown = document.querySelector('.nav-dropdown');
+  if (dropdown) {
+    const summary = dropdown.querySelector('summary');
+
+    const updateExpanded = () => {
+      if (!summary) return;
+      summary.setAttribute('aria-expanded', dropdown.hasAttribute('open') ? 'true' : 'false');
+    };
+
+    const closeDropdown = () => {
+      dropdown.removeAttribute('open');
+      updateExpanded();
+      summary?.focus();
+    };
+
+    updateExpanded();
+    dropdown.addEventListener('toggle', updateExpanded);
+
+    dropdown.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDropdown();
+      }
+    });
+
+    dropdown.addEventListener('focusout', (event) => {
+      const next = event.relatedTarget;
+      if (!next || !dropdown.contains(next)) {
+        dropdown.removeAttribute('open');
+        updateExpanded();
+      }
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!dropdown.contains(event.target)) {
+        dropdown.removeAttribute('open');
+        updateExpanded();
+      }
+    });
+  }
 });
 
 document.addEventListener('focusquiz:user-login', init);

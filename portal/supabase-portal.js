@@ -595,6 +595,8 @@ function stringifyValue(value) {
       console.warn('No s\'ha pogut convertir el valor', value, error);
       return String(value);
     }
+  } catch (error) {
+    console.error('No s\'ha pogut copiar l\'enllaç', error);
   }
   return String(value);
 }
@@ -1258,6 +1260,8 @@ function setupEventListeners() {
       await loadSubmissions();
       renderResults();
     });
+
+    el.studentAdminList.appendChild(fragment);
   }
   if (elements.resultsClassFilter) {
     elements.resultsClassFilter.addEventListener('change', renderResults);

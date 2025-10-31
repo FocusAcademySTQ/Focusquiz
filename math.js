@@ -1132,6 +1132,8 @@ function arrMode(a){
     root.barChartSVG = barChartSVG;
   }
 
+  const PIE_COLORS = ['#93c5fd','#a7f3d0','#fde68a','#fca5a5','#c4b5fd'];
+
 function pieChartSVG(values, labels){
   const size=220, pad=8, cx=size/2, cy=size/2, R=size/2-pad;
   const total = values.reduce((s,x)=>s+x,0);
@@ -1142,7 +1144,7 @@ function pieChartSVG(values, labels){
     const large = (a1-a0)>Math.PI?1:0;
     const x1 = cx + R*Math.cos(a0), y1 = cy + R*Math.sin(a0);
     const x2 = cx + R*Math.cos(a1), y2 = cy + R*Math.sin(a1);
-    const color = ['#93c5fd','#a7f3d0','#fde68a','#fca5a5','#c4b5fd'][i%5];
+    const color = PIE_COLORS[i % PIE_COLORS.length];
     return `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2} Z"
              fill="${color}" stroke="#64748b"><animate attributeName="opacity" from="0" to="1" dur=".35s" fill="freeze"/></path>`;
   }).join('');
@@ -1192,13 +1194,15 @@ function genStatsGraphs(level, opts){
     const vals = cats.map(()=> rng(2, 12));
     const idxMax = vals.indexOf(Math.max(...vals));
     const html = barChartSVG(vals, cats);
-    return { type:'stats-cat', text:`Al gràfic de barres, <b>quina categoria</b> té el valor més alt? (A/B/C/D)`, html, answer: cats[idxMax] };
+    const meta = { chartType:'bar', labels: cats.slice(), colors: cats.map(()=> '#93c5fd') };
+    return { type:'stats-cat', text:`Al gràfic de barres, <b>quina categoria</b> té el valor més alt? (A/B/C/D)`, html, answer: cats[idxMax], meta };
   } else {
     const cats = ['X','Y','Z','W'];
     const vals = cats.map(()=> rng(1, 8));
     const idxMax = vals.indexOf(Math.max(...vals));
     const html = pieChartSVG(vals, cats);
-    return { type:'stats-cat', text:`Al gràfic de sectors, <b>quina categoria</b> és la més gran? (X/Y/Z/W)`, html, answer: cats[idxMax] };
+    const meta = { chartType:'pie', labels: cats.slice(), colors: PIE_COLORS.slice(0, cats.length) };
+    return { type:'stats-cat', text:`Al gràfic de sectors, <b>quina categoria</b> és la més gran? (X/Y/Z/W)`, html, answer: cats[idxMax], meta };
   }
 }
 
