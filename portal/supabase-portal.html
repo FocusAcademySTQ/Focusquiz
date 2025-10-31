@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Focus Academy · Gestor de tasques Supabase</title>
+  <title>Focus Academy · Gestor de proves</title>
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="./portal.css" />
 </head>
@@ -17,20 +17,26 @@
       <nav class="main-nav" aria-label="Navegació principal">
         <a class="pill" href="../index.html">🏠 Inici</a>
         <a class="pill" href="../capsules.html">🎓 Càpsules</a>
-        <a class="pill" href="./supabase-portal.html" aria-current="page">Accés professor/alumne</a>
+        <a class="pill" href="./supabase-portal.html" aria-current="page">Accés professorat</a>
       </nav>
     </div>
   </header>
 
   <main class="wrap portal-main">
     <section class="panel card portal-hero">
-      <h1>Gestor de tasques (Supabase)</h1>
-      <p class="subtitle">Autentica't amb el teu compte per gestionar assignacions entre mestres i alumnes amb la mateixa experiència FocusQuiz.</p>
-      <div id="configWarning" class="portal-alert hidden">Configura les claus Supabase a <code>SUPABASE_URL</code> i <code>SUPABASE_ANON_KEY</code> mitjançant variables d'entorn.</div>
+      <div class="portal-hero__badge">Nou flux ThatQuiz</div>
+      <h1>Gestiona classes, proves i notes</h1>
+      <p class="subtitle">
+        Crea una classe amb els alumnes, assigna qualsevol mòdul FocusQuiz i comparteix el codi perquè l'alumnat faci la prova sense
+        registrar-se.
+      </p>
+      <div id="configWarning" class="portal-alert hidden">
+        Configura les claus Supabase a <code>SUPABASE_URL</code> i <code>SUPABASE_ANON_KEY</code> mitjançant variables d'entorn.
+      </div>
     </section>
 
     <section id="authPanel" class="panel card">
-      <h2 style="margin-bottom:0.75rem">Inicia sessió</h2>
+      <h2 style="margin-bottom:0.75rem">Inicia sessió com a docent</h2>
       <form id="loginForm" class="portal-form" autocomplete="on">
         <label>
           <span class="portal-field-label">Correu electrònic</span>
@@ -42,49 +48,29 @@
         </label>
         <button class="btn-primary" type="submit">Entrar</button>
       </form>
-      <p class="portal-muted" style="margin-top:0.75rem">Si no tens compte encara, utilitza el formulari de registre següent.</p>
       <div id="authError" class="portal-error hidden"></div>
     </section>
 
     <section id="registerPanel" class="panel card">
-      <h2 style="margin-bottom:0.75rem">Encara no tens compte?</h2>
-      <p class="portal-muted" style="margin-top:0; margin-bottom:1rem;">Registra't i rebràs un correu de confirmació. Per als comptes docents cal un codi de centre facilitat per l'equip.</p>
+      <h2 style="margin-bottom:0.75rem">Encara no tens compte docent?</h2>
+      <p class="portal-muted" style="margin-top:0; margin-bottom:1rem;">
+        Registra't amb el teu correu de centre. Només el professorat pot accedir al gestor de classes.
+      </p>
       <form id="signupForm" class="portal-form portal-form--two" autocomplete="on">
         <label>
           <span class="portal-field-label">Nom i cognoms</span>
           <input class="input" name="full_name" type="text" required placeholder="Nom complet" autocomplete="name" />
         </label>
         <label>
-          <span class="portal-field-label">Correu electrònic</span>
-          <input class="input" name="signup_email" type="email" required placeholder="alumne@centre.cat" autocomplete="email" />
+          <span class="portal-field-label">Correu professional</span>
+          <input class="input" name="signup_email" type="email" required placeholder="docent@centre.cat" autocomplete="email" />
         </label>
         <label>
           <span class="portal-field-label">Contrasenya</span>
           <input class="input" name="signup_password" type="password" minlength="6" required placeholder="Almenys 6 caràcters" autocomplete="new-password" />
         </label>
-        <fieldset class="portal-radio-group">
-          <legend class="portal-field-label" style="margin-bottom:0.35rem;">Rol a la plataforma</legend>
-          <label>
-            <input type="radio" name="signup_role" value="student" checked /> Alumne/a
-          </label>
-          <label>
-            <input type="radio" name="signup_role" value="teacher" /> Mestre/a
-          </label>
-        </fieldset>
-        <label class="hidden" data-signup-role="teacher">
-          <span class="portal-field-label">Codi de centre</span>
-          <input
-            class="input"
-            name="signup_teacher_code"
-            type="text"
-            inputmode="numeric"
-            autocomplete="off"
-            placeholder="Introdueix el codi de centre"
-          />
-          <span class="portal-field-hint">Només el professorat autoritzat pot utilitzar aquest codi.</span>
-        </label>
         <div class="portal-actions" style="margin-top:0.5rem;">
-          <button class="btn-secondary" type="submit">Crear compte</button>
+          <button class="btn-secondary" type="submit">Crear compte docent</button>
         </div>
       </form>
       <div id="signupSuccess" class="portal-success hidden" role="status" aria-live="polite" style="margin-top:1rem"></div>
@@ -94,124 +80,226 @@
     <section id="sessionPanel" class="panel card hidden">
       <div class="portal-section-header">
         <div>
-          <p class="portal-section-title" style="margin-bottom:0">Sessió iniciada</p>
+          <p class="portal-section-title" style="margin-bottom:0">Sessió docent</p>
           <h2 style="margin:0" id="sessionName"></h2>
-          <p id="sessionRole" class="portal-muted" style="margin-top:0.25rem"></p>
+          <p id="sessionEmail" class="portal-muted" style="margin-top:0.25rem"></p>
         </div>
         <button id="logoutBtn" class="btn-secondary" type="button">Tanca la sessió</button>
       </div>
       <div id="sessionWarning" class="portal-error hidden" role="status" aria-live="polite" style="margin-top:0.75rem"></div>
     </section>
 
-    <div id="portalTabs" class="portal-tabs hidden" data-portal-tablist role="tablist" aria-label="Canvia de vista">
-      <button id="tab-teacher" class="portal-tab" type="button" data-tab="teacher" role="tab" aria-controls="teacherPanel" aria-selected="false">Professorat</button>
-      <button id="tab-student" class="portal-tab" type="button" data-tab="student" role="tab" aria-controls="studentPanel" aria-selected="false">Alumnat</button>
+    <div id="portalTabs" class="portal-tabs hidden" data-portal-tablist role="tablist" aria-label="Eines del professorat">
+      <button id="tab-classes" class="portal-tab" type="button" data-tab="classes" role="tab" aria-controls="classesPanel" aria-selected="false">Classes</button>
+      <button id="tab-assignments" class="portal-tab" type="button" data-tab="assignments" role="tab" aria-controls="assignmentsPanel" aria-selected="false">Assignacions</button>
+      <button id="tab-results" class="portal-tab" type="button" data-tab="results" role="tab" aria-controls="resultsPanel" aria-selected="false">Resultats</button>
     </div>
 
-    <section id="teacherPanel" class="portal-tabpanel hidden" data-tab-panel="teacher" role="tabpanel" aria-labelledby="tab-teacher">
-      <div class="portal-teacher-grid">
-        <section id="teacherView" class="panel card hidden">
-          <h2>Panell de mestre/a</h2>
-          <p class="portal-muted">Tria els mòduls FocusQuiz i defineix una prova automàtica per a l'alumnat seleccionat.</p>
-          <form id="assignmentForm" class="portal-form" style="margin-top:1rem">
-            <section class="portal-module-section">
-              <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
-                <div>
-                  <p class="portal-section-title" style="margin-bottom:0.35rem">Selecciona mòduls per convertir-los en proves</p>
-                  <p class="portal-muted" style="margin:0">Pots triar diversos mòduls a la vegada. Cada mòdul generarà una prova independent amb la mateixa configuració.</p>
-                </div>
-                <span id="moduleSelectedInfo" class="portal-chip portal-chip--muted">Cap prova seleccionada</span>
-              </div>
-              <div class="portal-module-toolbar">
-                <label class="chip portal-chip-input">
-                  Categoria
-                  <select id="moduleFilter" class="input"></select>
-                </label>
-                <label class="chip portal-chip-input">
-                  Cerca
-                  <input id="moduleSearch" class="input" type="search" placeholder="Escriu per filtrar mòduls" />
-                </label>
-              </div>
-              <div id="modulePicker" class="portal-module-grid" role="listbox" aria-multiselectable="true"></div>
-              <p id="moduleEmptyState" class="portal-muted portal-module-empty hidden">Cap mòdul coincideix amb la cerca o el filtre aplicat.</p>
-              <section id="moduleConfigPanel" class="portal-module-config hidden" aria-live="polite">
-                <p class="portal-section-title" style="margin-bottom:0.35rem">Detalla els subtemes de cada prova</p>
-                <p class="portal-muted" style="margin-top:0; margin-bottom:0.75rem;">Configura les opcions específiques de cada mòdul perquè l'alumne rebi exactament la mateixa prova que prepararies des del configurador principal.</p>
-                <div id="moduleConfigList" class="portal-module-config-list"></div>
-              </section>
-            </section>
-            <section class="portal-quiz-section">
-              <div class="portal-section-header" style="align-items:flex-start; gap:0.75rem;">
-                <div>
-                  <p class="portal-section-title" style="margin-bottom:0.35rem">Configura la prova automàtica</p>
-                  <p class="portal-muted" style="margin:0">Aquests paràmetres s'aplicaran a totes les proves creades amb la selecció anterior.</p>
-                </div>
-              </div>
-              <div class="portal-quiz-grid">
-                <label>
-                  <span class="portal-field-label">Nom de la prova (opcional)</span>
-                  <input class="input" name="quiz_title" type="text" maxlength="120" placeholder="Per exemple: Prova inicial de morfologia" />
-                </label>
-                <label>
-                  <span class="portal-field-label">Nombre de preguntes</span>
-                  <input class="input" name="quiz_count" type="number" min="1" max="200" value="10" required />
-                </label>
-                <label>
-                  <span class="portal-field-label">Temps límit (minuts)</span>
-                  <input class="input" name="quiz_time" type="number" min="0" max="180" value="0" required />
-                </label>
-                <label>
-                  <span class="portal-field-label">Nivell (1–4)</span>
-                  <select class="input" name="quiz_level" required>
-                    <option value="1" selected>1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                  </select>
-                </label>
-              </div>
-              <p class="portal-muted" style="margin-top:0.35rem">Si un mòdul no utilitza nivells o límit de temps, s'ignorarà automàticament.</p>
-            </section>
-            <label>
-              <span class="portal-field-label">Data límit</span>
-              <input class="input" name="due_date" type="date" />
-            </label>
-            <label>
-              <span class="portal-field-label">Comentaris addicionals (opcional)</span>
-              <textarea class="input" name="note" rows="3" placeholder="Instruccions extra per a l'alumnat..."></textarea>
-            </label>
-            <section>
-              <p class="portal-section-title" style="margin-bottom:0.5rem">Selecciona alumnes per assignar la tasca</p>
-              <div id="studentChecklist" class="portal-assignees"></div>
-            </section>
-            <div class="portal-actions">
-              <button class="btn-primary" type="submit">Assigna les proves</button>
-              <button class="btn-secondary" type="button" id="refreshStudents">Actualitza alumnes</button>
-            </div>
-          </form>
-          <div id="assignmentFeedback" class="portal-success hidden" style="margin-top:1rem"></div>
-          <div id="assignmentError" class="portal-error hidden" style="margin-top:1rem"></div>
-        </section>
-
-        <section id="teacherAssignments" class="panel card hidden">
-          <div class="portal-section-header">
-            <h2 style="margin:0">Assignacions publicades</h2>
-            <button id="reloadAssignments" type="button" class="btn-secondary">Actualitza llistat</button>
+    <section id="classesPanel" class="portal-tabpanel hidden" data-tab-panel="classes" role="tabpanel" aria-labelledby="tab-classes">
+      <section class="panel card">
+        <div class="portal-section-header">
+          <div>
+            <p class="portal-section-title">Nova classe</p>
+            <h2>Crea una classe i afegeix l'alumnat</h2>
           </div>
-          <div id="assignmentList" class="portal-list list" aria-live="polite"></div>
-        </section>
-      </div>
+          <button id="refreshClasses" class="btn-ghost" type="button">Actualitza</button>
+        </div>
+        <form id="classCreateForm" class="portal-form portal-form--two">
+          <label>
+            <span class="portal-field-label">Nom de la classe</span>
+            <input class="input" name="class_name" type="text" required placeholder="4t ESO · Matemàtiques" />
+          </label>
+          <label class="portal-form--stack">
+            <span class="portal-field-label">Alumnes (un per línia)</span>
+            <textarea class="input" name="student_list" rows="6" placeholder="Nom alumne 1&#10;Nom alumne 2&#10;..."></textarea>
+            <span class="portal-field-hint">No cal correu ni contrasenya. Els alumnes s'identifiquen amb el seu nom.</span>
+          </label>
+          <div class="portal-actions">
+            <button class="btn-primary" type="submit">Crear classe</button>
+            <div id="classCreateFeedback" class="portal-muted" role="status" aria-live="polite"></div>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel card">
+        <div class="portal-section-header">
+          <h2>Les meves classes</h2>
+          <p class="portal-muted">Copia el codi o enllaç i comparteix-lo amb l'alumnat.</p>
+        </div>
+        <div id="classList" class="portal-grid"></div>
+        <div id="classEmptyState" class="portal-empty hidden">
+          <p>Encara no has creat cap classe. Afegeix-ne una amb el formulari superior.</p>
+        </div>
+      </section>
     </section>
 
-    <section id="studentPanel" class="portal-tabpanel hidden" data-tab-panel="student" role="tabpanel" aria-labelledby="tab-student">
-      <section id="studentView" class="panel card hidden">
-        <h2>Panell d'alumne/a</h2>
-        <p class="portal-muted">Consulta les tasques assignades i marca el progrés.</p>
-        <div id="studentAssignmentList" class="portal-list list" aria-live="polite"></div>
+    <section id="assignmentsPanel" class="portal-tabpanel hidden" data-tab-panel="assignments" role="tabpanel" aria-labelledby="tab-assignments">
+      <section class="panel card">
+        <div class="portal-section-header">
+          <div>
+            <p class="portal-section-title">Publica una prova</p>
+            <h2>Escull un mòdul i configura la prova</h2>
+          </div>
+          <div class="portal-actions">
+            <button id="previewModule" class="btn-ghost" type="button">Previsualitza l'examen</button>
+            <button id="refreshAssignments" class="btn-ghost" type="button">Actualitza</button>
+          </div>
+        </div>
+        <form id="assignmentCreateForm" class="portal-form portal-form--two">
+          <label>
+            <span class="portal-field-label">Classe</span>
+            <select class="input" name="class_id" id="assignmentClass" required></select>
+          </label>
+          <label>
+            <span class="portal-field-label">Mòdul FocusQuiz</span>
+            <select class="input" name="module_id" id="assignmentModule" required></select>
+          </label>
+          <div id="moduleConfig" class="portal-module-config hidden" aria-live="polite">
+            <article class="portal-module-config-card" id="moduleConfigCard">
+              <div class="portal-module-config-header">
+                <div>
+                  <p class="portal-chip portal-chip--muted" id="moduleConfigKicker">Personalitza el mòdul</p>
+                  <h3 id="moduleConfigTitle">Opcions específiques</h3>
+                </div>
+                <button id="resetModuleConfig" class="btn-ghost" type="button">Reinicia opcions</button>
+              </div>
+              <p id="moduleConfigSummary" class="portal-module-config-summary hidden"></p>
+              <div id="moduleConfigBody"></div>
+              <p id="moduleConfigError" class="portal-error hidden" role="status"></p>
+            </article>
+            <p id="moduleConfigNotice" class="portal-muted hidden"></p>
+          </div>
+          <label>
+            <span class="portal-field-label">Nom visible per a l'alumnat</span>
+            <input class="input" name="assignment_label" type="text" placeholder="Control de fraccions" />
+          </label>
+          <div class="portal-form portal-form--three">
+            <label>
+              <span class="portal-field-label">Preguntes</span>
+              <input class="input" name="count" type="number" min="1" max="200" value="20" />
+            </label>
+            <label>
+              <span class="portal-field-label">Temps (minuts)</span>
+              <input class="input" name="time" type="number" min="0" max="180" value="0" />
+            </label>
+            <label>
+              <span class="portal-field-label">Nivell (1-4)</span>
+              <input class="input" name="level" type="number" min="1" max="4" value="1" />
+            </label>
+          </div>
+          <label>
+            <span class="portal-field-label">Data límit (opcional)</span>
+            <input class="input" name="due_at" type="datetime-local" />
+          </label>
+          <label class="portal-form--stack">
+            <span class="portal-field-label">Notes internes</span>
+            <textarea class="input" name="notes" rows="3" placeholder="Anota criteris o instruccions per recordar-les"></textarea>
+          </label>
+          <div class="portal-actions">
+            <button class="btn-primary" type="submit">Publica la prova</button>
+            <div id="assignmentFeedback" class="portal-muted" role="status" aria-live="polite"></div>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel card">
+        <div class="portal-section-header">
+          <h2>Assignacions actives</h2>
+          <p class="portal-muted">Consulta l'estat de cada prova i copia l'enllaç d'aula.</p>
+        </div>
+        <div id="assignmentList" class="portal-grid"></div>
+        <div id="assignmentEmptyState" class="portal-empty hidden">
+          <p>Encara no hi ha proves publicades. Crea'n una amb el formulari superior.</p>
+        </div>
+      </section>
+    </section>
+
+    <section id="resultsPanel" class="portal-tabpanel hidden" data-tab-panel="results" role="tabpanel" aria-labelledby="tab-results">
+      <section class="panel card">
+        <div class="portal-section-header">
+          <div>
+            <p class="portal-section-title">Resultats en directe</p>
+            <h2>Corregeix i descarrega les notes</h2>
+          </div>
+          <div class="portal-actions">
+            <button id="refreshResults" class="btn-ghost" type="button">Actualitza</button>
+          </div>
+        </div>
+        <div id="resultsFilters" class="portal-form portal-form--two">
+          <label>
+            <span class="portal-field-label">Filtra per classe</span>
+            <select class="input" id="resultsClassFilter"></select>
+          </label>
+          <label>
+            <span class="portal-field-label">Filtra per prova</span>
+            <select class="input" id="resultsAssignmentFilter"></select>
+          </label>
+        </div>
+        <div id="resultsList" class="portal-results"></div>
+        <div id="resultsEmptyState" class="portal-empty hidden">
+          <p>Encara no hi ha cap resultat registrat. Quan l'alumnat enviï la prova apareixerà aquí automàticament.</p>
+        </div>
       </section>
     </section>
   </main>
 
+  <template id="classCardTemplate">
+    <article class="portal-class-card">
+      <header>
+        <p class="portal-chip portal-chip--muted">Classe</p>
+        <h3 class="portal-class-name"></h3>
+      </header>
+      <dl class="portal-class-meta"></dl>
+      <div class="portal-class-actions">
+        <button class="pill portal-class-copy" type="button">Copia enllaç</button>
+        <button class="btn-secondary portal-class-edit" type="button">Gestiona alumnes</button>
+        <button class="btn-ghost portal-class-delete" type="button">Elimina</button>
+      </div>
+      <details class="portal-class-roster">
+        <summary>Llista d'alumnes</summary>
+        <form class="portal-class-roster-form">
+          <textarea class="input" rows="6"></textarea>
+          <div class="portal-actions">
+            <button class="btn-secondary" type="submit">Actualitza llista</button>
+            <span class="portal-muted portal-class-feedback"></span>
+          </div>
+        </form>
+      </details>
+    </article>
+  </template>
+
+  <template id="assignmentCardTemplate">
+    <article class="portal-assignment-card">
+      <header>
+        <p class="portal-chip portal-chip--muted assignment-class"></p>
+        <h3 class="assignment-title"></h3>
+      </header>
+      <dl class="assignment-meta"></dl>
+      <footer>
+        <button class="pill assignment-copy" type="button">Copia enllaç</button>
+        <button class="btn-secondary assignment-close" type="button">Tanca prova</button>
+      </footer>
+    </article>
+  </template>
+
+  <template id="resultRowTemplate">
+    <article class="portal-result-card">
+      <header>
+        <h3 class="result-student"></h3>
+        <p class="portal-muted result-meta"></p>
+      </header>
+      <dl class="result-details"></dl>
+      <div class="result-extra"></div>
+      <footer>
+        <div class="portal-actions">
+          <button class="btn-secondary result-edit" type="button">Edita nota</button>
+          <button class="btn-ghost result-reset" type="button">Permet reintent</button>
+        </div>
+      </footer>
+    </article>
+  </template>
+
+  <script type="module" src="./supabase-config.js"></script>
   <script type="module" src="./supabase-portal.js"></script>
 </body>
 </html>

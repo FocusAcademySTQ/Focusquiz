@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aula FocusQuiz</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="class-page">
+  <header class="topbar">
+    <div class="wrap row header-bar">
+      <div class="brand">
+        <div class="logo">FQ</div>
+        <h1>Aula FocusQuiz</h1>
+      </div>
+      <nav class="main-nav" aria-label="Navegació principal">
+        <a class="pill" href="index.html">🏠 Inici</a>
+        <a class="pill" href="capsules.html">🎓 Càpsules</a>
+        <a class="pill" href="portal/supabase-portal.html">Accés professorat</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap class-main" id="classMain" hidden>
+    <section class="panel card class-hero">
+      <div>
+        <p class="portal-section-title" id="classSubtitle">Classe</p>
+        <h2 id="className" class="class-name">—</h2>
+      </div>
+      <div class="class-meta">
+        <span class="portal-chip" id="classCodeBadge">Codi —</span>
+        <button id="copyClassLink" class="pill small" type="button">Copia l'enllaç</button>
+      </div>
+    </section>
+
+    <section class="class-layout">
+      <aside class="panel card class-roster" aria-labelledby="rosterTitle">
+        <div class="portal-section-header">
+          <h2 id="rosterTitle">Selecciona el teu nom</h2>
+          <button id="clearStudent" class="btn-ghost small" type="button">Canvia</button>
+        </div>
+        <div id="rosterBody" class="class-roster__body"></div>
+      </aside>
+
+      <section class="panel card class-assignments" aria-labelledby="assignmentsTitle">
+        <div class="portal-section-header">
+          <h2 id="assignmentsTitle">Proves actives</h2>
+          <div id="assignmentStatus" class="portal-muted"></div>
+        </div>
+        <div id="assignmentList" class="class-assignment-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <section id="classError" class="wrap panel card class-error" hidden>
+    <h2>Classe no trobada</h2>
+    <p id="classErrorMessage">Comprova el codi i torna-ho a intentar.</p>
+    <a class="pill" href="index.html">← Torna a l'inici</a>
+  </section>
+
+  <template id="studentButtonTemplate">
+    <button class="class-student" type="button"></button>
+  </template>
+
+  <template id="assignmentCardTemplate">
+    <article class="class-assignment-card">
+      <header>
+        <p class="assignment-module"></p>
+        <h3 class="assignment-title"></h3>
+      </header>
+      <dl class="assignment-meta"></dl>
+      <footer>
+        <button class="pill assignment-start" type="button">Comença la prova</button>
+      </footer>
+    </article>
+  </template>
+
+  <script type="module" src="portal/supabase-config.js"></script>
+  <script type="module" src="class.js"></script>
+</body>
+</html>

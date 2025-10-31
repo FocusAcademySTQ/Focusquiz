@@ -32,6 +32,13 @@ const fractionsSubthemes = [
   { value: 'simplify', label: 'Simplificar' },
 ];
 
+const percentSubthemes = [
+  { value: 'mix', label: 'Barreja (tots els tipus)' },
+  { value: 'of', label: 'Trobar el percentatge d’un valor' },
+  { value: 'is-of', label: 'Saber quin percentatge representa un valor' },
+  { value: 'discount', label: 'Preus amb descompte' },
+];
+
 const geometryScopes = [
   { value: 'area', label: 'Àrea' },
   { value: 'perim', label: 'Perímetre' },
@@ -54,6 +61,13 @@ const statsSubthemes = [
   { value: 'mmm', label: 'Mitjana, mediana i moda' },
   { value: 'range-dev', label: 'Rang i desviació' },
   { value: 'graphs', label: 'Representació gràfica' },
+];
+
+const coordSubthemes = [
+  { value: 'read', label: 'Llegir coordenades (punt → (x,y))' },
+  { value: 'quadrant', label: 'Identificar el quadrant' },
+  { value: 'build', label: 'Construir un punt amb condicions' },
+  { value: 'mix', label: 'Barreja de lectures, quadrants i punts' },
 ];
 
 const unitsSubthemes = [
@@ -126,6 +140,36 @@ const morfSubthemes = [
   { value: 'categories', label: 'Categories gramaticals' },
   { value: 'concordanca', label: 'Concordança' },
   { value: 'funcions', label: 'Funcions sintàctiques' },
+];
+
+const GEO_BASE_MODES = [
+  { value: 'quiz', label: 'Preguntes generals' },
+  { value: 'flag', label: 'Banderes' },
+];
+
+const GEO_EXTRA_MODES = {
+  'geo-europe': [{ value: 'map', label: 'Mapa interactiu' }],
+  'geo-america': [{ value: 'map', label: 'Mapa interactiu' }],
+  'geo-africa': [{ value: 'map', label: 'Mapa interactiu' }],
+  'geo-asia': [{ value: 'map', label: 'Mapa interactiu' }],
+};
+
+const chemModeLabels = {
+  speed: 'Quiz ràpid (símbol ↔ nom)',
+  compounds: 'Construir compostos',
+  map: 'Mapa interactiu',
+  classify: 'Classificació ràpida',
+};
+
+const chemDirectionLabels = {
+  sym2name: 'Símbol → Nom',
+  name2sym: 'Nom → Símbol',
+};
+
+const chemCompoundSubthemes = [
+  { value: 'valence', label: 'Valències i ions' },
+  { value: 'formulas', label: 'Fórmules bàsiques' },
+  { value: 'molecular', label: 'Compostos moleculars' },
 ];
 
 function arithmeticDefaults() {
@@ -254,6 +298,100 @@ const fractionsDefinition = {
     parts.push(opts.mixedGrids ? 'Formes variades' : 'Formes fixes');
     if (opts.forceSimplest) parts.push('Requereix forma més simple');
     return parts.join(' · ');
+  },
+};
+
+function percentDefaults() {
+  return { sub: 'mix' };
+}
+
+function percentNormalize(options = {}) {
+  const defaults = percentDefaults();
+  const allowed = percentSubthemes.map((item) => item.value);
+  const sub = allowed.includes(options.sub) ? options.sub : defaults.sub;
+  return { sub };
+}
+
+const percentDefinition = {
+  defaults: percentDefaults,
+  normalize: percentNormalize,
+  render(options = {}) {
+    const opts = percentNormalize(options);
+    const radios = percentSubthemes
+      .map((item, index) => `
+        <label class="toggle">
+          <input class="check" type="radio" name="perc-sub" value="${item.value}" ${CHECKED(opts.sub === item.value || (!options.sub && index === 0))}>
+          ${item.label}
+        </label>
+      `)
+      .join('');
+    return createContainer('perc', `
+      <div class="section-title">Tipus de problema</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Tipus de problemes de percentatges">
+          ${radios}
+        </div>
+      </div>
+      <div class="subtitle">Pots treballar un sol tipus d\'exercici o combinar-los tots a la vegada.</div>
+    `);
+  },
+  collect(card) {
+    const scope = card?.querySelector('[data-module-config="perc"]');
+    if (!scope) return percentDefaults();
+    const sub = scope.querySelector('input[name="perc-sub"]:checked')?.value || 'mix';
+    return percentNormalize({ sub });
+  },
+  summarize(options = {}) {
+    const opts = percentNormalize(options);
+    const label = percentSubthemes.find((item) => item.value === opts.sub)?.label || 'Barreja (tots els tipus)';
+    return `Problemes: ${label}`;
+  },
+};
+
+function coordDefaults() {
+  return { sub: 'read' };
+}
+
+function coordNormalize(options = {}) {
+  const defaults = coordDefaults();
+  const allowed = coordSubthemes.map((item) => item.value);
+  const sub = allowed.includes(options.sub) ? options.sub : defaults.sub;
+  return { sub };
+}
+
+const coordDefinition = {
+  defaults: coordDefaults,
+  normalize: coordNormalize,
+  render(options = {}) {
+    const opts = coordNormalize(options);
+    const radios = coordSubthemes
+      .map((item, index) => `
+        <label class="toggle">
+          <input class="check" type="radio" name="coord-sub" value="${item.value}" ${CHECKED(opts.sub === item.value || (!options.sub && index === 0))}>
+          ${item.label}
+        </label>
+      `)
+      .join('');
+    return createContainer('coord', `
+      <div class="section-title">Focus de les activitats</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Subtemes de coordenades cartesianes">
+          ${radios}
+        </div>
+      </div>
+      <div class="subtitle">Selecciona què vols reforçar: lectura de punts, identificació de quadrants o construcció de coordenades.</div>
+    `);
+  },
+  collect(card) {
+    const scope = card?.querySelector('[data-module-config="coord"]');
+    if (!scope) return coordDefaults();
+    const sub = scope.querySelector('input[name="coord-sub"]:checked')?.value || 'read';
+    return coordNormalize({ sub });
+  },
+  summarize(options = {}) {
+    const opts = coordNormalize(options);
+    const label = coordSubthemes.find((item) => item.value === opts.sub)?.label || 'Llegir coordenades';
+    return `Focus: ${label}`;
   },
 };
 
@@ -813,16 +951,205 @@ const morfologiaDefinition = {
   },
 };
 
+const geoEuropeDefinition = createGeoDefinition('geo-europe');
+const geoAmericaDefinition = createGeoDefinition('geo-america');
+const geoAfricaDefinition = createGeoDefinition('geo-africa');
+const geoAsiaDefinition = createGeoDefinition('geo-asia');
+
+function getGeoModeOptions(moduleId) {
+  const extras = Array.isArray(GEO_EXTRA_MODES[moduleId]) ? GEO_EXTRA_MODES[moduleId] : [];
+  const seen = new Set();
+  return GEO_BASE_MODES.concat(extras).filter((mode) => {
+    if (!mode || typeof mode.value !== 'string') return false;
+    if (seen.has(mode.value)) return false;
+    seen.add(mode.value);
+    return true;
+  });
+}
+
+function createGeoDefinition(moduleId) {
+  const modeOptions = getGeoModeOptions(moduleId);
+  const defaultMode = modeOptions[0]?.value || 'quiz';
+  const normalize = (options = {}) => {
+    const candidates = [options.mode, options.sub];
+    let selected = candidates.find((candidate) => typeof candidate === 'string' && modeOptions.some((mode) => mode.value === candidate));
+    if (!selected) selected = defaultMode;
+    return { mode: selected };
+  };
+  return {
+    defaults: () => ({ mode: defaultMode }),
+    normalize,
+    render(options = {}) {
+      const opts = normalize(options);
+      const inputName = `${moduleId}-mode`;
+      const radios = modeOptions
+        .map((mode) => `
+          <label class="toggle">
+            <input class="check" type="radio" name="${inputName}" value="${mode.value}" ${CHECKED(opts.mode === mode.value)}>
+            ${mode.label}
+          </label>
+        `)
+        .join('');
+      return createContainer(moduleId, `
+        <div class="section-title">Mode de pràctica</div>
+        <div class="controls">
+          <div class="group" role="group" aria-label="Modes del mòdul">
+            ${radios}
+          </div>
+        </div>
+        <div class="subtitle">Escull el tipus de pregunta per aquest examen.</div>
+      `);
+    },
+    collect(card) {
+      const scope = card?.querySelector(`[data-module-config="${moduleId}"]`);
+      if (!scope) return { mode: defaultMode };
+      const inputName = `${moduleId}-mode`;
+      const selected = scope.querySelector(`input[name="${inputName}"]:checked`)?.value;
+      return normalize({ mode: selected });
+    },
+    summarize(options = {}) {
+      const opts = normalize(options);
+      const label = modeOptions.find((mode) => mode.value === opts.mode)?.label || 'Preguntes generals';
+      return `Mode: ${label}`;
+    },
+  };
+}
+
+function chemDefaults() {
+  return { sub: 'speed', dir: null };
+}
+
+function chemNormalize(options = {}) {
+  const defaults = chemDefaults();
+  const allowedSubs = Object.keys(chemModeLabels);
+  const sub = allowedSubs.includes(options.sub) ? options.sub : defaults.sub;
+  const allowedDirs = Object.keys(chemDirectionLabels);
+  let dir = null;
+  const rawDir = typeof options.dir === 'string' ? options.dir : typeof options.direction === 'string' ? options.direction : null;
+  if (sub === 'speed' && rawDir && allowedDirs.includes(rawDir)) {
+    dir = rawDir;
+  }
+  return { sub, dir };
+}
+
+const chemDefinition = {
+  defaults: chemDefaults,
+  normalize: chemNormalize,
+  render(options = {}) {
+    const opts = chemNormalize(options);
+    const subRadios = Object.keys(chemModeLabels)
+      .map((value) => `
+        <label class="toggle">
+          <input class="check" type="radio" name="chem-sub" value="${value}" ${CHECKED(opts.sub === value)}>
+          ${chemModeLabels[value]}
+        </label>
+      `)
+      .join('');
+    const dirRadios = `
+      <label class="toggle"><input class="check" type="radio" name="chem-dir" value="auto" ${CHECKED(!opts.dir)}> Automàtic</label>
+      <label class="toggle"><input class="check" type="radio" name="chem-dir" value="sym2name" ${CHECKED(opts.dir === 'sym2name')}> Símbol → Nom</label>
+      <label class="toggle"><input class="check" type="radio" name="chem-dir" value="name2sym" ${CHECKED(opts.dir === 'name2sym')}> Nom → Símbol</label>
+    `;
+    return createContainer('chem', `
+      <div class="section-title">Mode de pràctica</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Modes del mòdul de química">
+          ${subRadios}
+        </div>
+      </div>
+      <div class="section-title">Direcció (només per al quiz ràpid)</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Direcció de resposta">
+          ${dirRadios}
+        </div>
+      </div>
+      <div class="subtitle">Si tries el quiz ràpid pots fixar si vols respondre símbol→nom, nom→símbol o deixar que es barregi automàticament.</div>
+    `);
+  },
+  collect(card) {
+    const scope = card?.querySelector('[data-module-config="chem"]');
+    if (!scope) return chemDefaults();
+    const sub = scope.querySelector('input[name="chem-sub"]:checked')?.value || 'speed';
+    const dirRaw = scope.querySelector('input[name="chem-dir"]:checked')?.value || 'auto';
+    const dir = dirRaw === 'auto' ? null : dirRaw;
+    return chemNormalize({ sub, dir });
+  },
+  summarize(options = {}) {
+    const opts = chemNormalize(options);
+    const parts = [`Mode: ${chemModeLabels[opts.sub] || chemModeLabels.speed}`];
+    if (opts.sub === 'speed') {
+      const dirLabel = opts.dir ? chemDirectionLabels[opts.dir] || chemDirectionLabels.sym2name : 'Automàtic';
+      parts.push(`Direcció: ${dirLabel}`);
+    }
+    return parts.join(' · ');
+  },
+};
+
+function chemCompoundsDefaults() {
+  return { sub: 'valence' };
+}
+
+function chemCompoundsNormalize(options = {}) {
+  const defaults = chemCompoundsDefaults();
+  const allowed = chemCompoundSubthemes.map((item) => item.value);
+  const sub = allowed.includes(options.sub) ? options.sub : defaults.sub;
+  return { sub };
+}
+
+const chemCompoundsDefinition = {
+  defaults: chemCompoundsDefaults,
+  normalize: chemCompoundsNormalize,
+  render(options = {}) {
+    const opts = chemCompoundsNormalize(options);
+    const radios = chemCompoundSubthemes
+      .map((item, index) => `
+        <label class="toggle">
+          <input class="check" type="radio" name="chem-comp-sub" value="${item.value}" ${CHECKED(opts.sub === item.value || (!options.sub && index === 0))}>
+          ${item.label}
+        </label>
+      `)
+      .join('');
+    return createContainer('chem-compounds', `
+      <div class="section-title">Àmbit dels exercicis</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Subtemes de fórmules i compostos">
+          ${radios}
+        </div>
+      </div>
+      <div class="subtitle">Escull si vols treballar valències, fórmules bàsiques o identificar compostos moleculars.</div>
+    `);
+  },
+  collect(card) {
+    const scope = card?.querySelector('[data-module-config="chem-compounds"]');
+    if (!scope) return chemCompoundsDefaults();
+    const sub = scope.querySelector('input[name="chem-comp-sub"]:checked')?.value || 'valence';
+    return chemCompoundsNormalize({ sub });
+  },
+  summarize(options = {}) {
+    const opts = chemCompoundsNormalize(options);
+    const label = chemCompoundSubthemes.find((item) => item.value === opts.sub)?.label || 'Valències i ions';
+    return `Subtema: ${label}`;
+  },
+};
+
 export const MODULE_OPTION_DEFINITIONS = {
   arith: arithmeticDefinition,
   frac: fractionsDefinition,
+  perc: percentDefinition,
   geom: geometryDefinition,
+  coord: coordDefinition,
   stats: statsDefinition,
   units: unitsDefinition,
   eq: equationsDefinition,
   func: functionsDefinition,
   'cat-ort': ortografiaDefinition,
   'cat-morf': morfologiaDefinition,
+  'geo-europe': geoEuropeDefinition,
+  'geo-america': geoAmericaDefinition,
+  'geo-africa': geoAfricaDefinition,
+  'geo-asia': geoAsiaDefinition,
+  chem: chemDefinition,
+  'chem-compounds': chemCompoundsDefinition,
 };
 
 export function getModuleOptionDefinition(moduleId) {
