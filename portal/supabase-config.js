@@ -3,8 +3,8 @@ const env = typeof process !== 'undefined' && process?.env ? process.env : {};
 
 // Edit these values if you prefer to codify the Supabase credentials here.
 // They will be used when no runtime or environment configuration is provided.
-const HARDCODED_SUPABASE_URL = '';
-const HARDCODED_SUPABASE_ANON_KEY = '';
+const HARDCODED_SUPABASE_URL = 'https://aogfwqaewvkxcdgwomlo.supabase.co';
+const HARDCODED_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvZ2Z3cWFld3ZreGNkZ3dvbWxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNTA0NDgsImV4cCI6MjA3NjcyNjQ0OH0.sotcecah5AQeMOaji7eSIrLIFUKGbGIZI43xIiOBrFw';
 
 function readRuntimeValue(key) {
   if (typeof window !== 'undefined' && window && typeof window[key] === 'string') {
