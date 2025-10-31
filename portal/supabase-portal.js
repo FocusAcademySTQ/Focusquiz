@@ -623,6 +623,8 @@ function stringifyValue(value) {
       console.warn('No s\'ha pogut convertir el valor', value, error);
       return String(value);
     }
+  } catch (error) {
+    console.error('No s\'ha pogut copiar l\'enllaç', error);
   }
   return String(value);
 }
