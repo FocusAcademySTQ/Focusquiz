@@ -1347,12 +1347,69 @@
 
 .portal-results {
   display: grid;
-  gap: 1.25rem;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .portal-results .portal-result-card {
   border: 1px solid rgba(34, 197, 94, 0.28);
-  box-shadow: 0 28px 60px -36px rgba(22, 101, 52, 0.45);
+  border-radius: 18px;
+  background: rgba(240, 253, 244, 0.6);
+  box-shadow: 0 28px 60px -36px rgba(22, 101, 52, 0.35);
+  overflow: hidden;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.portal-results .portal-result-card[open] {
+  box-shadow: 0 32px 64px -28px rgba(34, 197, 94, 0.45);
+  transform: translateY(-2px);
+}
+
+.portal-result-card summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 1.35rem 1.2rem;
+  background: linear-gradient(135deg, rgba(187, 247, 208, 0.45), rgba(187, 247, 208, 0.1));
+}
+
+.portal-result-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.portal-result-card summary:focus {
+  outline: 3px solid rgba(22, 163, 74, 0.35);
+  outline-offset: 3px;
+}
+
+.portal-result-card .result-grade {
+  font-size: clamp(2.25rem, 4vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1;
+  color: #166534;
+}
+
+.portal-result-card .result-summary-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1f2937;
+  line-height: 1.3;
+}
+
+.portal-result-card .result-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.2rem;
+  border-top: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.portal-result-card .result-body header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .portal-result-card .result-meta {
@@ -1361,7 +1418,27 @@
   color: rgba(71, 85, 105, 0.95);
 }
 
-.portal-result-card footer {
+.portal-result-card .result-details {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.portal-result-card .result-details dt {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.portal-result-card .result-details dd {
+  margin: 0;
+  color: rgba(71, 85, 105, 0.95);
+}
+
+.portal-result-card .result-actions {
+  margin-top: 0.35rem;
+}
+
+.portal-result-card .portal-actions {
   justify-content: flex-end;
 }
 

@@ -283,20 +283,26 @@
   </template>
 
   <template id="resultRowTemplate">
-    <article class="portal-result-card">
-      <header>
-        <h3 class="result-student"></h3>
-        <p class="portal-muted result-meta"></p>
-      </header>
-      <dl class="result-details"></dl>
-      <div class="result-extra"></div>
-      <footer>
-        <div class="portal-actions">
-          <button class="btn-secondary result-edit" type="button">Edita nota</button>
-          <button class="btn-ghost result-reset" type="button">Permet reintent</button>
-        </div>
-      </footer>
-    </article>
+    <details class="portal-result-card">
+      <summary class="result-summary">
+        <span class="result-grade"></span>
+        <span class="result-summary-label"></span>
+      </summary>
+      <div class="result-body">
+        <header>
+          <h3 class="result-student"></h3>
+          <p class="portal-muted result-meta"></p>
+        </header>
+        <dl class="result-details"></dl>
+        <div class="result-extra hidden"></div>
+        <footer class="result-actions">
+          <div class="portal-actions">
+            <button class="btn-secondary result-edit" type="button">Edita nota</button>
+            <button class="btn-ghost result-reset" type="button">Permet reintent</button>
+          </div>
+        </footer>
+      </div>
+    </details>
   </template>
 
   <script type="module" src="./supabase-config.js"></script>

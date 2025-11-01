@@ -838,13 +838,26 @@ function renderResults() {
   filtered.forEach((submission) => {
     const node = template.content.firstElementChild.cloneNode(true);
     node.dataset.id = submission.id;
-    node.querySelector('.result-student').textContent = submission.student_name;
+    node.open = false;
+    const studentName = submission.student_name;
+    node.querySelector('.result-student').textContent = studentName;
     const classLabel = submission.class_code
       ? `${submission.class_name} · ${submission.class_code}`
       : submission.class_name;
     const assignmentInfo = submission.assignment || {};
     const assignmentConfig = assignmentInfo.quiz_config || {};
-    const subtitle = `${assignmentConfig.label || assignmentInfo.module_title || 'Prova'} · ${classLabel}`;
+    const assignmentTitle = assignmentConfig.label || assignmentInfo.module_title || 'Prova';
+    const summaryLabel = `${studentName} · ${assignmentTitle}`;
+    const summaryNode = node.querySelector('.result-summary-label');
+    if (summaryNode) {
+      summaryNode.textContent = summaryLabel;
+    }
+    const gradeNode = node.querySelector('.result-grade');
+    if (gradeNode) {
+      gradeNode.textContent = formatPercent(submission.score);
+      gradeNode.setAttribute('title', gradeNode.textContent);
+    }
+    const subtitle = `${assignmentTitle} · ${classLabel}`;
     node.querySelector('.result-meta').textContent = `${subtitle} · ${new Date(submission.submitted_at).toLocaleString('ca-ES')}`;
     const details = node.querySelector('.result-details');
     const addMeta = (label, value) => {
