@@ -2512,43 +2512,52 @@ function init(){
 document.addEventListener('DOMContentLoaded', () => {
   init();
 
-  const dropdown = document.querySelector('.nav-dropdown');
+  const dropdown = document.querySelector('[data-dropdown]');
   if (dropdown) {
-    const summary = dropdown.querySelector('summary');
+    const toggle = dropdown.querySelector('.nav-dropdown-toggle');
 
-    const updateExpanded = () => {
-      if (!summary) return;
-      summary.setAttribute('aria-expanded', dropdown.hasAttribute('open') ? 'true' : 'false');
+    const setExpanded = (expanded) => {
+      if (!toggle) return;
+      toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      dropdown.classList.toggle('is-open', expanded);
     };
 
-    const closeDropdown = () => {
-      dropdown.removeAttribute('open');
-      updateExpanded();
-      summary?.focus();
+    const closeDropdown = (focusToggle = false) => {
+      if (!dropdown.classList.contains('is-open')) return;
+      setExpanded(false);
+      if (focusToggle) {
+        toggle?.focus();
+      }
     };
 
-    updateExpanded();
-    dropdown.addEventListener('toggle', updateExpanded);
+    setExpanded(dropdown.classList.contains('is-open'));
+
+    toggle?.addEventListener('click', (event) => {
+      event.preventDefault();
+      const willOpen = !dropdown.classList.contains('is-open');
+      setExpanded(willOpen);
+      if (!willOpen) {
+        toggle.focus();
+      }
+    });
 
     dropdown.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         event.preventDefault();
-        closeDropdown();
+        closeDropdown(true);
       }
     });
 
     dropdown.addEventListener('focusout', (event) => {
       const next = event.relatedTarget;
       if (!next || !dropdown.contains(next)) {
-        dropdown.removeAttribute('open');
-        updateExpanded();
+        closeDropdown();
       }
     });
 
     document.addEventListener('click', (event) => {
       if (!dropdown.contains(event.target)) {
-        dropdown.removeAttribute('open');
-        updateExpanded();
+        closeDropdown();
       }
     });
   }
