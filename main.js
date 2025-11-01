@@ -2456,6 +2456,91 @@ $('#btnSkip').onclick = skip;
 
 let initializedUser = null;
 
+function setupTheoryDropdown(){
+  const dropdown = document.querySelector('.nav-dropdown[data-dropdown]');
+  if (!dropdown) return;
+  if (dropdown.dataset.controllerBound === 'true') return;
+
+  const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+  const menu = dropdown.querySelector('.dropdown-menu');
+  if (!toggle || !menu) return;
+
+  dropdown.dataset.controllerBound = 'true';
+
+  const getFirstItem = () => menu.querySelector('a, button, [role="menuitem"], [tabindex="0"]');
+  toggle.setAttribute('aria-expanded', dropdown.classList.contains('is-open') ? 'true' : 'false');
+
+  const closeDropdown = () => {
+    if (!dropdown.classList.contains('is-open')) return;
+    dropdown.classList.remove('is-open');
+    toggle.setAttribute('aria-expanded', 'false');
+  };
+
+  const openDropdown = () => {
+    if (dropdown.classList.contains('is-open')) return;
+    dropdown.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+  };
+
+  const handleDocumentClick = (event) => {
+    if (!dropdown.contains(event.target)) {
+      closeDropdown();
+    }
+  };
+
+  const handleDocumentKeydown = (event) => {
+    if (event.key === 'Escape') {
+      if (dropdown.classList.contains('is-open')) {
+        closeDropdown();
+        toggle.focus();
+      }
+    }
+  };
+
+  toggle.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (dropdown.classList.contains('is-open')) {
+      closeDropdown();
+    } else {
+      openDropdown();
+      if (event.detail === 0) {
+        const first = getFirstItem();
+        if (first) first.focus();
+      }
+    }
+  });
+
+  toggle.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown') {
+      openDropdown();
+      const first = getFirstItem();
+      if (first) first.focus();
+      event.preventDefault();
+    } else if (event.key === 'Escape') {
+      closeDropdown();
+      event.preventDefault();
+    }
+  });
+
+  menu.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeDropdown();
+      toggle.focus();
+      event.preventDefault();
+    }
+  });
+
+  menu.addEventListener('click', (event) => {
+    if (event.target.closest('a, button, [role="menuitem"]')) {
+      closeDropdown();
+    }
+  });
+
+  document.addEventListener('click', handleDocumentClick);
+  document.addEventListener('keydown', handleDocumentKeydown);
+}
+
 function ensureUser(){
   const user = localStorage.getItem('lastStudent');
   const overlay = document.getElementById('loginOverlay');
@@ -2476,6 +2561,7 @@ function ensureUser(){
 }
 
 function init(){
+  setupTheoryDropdown();
   if(!ensureUser()) return; // ✅ comprova sessió abans d’inicialitzar
 
   const current = localStorage.getItem('lastStudent');
@@ -2511,47 +2597,6 @@ function init(){
 
 document.addEventListener('DOMContentLoaded', () => {
   init();
-
-  const dropdown = document.querySelector('.nav-dropdown');
-  if (dropdown) {
-    const summary = dropdown.querySelector('summary');
-
-    const updateExpanded = () => {
-      if (!summary) return;
-      summary.setAttribute('aria-expanded', dropdown.hasAttribute('open') ? 'true' : 'false');
-    };
-
-    const closeDropdown = () => {
-      dropdown.removeAttribute('open');
-      updateExpanded();
-      summary?.focus();
-    };
-
-    updateExpanded();
-    dropdown.addEventListener('toggle', updateExpanded);
-
-    dropdown.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        closeDropdown();
-      }
-    });
-
-    dropdown.addEventListener('focusout', (event) => {
-      const next = event.relatedTarget;
-      if (!next || !dropdown.contains(next)) {
-        dropdown.removeAttribute('open');
-        updateExpanded();
-      }
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!dropdown.contains(event.target)) {
-        dropdown.removeAttribute('open');
-        updateExpanded();
-      }
-    });
-  }
 });
 
 document.addEventListener('focusquiz:user-login', init);
