@@ -63,8 +63,7 @@ body{
   position: sticky;
   top: 0;
   z-index: 100;
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow: visible;
 }
 
 .topbar::-webkit-scrollbar { display: none; }

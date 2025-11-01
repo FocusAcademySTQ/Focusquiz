@@ -30,6 +30,7 @@ const state = {
     options: {},
     questionSet: [],
     notice: '',
+    previewToken: '',
   },
 };
 
@@ -78,6 +79,8 @@ const elements = {
   resultsClassFilter: document.getElementById('resultsClassFilter'),
   resultsAssignmentFilter: document.getElementById('resultsAssignmentFilter'),
 };
+
+let previewChannel = null;
 
 function getNested(source, keys, fallback) {
   let current = source;
@@ -335,6 +338,10 @@ function setCurrentModule(moduleId, { preserveQuestions = false, presetOptions =
   if (!preserveQuestions) {
     state.assignmentDraft.questionSet = [];
     state.assignmentDraft.notice = '';
+    if (state.assignmentDraft.previewToken) {
+      state.assignmentDraft.previewToken = '';
+      closePreviewChannel();
+    }
   }
   renderModuleConfigUI(moduleId);
 }
@@ -483,15 +490,68 @@ function encodeQuizOptions(options) {
   return '';
 }
 
+function getPreviewChannelName(token) {
+  return token ? `focusquiz-preview:${token}` : 'focusquiz-preview';
+}
+
+function closePreviewChannel() {
+  if (previewChannel && typeof previewChannel.removeEventListener === 'function') {
+    previewChannel.removeEventListener('message', handlePreviewChannelMessage);
+  }
+  if (previewChannel && typeof previewChannel.close === 'function') {
+    previewChannel.close();
+  }
+  previewChannel = null;
+}
+
+function openPreviewChannel(token) {
+  if (typeof BroadcastChannel === 'undefined') return;
+  closePreviewChannel();
+  try {
+    previewChannel = new BroadcastChannel(getPreviewChannelName(token));
+    previewChannel.addEventListener('message', handlePreviewChannelMessage);
+  } catch (error) {
+    previewChannel = null;
+    console.warn('No s\'ha pogut obrir el canal de previsualització', error);
+  }
+}
+
+function handlePreviewChannelMessage(event) {
+  if (!event || !event.data || typeof event.data !== 'object') return;
+  handlePreviewPayload(event.data);
+}
+
 function handlePreviewMessage(event) {
   if (!event || !event.data || typeof event.data !== 'object') return;
   const { origin, data } = event;
-  if (data.type !== 'focusquiz-preview') return;
   const sameOrigin = !origin || origin === 'null' || origin === window.location.origin;
   if (!sameOrigin) return;
-  if (!data.moduleId || data.moduleId !== state.assignmentDraft.moduleId) return;
+  handlePreviewPayload(data);
+}
+
+function handlePreviewStorageMessage(event) {
+  if (!event || !event.key || !event.newValue) return;
+  if (!event.key.startsWith('focusquiz-preview')) return;
+  try {
+    const data = JSON.parse(event.newValue);
+    handlePreviewPayload(data);
+  } catch (error) {
+    console.warn('No s\'ha pogut llegir el missatge de previsualització des de l\'emmagatzematge', error);
+  }
+}
+
+function handlePreviewPayload(data) {
+  if (!data || data.type !== 'focusquiz-preview') return;
+  if (!data.moduleId) return;
+  const expectedToken = state.assignmentDraft.previewToken || '';
+  if (expectedToken && data.previewToken && data.previewToken !== expectedToken) return;
+  if (data.moduleId !== state.assignmentDraft.moduleId) return;
   if (data.options && typeof data.options === 'object') {
-    state.assignmentDraft.options = normalizeModuleOptions(data.moduleId, data.options);
+    const normalizedOptions = normalizeModuleOptions(
+      data.moduleId,
+      cloneModuleOptions(data.options || {})
+    );
+    state.assignmentDraft.options = normalizedOptions;
     renderModuleConfigUI(data.moduleId);
   }
   const questions = Array.isArray(data.questions)
@@ -507,6 +567,7 @@ function handlePreviewMessage(event) {
   state.assignmentDraft.notice = questions.length
     ? `Preguntes personalitzades guardades (${questions.length}).`
     : '';
+  state.assignmentDraft.previewToken = data.previewToken || expectedToken;
   updateModuleSummary();
   if (elements.assignmentFeedback) {
     elements.assignmentFeedback.textContent = 'Previsualització guardada';
@@ -547,13 +608,45 @@ function renderClasses() {
     if (cls.created_at) {
       addMeta('Creada', new Date(cls.created_at).toLocaleString('ca-ES'));
     }
+    const rosterDetails = node.querySelector('.portal-class-roster');
     const rosterForm = node.querySelector('.portal-class-roster-form');
-    const textarea = rosterForm.querySelector('textarea');
-    textarea.value = (cls.students || []).join('\n');
-    rosterForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      await updateRoster(cls.id, textarea.value, node.querySelector('.portal-class-feedback'));
-    });
+    const textarea = rosterForm ? rosterForm.querySelector('textarea') : null;
+    const focusRosterTextarea = () => {
+      if (!textarea) return;
+      textarea.focus({ preventScroll: false });
+      const end = textarea.value.length;
+      try {
+        textarea.setSelectionRange(end, end);
+      } catch (_error) {
+        textarea.selectionStart = end;
+        textarea.selectionEnd = end;
+      }
+    };
+    if (textarea) {
+      textarea.value = (cls.students || []).join('\n');
+    }
+    if (rosterForm) {
+      rosterForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await updateRoster(cls.id, textarea ? textarea.value : '', node.querySelector('.portal-class-feedback'));
+      });
+    }
+    if (rosterDetails) {
+      rosterDetails.addEventListener('toggle', () => {
+        if (rosterDetails.open) {
+          focusRosterTextarea();
+        }
+      });
+    }
+    const editBtn = node.querySelector('.portal-class-edit');
+    if (editBtn) {
+      editBtn.addEventListener('click', () => {
+        if (rosterDetails && !rosterDetails.open) {
+          rosterDetails.open = true;
+        }
+        focusRosterTextarea();
+      });
+    }
     const copyBtn = node.querySelector('.portal-class-copy');
     copyBtn.addEventListener('click', () => copyClassLink(cls, copyBtn));
     node.querySelector('.portal-class-delete').addEventListener('click', () => deleteClass(cls));
@@ -1091,6 +1184,9 @@ async function previewSelectedModule() {
     });
   }
   const encodedOptions = encodeQuizOptions(previewOptions);
+  const previewToken = `fq-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  state.assignmentDraft.previewToken = previewToken;
+  openPreviewChannel(previewToken);
   const url = new URL('../index.html', window.location.href);
   url.searchParams.set('module', moduleId);
   if (label) url.searchParams.set('label', label);
@@ -1101,6 +1197,7 @@ async function previewSelectedModule() {
   if (encodedOptions) url.searchParams.set('opts', encodedOptions);
   url.searchParams.set('preview', '1');
   url.searchParams.set('autostart', '1');
+  url.searchParams.set('previewToken', previewToken);
   window.open(url.toString(), '_blank', 'noopener');
 }
 
@@ -1352,6 +1449,8 @@ function setupEventListeners() {
     elements.resultsAssignmentFilter.addEventListener('change', renderResults);
   }
   window.addEventListener('message', handlePreviewMessage);
+  window.addEventListener('storage', handlePreviewStorageMessage);
+  window.addEventListener('beforeunload', closePreviewChannel);
 }
 
 async function init() {

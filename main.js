@@ -453,6 +453,7 @@ function extractQuizConfigFromParams(params) {
   const options = optionsParam ? decodeQuizOptionsParam(optionsParam) : null;
   const autostart = parseUrlBoolean(params.get('autostart') ?? params.get('start'));
   const preview = parseUrlBoolean(params.get('preview') ?? params.get('portalPreview'));
+  const previewTokenRaw = params.get('previewToken') || params.get('preview_token');
   const tags = [];
   const tagParams = params.getAll ? params.getAll('tag') : [];
   tagParams.forEach((tag) => {
@@ -488,6 +489,9 @@ function extractQuizConfigFromParams(params) {
   }
   if (autostart) config.autostart = true;
   if (preview) config.preview = true;
+  if (previewTokenRaw && typeof previewTokenRaw === 'string' && previewTokenRaw.trim()) {
+    config.previewToken = previewTokenRaw.trim();
+  }
   if (tags.length) {
     config.assignmentTags = Array.from(new Set(tags));
   }
@@ -566,6 +570,7 @@ function openModuleFromURL(){
         studentName: pendingUrlQuizConfig.studentName || '',
         moduleTitle: pendingUrlQuizConfig.moduleTitle || '',
         preview: Boolean(pendingUrlQuizConfig.preview),
+        previewToken: pendingUrlQuizConfig.previewToken || '',
       }
     : null;
 
@@ -943,6 +948,9 @@ function startFromConfig(meta){
   if (!metaData.moduleTitle && pendingUrlQuizOverrides && pendingUrlQuizOverrides.moduleTitle) {
     metaData.moduleTitle = pendingUrlQuizOverrides.moduleTitle;
   }
+  if (!metaData.previewToken && pendingUrlQuizOverrides && pendingUrlQuizOverrides.previewToken) {
+    metaData.previewToken = pendingUrlQuizOverrides.previewToken;
+  }
   const previewRequested = Boolean((pendingUrlQuizOverrides && pendingUrlQuizOverrides.preview) || pendingPreviewRequested);
   if (previewRequested) {
     pendingPreviewRequested = false;
@@ -1181,6 +1189,7 @@ function startPreviewSession(moduleId, cfg, meta = {}) {
     level,
     options: baseOptions,
     questions,
+    previewToken: typeof meta.previewToken === 'string' ? meta.previewToken : '',
   };
   renderPreviewOverlay();
 }
@@ -1363,25 +1372,56 @@ function setPreviewStatus(message, timeout = 2400) {
   }
 }
 
+function getPreviewChannelName(token) {
+  return token ? `focusquiz-preview:${token}` : 'focusquiz-preview';
+}
+
 function sendPreviewSelection() {
   if (!previewContext) return;
-  const target = window.opener;
-  if (!target || target.closed) {
-    setPreviewStatus('No s\'ha pogut enviar la previsualització. Obre-la des del gestor.', 3200);
-    return;
-  }
   const payload = {
     type: 'focusquiz-preview',
     moduleId: previewContext.moduleId,
     options: cloneObject(previewContext.options || {}),
     questions: previewContext.questions.map((question) => cloneQuizQuestion(question)),
+    previewToken: previewContext.previewToken || '',
   };
-  try {
-    target.postMessage(payload, window.location.origin || '*');
-    setPreviewStatus('Examen guardat. Pots tancar aquesta finestra.', 3200);
-  } catch (error) {
-    console.error('No s\'ha pogut enviar la previsualització', error);
-    setPreviewStatus('Error en guardar la previsualització.', 3200);
+  let delivered = false;
+  const target = window.opener;
+  if (target && !target.closed) {
+    try {
+      target.postMessage(payload, window.location.origin || '*');
+      delivered = true;
+    } catch (error) {
+      console.error('No s\'ha pogut enviar la previsualització a la finestra origen', error);
+    }
+  }
+  if (!delivered && typeof BroadcastChannel !== 'undefined') {
+    try {
+      const channel = new BroadcastChannel(getPreviewChannelName(payload.previewToken));
+      channel.postMessage(payload);
+      channel.close();
+      delivered = true;
+    } catch (error) {
+      console.error('No s\'ha pogut enviar la previsualització mitjançant BroadcastChannel', error);
+    }
+  }
+  if (!delivered && typeof localStorage !== 'undefined') {
+    try {
+      const storageKey = getPreviewChannelName(payload.previewToken);
+      localStorage.setItem(storageKey, JSON.stringify({ ...payload, sentAt: Date.now() }));
+      localStorage.removeItem(storageKey);
+      delivered = true;
+    } catch (error) {
+      console.error('No s\'ha pogut enviar la previsualització mitjançant localStorage', error);
+    }
+  }
+  if (delivered) {
+    setPreviewStatus('Examen guardat. Tornant al gestor...', 1600);
+    setTimeout(() => {
+      closePreviewWindow();
+    }, 400);
+  } else {
+    setPreviewStatus('No s\'ha pogut enviar la previsualització. Obre-la des del gestor.', 3200);
   }
 }
 
