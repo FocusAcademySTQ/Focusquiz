@@ -314,6 +314,38 @@
   gap: 0.75rem;
 }
 
+.portal-module-config-body > .section-title {
+  margin: 0.75rem 0 0.35rem;
+}
+
+.portal-module-config-body > .section-title:first-child {
+  margin-top: 0;
+}
+
+.portal-module-config-body > .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.portal-module-config-body > .controls .group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.portal-module-config-body > .controls .toggle {
+  padding: 0.6rem 0.8rem;
+  border-radius: 14px;
+}
+
+.portal-module-config-body > .controls .field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .portal-error-text {
   margin: 0;
   color: #b91c1c;
