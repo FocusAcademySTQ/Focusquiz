@@ -298,14 +298,13 @@ body{
   position: relative;
 }
 
-.nav-dropdown summary {
-  list-style: none;
+.nav-dropdown-toggle {
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
 }
 
-.nav-dropdown summary::-webkit-details-marker { display: none; }
-
-.nav-dropdown summary::after {
+.nav-dropdown-toggle::after {
   content: '\25BE';
   font-size: 0.75rem;
   margin-left: 0.35rem;
@@ -313,16 +312,16 @@ body{
   transition: transform 0.2s ease;
 }
 
-.nav-dropdown[open] > summary {
+.nav-dropdown.is-open > .nav-dropdown-toggle {
   background: rgba(226, 237, 255, 0.9);
   color: #1d4ed8;
 }
 
-.nav-dropdown[open] summary::after {
+.nav-dropdown.is-open .nav-dropdown-toggle::after {
   transform: rotate(180deg);
 }
 
-.nav-dropdown:not([open]) .dropdown-menu {
+.nav-dropdown:not(.is-open) .dropdown-menu {
   display: none;
 }
 
