@@ -329,7 +329,7 @@ body{
   transform: rotate(180deg);
 }
 
-.nav-dropdown:not([open]) .dropdown-menu {
+.nav-dropdown:not(.is-open) .dropdown-menu {
   display: none;
 }
 
