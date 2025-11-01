@@ -2511,56 +2511,6 @@ function init(){
 
 document.addEventListener('DOMContentLoaded', () => {
   init();
-
-  const dropdown = document.querySelector('[data-dropdown]');
-  if (dropdown) {
-    const toggle = dropdown.querySelector('.nav-dropdown-toggle');
-
-    const setExpanded = (expanded) => {
-      if (!toggle) return;
-      toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
-      dropdown.classList.toggle('is-open', expanded);
-    };
-
-    const closeDropdown = (focusToggle = false) => {
-      if (!dropdown.classList.contains('is-open')) return;
-      setExpanded(false);
-      if (focusToggle) {
-        toggle?.focus();
-      }
-    };
-
-    setExpanded(dropdown.classList.contains('is-open'));
-
-    toggle?.addEventListener('click', (event) => {
-      event.preventDefault();
-      const willOpen = !dropdown.classList.contains('is-open');
-      setExpanded(willOpen);
-      if (!willOpen) {
-        toggle.focus();
-      }
-    });
-
-    dropdown.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        closeDropdown(true);
-      }
-    });
-
-    dropdown.addEventListener('focusout', (event) => {
-      const next = event.relatedTarget;
-      if (!next || !dropdown.contains(next)) {
-        closeDropdown();
-      }
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!dropdown.contains(event.target)) {
-        closeDropdown();
-      }
-    });
-  }
 });
 
 document.addEventListener('focusquiz:user-login', init);

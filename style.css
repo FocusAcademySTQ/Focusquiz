@@ -298,6 +298,14 @@ body{
   position: relative;
 }
 
+.nav-dropdown > summary {
+  list-style: none;
+}
+
+.nav-dropdown > summary::-webkit-details-marker {
+  display: none;
+}
+
 .nav-dropdown-toggle {
   cursor: pointer;
   display: inline-flex;
@@ -312,12 +320,12 @@ body{
   transition: transform 0.2s ease;
 }
 
-.nav-dropdown.is-open > .nav-dropdown-toggle {
+.nav-dropdown[open] > .nav-dropdown-toggle {
   background: rgba(226, 237, 255, 0.9);
   color: #1d4ed8;
 }
 
-.nav-dropdown.is-open .nav-dropdown-toggle::after {
+.nav-dropdown[open] .nav-dropdown-toggle::after {
   transform: rotate(180deg);
 }
 
