@@ -79,6 +79,27 @@ const elements = {
   resultsAssignmentFilter: document.getElementById('resultsAssignmentFilter'),
 };
 
+function getNested(source, keys, fallback) {
+  let current = source;
+  for (let index = 0; index < keys.length; index += 1) {
+    if (current === null || current === undefined) {
+      return fallback;
+    }
+    current = current[keys[index]];
+  }
+  return current === undefined ? fallback : current;
+}
+
+function coalesce(value, fallback) {
+  return value === null || value === undefined ? fallback : value;
+}
+
+function readFormValue(formData, key) {
+  if (!formData || typeof formData.get !== 'function') return '';
+  const raw = formData.get(key);
+  return raw === null || raw === undefined ? '' : String(raw);
+}
+
 function getActiveSupabaseConfig() {
   const resolved = resolveSupabaseConfig();
   if (!resolved.configured) {
@@ -91,13 +112,13 @@ function getActiveSupabaseConfig() {
   ) {
     cachedConfig = resolved;
     if (state.supabase) {
-      try {
-        const authApi = state.supabase?.auth;
-        if (authApi?.signOut) {
-          Promise.resolve(authApi.signOut({ scope: 'local' })).catch(() => {});
+      const authApi = state.supabase && state.supabase.auth ? state.supabase.auth : null;
+      if (authApi && typeof authApi.signOut === 'function') {
+        try {
+          Promise.resolve(authApi.signOut({ scope: 'local' }));
+        } catch (error) {
+          console.warn('No s\'ha pogut reinicialitzar el client Supabase existent.', error);
         }
-      } catch (error) {
-        console.warn('No s\'ha pogut reinicialitzar el client Supabase existent.', error);
       }
       state.supabase = null;
     }
@@ -156,7 +177,8 @@ async function loadSession() {
 async function loadProfile() {
   const client = createSupabaseClient();
   if (!client) return null;
-  const userId = state.session?.user?.id;
+  const user = state.session && state.session.user ? state.session.user : null;
+  const userId = user ? user.id : null;
   if (!userId) return null;
   const { data, error } = await client
     .from('profiles')
@@ -168,10 +190,13 @@ async function loadProfile() {
     return null;
   }
   if (!data) {
-    const email = state.session.user.email || '';
+    const email = user && user.email ? user.email : '';
     const { error: insertError } = await client.from('profiles').insert({
       id: userId,
-      full_name: state.session.user.user_metadata?.full_name || email.split('@')[0] || 'Docent',
+      full_name:
+        (user && user.user_metadata && user.user_metadata.full_name)
+          || email.split('@')[0]
+          || 'Docent',
       email,
     });
     if (insertError) {
@@ -290,7 +315,7 @@ function renderModuleOptions() {
   const previousModule = state.assignmentDraft.moduleId;
   const desiredModule = sorted.some((module) => module.id === previousModule)
     ? previousModule
-    : sorted[0]?.id || '';
+    : sorted.length > 0 && sorted[0] && sorted[0].id ? sorted[0].id : '';
   if (desiredModule) {
     elements.assignmentModuleSelect.value = desiredModule;
     syncAssignmentModuleFromSelect({ preserveQuestions: desiredModule === previousModule });
@@ -344,7 +369,10 @@ function renderModuleConfigUI(moduleId) {
     elements.moduleConfigTitle.textContent = moduleInfo ? `Opcions per a ${moduleInfo.name}` : 'Opcions específiques';
   }
   if (elements.moduleConfigKicker) {
-    const categoryLabel = moduleInfo?.category ? CATEGORY_LABELS[moduleInfo.category] || moduleInfo.category : null;
+    const categoryLabel =
+      moduleInfo && moduleInfo.category
+        ? CATEGORY_LABELS[moduleInfo.category] || moduleInfo.category
+        : null;
     elements.moduleConfigKicker.textContent = categoryLabel ? `Categoria ${categoryLabel}` : 'Personalitza el mòdul';
   }
   const optionsClone = cloneModuleOptions(state.assignmentDraft.options || {});
@@ -548,7 +576,8 @@ function renderAssignments() {
     const node = template.content.firstElementChild.cloneNode(true);
     node.dataset.id = assignment.id;
     node.querySelector('.assignment-class').textContent = `${assignment.class.class_name} · ${assignment.class.join_code}`;
-    node.querySelector('.assignment-title').textContent = assignment.quiz_config?.label || assignment.module_title;
+    const quizConfig = assignment.quiz_config || {};
+    node.querySelector('.assignment-title').textContent = quizConfig.label || assignment.module_title;
     const meta = node.querySelector('.assignment-meta');
     const addMeta = (label, value) => {
       const dt = document.createElement('dt');
@@ -560,11 +589,11 @@ function renderAssignments() {
     };
     addMeta('Mòdul', assignment.module_title);
     addMeta('Estat', assignment.status);
-    addMeta('Preguntes', assignment.quiz_config?.count ?? '—');
-    addMeta('Temps', assignment.quiz_config?.time ? `${assignment.quiz_config.time} min` : 'Sense límit');
-    addMeta('Nivell', assignment.quiz_config?.level ?? '—');
-    if (assignment.quiz_config?.summary) {
-      addMeta('Configuració', assignment.quiz_config.summary);
+    addMeta('Preguntes', coalesce(quizConfig.count, '—'));
+    addMeta('Temps', quizConfig.time ? `${quizConfig.time} min` : 'Sense límit');
+    addMeta('Nivell', coalesce(quizConfig.level, '—'));
+    if (quizConfig.summary) {
+      addMeta('Configuració', quizConfig.summary);
     }
     addMeta('Publicada', new Date(assignment.date_assigned).toLocaleString('ca-ES'));
     if (assignment.due_at) {
@@ -605,7 +634,8 @@ function buildResultsFilters() {
   state.assignments.forEach((assignment) => {
     const option = document.createElement('option');
     option.value = assignment.id;
-    option.textContent = `${assignment.quiz_config?.label || assignment.module_title}`;
+    const label = assignment.quiz_config && assignment.quiz_config.label ? assignment.quiz_config.label : assignment.module_title;
+    option.textContent = label;
     elements.resultsAssignmentFilter.appendChild(option);
   });
 }
@@ -623,8 +653,6 @@ function stringifyValue(value) {
       console.warn('No s\'ha pogut convertir el valor', value, error);
       return String(value);
     }
-  } catch (error) {
-    console.error('No s\'ha pogut copiar l\'enllaç', error);
   }
   return String(value);
 }
@@ -658,7 +686,7 @@ function extractUserAnswer(wrong) {
 }
 
 function buildWrongDetails(submission) {
-  const wrongs = submission?.details?.entry?.wrongs;
+  const wrongs = getNested(submission, ['details', 'entry', 'wrongs'], null);
   if (!Array.isArray(wrongs) || wrongs.length === 0) return null;
   const wrapper = document.createElement('details');
   wrapper.className = 'portal-assignee-details';
@@ -696,8 +724,13 @@ function renderResults() {
   const empty = elements.resultsEmpty;
   if (!list || !empty) return;
   list.innerHTML = '';
-  const classFilter = elements.resultsClassFilter?.value || 'all';
-  const assignmentFilter = elements.resultsAssignmentFilter?.value || 'all';
+  const classFilterSelect = elements.resultsClassFilter;
+  const classFilter = classFilterSelect && classFilterSelect.value ? classFilterSelect.value : 'all';
+  const assignmentFilterSelect = elements.resultsAssignmentFilter;
+  const assignmentFilter =
+    assignmentFilterSelect && assignmentFilterSelect.value
+      ? assignmentFilterSelect.value
+      : 'all';
   const filtered = state.submissions.filter((submission) => {
     const classMatch = classFilter === 'all' || submission.class_id === classFilter;
     const assignmentMatch = assignmentFilter === 'all' || submission.assignment_id === assignmentFilter;
@@ -716,7 +749,9 @@ function renderResults() {
     const classLabel = submission.class_code
       ? `${submission.class_name} · ${submission.class_code}`
       : submission.class_name;
-    const subtitle = `${submission.assignment?.quiz_config?.label || submission.assignment?.module_title || 'Prova'} · ${classLabel}`;
+    const assignmentInfo = submission.assignment || {};
+    const assignmentConfig = assignmentInfo.quiz_config || {};
+    const subtitle = `${assignmentConfig.label || assignmentInfo.module_title || 'Prova'} · ${classLabel}`;
     node.querySelector('.result-meta').textContent = `${subtitle} · ${new Date(submission.submitted_at).toLocaleString('ca-ES')}`;
     const details = node.querySelector('.result-details');
     const addMeta = (label, value) => {
@@ -728,10 +763,11 @@ function renderResults() {
       details.appendChild(dd);
     };
     addMeta('Nota', formatPercent(submission.score));
-    addMeta('Encerts', submission.correct !== null ? `${submission.correct}/${submission.count ?? '?'}` : '—');
+    const countLabel = coalesce(submission.count, '?');
+    addMeta('Encerts', submission.correct !== null ? `${submission.correct}/${countLabel}` : '—');
     addMeta('Temps', submission.time_spent ? `${Math.round(submission.time_spent / 60)} min` : '—');
-    if (submission.assignment?.quiz_config?.summary) {
-      addMeta('Configuració', submission.assignment.quiz_config.summary);
+    if (assignmentConfig.summary) {
+      addMeta('Configuració', assignmentConfig.summary);
     }
     addMeta('Estat', statusLabel(submission.status));
     const extra = node.querySelector('.result-extra');
@@ -745,8 +781,14 @@ function renderResults() {
         extra.classList.add('hidden');
       }
     }
-    node.querySelector('.result-edit')?.addEventListener('click', () => editSubmissionScore(submission));
-    node.querySelector('.result-reset')?.addEventListener('click', () => resetSubmission(submission));
+    const editButton = node.querySelector('.result-edit');
+    if (editButton) {
+      editButton.addEventListener('click', () => editSubmissionScore(submission));
+    }
+    const resetButton = node.querySelector('.result-reset');
+    if (resetButton) {
+      resetButton.addEventListener('click', () => resetSubmission(submission));
+    }
     list.appendChild(node);
   });
 }
@@ -894,8 +936,8 @@ async function editSubmissionScore(submission) {
 async function createClass(formData) {
   const client = createSupabaseClient();
   if (!client) return;
-  const className = formData.get('class_name')?.toString().trim();
-  const studentNames = sanitizeListInput(formData.get('student_list'));
+  const className = readFormValue(formData, 'class_name').trim();
+  const studentNames = sanitizeListInput(readFormValue(formData, 'student_list'));
   if (!className) {
     elements.classFeedback.textContent = 'Introdueix un nom de classe.';
     return;
@@ -936,12 +978,16 @@ async function createAssignment(formData) {
   }
   const selectedClass = state.classes.find((cls) => cls.id === classId);
   const module = MODULES.find((mod) => mod.id === moduleId);
-  const label = formData.get('assignment_label')?.toString().trim() || `${selectedClass?.class_name || ''} · ${module?.name || 'Prova'}`;
+  const labelRaw = readFormValue(formData, 'assignment_label').trim();
+  const selectedClassName = selectedClass ? selectedClass.class_name : '';
+  const moduleName = module ? module.name : '';
+  const label = labelRaw || `${selectedClassName || ''} · ${moduleName || 'Prova'}`;
   const count = Number.parseInt(formData.get('count'), 10) || null;
   const time = Number.parseInt(formData.get('time'), 10) || null;
   const level = Number.parseInt(formData.get('level'), 10) || null;
-  const dueAtRaw = formData.get('due_at')?.toString().trim();
-  const notes = formData.get('notes')?.toString().trim() || null;
+  const dueAtRaw = readFormValue(formData, 'due_at').trim();
+  const notesValue = readFormValue(formData, 'notes').trim();
+  const notes = notesValue ? notesValue : null;
   const moduleOptions = collectModuleOptions();
   const questionSet = Array.isArray(state.assignmentDraft.questionSet)
     ? state.assignmentDraft.questionSet.map((question) => {
@@ -978,7 +1024,7 @@ async function createAssignment(formData) {
     const payload = {
       class_id: classId,
       module_id: moduleId,
-      module_title: module?.name || moduleId,
+      module_title: moduleName || moduleId,
       quiz_config: quizConfig,
       status: 'published',
       due_at: dueAtRaw ? new Date(dueAtRaw).toISOString() : null,
@@ -1003,16 +1049,20 @@ async function createAssignment(formData) {
 }
 
 async function previewSelectedModule() {
-  const moduleId = elements.assignmentModuleSelect?.value || '';
+  const moduleSelect = elements.assignmentModuleSelect;
+  const moduleId = moduleSelect && moduleSelect.value ? moduleSelect.value : '';
   if (!moduleId) return;
   const formData = elements.assignmentForm ? new FormData(elements.assignmentForm) : new FormData();
   const module = MODULES.find((mod) => mod.id === moduleId);
   const classId = formData.get('class_id');
   const selectedClass = state.classes.find((cls) => cls.id === classId);
-  const rawLabel = formData.get('assignment_label');
-  const label = rawLabel && typeof rawLabel === 'string' && rawLabel.trim()
-    ? rawLabel.trim()
-    : `${selectedClass?.class_name || 'Classe'} · ${module?.name || 'Prova'}`;
+  const rawLabel = readFormValue(formData, 'assignment_label');
+  const trimmedLabel = rawLabel.trim();
+  const selectedClassName = selectedClass ? selectedClass.class_name : '';
+  const moduleName = module ? module.name : '';
+  const label = trimmedLabel
+    ? trimmedLabel
+    : `${selectedClassName || 'Classe'} · ${moduleName || 'Prova'}`;
   const count = Number.parseInt(formData.get('count'), 10);
   const time = Number.parseInt(formData.get('time'), 10);
   const level = Number.parseInt(formData.get('level'), 10);
@@ -1044,7 +1094,7 @@ async function previewSelectedModule() {
   const url = new URL('../index.html', window.location.href);
   url.searchParams.set('module', moduleId);
   if (label) url.searchParams.set('label', label);
-  if (module?.name) url.searchParams.set('title', module.name);
+  if (moduleName) url.searchParams.set('title', moduleName);
   if (Number.isFinite(count) && count > 0) url.searchParams.set('count', String(Math.min(Math.max(count, 1), 200)));
   if (Number.isFinite(time) && time > 0) url.searchParams.set('time', String(Math.min(Math.max(time, 0), 180)));
   if (Number.isFinite(level)) url.searchParams.set('level', String(Math.min(Math.max(level, 1), 4)));
@@ -1143,8 +1193,14 @@ async function loadSubmissions() {
           quiz_config: submission.assignments.quiz_config,
         }
       : null,
-    class_name: submission.assignments?.classes?.class_name || '',
-    class_code: submission.assignments?.classes?.join_code || submission.class_code || '',
+    class_name:
+      submission.assignments && submission.assignments.classes && submission.assignments.classes.class_name
+        ? submission.assignments.classes.class_name
+        : '',
+    class_code:
+      submission.assignments && submission.assignments.classes && submission.assignments.classes.join_code
+        ? submission.assignments.classes.join_code
+        : submission.class_code || '',
   }));
 }
 

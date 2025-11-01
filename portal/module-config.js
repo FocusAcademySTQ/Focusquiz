@@ -18,6 +18,37 @@ function deepClone(value) {
   }
 }
 
+function safeQuery(scope, selector) {
+  if (!scope || typeof scope.querySelector !== 'function') return null;
+  try {
+    return scope.querySelector(selector);
+  } catch (_error) {
+    return null;
+  }
+}
+
+function nodeValue(node) {
+  if (!node) return '';
+  const { value } = node;
+  if (value === undefined || value === null) return '';
+  return String(value);
+}
+
+function getValue(scope, selector, fallback = '') {
+  const value = nodeValue(safeQuery(scope, selector));
+  return value || fallback;
+}
+
+function getCheckedValue(scope, selector, fallback = '') {
+  const value = nodeValue(safeQuery(scope, selector));
+  return value || fallback;
+}
+
+function isChecked(scope, selector) {
+  const node = safeQuery(scope, selector);
+  return !!(node && node.checked);
+}
+
 const arithmeticOps = ['+', '-', '×', '÷'];
 const arithmeticLabels = {
   '+': 'Sumes',
@@ -210,15 +241,15 @@ const arithmeticDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="arith"]');
+    const scope = safeQuery(card, '[data-module-config="arith"]');
     if (!scope) return arithmeticDefaults();
     const ops = [];
-    if (scope.querySelector('[data-field="arith-op-plus"]')?.checked) ops.push('+');
-    if (scope.querySelector('[data-field="arith-op-minus"]')?.checked) ops.push('-');
-    if (scope.querySelector('[data-field="arith-op-times"]')?.checked) ops.push('×');
-    if (scope.querySelector('[data-field="arith-op-div"]')?.checked) ops.push('÷');
-    const allowNeg = !!scope.querySelector('[data-field="arith-allow-neg"]')?.checked;
-    const tri = !!scope.querySelector('[data-field="arith-tri"]')?.checked;
+    if (isChecked(scope, '[data-field="arith-op-plus"]')) ops.push('+');
+    if (isChecked(scope, '[data-field="arith-op-minus"]')) ops.push('-');
+    if (isChecked(scope, '[data-field="arith-op-times"]')) ops.push('×');
+    if (isChecked(scope, '[data-field="arith-op-div"]')) ops.push('÷');
+    const allowNeg = isChecked(scope, '[data-field="arith-allow-neg"]');
+    const tri = isChecked(scope, '[data-field="arith-tri"]');
     return arithmeticNormalize({ ops, allowNeg, tri });
   },
   summarize(options = {}) {
@@ -284,16 +315,17 @@ const fractionsDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="frac"]');
+    const scope = safeQuery(card, '[data-module-config="frac"]');
     if (!scope) return fractionsDefaults();
-    const sub = scope.querySelector('input[name="frac-sub"]:checked')?.value || 'identify';
-    const mixedGrids = !!scope.querySelector('[data-field="frac-mixed-grids"]')?.checked;
-    const forceSimplest = !!scope.querySelector('[data-field="frac-force-simplest"]')?.checked;
+    const sub = getCheckedValue(scope, 'input[name="frac-sub"]:checked', 'identify');
+    const mixedGrids = isChecked(scope, '[data-field="frac-mixed-grids"]');
+    const forceSimplest = isChecked(scope, '[data-field="frac-force-simplest"]');
     return fractionsNormalize({ sub, mixedGrids, forceSimplest });
   },
   summarize(options = {}) {
     const opts = fractionsNormalize(options);
-    const subLabel = fractionsSubthemes.find((item) => item.value === opts.sub)?.label || 'Subtema general';
+    const subInfo = fractionsSubthemes.find((item) => item.value === opts.sub);
+    const subLabel = subInfo && subInfo.label ? subInfo.label : 'Subtema general';
     const parts = [`Subtema: ${subLabel}`];
     parts.push(opts.mixedGrids ? 'Formes variades' : 'Formes fixes');
     if (opts.forceSimplest) parts.push('Requereix forma més simple');
@@ -336,14 +368,15 @@ const percentDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="perc"]');
+    const scope = safeQuery(card, '[data-module-config="perc"]');
     if (!scope) return percentDefaults();
-    const sub = scope.querySelector('input[name="perc-sub"]:checked')?.value || 'mix';
+    const sub = getCheckedValue(scope, 'input[name="perc-sub"]:checked', 'mix');
     return percentNormalize({ sub });
   },
   summarize(options = {}) {
     const opts = percentNormalize(options);
-    const label = percentSubthemes.find((item) => item.value === opts.sub)?.label || 'Barreja (tots els tipus)';
+    const info = percentSubthemes.find((item) => item.value === opts.sub);
+    const label = info && info.label ? info.label : 'Barreja (tots els tipus)';
     return `Problemes: ${label}`;
   },
 };
@@ -383,14 +416,15 @@ const coordDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="coord"]');
+    const scope = safeQuery(card, '[data-module-config="coord"]');
     if (!scope) return coordDefaults();
-    const sub = scope.querySelector('input[name="coord-sub"]:checked')?.value || 'read';
+    const sub = getCheckedValue(scope, 'input[name="coord-sub"]:checked', 'read');
     return coordNormalize({ sub });
   },
   summarize(options = {}) {
     const opts = coordNormalize(options);
-    const label = coordSubthemes.find((item) => item.value === opts.sub)?.label || 'Llegir coordenades';
+    const info = coordSubthemes.find((item) => item.value === opts.sub);
+    const label = info && info.label ? info.label : 'Llegir coordenades';
     return `Focus: ${label}`;
   },
 };
@@ -491,22 +525,24 @@ const geometryDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="geom"]');
-    if (!scope) return geometryDefaults();
-    const selectedScope = scope.querySelector('input[name="geom-scope"]:checked')?.value;
+    const scopeNode = safeQuery(card, '[data-module-config="geom"]');
+    if (!scopeNode) return geometryDefaults();
+    const defaults = geometryDefaults();
+    const selectedScope = getCheckedValue(scopeNode, 'input[name="geom-scope"]:checked', defaults.scope);
     const fig = {};
     geometryFigures.forEach(({ key }) => {
-      fig[key] = !!scope.querySelector(`[data-figure="${key}"]`)?.checked;
+      fig[key] = isChecked(scopeNode, `[data-figure="${key}"]`);
     });
-    const units = scope.querySelector('[data-field="geom-units"]')?.value || 'cm';
-    const round = Number.parseInt(scope.querySelector('[data-field="geom-round"]')?.value || '2', 10);
-    const circleMode = scope.querySelector('[data-field="geom-circle-mode"]')?.value || 'numeric';
-    const requireUnits = !!scope.querySelector('[data-field="geom-require-units"]')?.checked;
+    const units = getValue(scopeNode, '[data-field="geom-units"]', defaults.units);
+    const round = Number.parseInt(getValue(scopeNode, '[data-field="geom-round"]', String(defaults.round)), 10);
+    const circleMode = getValue(scopeNode, '[data-field="geom-circle-mode"]', defaults.circleMode);
+    const requireUnits = isChecked(scopeNode, '[data-field="geom-require-units"]');
     return geometryNormalize({ scope: selectedScope, fig, units, round, circleMode, requireUnits });
   },
   summarize(options = {}) {
     const opts = geometryNormalize(options);
-    const scopeLabel = geometryScopes.find((item) => item.value === opts.scope)?.label || 'Abast general';
+    const scopeInfo = geometryScopes.find((item) => item.value === opts.scope);
+    const scopeLabel = scopeInfo && scopeInfo.label ? scopeInfo.label : 'Abast general';
     const figures = geometryFigures.filter(({ key }) => opts.fig[key]).map(({ label }) => label);
     const figureSummary = figures.length ? figures.join(', ') : 'Cap figura seleccionada';
     const roundLabel = opts.round === 0 ? 'sense' : `${opts.round}`;
@@ -572,15 +608,16 @@ const statsDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="stats"]');
+    const scope = safeQuery(card, '[data-module-config="stats"]');
     if (!scope) return statsDefaults();
-    const sub = scope.querySelector('input[name="stats-sub"]:checked')?.value || 'mmm';
-    const round = Number.parseInt(scope.querySelector('[data-field="stats-round"]')?.value || '2', 10);
+    const sub = getCheckedValue(scope, 'input[name="stats-sub"]:checked', 'mmm');
+    const round = Number.parseInt(getValue(scope, '[data-field="stats-round"]', '2'), 10);
     return statsNormalize({ sub, round });
   },
   summarize(options = {}) {
     const opts = statsNormalize(options);
-    const subLabel = statsSubthemes.find((item) => item.value === opts.sub)?.label || 'Subtema general';
+    const subInfo = statsSubthemes.find((item) => item.value === opts.sub);
+    const subLabel = subInfo && subInfo.label ? subInfo.label : 'Subtema general';
     return `Subtema: ${subLabel} · Decimals: ${opts.round}`;
   },
 };
@@ -626,15 +663,16 @@ const unitsDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="units"]');
+    const scope = safeQuery(card, '[data-module-config="units"]');
     if (!scope) return unitsDefaults();
-    const sub = scope.querySelector('input[name="units-sub"]:checked')?.value || 'length';
-    const round = Number.parseInt(scope.querySelector('[data-field="units-round"]')?.value || '2', 10);
+    const sub = getCheckedValue(scope, 'input[name="units-sub"]:checked', 'length');
+    const round = Number.parseInt(getValue(scope, '[data-field="units-round"]', '2'), 10);
     return unitsNormalize({ sub, round });
   },
   summarize(options = {}) {
     const opts = unitsNormalize(options);
-    const subLabel = unitsSubthemes.find((item) => item.value === opts.sub)?.label || 'Magnitud general';
+    const subInfo = unitsSubthemes.find((item) => item.value === opts.sub);
+    const subLabel = subInfo && subInfo.label ? subInfo.label : 'Magnitud general';
     return `Magnitud: ${subLabel} · Decimals: ${opts.round}`;
   },
 };
@@ -713,21 +751,24 @@ const equationsDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="eq"]');
+    const scope = safeQuery(card, '[data-module-config="eq"]');
     if (!scope) return equationsDefaults();
-    const format = scope.querySelector('input[name="eq-format"]:checked')?.value || 'normal';
-    const degree = scope.querySelector('input[name="eq-degree"]:checked')?.value || '1';
-    const range = scope.querySelector('[data-field="eq-range"]')?.value || 'small';
-    const forceInt = !!scope.querySelector('[data-field="eq-int-sol"]')?.checked;
-    const allowIncomplete = !!scope.querySelector('[data-field="eq-incomplete"]')?.checked;
-    const hints = !!scope.querySelector('[data-field="eq-hints"]')?.checked;
+    const format = getCheckedValue(scope, 'input[name="eq-format"]:checked', 'normal');
+    const degree = getCheckedValue(scope, 'input[name="eq-degree"]:checked', '1');
+    const range = getValue(scope, '[data-field="eq-range"]', 'small');
+    const forceInt = isChecked(scope, '[data-field="eq-int-sol"]');
+    const allowIncomplete = isChecked(scope, '[data-field="eq-incomplete"]');
+    const hints = isChecked(scope, '[data-field="eq-hints"]');
     return equationsNormalize({ format, degree, range, forceInt, allowIncomplete, hints });
   },
   summarize(options = {}) {
     const opts = equationsNormalize(options);
-    const formatLabel = equationFormats.find((item) => item.value === opts.format)?.label || 'Format general';
-    const degreeLabel = equationDegrees.find((item) => item.value === opts.degree)?.label || '1r grau';
-    const rangeLabel = equationRanges.find((item) => item.value === opts.range)?.label || 'petits (−9…9)';
+    const formatInfo = equationFormats.find((item) => item.value === opts.format);
+    const formatLabel = formatInfo && formatInfo.label ? formatInfo.label : 'Format general';
+    const degreeInfo = equationDegrees.find((item) => item.value === opts.degree);
+    const degreeLabel = degreeInfo && degreeInfo.label ? degreeInfo.label : '1r grau';
+    const rangeInfo = equationRanges.find((item) => item.value === opts.range);
+    const rangeLabel = rangeInfo && rangeInfo.label ? rangeInfo.label : 'petits (−9…9)';
     const parts = [
       `Format: ${formatLabel}`,
       `Grau: ${degreeLabel}`,
@@ -828,17 +869,17 @@ const functionsDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="func"]');
+    const scope = safeQuery(card, '[data-module-config="func"]');
     if (!scope) return functionsDefaults();
     const types = {};
     functionTypes.forEach(({ key }) => {
-      types[key] = !!scope.querySelector(`[data-type="${key}"]`)?.checked;
+      types[key] = isChecked(scope, `[data-type="${key}"]`);
     });
     const aspects = {};
     functionAspects.forEach(({ key }) => {
-      aspects[key] = !!scope.querySelector(`[data-aspect="${key}"]`)?.checked;
+      aspects[key] = isChecked(scope, `[data-aspect="${key}"]`);
     });
-    const difficulty = Number.parseInt(scope.querySelector('[data-field="func-diff"]')?.value || '1', 10);
+    const difficulty = Number.parseInt(getValue(scope, '[data-field="func-diff"]', '1'), 10);
     return functionsNormalize({ types, aspects, difficulty });
   },
   summarize(options = {}) {
@@ -896,14 +937,15 @@ const ortografiaDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="cat-ort"]');
+    const scope = safeQuery(card, '[data-module-config="cat-ort"]');
     if (!scope) return ortografiaDefaults();
-    const sub = scope.querySelector('input[name="cat-ort-sub"]:checked')?.value || 'bv';
+    const sub = getCheckedValue(scope, 'input[name="cat-ort-sub"]:checked', 'bv');
     return ortografiaNormalize({ sub });
   },
   summarize(options = {}) {
     const opts = ortografiaNormalize(options);
-    const subLabel = ortSubthemes.find((item) => item.value === opts.sub)?.label || 'Subtema general';
+    const subInfo = ortSubthemes.find((item) => item.value === opts.sub);
+    const subLabel = subInfo && subInfo.label ? subInfo.label : 'Subtema general';
     return `Subtema: ${subLabel}`;
   },
 };
@@ -939,14 +981,15 @@ const morfologiaDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="cat-morf"]');
+    const scope = safeQuery(card, '[data-module-config="cat-morf"]');
     if (!scope) return morfologiaDefaults();
-    const sub = scope.querySelector('input[name="cat-morf-sub"]:checked')?.value || 'basiques';
+    const sub = getCheckedValue(scope, 'input[name="cat-morf-sub"]:checked', 'basiques');
     return morfologiaNormalize({ sub });
   },
   summarize(options = {}) {
     const opts = morfologiaNormalize(options);
-    const subLabel = morfSubthemes.find((item) => item.value === opts.sub)?.label || 'Subtema general';
+    const subInfo = morfSubthemes.find((item) => item.value === opts.sub);
+    const subLabel = subInfo && subInfo.label ? subInfo.label : 'Subtema general';
     return `Subtema: ${subLabel}`;
   },
 };
@@ -969,7 +1012,9 @@ function getGeoModeOptions(moduleId) {
 
 function createGeoDefinition(moduleId) {
   const modeOptions = getGeoModeOptions(moduleId);
-  const defaultMode = modeOptions[0]?.value || 'quiz';
+  const defaultMode = modeOptions.length > 0 && modeOptions[0] && modeOptions[0].value
+    ? modeOptions[0].value
+    : 'quiz';
   const normalize = (options = {}) => {
     const candidates = [options.mode, options.sub];
     let selected = candidates.find((candidate) => typeof candidate === 'string' && modeOptions.some((mode) => mode.value === candidate));
@@ -1001,15 +1046,16 @@ function createGeoDefinition(moduleId) {
       `);
     },
     collect(card) {
-      const scope = card?.querySelector(`[data-module-config="${moduleId}"]`);
+      const scope = safeQuery(card, `[data-module-config="${moduleId}"]`);
       if (!scope) return { mode: defaultMode };
       const inputName = `${moduleId}-mode`;
-      const selected = scope.querySelector(`input[name="${inputName}"]:checked`)?.value;
+      const selected = getCheckedValue(scope, `input[name="${inputName}"]:checked`, defaultMode);
       return normalize({ mode: selected });
     },
     summarize(options = {}) {
       const opts = normalize(options);
-      const label = modeOptions.find((mode) => mode.value === opts.mode)?.label || 'Preguntes generals';
+      const match = modeOptions.find((mode) => mode.value === opts.mode);
+      const label = match && match.label ? match.label : 'Preguntes generals';
       return `Mode: ${label}`;
     },
   };
@@ -1067,10 +1113,10 @@ const chemDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="chem"]');
+    const scope = safeQuery(card, '[data-module-config="chem"]');
     if (!scope) return chemDefaults();
-    const sub = scope.querySelector('input[name="chem-sub"]:checked')?.value || 'speed';
-    const dirRaw = scope.querySelector('input[name="chem-dir"]:checked')?.value || 'auto';
+    const sub = getCheckedValue(scope, 'input[name="chem-sub"]:checked', 'speed');
+    const dirRaw = getCheckedValue(scope, 'input[name="chem-dir"]:checked', 'auto');
     const dir = dirRaw === 'auto' ? null : dirRaw;
     return chemNormalize({ sub, dir });
   },
@@ -1120,14 +1166,15 @@ const chemCompoundsDefinition = {
     `);
   },
   collect(card) {
-    const scope = card?.querySelector('[data-module-config="chem-compounds"]');
+    const scope = safeQuery(card, '[data-module-config="chem-compounds"]');
     if (!scope) return chemCompoundsDefaults();
-    const sub = scope.querySelector('input[name="chem-comp-sub"]:checked')?.value || 'valence';
+    const sub = getCheckedValue(scope, 'input[name="chem-comp-sub"]:checked', 'valence');
     return chemCompoundsNormalize({ sub });
   },
   summarize(options = {}) {
     const opts = chemCompoundsNormalize(options);
-    const label = chemCompoundSubthemes.find((item) => item.value === opts.sub)?.label || 'Valències i ions';
+    const match = chemCompoundSubthemes.find((item) => item.value === opts.sub);
+    const label = match && match.label ? match.label : 'Valències i ions';
     return `Subtema: ${label}`;
   },
 };

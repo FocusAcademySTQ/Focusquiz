@@ -1,5 +1,6 @@
 const globalScope = typeof globalThis !== 'undefined' ? globalThis : {};
-const env = typeof process !== 'undefined' && process?.env ? process.env : {};
+const env =
+  typeof process !== 'undefined' && process && process.env ? process.env : {};
 
 // Edit these values if you prefer to codify the Supabase credentials here.
 // They will be used when no runtime or environment configuration is provided.
