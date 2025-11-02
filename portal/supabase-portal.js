@@ -1280,9 +1280,12 @@ async function createAssignment(formData) {
   const selectedClassName = selectedClass ? selectedClass.class_name : '';
   const moduleName = module ? module.name : '';
   const label = labelRaw || `${selectedClassName || ''} · ${moduleName || 'Prova'}`;
-  const count = Number.parseInt(formData.get('count'), 10) || null;
-  const time = Number.parseInt(formData.get('time'), 10) || null;
-  const level = Number.parseInt(formData.get('level'), 10) || null;
+  const countRaw = Number.parseInt(formData.get('count'), 10);
+  const timeRaw = Number.parseInt(formData.get('time'), 10);
+  const levelRaw = Number.parseInt(formData.get('level'), 10);
+  const count = Number.isFinite(countRaw) ? Math.min(Math.max(countRaw, 1), 200) : null;
+  const time = Number.isFinite(timeRaw) ? Math.min(Math.max(timeRaw, 0), 180) : null;
+  const level = Number.isFinite(levelRaw) ? Math.min(Math.max(levelRaw, 1), 4) : null;
   const dueAtRaw = readFormValue(formData, 'due_at').trim();
   const notesValue = readFormValue(formData, 'notes').trim();
   const notes = notesValue ? notesValue : null;
@@ -1361,9 +1364,12 @@ async function previewSelectedModule() {
   const label = trimmedLabel
     ? trimmedLabel
     : `${selectedClassName || 'Classe'} · ${moduleName || 'Prova'}`;
-  const count = Number.parseInt(formData.get('count'), 10);
-  const time = Number.parseInt(formData.get('time'), 10);
-  const level = Number.parseInt(formData.get('level'), 10);
+  const countRaw = Number.parseInt(formData.get('count'), 10);
+  const timeRaw = Number.parseInt(formData.get('time'), 10);
+  const levelRaw = Number.parseInt(formData.get('level'), 10);
+  const count = Number.isFinite(countRaw) ? Math.min(Math.max(countRaw, 1), 200) : 0;
+  const time = Number.isFinite(timeRaw) ? Math.min(Math.max(timeRaw, 0), 180) : 0;
+  const level = Number.isFinite(levelRaw) ? Math.min(Math.max(levelRaw, 1), 4) : 1;
   const moduleOptions = collectModuleOptions();
   const validationError = validateModuleOptions(moduleId, moduleOptions);
   if (validationError) {
