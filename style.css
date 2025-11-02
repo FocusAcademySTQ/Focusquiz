@@ -197,6 +197,12 @@ body{
   flex-shrink: 0;
 }
 
+.header-bar > .main-nav {
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
 /* Marca */
 .brand {
   display: flex;
@@ -256,9 +262,7 @@ body{
   gap: 0.4rem;
   flex-wrap: nowrap;
   justify-content: center;
-  overflow-x: auto;
   padding-bottom: 2px;
-  scrollbar-width: none;
 }
 
 .main-nav::-webkit-scrollbar { display: none; }
@@ -271,6 +275,8 @@ body{
   color: inherit;
   box-shadow: none;
   transform: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .main-nav .pill:hover,
 .main-nav .pill:focus-visible {
@@ -296,6 +302,7 @@ body{
 
 .nav-dropdown {
   position: relative;
+  flex-shrink: 0;
 }
 
 .nav-dropdown-toggle {
@@ -402,6 +409,30 @@ body{
   }
   .main-nav {
     justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+  }
+  .main-nav::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .header-bar {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .header-bar > .main-nav {
+    order: 3;
+    width: 100%;
+    margin-top: 0.35rem;
+  }
+
+  .user-controls {
+    order: 2;
+    margin-left: auto;
   }
 }
 
@@ -881,6 +912,96 @@ a.btn-secondary{
 }
 .coord-answer .coord-number:focus{outline:2px solid #38bdf8; outline-offset:2px; border-color:#38bdf8}
 .quiz.coord-mode #answer{display:none !important}
+
+.coord-quadrant-answer{
+  width:100%;
+  display:flex;
+  justify-content:center;
+}
+
+.coord-quadrant-plane{
+  position:relative;
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  grid-template-rows:repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "qii qi"
+    "qiii qiv";
+  width:min(360px, 100%);
+  aspect-ratio:1 / 1;
+  border-radius:22px;
+  overflow:hidden;
+  border:1px solid #cbd5e1;
+  background:linear-gradient(145deg, #f8fafc, #e8efff);
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,0.04);
+}
+
+.coord-quadrant-plane::before,
+.coord-quadrant-plane::after{
+  content:"";
+  position:absolute;
+  background:#94a3b8;
+  opacity:0.65;
+  pointer-events:none;
+}
+
+.coord-quadrant-plane::before{
+  top:0;
+  left:50%;
+  width:2px;
+  height:100%;
+  transform:translateX(-1px);
+}
+
+.coord-quadrant-plane::after{
+  left:0;
+  top:50%;
+  height:2px;
+  width:100%;
+  transform:translateY(-1px);
+}
+
+.coord-quadrant-option{
+  position:relative;
+  border:none;
+  margin:0;
+  padding:26px 16px;
+  background:var(--quad-bg, transparent);
+  color:#0f172a;
+  font-size:1.25rem;
+  font-weight:700;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.coord-quadrant-option span{font-size:1.4rem; letter-spacing:0.4px; text-transform:uppercase;}
+.coord-quadrant-option small{font-size:.85rem; color:#475569; letter-spacing:0.3px;}
+
+.coord-quadrant-option.quadrant-qi{grid-area:qi; --quad-bg:linear-gradient(135deg, rgba(191,219,254,0.35), rgba(219,234,254,0.12)); --quad-accent:#2563eb; --quad-shadow:rgba(37,99,235,0.2); --quad-selected-bg:rgba(37,99,235,0.16);}
+.coord-quadrant-option.quadrant-qii{grid-area:qii; --quad-bg:linear-gradient(135deg, rgba(221,214,254,0.35), rgba(233,213,255,0.12)); --quad-accent:#7c3aed; --quad-shadow:rgba(124,58,237,0.2); --quad-selected-bg:rgba(124,58,237,0.16);}
+.coord-quadrant-option.quadrant-qiii{grid-area:qiii; --quad-bg:linear-gradient(135deg, rgba(253,186,116,0.3), rgba(254,215,170,0.14)); --quad-accent:#f97316; --quad-shadow:rgba(249,115,22,0.22); --quad-selected-bg:rgba(249,115,22,0.18);}
+.coord-quadrant-option.quadrant-qiv{grid-area:qiv; --quad-bg:linear-gradient(135deg, rgba(134,239,172,0.3), rgba(187,247,208,0.14)); --quad-accent:#16a34a; --quad-shadow:rgba(22,163,74,0.2); --quad-selected-bg:rgba(22,163,74,0.16);}
+
+.coord-quadrant-option:hover,
+.coord-quadrant-option:focus-visible{
+  transform:translateY(-2px);
+  box-shadow:0 12px 24px rgba(15,23,42,0.14), 0 0 0 3px var(--quad-shadow, rgba(37,99,235,0.22));
+  outline:none;
+}
+
+.coord-quadrant-option.selected{
+  background:var(--quad-selected-bg, rgba(37,99,235,0.14));
+  box-shadow:inset 0 0 0 3px var(--quad-accent, #2563eb);
+}
+
+.coord-quadrant-option.selected small{color:#1e293b; font-weight:600;}
+
+.coord-quadrant-option:active{transform:translateY(-1px);}
 
 .kbd{
   display:inline-grid; place-items:center; min-width:46px; height:46px; border-radius:12px;
