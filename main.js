@@ -1481,8 +1481,17 @@ function removeCoordAnswerUI(){
   if(wrap) wrap.remove();
 }
 
+function removeCoordQuadrantUI(){
+  const wrap = document.getElementById('coordQuadrantAnswer');
+  if(wrap){
+    wrap.removeEventListener('click', handleCoordQuadrantClick);
+    wrap.remove();
+  }
+}
+
 function renderCoordAnswerUI(){
   removeCoordAnswerUI();
+  removeCoordQuadrantUI();
   const answerRow = document.querySelector('.answer-row');
   const answerInput = document.getElementById('answer');
   if(!answerRow || !answerInput) return;
@@ -1501,6 +1510,62 @@ function renderCoordAnswerUI(){
   setTimeout(()=> document.getElementById('coordInputX')?.focus(), 0);
 }
 
+function renderCoordQuadrantUI(){
+  removeCoordQuadrantUI();
+  removeCoordAnswerUI();
+  const answerRow = document.querySelector('.answer-row');
+  const answerInput = document.getElementById('answer');
+  if(!answerRow || !answerInput) return;
+
+  const wrap = document.createElement('div');
+  wrap.id = 'coordQuadrantAnswer';
+  wrap.className = 'coord-quadrant-answer';
+  wrap.innerHTML = `
+    <div class="coord-quadrant-plane" role="radiogroup" aria-label="Selecciona el quadrant correcte">
+      <button type="button" class="coord-quadrant-option quadrant-qii" data-value="QII" role="radio" aria-checked="false">
+        <span>QII</span>
+        <small>(-, +)</small>
+      </button>
+      <button type="button" class="coord-quadrant-option quadrant-qi" data-value="QI" role="radio" aria-checked="false">
+        <span>QI</span>
+        <small>(+, +)</small>
+      </button>
+      <button type="button" class="coord-quadrant-option quadrant-qiii" data-value="QIII" role="radio" aria-checked="false">
+        <span>QIII</span>
+        <small>(-, -)</small>
+      </button>
+      <button type="button" class="coord-quadrant-option quadrant-qiv" data-value="QIV" role="radio" aria-checked="false">
+        <span>QIV</span>
+        <small>(+, -)</small>
+      </button>
+    </div>
+  `;
+  wrap.addEventListener('click', handleCoordQuadrantClick);
+  answerRow.insertBefore(wrap, answerInput);
+}
+
+function handleCoordQuadrantClick(event){
+  const button = event.target.closest('button[data-value]');
+  if(!button) return;
+  event.preventDefault();
+  const value = button.dataset.value;
+  const answerInput = document.getElementById('answer');
+  if(!answerInput) return;
+  answerInput.value = value;
+
+  const wrap = document.getElementById('coordQuadrantAnswer');
+  if(wrap){
+    const buttons = wrap.querySelectorAll('button[data-value]');
+    buttons.forEach(btn => {
+      const isSelected = btn === button;
+      btn.classList.toggle('selected', isSelected);
+      btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+    });
+  }
+
+  checkAnswer();
+}
+
 function renderQuestion(){
   const q = session.questions[session.idx];
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
@@ -1517,6 +1582,7 @@ function renderQuestion(){
   const quizEl = document.querySelector('.quiz');
   quizEl?.classList.remove('coord-mode');
   removeCoordAnswerUI();
+  removeCoordQuadrantUI();
 
   const toggleRightCol = (show) => {
     if (rightCol) {
@@ -1592,7 +1658,11 @@ function renderQuestion(){
       $('#answer').removeAttribute('inputmode');
       toggleRightCol(false);
       quizEl?.classList.add('coord-mode');
-      renderCoordAnswerUI();
+      if(q.type === 'coord-quadrant'){
+        renderCoordQuadrantUI();
+      } else {
+        renderCoordAnswerUI();
+      }
     } else if (session.module === 'stats' && q.type === 'stats-cat') {
       $('#answer').style.display = 'block';
       $('#answer').setAttribute('inputmode','text');
