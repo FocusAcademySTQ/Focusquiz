@@ -275,6 +275,8 @@ body{
   color: inherit;
   box-shadow: none;
   transform: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .main-nav .pill:hover,
 .main-nav .pill:focus-visible {
@@ -300,6 +302,7 @@ body{
 
 .nav-dropdown {
   position: relative;
+  flex-shrink: 0;
 }
 
 .nav-dropdown-toggle {
