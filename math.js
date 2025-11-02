@@ -377,7 +377,7 @@ function genCoordQuadrant(level){
   const point = randomPointInQuadrant(quadrant, range);
   return {
     type:'coord-quadrant',
-    text:`En quin quadrant es troba el punt (${point.x}, ${point.y})? Escriu QI, QII, QIII o QIV.`,
+    text:`En quin quadrant es troba el punt (${point.x}, ${point.y})? Fes clic al quadrant correcte.`,
     answer: quadrant
   };
 }
