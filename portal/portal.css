@@ -314,6 +314,38 @@
   gap: 0.75rem;
 }
 
+.portal-module-config-body > .section-title {
+  margin: 0.75rem 0 0.35rem;
+}
+
+.portal-module-config-body > .section-title:first-child {
+  margin-top: 0;
+}
+
+.portal-module-config-body > .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.portal-module-config-body > .controls .group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.portal-module-config-body > .controls .toggle {
+  padding: 0.6rem 0.8rem;
+  border-radius: 14px;
+}
+
+.portal-module-config-body > .controls .field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .portal-error-text {
   margin: 0;
   color: #b91c1c;
@@ -1229,10 +1261,21 @@
 }
 
 .portal-class-card header,
-.portal-assignment-card header,
-.portal-result-card header {
+.portal-assignment-card header {
   display: grid;
   gap: 0.35rem;
+}
+
+.portal-result-card header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.portal-result-card .result-detail-heading {
+  display: grid;
+  gap: 0.4rem;
 }
 
 .portal-class-name,
@@ -1315,21 +1358,217 @@
 
 .portal-results {
   display: grid;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
-.portal-results .portal-result-card {
-  border: 1px solid rgba(34, 197, 94, 0.28);
-  box-shadow: 0 28px 60px -36px rgba(22, 101, 52, 0.45);
+.portal-results-table-area {
+  min-width: 0;
 }
 
-.portal-result-card .result-meta {
+.portal-results-table-wrapper {
+  overflow-x: auto;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 26px 58px -32px rgba(30, 64, 175, 0.42);
+}
+
+.portal-results-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  min-width: 620px;
+  font-size: 0.95rem;
+}
+
+.portal-results-table th,
+.portal-results-table td {
+  border-right: 1px solid rgba(148, 163, 184, 0.28);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  padding: 0.65rem;
+  text-align: center;
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.portal-results-table th:last-child,
+.portal-results-table td:last-child {
+  border-right: none;
+}
+
+.portal-results-table tr:last-child th,
+.portal-results-table tr:last-child td {
+  border-bottom: none;
+}
+
+.portal-results-table thead th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(51, 65, 85, 0.9);
+  background: rgba(226, 232, 240, 0.85);
+  position: relative;
+}
+
+.portal-results-table thead th.results-table-name {
+  min-width: 200px;
+  text-align: left;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  padding: 1rem;
+}
+
+.portal-results-table thead th:not(.results-table-name) {
+  height: 140px;
+  padding: 0;
+  vertical-align: bottom;
+}
+
+.portal-results-table thead th .results-assignment-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transform: rotate(-45deg);
+  transform-origin: left bottom;
+  white-space: nowrap;
+  padding: 0.35rem 0.6rem;
+}
+
+.portal-results-table thead th .results-assignment-label span {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+
+.portal-results-table tbody th {
+  text-align: left;
+  background: rgba(241, 245, 249, 0.95);
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.portal-results-table tbody tr:nth-child(even) th,
+.portal-results-table tbody tr:nth-child(even) td {
+  background: rgba(248, 250, 252, 0.75);
+}
+
+.portal-results-table tbody tr:hover th,
+.portal-results-table tbody tr:hover td {
+  background: rgba(219, 234, 254, 0.6);
+}
+
+.portal-results-table td {
+  padding: 0.45rem;
+}
+
+.results-grade {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 0.4rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(240, 253, 244, 0.85);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #166534;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.results-grade:hover,
+.results-grade:focus {
+  background: rgba(187, 247, 208, 0.95);
+  border-color: rgba(34, 197, 94, 0.55);
+  outline: none;
+  box-shadow: 0 10px 28px -16px rgba(34, 197, 94, 0.6);
+  transform: translateY(-1px);
+}
+
+.results-grade.is-active {
+  background: #22c55e;
+  border-color: #15803d;
+  color: #f8fafc;
+  box-shadow: 0 12px 32px -16px rgba(34, 197, 94, 0.65);
+}
+
+.results-missing {
+  font-size: 0.85rem;
+  color: rgba(100, 116, 139, 0.85);
+  font-style: italic;
+}
+
+.portal-result-detail {
+  min-width: 0;
+}
+
+.portal-result-detail .portal-result-card {
+  box-shadow: 0 28px 60px -34px rgba(30, 64, 175, 0.38);
+}
+
+.portal-result-card .result-body {
+  display: grid;
+  gap: 1rem;
+  padding-top: 0.75rem;
+}
+
+.portal-result-card .result-details {
+  display: grid;
+  gap: 0.35rem 0.75rem;
+  grid-template-columns: auto 1fr;
+}
+
+.portal-result-card .result-details dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(100, 116, 139, 0.9);
+}
+
+.portal-result-card .result-details dd {
+  margin: 0;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.portal-result-card .result-extra {
+  border-top: 1px solid rgba(148, 163, 184, 0.32);
+  padding-top: 1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.portal-result-card .result-extra.hidden {
+  display: none;
+}
+
+.portal-result-card .result-actions {
+  margin-top: 0.5rem;
+}
+
+.portal-result-card .result-detail-grade {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 16px;
+  background: rgba(34, 197, 94, 0.12);
+  color: #166534;
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.portal-result-card .result-detail-meta {
   margin: 0;
   font-size: 0.9rem;
   color: rgba(71, 85, 105, 0.95);
 }
 
-.portal-result-card footer {
+.portal-result-card .portal-actions {
   justify-content: flex-end;
 }
 
