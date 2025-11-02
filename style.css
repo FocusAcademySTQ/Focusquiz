@@ -197,6 +197,12 @@ body{
   flex-shrink: 0;
 }
 
+.header-bar > .main-nav {
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-shrink: 1;
+}
+
 /* Marca */
 .brand {
   display: flex;
@@ -256,9 +262,7 @@ body{
   gap: 0.4rem;
   flex-wrap: nowrap;
   justify-content: center;
-  overflow-x: auto;
   padding-bottom: 2px;
-  scrollbar-width: none;
 }
 
 .main-nav::-webkit-scrollbar { display: none; }
@@ -402,6 +406,30 @@ body{
   }
   .main-nav {
     justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+  }
+  .main-nav::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .header-bar {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .header-bar > .main-nav {
+    order: 3;
+    width: 100%;
+    margin-top: 0.35rem;
+  }
+
+  .user-controls {
+    order: 2;
+    margin-left: auto;
   }
 }
 
