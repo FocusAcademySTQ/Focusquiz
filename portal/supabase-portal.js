@@ -976,13 +976,9 @@ function renderResults() {
       const assignmentInfo = submission.assignment || {};
       const assignmentConfig = assignmentInfo.quiz_config || {};
       const assignmentTitle = assignmentConfig.label || assignmentInfo.module_title || 'Prova';
-      const classLabel = submission.class_code
-        ? `${submission.class_name} · ${submission.class_code}`
-        : submission.class_name || '';
       assignmentMap.set(assignmentId, {
         id: assignmentId,
         title: assignmentTitle,
-        classLabel,
       });
     }
     const studentKey =
@@ -1039,11 +1035,6 @@ function renderResults() {
     const titleSpan = document.createElement('span');
     titleSpan.textContent = assignment.title;
     label.appendChild(titleSpan);
-    if (assignment.classLabel) {
-      const classSpan = document.createElement('span');
-      classSpan.textContent = assignment.classLabel;
-      label.appendChild(classSpan);
-    }
     th.appendChild(label);
     headerRow.appendChild(th);
   });

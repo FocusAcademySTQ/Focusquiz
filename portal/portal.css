@@ -1361,13 +1361,6 @@
   gap: 1.5rem;
 }
 
-@media (min-width: 1024px) {
-  .portal-results {
-    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
-    align-items: start;
-  }
-}
-
 .portal-results-table-area {
   min-width: 0;
 }
@@ -1433,8 +1426,8 @@
 
 .portal-results-table thead th .results-assignment-label {
   display: inline-flex;
-  align-items: flex-end;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   transform: rotate(-45deg);
   transform-origin: left bottom;
