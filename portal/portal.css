@@ -377,10 +377,15 @@
   gap: 0.75rem;
 }
 
-.portal-module-config-body > .controls .group {
-  display: flex;
-  flex-wrap: wrap;
+.portal-module-config-content .portal-module-config-body > .controls .group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 0.6rem;
+}
+
+.portal-module-config-content .portal-module-config-body > .controls .toggle {
+  justify-content: flex-start;
+  width: 100%;
 }
 
 .portal-module-config-body > .controls .toggle {
