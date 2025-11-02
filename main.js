@@ -713,6 +713,19 @@ function openConfig(moduleId){
         <span class="subtitle">Escriu <b>només el nombre</b> (la unitat ja surt a l'enunciat).</span>
       </div>
     `;
+  } else if(pendingModule.id === 'coord'){
+    wrap.innerHTML = `
+      <div class="section-title">Coordenades cartesianes · Subtemes</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Subtemes de coordenades cartesianes">
+          <label class="toggle"><input class="check" type="radio" name="coord-sub" value="read" checked> Llegir coordenades (punt → (x,y))</label>
+          <label class="toggle"><input class="check" type="radio" name="coord-sub" value="quadrant"> Identificar el quadrant</label>
+          <label class="toggle"><input class="check" type="radio" name="coord-sub" value="build"> Construir un punt amb condicions</label>
+          <label class="toggle"><input class="check" type="radio" name="coord-sub" value="mix"> Barreja de lectures, quadrants i punts</label>
+        </div>
+      </div>
+      <div class="subtitle">Selecciona què vols reforçar: lectura de punts, identificació de quadrants o construcció de coordenades.</div>
+    `;
   } else if(pendingModule.id === 'eq'){
     wrap.innerHTML = `
 <div class="section-title">Equacions · Format</div>
@@ -883,6 +896,8 @@ function collectConfigValues(){
   } else if(pendingModule.id==='units'){
     options.sub = document.querySelector('input[name="units-sub"]:checked')?.value || 'length';
     options.round = parseInt($('#units-round').value || '2');
+  } else if(pendingModule.id==='coord'){
+    options.sub = document.querySelector('input[name="coord-sub"]:checked')?.value || 'read';
   } else if(pendingModule.id==='eq'){
     options.format = document.querySelector('input[name="eq-format"]:checked')?.value || 'normal';
     options.degree = document.querySelector('input[name="eq-degree"]:checked')?.value || '1';
@@ -1466,8 +1481,17 @@ function removeCoordAnswerUI(){
   if(wrap) wrap.remove();
 }
 
+function removeCoordQuadrantUI(){
+  const wrap = document.getElementById('coordQuadrantAnswer');
+  if(wrap){
+    wrap.removeEventListener('click', handleCoordQuadrantClick);
+    wrap.remove();
+  }
+}
+
 function renderCoordAnswerUI(){
   removeCoordAnswerUI();
+  removeCoordQuadrantUI();
   const answerRow = document.querySelector('.answer-row');
   const answerInput = document.getElementById('answer');
   if(!answerRow || !answerInput) return;
@@ -1486,6 +1510,62 @@ function renderCoordAnswerUI(){
   setTimeout(()=> document.getElementById('coordInputX')?.focus(), 0);
 }
 
+function renderCoordQuadrantUI(){
+  removeCoordQuadrantUI();
+  removeCoordAnswerUI();
+  const answerRow = document.querySelector('.answer-row');
+  const answerInput = document.getElementById('answer');
+  if(!answerRow || !answerInput) return;
+
+  const wrap = document.createElement('div');
+  wrap.id = 'coordQuadrantAnswer';
+  wrap.className = 'coord-quadrant-answer';
+  wrap.innerHTML = `
+    <div class="coord-quadrant-plane" role="radiogroup" aria-label="Selecciona el quadrant correcte">
+      <button type="button" class="coord-quadrant-option quadrant-qii" data-value="QII" role="radio" aria-checked="false">
+        <span>QII</span>
+        <small>(-, +)</small>
+      </button>
+      <button type="button" class="coord-quadrant-option quadrant-qi" data-value="QI" role="radio" aria-checked="false">
+        <span>QI</span>
+        <small>(+, +)</small>
+      </button>
+      <button type="button" class="coord-quadrant-option quadrant-qiii" data-value="QIII" role="radio" aria-checked="false">
+        <span>QIII</span>
+        <small>(-, -)</small>
+      </button>
+      <button type="button" class="coord-quadrant-option quadrant-qiv" data-value="QIV" role="radio" aria-checked="false">
+        <span>QIV</span>
+        <small>(+, -)</small>
+      </button>
+    </div>
+  `;
+  wrap.addEventListener('click', handleCoordQuadrantClick);
+  answerRow.insertBefore(wrap, answerInput);
+}
+
+function handleCoordQuadrantClick(event){
+  const button = event.target.closest('button[data-value]');
+  if(!button) return;
+  event.preventDefault();
+  const value = button.dataset.value;
+  const answerInput = document.getElementById('answer');
+  if(!answerInput) return;
+  answerInput.value = value;
+
+  const wrap = document.getElementById('coordQuadrantAnswer');
+  if(wrap){
+    const buttons = wrap.querySelectorAll('button[data-value]');
+    buttons.forEach(btn => {
+      const isSelected = btn === button;
+      btn.classList.toggle('selected', isSelected);
+      btn.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+    });
+  }
+
+  checkAnswer();
+}
+
 function renderQuestion(){
   const q = session.questions[session.idx];
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
@@ -1502,6 +1582,7 @@ function renderQuestion(){
   const quizEl = document.querySelector('.quiz');
   quizEl?.classList.remove('coord-mode');
   removeCoordAnswerUI();
+  removeCoordQuadrantUI();
 
   const toggleRightCol = (show) => {
     if (rightCol) {
@@ -1577,7 +1658,11 @@ function renderQuestion(){
       $('#answer').removeAttribute('inputmode');
       toggleRightCol(false);
       quizEl?.classList.add('coord-mode');
-      renderCoordAnswerUI();
+      if(q.type === 'coord-quadrant'){
+        renderCoordQuadrantUI();
+      } else {
+        renderCoordAnswerUI();
+      }
     } else if (session.module === 'stats' && q.type === 'stats-cat') {
       $('#answer').style.display = 'block';
       $('#answer').setAttribute('inputmode','text');
