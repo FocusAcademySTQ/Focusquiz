@@ -264,9 +264,15 @@ function launchAssignment(assignment) {
   params.set('student', state.selectedStudent);
   params.set('autostart', '1');
   if (assignment.quiz_config?.label) params.set('label', assignment.quiz_config.label);
-  if (assignment.quiz_config?.count) params.set('count', assignment.quiz_config.count);
-  if (assignment.quiz_config?.time) params.set('time', assignment.quiz_config.time);
-  if (assignment.quiz_config?.level) params.set('level', assignment.quiz_config.level);
+  if (assignment.quiz_config && assignment.quiz_config.count !== undefined && assignment.quiz_config.count !== null) {
+    params.set('count', assignment.quiz_config.count);
+  }
+  if (assignment.quiz_config && assignment.quiz_config.time !== undefined && assignment.quiz_config.time !== null) {
+    params.set('time', assignment.quiz_config.time);
+  }
+  if (assignment.quiz_config && assignment.quiz_config.level !== undefined && assignment.quiz_config.level !== null) {
+    params.set('level', assignment.quiz_config.level);
+  }
   if (assignment.module_title) params.set('title', assignment.module_title);
   if (assignment.quiz_config?.options) {
     const encodedOptions = encodeQuizOptions(assignment.quiz_config.options);
