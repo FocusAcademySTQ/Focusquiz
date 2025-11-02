@@ -25,6 +25,7 @@ const state = {
   classes: [],
   assignments: [],
   submissions: [],
+  activeSubmissionId: null,
   assignmentDraft: {
     moduleId: '',
     options: {},
@@ -75,6 +76,7 @@ const elements = {
   refreshAssignments: document.getElementById('refreshAssignments'),
   resultsList: document.getElementById('resultsList'),
   resultsEmpty: document.getElementById('resultsEmptyState'),
+  resultsDetail: document.getElementById('resultsDetail'),
   refreshResults: document.getElementById('refreshResults'),
   resultsClassFilter: document.getElementById('resultsClassFilter'),
   resultsAssignmentFilter: document.getElementById('resultsAssignmentFilter'),
@@ -273,6 +275,12 @@ function formatPercent(value) {
   const rounded = Math.round(numeric * 10) / 10;
   const output = Number.isInteger(rounded) ? Math.round(rounded) : rounded.toFixed(1);
   return `${output}%`;
+}
+
+function formatGradeForCell(value) {
+  const percent = formatPercent(value);
+  if (percent === '—') return '—';
+  return percent.endsWith('%') ? percent.slice(0, -1) : percent;
 }
 
 function statusLabel(value) {
@@ -812,6 +820,126 @@ function buildWrongDetails(submission) {
   return wrapper;
 }
 
+function highlightActiveResultButton() {
+  if (!elements.resultsList) return;
+  const buttons = elements.resultsList.querySelectorAll('.results-grade');
+  buttons.forEach((button) => {
+    const isActive = button.dataset.submissionId === state.activeSubmissionId;
+    button.classList.toggle('is-active', isActive);
+  });
+}
+
+function renderResultDetail(submission) {
+  const container = elements.resultsDetail;
+  if (!container) return;
+  container.innerHTML = '';
+  if (!submission) {
+    container.classList.add('hidden');
+    return;
+  }
+  const template = document.getElementById('resultDetailTemplate');
+  if (!template) return;
+  const node = template.content.firstElementChild.cloneNode(true);
+  const studentName = submission.student_name || 'Alumne';
+  const assignmentInfo = submission.assignment || {};
+  const assignmentConfig = assignmentInfo.quiz_config || {};
+  const assignmentTitle = assignmentConfig.label || assignmentInfo.module_title || 'Prova';
+  const classLabel = submission.class_code
+    ? `${submission.class_name} · ${submission.class_code}`
+    : submission.class_name || '';
+  const submittedAt = submission.submitted_at
+    ? new Date(submission.submitted_at).toLocaleString('ca-ES')
+    : null;
+
+  const classNode = node.querySelector('.result-detail-class');
+  if (classNode) {
+    if (classLabel) {
+      classNode.textContent = classLabel;
+      classNode.classList.remove('hidden');
+    } else {
+      classNode.classList.add('hidden');
+    }
+  }
+
+  const assignmentNode = node.querySelector('.result-detail-assignment');
+  if (assignmentNode) {
+    assignmentNode.textContent = assignmentTitle;
+  }
+
+  const metaNode = node.querySelector('.result-detail-meta');
+  if (metaNode) {
+    const metaParts = [];
+    if (submittedAt) metaParts.push(`Enviada el ${submittedAt}`);
+    if (submission.status) metaParts.push(statusLabel(submission.status));
+    metaNode.textContent = metaParts.join(' · ');
+  }
+
+  const studentNode = node.querySelector('.result-student');
+  if (studentNode) {
+    studentNode.textContent = studentName;
+  }
+
+  const gradeNode = node.querySelector('.result-detail-grade');
+  if (gradeNode) {
+    const grade = formatPercent(submission.score);
+    gradeNode.textContent = grade;
+    gradeNode.setAttribute('title', grade);
+  }
+
+  const details = node.querySelector('.result-details');
+  if (details) {
+    details.innerHTML = '';
+    const addMeta = (label, value) => {
+      const dt = document.createElement('dt');
+      dt.textContent = label;
+      const dd = document.createElement('dd');
+      dd.textContent = value;
+      details.appendChild(dt);
+      details.appendChild(dd);
+    };
+    addMeta('Classe', classLabel || '—');
+    addMeta('Nota', formatPercent(submission.score));
+    const countLabel = coalesce(submission.count, '?');
+    addMeta('Encerts', submission.correct !== null ? `${submission.correct}/${countLabel}` : '—');
+    addMeta('Temps', submission.time_spent ? `${Math.round(submission.time_spent / 60)} min` : '—');
+    if (assignmentConfig.summary) {
+      addMeta('Configuració', assignmentConfig.summary);
+    }
+    addMeta('Estat', statusLabel(submission.status));
+  }
+
+  const extra = node.querySelector('.result-extra');
+  if (extra) {
+    extra.innerHTML = '';
+    const wrongDetails = buildWrongDetails(submission);
+    if (wrongDetails) {
+      extra.appendChild(wrongDetails);
+      extra.classList.remove('hidden');
+    } else {
+      extra.classList.add('hidden');
+    }
+  }
+
+  const editButton = node.querySelector('.result-edit');
+  if (editButton) {
+    editButton.addEventListener('click', () => editSubmissionScore(submission));
+  }
+
+  const resetButton = node.querySelector('.result-reset');
+  if (resetButton) {
+    resetButton.addEventListener('click', () => resetSubmission(submission));
+  }
+
+  container.appendChild(node);
+  container.classList.remove('hidden');
+}
+
+function setActiveSubmission(submission) {
+  state.activeSubmissionId = submission ? submission.id : null;
+  renderResultDetail(submission || null);
+  highlightActiveResultButton();
+}
+
 function renderResults() {
   const list = elements.resultsList;
   const empty = elements.resultsEmpty;
@@ -831,72 +959,145 @@ function renderResults() {
   });
   if (!filtered.length) {
     empty.classList.remove('hidden');
+    state.activeSubmissionId = null;
+    renderResultDetail(null);
+    highlightActiveResultButton();
     return;
   }
   empty.classList.add('hidden');
-  const template = document.getElementById('resultRowTemplate');
+
+  const assignmentMap = new Map();
+  const studentMap = new Map();
+
   filtered.forEach((submission) => {
-    const node = template.content.firstElementChild.cloneNode(true);
-    node.dataset.id = submission.id;
-    node.open = false;
-    const studentName = submission.student_name;
-    node.querySelector('.result-student').textContent = studentName;
-    const classLabel = submission.class_code
-      ? `${submission.class_name} · ${submission.class_code}`
-      : submission.class_name;
-    const assignmentInfo = submission.assignment || {};
-    const assignmentConfig = assignmentInfo.quiz_config || {};
-    const assignmentTitle = assignmentConfig.label || assignmentInfo.module_title || 'Prova';
-    const summaryLabel = `${studentName} · ${assignmentTitle}`;
-    const summaryNode = node.querySelector('.result-summary-label');
-    if (summaryNode) {
-      summaryNode.textContent = summaryLabel;
+    const assignmentId = submission.assignment_id || getNested(submission, ['assignment', 'id'], null);
+    if (!assignmentId) return;
+    if (!assignmentMap.has(assignmentId)) {
+      const assignmentInfo = submission.assignment || {};
+      const assignmentConfig = assignmentInfo.quiz_config || {};
+      const assignmentTitle = assignmentConfig.label || assignmentInfo.module_title || 'Prova';
+      const classLabel = submission.class_code
+        ? `${submission.class_name} · ${submission.class_code}`
+        : submission.class_name || '';
+      assignmentMap.set(assignmentId, {
+        id: assignmentId,
+        title: assignmentTitle,
+        classLabel,
+      });
     }
-    const gradeNode = node.querySelector('.result-grade');
-    if (gradeNode) {
-      gradeNode.textContent = formatPercent(submission.score);
-      gradeNode.setAttribute('title', gradeNode.textContent);
+    const studentKey =
+      submission.student_id ||
+      submission.student_email ||
+      `${submission.student_name || 'Sense nom'}::${submission.class_id || ''}`;
+    if (!studentMap.has(studentKey)) {
+      studentMap.set(studentKey, {
+        key: studentKey,
+        name: submission.student_name || 'Sense nom',
+        submissions: new Map(),
+      });
     }
-    const subtitle = `${assignmentTitle} · ${classLabel}`;
-    node.querySelector('.result-meta').textContent = `${subtitle} · ${new Date(submission.submitted_at).toLocaleString('ca-ES')}`;
-    const details = node.querySelector('.result-details');
-    const addMeta = (label, value) => {
-      const dt = document.createElement('dt');
-      dt.textContent = label;
-      const dd = document.createElement('dd');
-      dd.textContent = value;
-      details.appendChild(dt);
-      details.appendChild(dd);
-    };
-    addMeta('Nota', formatPercent(submission.score));
-    const countLabel = coalesce(submission.count, '?');
-    addMeta('Encerts', submission.correct !== null ? `${submission.correct}/${countLabel}` : '—');
-    addMeta('Temps', submission.time_spent ? `${Math.round(submission.time_spent / 60)} min` : '—');
-    if (assignmentConfig.summary) {
-      addMeta('Configuració', assignmentConfig.summary);
-    }
-    addMeta('Estat', statusLabel(submission.status));
-    const extra = node.querySelector('.result-extra');
-    if (extra) {
-      extra.innerHTML = '';
-      const wrongDetails = buildWrongDetails(submission);
-      if (wrongDetails) {
-        extra.appendChild(wrongDetails);
-        extra.classList.remove('hidden');
-      } else {
-        extra.classList.add('hidden');
-      }
-    }
-    const editButton = node.querySelector('.result-edit');
-    if (editButton) {
-      editButton.addEventListener('click', () => editSubmissionScore(submission));
-    }
-    const resetButton = node.querySelector('.result-reset');
-    if (resetButton) {
-      resetButton.addEventListener('click', () => resetSubmission(submission));
-    }
-    list.appendChild(node);
+    studentMap.get(studentKey).submissions.set(assignmentId, submission);
   });
+
+  let assignments = Array.from(assignmentMap.values());
+  if (assignmentFilter !== 'all') {
+    assignments = assignments.filter((assignment) => assignment.id === assignmentFilter);
+  }
+  assignments.sort((a, b) => a.title.localeCompare(b.title, 'ca', { sensitivity: 'base', numeric: true }));
+
+  const students = Array.from(studentMap.values()).sort((a, b) =>
+    a.name.localeCompare(b.name, 'ca', { sensitivity: 'base' })
+  );
+
+  if (!assignments.length || !students.length) {
+    empty.classList.remove('hidden');
+    state.activeSubmissionId = null;
+    renderResultDetail(null);
+    highlightActiveResultButton();
+    return;
+  }
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'portal-results-table-wrapper';
+  const table = document.createElement('table');
+  table.className = 'portal-results-table';
+  wrapper.appendChild(table);
+
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  const nameHeader = document.createElement('th');
+  nameHeader.scope = 'col';
+  nameHeader.className = 'results-table-name';
+  nameHeader.textContent = 'Alumne';
+  headerRow.appendChild(nameHeader);
+
+  assignments.forEach((assignment) => {
+    const th = document.createElement('th');
+    th.scope = 'col';
+    const label = document.createElement('span');
+    label.className = 'results-assignment-label';
+    const titleSpan = document.createElement('span');
+    titleSpan.textContent = assignment.title;
+    label.appendChild(titleSpan);
+    if (assignment.classLabel) {
+      const classSpan = document.createElement('span');
+      classSpan.textContent = assignment.classLabel;
+      label.appendChild(classSpan);
+    }
+    th.appendChild(label);
+    headerRow.appendChild(th);
+  });
+
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  students.forEach((student) => {
+    const row = document.createElement('tr');
+    const studentCell = document.createElement('th');
+    studentCell.scope = 'row';
+    studentCell.textContent = student.name;
+    row.appendChild(studentCell);
+    assignments.forEach((assignment) => {
+      const cell = document.createElement('td');
+      const submission = student.submissions.get(assignment.id);
+      if (submission) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'results-grade';
+        button.dataset.submissionId = submission.id;
+        const percentText = formatPercent(submission.score);
+        button.textContent = formatGradeForCell(submission.score);
+        button.title = `${student.name} · ${assignment.title}: ${percentText}`;
+        button.setAttribute('aria-label', `${student.name} · ${assignment.title}: ${percentText}`);
+        button.addEventListener('click', () => {
+          if (state.activeSubmissionId === submission.id) {
+            setActiveSubmission(null);
+          } else {
+            setActiveSubmission(submission);
+          }
+        });
+        cell.appendChild(button);
+      } else {
+        cell.classList.add('results-missing');
+        cell.textContent = '—';
+      }
+      row.appendChild(cell);
+    });
+    tbody.appendChild(row);
+  });
+
+  table.appendChild(tbody);
+  list.appendChild(wrapper);
+
+  const activeSubmission = filtered.find((submission) => submission.id === state.activeSubmissionId) || null;
+  if (activeSubmission) {
+    renderResultDetail(activeSubmission);
+  } else {
+    state.activeSubmissionId = null;
+    renderResultDetail(null);
+  }
+  highlightActiveResultButton();
 }
 
 async function updateRoster(classId, rawValue, feedbackNode) {

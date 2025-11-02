@@ -235,7 +235,10 @@
             <select class="input" id="resultsAssignmentFilter"></select>
           </label>
         </div>
-        <div id="resultsList" class="portal-results"></div>
+        <div class="portal-results">
+          <div id="resultsList" class="portal-results-table-area"></div>
+          <aside id="resultsDetail" class="portal-result-detail hidden" aria-live="polite"></aside>
+        </div>
         <div id="resultsEmptyState" class="portal-empty hidden">
           <p>Encara no hi ha cap resultat registrat. Quan l'alumnat enviï la prova apareixerà aquí automàticament.</p>
         </div>
@@ -282,27 +285,28 @@
     </article>
   </template>
 
-  <template id="resultRowTemplate">
-    <details class="portal-result-card">
-      <summary class="result-summary">
-        <span class="result-grade"></span>
-        <span class="result-summary-label"></span>
-      </summary>
+  <template id="resultDetailTemplate">
+    <article class="portal-result-card">
+      <header class="result-detail-header">
+        <div class="result-detail-heading">
+          <p class="portal-chip portal-chip--muted result-detail-class"></p>
+          <h3 class="result-detail-assignment"></h3>
+          <p class="portal-muted result-detail-meta"></p>
+        </div>
+        <span class="result-detail-grade"></span>
+      </header>
       <div class="result-body">
-        <header>
-          <h3 class="result-student"></h3>
-          <p class="portal-muted result-meta"></p>
-        </header>
+        <h3 class="result-student"></h3>
         <dl class="result-details"></dl>
         <div class="result-extra hidden"></div>
-        <footer class="result-actions">
-          <div class="portal-actions">
-            <button class="btn-secondary result-edit" type="button">Edita nota</button>
-            <button class="btn-ghost result-reset" type="button">Permet reintent</button>
-          </div>
-        </footer>
       </div>
-    </details>
+      <footer class="result-actions">
+        <div class="portal-actions">
+          <button class="btn-secondary result-edit" type="button">Edita nota</button>
+          <button class="btn-ghost result-reset" type="button">Permet reintent</button>
+        </div>
+      </footer>
+    </article>
   </template>
 
   <script type="module" src="./supabase-config.js"></script>
