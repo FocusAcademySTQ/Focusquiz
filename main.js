@@ -713,6 +713,19 @@ function openConfig(moduleId){
         <span class="subtitle">Escriu <b>només el nombre</b> (la unitat ja surt a l'enunciat).</span>
       </div>
     `;
+  } else if(pendingModule.id === 'coord'){
+    wrap.innerHTML = `
+      <div class="section-title">Coordenades cartesianes · Subtemes</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Subtemes de coordenades cartesianes">
+          <label class="toggle"><input class="check" type="radio" name="coord-sub" value="read" checked> Llegir coordenades (punt → (x,y))</label>
+          <label class="toggle"><input class="check" type="radio" name="coord-sub" value="quadrant"> Identificar el quadrant</label>
+          <label class="toggle"><input class="check" type="radio" name="coord-sub" value="build"> Construir un punt amb condicions</label>
+          <label class="toggle"><input class="check" type="radio" name="coord-sub" value="mix"> Barreja de lectures, quadrants i punts</label>
+        </div>
+      </div>
+      <div class="subtitle">Selecciona què vols reforçar: lectura de punts, identificació de quadrants o construcció de coordenades.</div>
+    `;
   } else if(pendingModule.id === 'eq'){
     wrap.innerHTML = `
 <div class="section-title">Equacions · Format</div>
@@ -883,6 +896,8 @@ function collectConfigValues(){
   } else if(pendingModule.id==='units'){
     options.sub = document.querySelector('input[name="units-sub"]:checked')?.value || 'length';
     options.round = parseInt($('#units-round').value || '2');
+  } else if(pendingModule.id==='coord'){
+    options.sub = document.querySelector('input[name="coord-sub"]:checked')?.value || 'read';
   } else if(pendingModule.id==='eq'){
     options.format = document.querySelector('input[name="eq-format"]:checked')?.value || 'normal';
     options.degree = document.querySelector('input[name="eq-degree"]:checked')?.value || '1';
