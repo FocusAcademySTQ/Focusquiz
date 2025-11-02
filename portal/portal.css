@@ -265,6 +265,36 @@
   outline-offset: 2px;
 }
 
+
+.portal-assignment-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 960px) {
+  .portal-assignment-grid {
+    grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.portal-assignment-grid__fields {
+  margin: 0;
+}
+
+.portal-assignment-grid__fields.portal-form {
+  gap: 1rem;
+}
+
+.portal-assignment-grid__fields.portal-form.portal-form--two {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.portal-assignment-grid .portal-module-config {
+  margin-top: 0;
+  height: 100%;
+}
+
 .portal-module-config {
   margin-top: 1.25rem;
   display: grid;
@@ -300,10 +330,17 @@
 
 .portal-module-config-header {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+
+@media (min-width: 640px) {
+  .portal-module-config-header {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
 }
 
 .portal-module-config-header h3 {
@@ -336,10 +373,8 @@
 }
 
 .portal-module-config-body > .controls {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 0.75rem;
-  align-items: flex-start;
 }
 
 .portal-module-config-content .portal-module-config-body > .controls .group {
@@ -356,6 +391,9 @@
 .portal-module-config-body > .controls .toggle {
   padding: 0.6rem 0.8rem;
   border-radius: 14px;
+  flex: 0 0 auto;
+  min-width: 150px;
+  justify-content: center;
 }
 
 .portal-module-config-body > .controls .field {
