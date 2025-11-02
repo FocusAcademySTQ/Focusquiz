@@ -347,6 +347,8 @@ let previewContext = null;
 let previewOverlay = null;
 let previewStatusTimer = null;
 
+const isAssignedSession = () => Boolean(session && session.assignmentId);
+
 /* ===================== VIEWS ===================== */
 
 function showView(name){
@@ -2013,8 +2015,10 @@ function checkAnswer(){
   feedback(false, `Incorrecte. Resposta correcta: <b>${fmtAns(q.answer)}</b>`);
 }
 
-// 🧠 Registra resultat de cada pregunta
-saveResult(session.module, q.text, ok);
+// 🧠 Registra resultat de cada pregunta (només per a proves lliures)
+if (!isAssignedSession()) {
+  saveResult(session.module, q.text, ok);
+}
 
   session.idx++;
   updateProgress();
@@ -2068,6 +2072,7 @@ function finishQuiz(timeUp){
   const moduleObj = MODULES.find(m=>m.id===session.module);
   const moduleName = moduleObj?.name || session.module;
   const levelLabel = session.levelLabel || (session.level > 0 ? `Nivell ${session.level}` : 'Personalitzat');
+  const assignedSession = isAssignedSession();
 
   const entry = {
     at: new Date().toISOString(),
@@ -2083,11 +2088,15 @@ function finishQuiz(timeUp){
     wrongs: session.wrongs
   };
 
-  try {
-    store.save(entry);
-  } catch (err) {
-    console.error('No s\'ha pogut guardar el resultat al magatzem local.', err);
-    alert('No s\'ha pogut guardar aquest examen perquè no hi ha espai lliure. Esborra alguns intents antics i torna-ho a provar.');
+  if (!assignedSession) {
+    try {
+      store.save(entry);
+    } catch (err) {
+      console.error('No s\'ha pogut guardar el resultat al magatzem local.', err);
+      alert('No s\'ha pogut guardar aquest examen perquè no hi ha espai lliure. Esborra alguns intents antics i torna-ho a provar.');
+    }
+  } else {
+    console.info('Sessió assignada: es desarà només al tauler del professorat, no a l\'historial local.');
   }
 
 
