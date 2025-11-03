@@ -95,6 +95,34 @@
         <h2 class="title">Benvingut/da! 👋</h2>
         <p class="subtitle">Tria un mòdul per configurar-lo i començar. Tot queda guardat en aquest dispositiu (sense comptes).</p>
 
+        <div id="moduleGrid"></div>
+
+        <!-- 🧠 Consell del tutor -->
+        <div id="recommendation" class="panel card tutor-card">
+          <h3 class="title tutor-title">Consell del teu tutor virtual 🤖</h3>
+          <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
+        </div>
+
+        <a class="learning-card" href="capsules.html" hidden>
+          <div class="learning-icon" aria-hidden="true">🎓</div>
+          <div class="learning-body">
+            <p class="learning-kicker">Nou espai</p>
+            <h3 class="learning-title">Espai d'aprenentatge</h3>
+            <p class="learning-copy">Accedeix a càpsules guiades per practicar pas a pas abans de fer els exàmens.</p>
+          </div>
+          <span class="learning-pill">Entrar →</span>
+        </a>
+
+        <a class="learning-card" href="flashcards.html">
+          <div class="learning-icon" aria-hidden="true">🃏</div>
+          <div class="learning-body">
+            <p class="learning-kicker">Nova pràctica</p>
+            <h3 class="learning-title">Flashcards d'estudi</h3>
+            <p class="learning-copy">Accedeix al menú complet de targetes amb repetició espaiada, notes i estadístiques.</p>
+          </div>
+          <span class="learning-pill">Entrar →</span>
+        </a>
+
         <form id="classCodeForm" class="class-code-form" autocomplete="off">
           <label class="class-code-label" for="classCodeInput">Has rebut un codi de prova?</label>
           <div class="class-code-row">
@@ -115,34 +143,6 @@
             Els tests FocusQuiz ara es fan a l'espai d'aula. Escriu el codi que t'ha donat el teu professorat.
           </p>
         </form>
-
-        <div id="moduleGrid"></div>
-
-        <!-- 🧠 Consell del tutor -->
-        <div id="recommendation" class="panel card tutor-card">
-          <h3 class="title tutor-title">Consell del teu tutor virtual 🤖</h3>
-          <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
-        </div>
-
-        <a class="learning-card" href="capsules.html">
-          <div class="learning-icon" aria-hidden="true">🎓</div>
-          <div class="learning-body">
-            <p class="learning-kicker">Nou espai</p>
-            <h3 class="learning-title">Espai d'aprenentatge</h3>
-            <p class="learning-copy">Accedeix a càpsules guiades per practicar pas a pas abans de fer els exàmens.</p>
-          </div>
-          <span class="learning-pill">Entrar →</span>
-        </a>
-
-        <a class="learning-card" href="flashcards.html">
-          <div class="learning-icon" aria-hidden="true">🃏</div>
-          <div class="learning-body">
-            <p class="learning-kicker">Nova pràctica</p>
-            <h3 class="learning-title">Flashcards d'estudi</h3>
-            <p class="learning-copy">Accedeix al menú complet de targetes amb repetició espaiada, notes i estadístiques.</p>
-          </div>
-          <span class="learning-pill">Entrar →</span>
-        </a>
 
         <script>
           document.addEventListener('DOMContentLoaded', () => {

@@ -145,34 +145,38 @@
             <button id="refreshAssignments" class="btn-ghost" type="button">Actualitza</button>
           </div>
         </div>
-        <form id="assignmentCreateForm" class="portal-form portal-form--two">
-          <label>
-            <span class="portal-field-label">Classe</span>
-            <select class="input" name="class_id" id="assignmentClass" required></select>
-          </label>
-          <label>
-            <span class="portal-field-label">Mòdul FocusQuiz</span>
-            <select class="input" name="module_id" id="assignmentModule" required></select>
-          </label>
-          <div id="moduleConfig" class="portal-module-config hidden" aria-live="polite">
-            <article class="portal-module-config-card" id="moduleConfigCard">
-              <div class="portal-module-config-header">
-                <div>
-                  <p class="portal-chip portal-chip--muted" id="moduleConfigKicker">Personalitza el mòdul</p>
-                  <h3 id="moduleConfigTitle">Opcions específiques</h3>
+        <form id="assignmentCreateForm" class="portal-form">
+          <div class="portal-assignment-grid">
+            <div class="portal-assignment-grid__fields portal-form portal-form--two">
+              <label>
+                <span class="portal-field-label">Classe</span>
+                <select class="input" name="class_id" id="assignmentClass" required></select>
+              </label>
+              <label>
+                <span class="portal-field-label">Mòdul FocusQuiz</span>
+                <select class="input" name="module_id" id="assignmentModule" required></select>
+              </label>
+              <label>
+                <span class="portal-field-label">Nom visible per a l'alumnat</span>
+                <input class="input" name="assignment_label" type="text" placeholder="Control de fraccions" />
+              </label>
+            </div>
+            <div id="moduleConfig" class="portal-module-config hidden" aria-live="polite">
+              <article class="portal-module-config-card" id="moduleConfigCard">
+                <div class="portal-module-config-header">
+                  <div>
+                    <h3 id="moduleConfigTitle">Opcions específiques</h3>
+                    <p class="portal-chip portal-chip--muted" id="moduleConfigKicker">Personalitza el mòdul</p>
+                  </div>
+                  <button id="resetModuleConfig" class="btn-ghost" type="button">Reinicia opcions</button>
                 </div>
-                <button id="resetModuleConfig" class="btn-ghost" type="button">Reinicia opcions</button>
-              </div>
-              <p id="moduleConfigSummary" class="portal-module-config-summary hidden"></p>
-              <div id="moduleConfigBody"></div>
-              <p id="moduleConfigError" class="portal-error hidden" role="status"></p>
-            </article>
-            <p id="moduleConfigNotice" class="portal-muted hidden"></p>
+                <div id="moduleConfigBody" class="portal-module-config-content"></div>
+                <p id="moduleConfigSummary" class="portal-module-config-summary hidden"></p>
+                <p id="moduleConfigError" class="portal-error hidden" role="status"></p>
+              </article>
+              <p id="moduleConfigNotice" class="portal-muted hidden"></p>
+            </div>
           </div>
-          <label>
-            <span class="portal-field-label">Nom visible per a l'alumnat</span>
-            <input class="input" name="assignment_label" type="text" placeholder="Control de fraccions" />
-          </label>
           <div class="portal-form portal-form--three">
             <label>
               <span class="portal-field-label">Preguntes</span>
