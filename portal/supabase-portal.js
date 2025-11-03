@@ -17,6 +17,12 @@ const STATUS_LABELS = {
   reviewed: 'Revisada',
 };
 
+const ASSIGNMENT_STATUS_LABELS = {
+  open: 'Oberta',
+  closed: 'Tancada',
+  scheduled: 'Programada',
+};
+
 const state = {
   supabase: null,
   session: null,
@@ -26,6 +32,7 @@ const state = {
   assignments: [],
   submissions: [],
   activeSubmissionId: null,
+  focusedResultAssignmentId: null,
   assignmentDraft: {
     moduleId: '',
     options: {},
@@ -286,6 +293,23 @@ function formatGradeForCell(value) {
 function statusLabel(value) {
   if (!value) return '—';
   return STATUS_LABELS[value] || value;
+}
+
+function assignmentStatusLabel(value) {
+  if (!value) return '—';
+  return ASSIGNMENT_STATUS_LABELS[value] || value;
+}
+
+function formatDateTime(value, options = { dateStyle: 'short', timeStyle: 'short' }) {
+  if (!value) return '';
+  try {
+    const date = typeof value === 'string' || typeof value === 'number' ? new Date(value) : value;
+    if (Number.isNaN(date.getTime())) return '';
+    return new Intl.DateTimeFormat('ca-ES', options).format(date);
+  } catch (error) {
+    console.warn('No s\'ha pogut formatejar la data', value, error);
+    return '';
+  }
 }
 
 function renderClassOptions() {
@@ -689,16 +713,16 @@ function renderAssignments() {
       meta.appendChild(dd);
     };
     addMeta('Mòdul', assignment.module_title);
-    addMeta('Estat', assignment.status);
+    addMeta('Estat', assignmentStatusLabel(assignment.status));
     addMeta('Preguntes', coalesce(quizConfig.count, '—'));
     addMeta('Temps', quizConfig.time ? `${quizConfig.time} min` : 'Sense límit');
     addMeta('Nivell', coalesce(quizConfig.level, '—'));
     if (quizConfig.summary) {
       addMeta('Configuració', quizConfig.summary);
     }
-    addMeta('Publicada', new Date(assignment.date_assigned).toLocaleString('ca-ES'));
+    addMeta('Publicada', formatDateTime(assignment.date_assigned));
     if (assignment.due_at) {
-      addMeta('Data límit', new Date(assignment.due_at).toLocaleString('ca-ES'));
+      addMeta('Data límit', formatDateTime(assignment.due_at));
     }
     const assignmentCopyBtn = node.querySelector('.assignment-copy');
     assignmentCopyBtn.addEventListener('click', () => copyAssignmentLink(assignment, assignmentCopyBtn));
@@ -708,6 +732,10 @@ function renderAssignments() {
       closeBtn.disabled = true;
     } else {
       closeBtn.addEventListener('click', () => closeAssignment(assignment));
+    }
+    const deleteBtn = node.querySelector('.assignment-delete');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => deleteAssignment(assignment));
     }
     list.appendChild(node);
   });
@@ -823,9 +851,30 @@ function buildWrongDetails(submission) {
 function highlightActiveResultButton() {
   if (!elements.resultsList) return;
   const buttons = elements.resultsList.querySelectorAll('.results-grade');
+  let activeAssignmentId = null;
   buttons.forEach((button) => {
     const isActive = button.dataset.submissionId === state.activeSubmissionId;
     button.classList.toggle('is-active', isActive);
+    if (isActive && button.dataset.assignmentId) {
+      activeAssignmentId = button.dataset.assignmentId;
+    }
+  });
+  if (!activeAssignmentId && state.focusedResultAssignmentId) {
+    activeAssignmentId = state.focusedResultAssignmentId;
+  }
+  const headers = elements.resultsList.querySelectorAll('.portal-results-table th[data-assignment-id]');
+  headers.forEach((header) => {
+    header.classList.toggle('is-active', !!activeAssignmentId && header.dataset.assignmentId === activeAssignmentId);
+  });
+  const cells = elements.resultsList.querySelectorAll('.portal-results-table td[data-assignment-id]');
+  cells.forEach((cell) => {
+    cell.classList.toggle('is-active', !!activeAssignmentId && cell.dataset.assignmentId === activeAssignmentId);
+  });
+  const navButtons = elements.resultsList.querySelectorAll('.portal-results-column-chip');
+  navButtons.forEach((chip) => {
+    const isActive = !!activeAssignmentId && chip.dataset.assignmentId === activeAssignmentId;
+    chip.classList.toggle('is-active', isActive);
+    chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   });
 }
 
@@ -936,6 +985,13 @@ function renderResultDetail(submission) {
 
 function setActiveSubmission(submission) {
   state.activeSubmissionId = submission ? submission.id : null;
+  if (submission) {
+    const assignmentId =
+      submission.assignment_id || getNested(submission, ['assignment', 'id'], null);
+    if (assignmentId) {
+      state.focusedResultAssignmentId = assignmentId;
+    }
+  }
   renderResultDetail(submission || null);
   highlightActiveResultButton();
 }
@@ -960,6 +1016,7 @@ function renderResults() {
   if (!filtered.length) {
     empty.classList.remove('hidden');
     state.activeSubmissionId = null;
+    state.focusedResultAssignmentId = null;
     renderResultDetail(null);
     highlightActiveResultButton();
     return;
@@ -976,9 +1033,25 @@ function renderResults() {
       const assignmentInfo = submission.assignment || {};
       const assignmentConfig = assignmentInfo.quiz_config || {};
       const assignmentTitle = assignmentConfig.label || assignmentInfo.module_title || 'Prova';
+      const classLabel =
+        submission.class_name ||
+        getNested(submission, ['class', 'class_name'], '') ||
+        getNested(assignmentInfo, ['class', 'class_name'], '');
+      const joinCode =
+        submission.class_join_code ||
+        getNested(submission, ['class', 'join_code'], '') ||
+        getNested(assignmentInfo, ['class', 'join_code'], '');
+      const dueAt = assignmentInfo.due_at || assignmentConfig.due_at || null;
+      const status = assignmentInfo.status || submission.assignment_status || null;
       assignmentMap.set(assignmentId, {
         id: assignmentId,
         title: assignmentTitle,
+        classLabel,
+        joinCode,
+        dueAt,
+        dueLabel: formatDateTime(dueAt, { dateStyle: 'short', timeStyle: 'short' }),
+        status,
+        statusLabel: assignmentStatusLabel(status),
       });
     }
     const studentKey =
@@ -1008,16 +1081,39 @@ function renderResults() {
   if (!assignments.length || !students.length) {
     empty.classList.remove('hidden');
     state.activeSubmissionId = null;
+    state.focusedResultAssignmentId = null;
     renderResultDetail(null);
     highlightActiveResultButton();
     return;
   }
 
+  if (
+    state.focusedResultAssignmentId &&
+    !assignments.some((assignment) => assignment.id === state.focusedResultAssignmentId)
+  ) {
+    state.focusedResultAssignmentId = null;
+  }
+
   const wrapper = document.createElement('div');
   wrapper.className = 'portal-results-table-wrapper';
+
+  const columnNav = document.createElement('div');
+  columnNav.className = 'portal-results-column-nav';
+  columnNav.setAttribute('role', 'group');
+  columnNav.setAttribute('aria-label', 'Navega per proves assignades');
+  wrapper.appendChild(columnNav);
+
+  const scrollArea = document.createElement('div');
+  scrollArea.className = 'portal-results-table-scroll';
+  wrapper.appendChild(scrollArea);
+
   const table = document.createElement('table');
   table.className = 'portal-results-table';
-  wrapper.appendChild(table);
+  const caption = document.createElement('caption');
+  caption.className = 'portal-visually-hidden';
+  caption.textContent = 'Taula de resultats per alumne i prova assignada';
+  table.appendChild(caption);
+  scrollArea.appendChild(table);
 
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
@@ -1027,16 +1123,68 @@ function renderResults() {
   nameHeader.textContent = 'Alumne';
   headerRow.appendChild(nameHeader);
 
-  assignments.forEach((assignment) => {
+  assignments.forEach((assignment, index) => {
     const th = document.createElement('th');
     th.scope = 'col';
-    const label = document.createElement('span');
-    label.className = 'results-assignment-label';
+    th.dataset.assignmentId = assignment.id;
+    th.dataset.columnIndex = String(index);
+    const headerBlock = document.createElement('div');
+    headerBlock.className = 'results-assignment-label';
     const titleSpan = document.createElement('span');
+    titleSpan.className = 'results-assignment-title';
     titleSpan.textContent = assignment.title;
-    label.appendChild(titleSpan);
-    th.appendChild(label);
+    headerBlock.appendChild(titleSpan);
+    const metaParts = [];
+    if (assignment.classLabel) {
+      metaParts.push(assignment.joinCode ? `${assignment.classLabel} · ${assignment.joinCode}` : assignment.classLabel);
+    } else if (assignment.joinCode) {
+      metaParts.push(`Codi ${assignment.joinCode}`);
+    }
+    if (assignment.statusLabel && assignment.statusLabel !== '—') {
+      metaParts.push(assignment.statusLabel);
+    }
+    if (assignment.dueLabel) {
+      metaParts.push(`Límit ${assignment.dueLabel}`);
+    }
+    if (metaParts.length) {
+      const meta = document.createElement('span');
+      meta.className = 'results-assignment-meta';
+      meta.textContent = metaParts.join(' · ');
+      headerBlock.appendChild(meta);
+    }
+    th.appendChild(headerBlock);
     headerRow.appendChild(th);
+
+    const navButton = document.createElement('button');
+    navButton.type = 'button';
+    navButton.className = 'portal-results-column-chip';
+    navButton.dataset.assignmentId = assignment.id;
+    navButton.dataset.columnIndex = String(index);
+    navButton.textContent = assignment.title;
+    const navMeta = [assignment.classLabel, assignment.statusLabel, assignment.dueLabel]
+      .filter((item) => item && item !== '—')
+      .join(' · ');
+    if (navMeta) {
+      navButton.title = `${assignment.title} · ${navMeta}`;
+      navButton.setAttribute('aria-label', `${assignment.title}. ${navMeta}`);
+    } else {
+      navButton.setAttribute('aria-label', assignment.title);
+    }
+    navButton.addEventListener('click', () => {
+      state.activeSubmissionId = null;
+      state.focusedResultAssignmentId = navButton.dataset.assignmentId || null;
+      renderResultDetail(null);
+      highlightActiveResultButton();
+      const target = scrollArea.querySelector(`th[data-column-index="${navButton.dataset.columnIndex}"]`);
+      if (target) {
+        const desired = Math.max(0, target.offsetLeft - 120);
+        scrollArea.scrollTo({
+          left: desired,
+          behavior: 'smooth',
+        });
+      }
+    });
+    columnNav.appendChild(navButton);
   });
 
   thead.appendChild(headerRow);
@@ -1049,19 +1197,24 @@ function renderResults() {
     studentCell.scope = 'row';
     studentCell.textContent = student.name;
     row.appendChild(studentCell);
-    assignments.forEach((assignment) => {
+    assignments.forEach((assignment, index) => {
       const cell = document.createElement('td');
+      cell.dataset.assignmentId = assignment.id;
+      cell.dataset.columnIndex = String(index);
       const submission = student.submissions.get(assignment.id);
       if (submission) {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'results-grade';
         button.dataset.submissionId = submission.id;
+        button.dataset.assignmentId = assignment.id;
+        button.dataset.columnIndex = String(index);
         const percentText = formatPercent(submission.score);
         button.textContent = formatGradeForCell(submission.score);
         button.title = `${student.name} · ${assignment.title}: ${percentText}`;
         button.setAttribute('aria-label', `${student.name} · ${assignment.title}: ${percentText}`);
         button.addEventListener('click', () => {
+          state.focusedResultAssignmentId = button.dataset.assignmentId || null;
           if (state.activeSubmissionId === submission.id) {
             setActiveSubmission(null);
           } else {
@@ -1181,9 +1334,28 @@ async function closeAssignment(assignment) {
     console.error('No s\'ha pogut tancar la prova', error);
     return;
   }
-  await loadAssignments();
+  await Promise.all([loadAssignments(), loadSubmissions()]);
   renderAssignments();
   buildResultsFilters();
+  renderResults();
+}
+
+async function deleteAssignment(assignment) {
+  const label = getNested(assignment, ['quiz_config', 'label'], '') || assignment.module_title || 'aquesta prova';
+  if (!window.confirm(`Segur que vols eliminar ${label}? Aquesta acció esborrarà les notes vinculades.`)) {
+    return;
+  }
+  const client = createSupabaseClient();
+  if (!client) return;
+  const { error } = await client.from('assignments').delete().eq('id', assignment.id);
+  if (error) {
+    console.error('No s\'ha pogut eliminar la prova', error);
+    return;
+  }
+  await Promise.all([loadAssignments(), loadSubmissions()]);
+  renderAssignments();
+  buildResultsFilters();
+  renderResults();
 }
 
 async function resetSubmission(submission) {
