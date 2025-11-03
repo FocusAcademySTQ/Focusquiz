@@ -14,6 +14,18 @@
   display: none !important;
 }
 
+.portal-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .portal-hero {
   position: relative;
   overflow: hidden;
@@ -41,28 +53,6 @@
   margin-bottom: 0.65rem;
   font-size: clamp(1.95rem, 4vw, 2.65rem);
   letter-spacing: -0.01em;
-}
-
-.portal-hero__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.9rem;
-  border-radius: 999px;
-  background: rgba(59, 130, 246, 0.16);
-  color: #1d4ed8;
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  position: relative;
-  margin-bottom: 0.95rem;
-  box-shadow: 0 12px 28px -18px rgba(59, 130, 246, 0.45);
-}
-
-.portal-hero__badge::before {
-  content: '✦';
-  font-size: 0.8rem;
 }
 
 .portal-hero .subtitle {
@@ -1365,12 +1355,71 @@
   min-width: 0;
 }
 
+
 .portal-results-table-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem clamp(0.75rem, 2vw, 1.25rem) clamp(1rem, 2.2vw, 1.4rem);
+  border-radius: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background:
+    radial-gradient(480px 260px at 12% 8%, rgba(191, 219, 254, 0.28), transparent 70%),
+    radial-gradient(520px 320px at 90% -15%, rgba(196, 181, 253, 0.18), transparent 65%),
+    rgba(255, 255, 255, 0.92);
+  box-shadow: 0 28px 62px -34px rgba(30, 64, 175, 0.35);
+}
+
+.portal-results-column-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  min-height: 0;
+}
+
+.portal-results-column-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  background: rgba(241, 245, 249, 0.75);
+  color: #1f2937;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.portal-results-column-chip:hover,
+.portal-results-column-chip:focus-visible {
+  background: rgba(219, 234, 254, 0.9);
+  border-color: rgba(59, 130, 246, 0.45);
+  color: #1e3a8a;
+  outline: none;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -18px rgba(59, 130, 246, 0.45);
+}
+
+.portal-results-column-chip.is-active {
+  background: #1d4ed8;
+  color: #f8fafc;
+  border-color: #1e3a8a;
+  box-shadow: 0 16px 30px -18px rgba(37, 99, 235, 0.55);
+}
+
+.portal-results-table-scroll {
   overflow-x: auto;
-  border-radius: 20px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 26px 58px -32px rgba(30, 64, 175, 0.42);
+  border-radius: 18px;
+  position: relative;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.94), rgba(255, 255, 255, 0.88));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .portal-results-table {
@@ -1378,17 +1427,17 @@
   border-collapse: separate;
   border-spacing: 0;
   table-layout: fixed;
-  min-width: 620px;
+  min-width: 680px;
   font-size: 0.95rem;
 }
 
 .portal-results-table th,
 .portal-results-table td {
-  border-right: 1px solid rgba(148, 163, 184, 0.28);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
-  padding: 0.65rem;
-  text-align: center;
-  background: rgba(248, 250, 252, 0.9);
+  border-right: 1px solid rgba(148, 163, 184, 0.22);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+  padding: 0.65rem 0.75rem;
+  background: rgba(248, 250, 252, 0.85);
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .portal-results-table th:last-child,
@@ -1402,65 +1451,88 @@
 }
 
 .portal-results-table thead th {
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(51, 65, 85, 0.9);
-  background: rgba(226, 232, 240, 0.85);
-  position: relative;
+  letter-spacing: 0.07em;
+  color: rgba(51, 65, 85, 0.95);
+  background: rgba(226, 232, 240, 0.92);
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  text-align: left;
 }
 
 .portal-results-table thead th.results-table-name {
   min-width: 200px;
-  text-align: left;
   font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  padding: 1rem;
+  letter-spacing: 0.05em;
+  padding: 0.85rem 1rem;
+  left: 0;
+  z-index: 5;
+  box-shadow: 10px 0 18px -16px rgba(15, 23, 42, 0.28);
 }
 
 .portal-results-table thead th:not(.results-table-name) {
-  height: 140px;
-  padding: 0;
-  vertical-align: bottom;
+  min-width: 180px;
+  vertical-align: top;
 }
 
-.portal-results-table thead th .results-assignment-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  transform: rotate(-45deg);
-  transform-origin: left bottom;
-  white-space: nowrap;
-  padding: 0.35rem 0.6rem;
+.results-assignment-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
 }
 
-.portal-results-table thead th .results-assignment-label span {
+.results-assignment-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #0f172a;
+}
+
+.results-assignment-meta {
   display: block;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  color: rgba(71, 85, 105, 0.9);
+  line-height: 1.35;
 }
 
 .portal-results-table tbody th {
+  position: sticky;
+  left: 0;
+  z-index: 4;
   text-align: left;
-  background: rgba(241, 245, 249, 0.95);
-  font-size: 0.95rem;
+  font-size: 0.96rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  background: rgba(241, 245, 249, 0.95);
+  padding: 0.75rem 1rem;
+  box-shadow: 10px 0 18px -16px rgba(15, 23, 42, 0.28);
 }
 
 .portal-results-table tbody tr:nth-child(even) th,
 .portal-results-table tbody tr:nth-child(even) td {
-  background: rgba(248, 250, 252, 0.75);
+  background: rgba(248, 250, 252, 0.7);
 }
 
 .portal-results-table tbody tr:hover th,
 .portal-results-table tbody tr:hover td {
-  background: rgba(219, 234, 254, 0.6);
+  background: rgba(219, 234, 254, 0.5);
 }
 
 .portal-results-table td {
-  padding: 0.45rem;
+  text-align: center;
+  padding: 0.5rem 0.6rem;
+}
+
+.portal-results-table th.is-active,
+.portal-results-table td.is-active {
+  background: rgba(191, 219, 254, 0.65);
+  color: #0f172a;
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.35);
 }
 
 .results-grade {
