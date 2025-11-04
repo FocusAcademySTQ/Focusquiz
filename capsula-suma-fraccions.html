@@ -321,42 +321,63 @@
     }
 
     // ——— 2) Introducció visual ———
-    function renderIntro(){
-      const eqPlaceholder=`
-        <g aria-label="Instrucció d'equivalències">
-          <rect x="40" y="70" width="280" height="220" rx="26" fill="rgba(226,232,240,0.22)" stroke="rgba(148,163,184,0.6)" stroke-dasharray="12 10"/>
-          <text x="180" y="160" text-anchor="middle" font-size="16" fill="#475569">Prem Mostra MCM</text>
-          <text x="180" y="188" text-anchor="middle" font-size="14" fill="#94a3b8">per veure les equivalències</text>
-        </g>`;
-      const sumPlaceholder=`
-        <g aria-label="Instrucció de suma final">
-          <rect x="40" y="70" width="280" height="220" rx="26" fill="rgba(226,232,240,0.18)" stroke="rgba(148,163,184,0.5)" stroke-dasharray="12 10"/>
-          <text x="180" y="160" text-anchor="middle" font-size="16" fill="#475569">Després, mostra la suma</text>
-          <text x="180" y="188" text-anchor="middle" font-size="14" fill="#94a3b8">per obtenir el resultat final</text>
-        </g>`;
-      const svg=`<svg viewBox="0 0 1080 420" role="img" aria-label="Transformació de fraccions fins a la suma final">
-        <g aria-label="Fraccions originals">
-          <text x="150" y="44" text-anchor="middle" font-size="15" fill="#64748b">Fracció 1</text>
-          ${drawPie(150,120,70,2,1,'#93c5fd')}
-          ${svgFraction(150,240,1,2,{caption:'Original'})}
-        </g>
-        <text x="300" y="130" font-size="44" text-anchor="middle" fill="#0f172a">+</text>
-        <g aria-label="Fracció 2" transform="translate(240,0)">
-          <text x="150" y="44" text-anchor="middle" font-size="15" fill="#64748b">Fracció 2</text>
-          ${drawPie(150,120,70,3,1,'#fbcfe8')}
-          ${svgFraction(150,240,1,3,{caption:'Original'})}
-        </g>
-        <path d="M 460 120 C 510 40 600 40 650 120" fill="none" stroke="rgba(79,70,229,0.4)" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 12"/>
-        <path d="M 650 120 L 644 108 L 662 108 Z" fill="rgba(79,70,229,0.4)"/>
-        <path d="M 820 120 C 870 40 960 40 1010 120" fill="none" stroke="rgba(14,116,144,0.4)" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 12"/>
-        <path d="M 1010 120 L 1004 108 L 1022 108 Z" fill="rgba(14,116,144,0.4)"/>
-        <g id="zoneEquiv" transform="translate(360,0)">${eqPlaceholder}</g>
-        <g id="zoneResult" transform="translate(720,0)">${sumPlaceholder}</g>
-      </svg>`;
-      $('viz').innerHTML=svg;
-      const btn=$('btnShowSum');
-      if(btn){ btn.disabled=true; }
-    }
+    function renderIntro() {
+  const svg = `
+  <svg viewBox="0 0 900 760" width="100%" preserveAspectRatio="xMidYMid meet">
+    <!-- PAS 1 -->
+    <g transform="translate(0,0)">
+      <rect x="60" y="20" width="780" height="200" rx="20" fill="rgba(255,255,255,0.8)" stroke="#cbd5e1"/>
+      <text x="450" y="60" text-anchor="middle" font-size="20" font-weight="600" fill="#334155">Pas 1 · Fraccions originals</text>
+
+      <g transform="translate(200,20)">
+        ${drawPie(0,100,50,2,1,'#93c5fd')}
+        ${svgFraction(0,190,1,2,{caption:''})}
+      </g>
+
+      <text x="450" y="120" font-size="42" text-anchor="middle" fill="#0f172a">+</text>
+
+      <g transform="translate(600,20)">
+        ${drawPie(0,100,50,3,1,'#fbcfe8')}
+        ${svgFraction(0,190,1,3,{caption:''})}
+      </g>
+    </g>
+
+    <!-- PAS 2 -->
+    <g transform="translate(0,250)">
+      <rect x="60" y="20" width="780" height="200" rx="20" fill="rgba(240,253,250,0.9)" stroke="#99f6e4"/>
+      <text x="450" y="60" text-anchor="middle" font-size="20" font-weight="600" fill="#134e4a">Pas 2 · Equivalències amb MCM = 6</text>
+
+      <g transform="translate(200,20)">
+        ${drawPie(0,100,50,6,3,'#86efac')}
+        ${svgFraction(0,190,3,6,{caption:'equivalent'})}
+      </g>
+
+      <text x="450" y="120" font-size="42" text-anchor="middle" fill="#0f172a">+</text>
+
+      <g transform="translate(600,20)">
+        ${drawPie(0,100,50,6,2,'#a5b4fc')}
+        ${svgFraction(0,190,2,6,{caption:'equivalent'})}
+      </g>
+    </g>
+
+    <!-- PAS 3 -->
+    <g transform="translate(0,500)">
+      <rect x="60" y="20" width="780" height="200" rx="20" fill="rgba(254,249,195,0.9)" stroke="#facc15"/>
+      <text x="450" y="60" text-anchor="middle" font-size="20" font-weight="600" fill="#78350f">Pas 3 · Suma final</text>
+
+      <g transform="translate(450,20)">
+        ${drawPie(0,100,60,6,5,'#fde68a')}
+        ${svgFraction(0,220,5,6,{caption:'resultat'})}
+      </g>
+    </g>
+  </svg>`;
+
+  $('viz').innerHTML = svg;
+  $('btnShowMCM').style.display = 'none';
+  $('btnShowSum').style.display = 'none';
+}
+
+
 
     function showMCM(){
       const doc=$('viz').querySelector('#zoneEquiv');
