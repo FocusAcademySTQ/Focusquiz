@@ -1819,6 +1819,115 @@ const SUBS_MORF = [
   { key: 'funcions', label: 'Funcions sintàctiques', bank: BANK_MORFO_FUNCIONS }
 ];
 
+  /* ========== BANCS D'EXERCICIS (COMPRENSIÓ LECTORA) ========== */
+  const BANK_LECT_INSTRUCCIONS = [
+    {
+      title: 'Sortida de ciències',
+      passage: 'Demà anirem al jardí botànic. Cal portar el quadern de ciències, llapis i una ampolla d\'aigua petita. Sortirem a les 9.30 h des de la porta principal. Si plou, utilitzarem el recinte cobert del pati.',
+      question: 'Quin material és imprescindible portar?',
+      options: [
+        'Només el dinar i una jaqueta',
+        "El quadern de ciències, llapis i una ampolla d'aigua",
+        'La tauleta i els auriculars',
+        'Res, perquè es deixarà tot al jardí'
+      ],
+      answer: "El quadern de ciències, llapis i una ampolla d'aigua"
+    },
+    {
+      title: 'Taller de biblioteca',
+      passage: 'La bibliotecària envia una nota: "Per al taller de lectura heu de triar un llibre curt de la sala infantil i llegir el primer capítol. Porteu el carnet de la biblioteca i arribeu deu minuts abans per signar l\'assistència."',
+      question: 'Què han de fer els alumnes abans del taller?',
+      options: [
+        'Comprar un llibre nou a la llibreria',
+        'Llegir el primer capítol del llibre triat',
+        'Portar una redacció escrita',
+        'Enviar un correu a la bibliotecària'
+      ],
+      answer: 'Llegir el primer capítol del llibre triat'
+    },
+    {
+      title: 'Laboratori de llengües',
+      passage: 'El professor d\'acollida recorda que la sessió de demà serà al laboratori de llengües. Cal deixar les motxilles a les taquilles, entrar en silenci i connectar els auriculars als ordinadors. Durant els primers quinze minuts faran un exercici d\'escolta guiada.',
+      question: 'Quina és la primera acció quan entren al laboratori?',
+      options: [
+        'Connectar els auriculars als ordinadors',
+        'Deixar les motxilles a les taquilles',
+        'Parlar amb els companys',
+        'Encendre la calefacció'
+      ],
+      answer: 'Deixar les motxilles a les taquilles'
+    }
+  ];
+
+  const BANK_LECT_HORARIS = [
+    {
+      title: 'Horari del dilluns',
+      passage: "A l'aula d'acollida, el dilluns comença amb tutoria de 8.30 a 9.00 h. Després hi ha català fins a les 10.30 h i un descans de 30 minuts. A les 11.00 h fan matemàtiques i acaben amb educació física a les 12.30 h.",
+      question: 'Quina matèria fan després del descans?',
+      options: ['Tutoria', 'Català', 'Matemàtiques', 'Educació física'],
+      answer: 'Matemàtiques'
+    },
+    {
+      title: 'Activitats de tarda',
+      passage: "Els dimarts a la tarda, els alumnes poden quedar-se a l'espai de suport. De 15.30 a 16.15 h hi ha reforç de lectura, i de 16.15 a 17.00 h un taller de conversa. Els dimecres, en canvi, només hi ha estudi assistit de 15.30 a 16.30 h.",
+      question: 'Quan comença el taller de conversa dels dimarts?',
+      options: ['A les 15.00 h', 'A les 15.30 h', 'A les 16.15 h', 'A les 17.00 h'],
+      answer: 'A les 16.15 h'
+    },
+    {
+      title: 'Calendari de proves',
+      passage: "Aquest mes hi haurà dues proves. L'avaluació de vocabulari serà el 12 de març a primera hora. La prova de comprensió oral serà el 20 de març a les 11.30 h. La setmana anterior a cada prova es dedicarà una sessió completa a repassar.",
+      question: 'Quan es farà la prova de comprensió oral?',
+      options: [
+        'El 12 de març a primera hora',
+        "El 20 de març a les 11.30 h",
+        "El 20 d'abril a les 11.30 h",
+        'La setmana abans de cada prova'
+      ],
+      answer: "El 20 de març a les 11.30 h"
+    }
+  ];
+
+  const BANK_LECT_AVISOS = [
+    {
+      title: 'Reunió amb les famílies',
+      passage: "L'escola envia aquest avís: \"Dijous 5 d'octubre a les 18.00 h farem una reunió per explicar el projecte d'aula d'acollida. Es farà a la sala polivalent. Hi haurà servei de traducció al castellà i àrab.\"",
+      question: 'On se celebrarà la reunió?',
+      options: ['A l\'aula de música', 'Al gimnàs', 'A la sala polivalent', 'Al pati'],
+      answer: 'A la sala polivalent'
+    },
+    {
+      title: 'Autorització de sortida',
+      passage: "La coordinadora recorda a les famílies que cal signar i retornar l'autorització per a la sortida al museu abans de divendres. Sense el document, l'alumne haurà de quedar-se a l'institut.",
+      question: 'Què passa si no entreguen l\'autorització signada?',
+      options: [
+        "L'excursió es cancel·la per a tothom",
+        "L'alumne haurà de quedar-se a l'institut",
+        'Es pot entregar el mateix dia de la sortida',
+        'El museu enviarà una altra autorització'
+      ],
+      answer: "L'alumne haurà de quedar-se a l'institut"
+    },
+    {
+      title: 'Canvi de servei de menjador',
+      passage: "La direcció informa que a partir del proper dilluns el menjador oferirà menús sense gluten sota petició. Les famílies que ho necessitin han d'emplenar el formulari en línia abans de divendres i lliurar un informe mèdic al tutor.",
+      question: 'Quin pas han de fer les famílies abans de divendres?',
+      options: [
+        'Comprar menjar a part',
+        'Emplenar el formulari en línia per demanar el menú sense gluten',
+        'Enviar un correu al menjador cada dia',
+        'Fer el pagament addicional al banc'
+      ],
+      answer: 'Emplenar el formulari en línia per demanar el menú sense gluten'
+    }
+  ];
+
+  const SUBS_LECT = [
+    { key: 'instruccions', label: "Instruccions de l'escola", bank: BANK_LECT_INSTRUCCIONS },
+    { key: 'horaris', label: 'Horaris i rutines', bank: BANK_LECT_HORARIS },
+    { key: 'avisos', label: 'Avisos a les famílies', bank: BANK_LECT_AVISOS }
+  ];
+
   /* ========== GENERADORS ========== */
   function genCatOrt(level, opts = {}){
   const subKey = opts.sub || 'bv';
@@ -1837,12 +1946,31 @@ function genCatMorf(level, opts = {}){
   const subKey = opts.sub || 'basiques';
   const sub = SUBS_MORF.find(s => s.key === subKey) || SUBS_MORF[0];
   const q = choice(sub.bank);
-  return { 
+  return {
     type: 'cat-morf',
     text: q.text,
     answer: q.answer,
     options: q.options || null,
     input: q.options ? "choice" : "text"   // 👈 si té options → multiple choice
+  };
+}
+
+function genCatLect(level, opts = {}){
+  const subKey = opts.sub || 'instruccions';
+  const sub = SUBS_LECT.find(s => s.key === subKey) || SUBS_LECT[0];
+  const q = choice(sub.bank);
+  const text = [
+    `<div class="reading-passage"><strong>${q.title}</strong></div>`,
+    `<div class="reading-passage">${q.passage}</div>`,
+    `<div class="reading-question">${q.question}</div>`
+  ].join('');
+  const options = Array.isArray(q.options) ? q.options.slice() : null;
+  return {
+    type: 'cat-lect',
+    text,
+    answer: q.answer,
+    options,
+    input: options ? 'choice' : 'text'
   };
 }
 
@@ -1896,6 +2024,31 @@ function genCatMorf(level, opts = {}){
     }
   };
 
+  const LecturaConfig = {
+    render(){
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div class="section-title">Comprensió lectora · Subtemes</div>
+        <div class="controls">
+          <div class="group" role="group" aria-label="Subtemes de comprensió lectora">
+            ${SUBS_LECT.map((s,i)=>`
+              <label class="toggle">
+                <input class="check" type="radio" name="cat-lect-sub" value="${s.key}" ${i===0?'checked':''}>
+                ${s.label}
+              </label>
+            `).join('')}
+          </div>
+        </div>
+        <div class="subtitle">Textos breus amb preguntes de comprensió literal i inferencial.</div>
+      `;
+      return wrap;
+    },
+    collect(){
+      const v = (document.querySelector('input[name="cat-lect-sub"]:checked') || {}).value || 'instruccions';
+      return { sub: v };
+    }
+  };
+
   /* ========== MÒDULS ========== */
   const CAT_MODULES = [
     {
@@ -1913,6 +2066,14 @@ id: 'cat-morf',
       category: 'cat',
       gen: genCatMorf,
       config: MorfologiaConfig
+    },
+    {
+      id: 'cat-lect',
+      name: 'Comprensió lectora bàsica',
+      desc: 'Textos curts sobre instruccions, horaris i avisos.',
+      category: 'cat',
+      gen: genCatLect,
+      config: LecturaConfig
     }
   ];
 
