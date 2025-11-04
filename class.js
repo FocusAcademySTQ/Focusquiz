@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { resolveSupabaseConfig } from './portal/supabase-config.js';
+import { MODULES } from './portal/modules-data.js';
 
 let cachedConfig = resolveSupabaseConfig();
 const state = {
@@ -33,6 +34,29 @@ const elements = {
   studentTemplate: document.getElementById('studentButtonTemplate'),
   assignmentTemplate: document.getElementById('assignmentCardTemplate'),
 };
+
+function resolveModuleInfo(moduleOrId) {
+  if (!moduleOrId) return null;
+  if (typeof moduleOrId === 'string') {
+    return MODULES.find((mod) => mod.id === moduleOrId) || null;
+  }
+  if (typeof moduleOrId === 'object' && moduleOrId !== null) {
+    return moduleOrId;
+  }
+  return null;
+}
+
+function moduleSupportsLevels(moduleOrId) {
+  const moduleInfo = resolveModuleInfo(moduleOrId);
+  if (!moduleInfo) return true;
+  return moduleInfo.usesLevels !== false;
+}
+
+function moduleFreeLevelLabel(moduleOrId) {
+  const moduleInfo = resolveModuleInfo(moduleOrId);
+  if (!moduleInfo) return 'Mode lliure';
+  return moduleInfo.levelLabel || 'Mode lliure';
+}
 
 function formatPercent(value) {
   if (value === null || value === undefined) return '—';
@@ -191,6 +215,8 @@ function renderAssignments() {
     const title = card.querySelector('.assignment-title');
     const metaList = card.querySelector('.assignment-meta');
     const startBtn = card.querySelector('.assignment-start');
+    const moduleInfo = resolveModuleInfo(assignment.module_id);
+    const usesLevels = moduleSupportsLevels(moduleInfo);
 
     moduleLabel.textContent = assignment.module_title;
     title.textContent = assignment.quiz_config?.label || assignment.module_title || 'Prova FocusQuiz';
@@ -220,8 +246,13 @@ function renderAssignments() {
     } else {
       addMeta('Temps', 'Sense límit');
     }
-    if (assignment.quiz_config?.level) {
-      addMeta('Nivell', assignment.quiz_config.level);
+    const levelValue = Number.parseInt(assignment.quiz_config?.level, 10);
+    if (usesLevels) {
+      const levelLabel = Number.isFinite(levelValue) && levelValue > 0 ? `Nivell ${levelValue}` : '—';
+      addMeta('Nivell', levelLabel);
+    } else {
+      const levelLabel = assignment.quiz_config?.levelLabel || moduleFreeLevelLabel(moduleInfo);
+      addMeta('Nivell', levelLabel);
     }
     if (assignment.quiz_config?.summary) {
       addMeta('Configuració', assignment.quiz_config.summary);
@@ -255,6 +286,8 @@ function renderAssignments() {
 function launchAssignment(assignment) {
   if (!state.classInfo) return;
   const moduleId = assignment.module_id;
+  const moduleInfo = resolveModuleInfo(moduleId);
+  const usesLevels = moduleSupportsLevels(moduleInfo);
   const baseUrl = new URL('index.html', window.location.href);
   const params = new URLSearchParams();
   params.set('module', moduleId);
@@ -270,7 +303,12 @@ function launchAssignment(assignment) {
   if (assignment.quiz_config && assignment.quiz_config.time !== undefined && assignment.quiz_config.time !== null) {
     params.set('time', assignment.quiz_config.time);
   }
-  if (assignment.quiz_config && assignment.quiz_config.level !== undefined && assignment.quiz_config.level !== null) {
+  if (
+    usesLevels &&
+    assignment.quiz_config &&
+    assignment.quiz_config.level !== undefined &&
+    assignment.quiz_config.level !== null
+  ) {
     params.set('level', assignment.quiz_config.level);
   }
   if (assignment.module_title) params.set('title', assignment.module_title);
