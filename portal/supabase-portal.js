@@ -391,6 +391,7 @@ function updateAssignmentLevelField(moduleId = state.assignmentDraft.moduleId) {
   const input = elements.assignmentLevelInput;
   if (field) {
     field.classList.toggle('hidden', !usesLevels);
+    field.hidden = !usesLevels;
   }
   if (input) {
     input.disabled = !usesLevels;

@@ -604,6 +604,7 @@ function openConfig(moduleId){
   }
   if (levelWrap) {
     levelWrap.classList.toggle('hidden', !usesLevels);
+    levelWrap.hidden = !usesLevels;
   }
 
   // Opcions específiques
