@@ -1918,6 +1918,80 @@ const SUBS_MORF = [
         'Fer el pagament addicional al banc'
       ],
       answer: 'Emplenar el formulari en línia per demanar el menú sense gluten'
+    },
+
+    // Activitats i serveis complementaris
+    {
+      title: 'Taller de cuina intercultural',
+      passage: 'El divendres 14 d\'abril a les 17.00 h farem un taller de cuina intercultural a la cuina pedagògica. Cada alumne ha de portar un ingredient típic del seu país ja rentat i tallat. L\'escola facilitarà els estris i els fogons. Cal confirmar assistència abans de dimecres.',
+      question: 'Què ha de portar cada alumne?',
+      options: [
+        'Un ingredient típic del seu país rentat i tallat',
+        'Els estris de cuina de casa seva',
+        'Una recepta escrita en català',
+        'Només la confirmació d\'assistència'
+      ],
+      answer: 'Un ingredient típic del seu país rentat i tallat'
+    },
+    {
+      title: "Normes de l'aula d'estudi",
+      passage: "L'aula d'estudi obre de dilluns a dijous de 16.00 a 18.00 h. Cal entrar en silenci, deixar les motxilles a les prestatgeries i utilitzar auriculars si es mira un vídeo. Si s'ha de sortir uns minuts, s'ha d'avisar a la persona responsable.",
+      question: 'Què han de fer si necessiten sortir una estona?',
+      options: [
+        'Marxar sense avisar per no molestar',
+        'Avisar a la persona responsable',
+        'Deixar la cadira buida amb els llibres',
+        'Apuntar el nom en una llista a la porta'
+      ],
+      answer: 'Avisar a la persona responsable'
+    },
+    {
+      title: 'Revisió mèdica escolar',
+      passage: 'El centre de salut passarà revisió mèdica dilluns vinent al gimnàs. Cada alumne ha de portar la targeta sanitària i una autorització signada. Qui no la presenti farà la revisió en una altra data.',
+      question: 'Què és imprescindible portar el dia de la revisió?',
+      options: [
+        'Només l\'esmorzar i aigua',
+        'La targeta sanitària i l\'autorització signada',
+        'La motxilla amb roba esportiva',
+        'Un informe de notes del trimestre'
+      ],
+      answer: "La targeta sanitària i l'autorització signada"
+    },
+    {
+      title: 'Setmana de la Ciència',
+      passage: 'Durant la Setmana de la Ciència hi haurà tallers cada dia. Dimarts es fa un experiment de química a l\'aula d\'acollida, dimecres una xerrada sobre energia i dijous una visita al laboratori de robòtica. Cal inscriure\'s només per a l\'activitat de dijous.',
+      question: 'Per a quina activitat cal inscripció prèvia?',
+      options: [
+        "Per a l'experiment de química de dimarts",
+        "Per a la xerrada sobre energia de dimecres",
+        'Per a la visita al laboratori de robòtica de dijous',
+        'Per al descans de divendres'
+      ],
+      answer: 'Per a la visita al laboratori de robòtica de dijous'
+    },
+    {
+      title: 'Club de lectura de primavera',
+      passage: 'El club de lectura de primavera es reuneix cada dues setmanes a la biblioteca. La primera trobada serà el 3 de maig a les 16.30 h per comentar els capítols 1 i 2 del llibre triat. A la segona trobada, el 17 de maig, es parlarà dels capítols 3 i 4.',
+      question: 'Quan es farà la primera trobada del club de lectura?',
+      options: [
+        'El 3 de maig a les 16.30 h',
+        'El 10 de maig a les 16.30 h',
+        'El 17 de maig a les 15.00 h',
+        'El 24 de maig a les 17.00 h'
+      ],
+      answer: 'El 3 de maig a les 16.30 h'
+    },
+    {
+      title: "Servei d'acollida matinal",
+      passage: "L'escola ofereix servei d'acollida matinal per a les famílies que entren a treballar aviat. El servei funciona de 7.45 a 8.25 h a la sala de psicomotricitat. Cal inscriure els infants mitjançant el formulari en línia i portar un esmorzar lleuger.",
+      question: "En quin horari funciona el servei d'acollida matinal?",
+      options: [
+        'De 6.45 a 7.15 h',
+        'De 7.45 a 8.25 h',
+        'De 8.30 a 9.15 h',
+        'De 9.30 a 10.00 h'
+      ],
+      answer: 'De 7.45 a 8.25 h'
     }
   ];
 
