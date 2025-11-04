@@ -2027,6 +2027,31 @@ function genCatLect(level, _opts = {}){
     }
   };
 
+  const LecturaConfig = {
+    render(){
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div class="section-title">Comprensió lectora · Subtemes</div>
+        <div class="controls">
+          <div class="group" role="group" aria-label="Subtemes de comprensió lectora">
+            ${SUBS_LECT.map((s,i)=>`
+              <label class="toggle">
+                <input class="check" type="radio" name="cat-lect-sub" value="${s.key}" ${i===0?'checked':''}>
+                ${s.label}
+              </label>
+            `).join('')}
+          </div>
+        </div>
+        <div class="subtitle">Textos breus amb preguntes de comprensió literal i inferencial.</div>
+      `;
+      return wrap;
+    },
+    collect(){
+      const v = (document.querySelector('input[name="cat-lect-sub"]:checked') || {}).value || 'instruccions';
+      return { sub: v };
+    }
+  };
+
   /* ========== MÒDULS ========== */
   const CAT_MODULES = [
     {
