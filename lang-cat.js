@@ -1820,7 +1820,8 @@ const SUBS_MORF = [
 ];
 
   /* ========== BANCS D'EXERCICIS (COMPRENSIÓ LECTORA) ========== */
-  const BANK_LECT_INSTRUCCIONS = [
+  const BANK_LECT = [
+    // Instruccions de l'escola
     {
       title: 'Sortida de ciències',
       passage: 'Demà anirem al jardí botànic. Cal portar el quadern de ciències, llapis i una ampolla d\'aigua petita. Sortirem a les 9.30 h des de la porta principal. Si plou, utilitzarem el recinte cobert del pati.',
@@ -1856,10 +1857,9 @@ const SUBS_MORF = [
         'Encendre la calefacció'
       ],
       answer: 'Deixar les motxilles a les taquilles'
-    }
-  ];
+    },
 
-  const BANK_LECT_HORARIS = [
+    // Horaris i rutines
     {
       title: 'Horari del dilluns',
       passage: "A l'aula d'acollida, el dilluns comença amb tutoria de 8.30 a 9.00 h. Després hi ha català fins a les 10.30 h i un descans de 30 minuts. A les 11.00 h fan matemàtiques i acaben amb educació física a les 12.30 h.",
@@ -1885,10 +1885,9 @@ const SUBS_MORF = [
         'La setmana abans de cada prova'
       ],
       answer: "El 20 de març a les 11.30 h"
-    }
-  ];
+    },
 
-  const BANK_LECT_AVISOS = [
+    // Avisos a les famílies
     {
       title: 'Reunió amb les famílies',
       passage: "L'escola envia aquest avís: \"Dijous 5 d'octubre a les 18.00 h farem una reunió per explicar el projecte d'aula d'acollida. Es farà a la sala polivalent. Hi haurà servei de traducció al castellà i àrab.\"",
@@ -1922,11 +1921,14 @@ const SUBS_MORF = [
     }
   ];
 
-  const SUBS_LECT = [
-    { key: 'instruccions', label: "Instruccions de l'escola", bank: BANK_LECT_INSTRUCCIONS },
-    { key: 'horaris', label: 'Horaris i rutines', bank: BANK_LECT_HORARIS },
-    { key: 'avisos', label: 'Avisos a les famílies', bank: BANK_LECT_AVISOS }
-  ];
+  function renderReadingPassage(raw){
+    return String(raw)
+      .split(/\r?\n+/)
+      .map(part => part.trim())
+      .filter(Boolean)
+      .map(part => `<p>${part}</p>`)
+      .join('');
+  }
 
   /* ========== GENERADORS ========== */
   function genCatOrt(level, opts = {}){
@@ -1955,19 +1957,20 @@ function genCatMorf(level, opts = {}){
   };
 }
 
-function genCatLect(level, opts = {}){
-  const subKey = opts.sub || 'instruccions';
-  const sub = SUBS_LECT.find(s => s.key === subKey) || SUBS_LECT[0];
-  const q = choice(sub.bank);
-  const text = [
-    `<div class="reading-passage"><strong>${q.title}</strong></div>`,
-    `<div class="reading-passage">${q.passage}</div>`,
-    `<div class="reading-question">${q.question}</div>`
-  ].join('');
+function genCatLect(level, _opts = {}){
+  const q = choice(BANK_LECT);
+  const passageHtml = renderReadingPassage(q.passage) || `<p>${q.passage}</p>`;
+  const text = `
+    <div class="reading-card">
+      <div class="reading-card__title">${q.title}</div>
+      <div class="reading-card__passage">${passageHtml}</div>
+      <div class="reading-card__question"><span class="reading-card__question-label">Pregunta</span><p>${q.question}</p></div>
+    </div>
+  `;
   const options = Array.isArray(q.options) ? q.options.slice() : null;
   return {
     type: 'cat-lect',
-    text,
+    text: text.trim(),
     answer: q.answer,
     options,
     input: options ? 'choice' : 'text'
@@ -2072,8 +2075,7 @@ id: 'cat-morf',
       name: 'Comprensió lectora bàsica',
       desc: 'Textos curts sobre instruccions, horaris i avisos.',
       category: 'cat',
-      gen: genCatLect,
-      config: LecturaConfig
+      gen: genCatLect
     }
   ];
 
