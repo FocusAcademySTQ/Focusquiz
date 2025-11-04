@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FocusQuiz · Càpsula · Accent en català (nivell bàsic)</title>
+  <meta name="description" content="Càpsula bàsica per descobrir quan s'accentuen les paraules agudes, planes i esdrúixoles amb exemples visuals i pràctica autocorrectiva." />
+  <style>
+    :root{
+      --bg:#f8fafc;--card:#ffffff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;
+      --brand:#c4b5fd;--brand2:#a855f7;--brand3:#fbcfe8;--ok:#16a34a;--bad:#dc2626;
+      --shadow:0 10px 30px rgba(15,23,42,0.08);--focus:#7bb0ff;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg);min-height:100vh;position:relative;}
+    body::before{
+      content:"";position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 20% -10%,rgba(196,181,253,0.35),transparent 55%),radial-gradient(circle at 80% 0,rgba(248,215,248,0.32),transparent 60%),linear-gradient(180deg,#f8fafc,#eef2ff 70%);
+    }
+    section{max-width:960px;margin:0 auto;padding:20px 16px 32px;display:grid;gap:18px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow)}
+    h1,h2{margin:6px 0 12px}
+    p{margin:0 0 12px}
+    .muted{color:var(--muted)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .topbar{justify-content:space-between}
+    .btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:10px 16px;background:linear-gradient(135deg,var(--brand),var(--brand3));color:#0b1220;font-weight:600;cursor:pointer;box-shadow:0 4px 16px rgba(2,8,23,0.08);text-decoration:none;}
+    .btn:hover{transform:translateY(-1px)}
+    .btn:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:rgba(124,58,237,0.1);color:#6d28d9;font-weight:600;font-size:.85rem;letter-spacing:.03em;text-transform:uppercase}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .grid{display:grid;gap:16px}
+    .tri-grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .tri-grid .card{background:linear-gradient(180deg,rgba(196,181,253,0.18),rgba(255,255,255,0.9))}
+    .card ul{margin:0 0 12px 18px;padding:0;display:grid;gap:6px}
+    .card li{margin:0}
+    .steps{counter-reset:step;display:grid;gap:12px}
+    .steps li{list-style:none;position:relative;padding-left:38px}
+    .steps li::before{counter-increment:step;content:counter(step);position:absolute;left:0;top:2px;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;font-weight:700;display:grid;place-items:center}
+    table{width:100%;border-collapse:collapse;font-size:.95rem}
+    th,td{padding:10px;border:1px solid var(--line);text-align:left}
+    th{background:rgba(196,181,253,0.16);font-weight:700}
+    tbody tr:nth-child(even){background:rgba(241,245,249,0.7)}
+    mark{background:rgba(255,237,213,0.8);padding:2px 4px;border-radius:6px}
+    #quiz{display:grid;gap:16px}
+    #quiz .question-card{padding:18px;border-radius:16px;border:1px solid rgba(148,163,184,0.4);background:linear-gradient(180deg,#ffffff,rgba(226,232,240,0.5));box-shadow:var(--shadow)}
+    .choices{display:grid;gap:10px}
+    .choice-btn{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;text-align:left;font-weight:600;cursor:pointer;transition:.2s border-color,.2s transform}
+    .choice-btn:hover{border-color:var(--brand2);transform:translateY(-1px)}
+    .choice-btn[disabled]{opacity:.55;cursor:not-allowed}
+    .feedback{font-weight:600}
+    .ok{color:var(--ok)}
+    .bad{color:var(--bad)}
+    .tag{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;color:#334155;font-weight:600}
+    .note{font-size:.92rem;color:#475569;margin:6px 0 0}
+    @media (max-width:640px){
+      section{padding:16px 12px 28px}
+      .btn{width:100%;justify-content:center}
+      .topbar{gap:10px}
+    }
+  </style>
+</head>
+<body>
+  <section id="capsule">
+    <div class="row topbar" aria-label="Navegació i opcions">
+      <a class="btn" href="capsules.html">← Torna al menú</a>
+      <button class="btn" id="contrastToggle" type="button">🌓 Mode contrast</button>
+    </div>
+
+    <article class="card" id="intro">
+      <p class="pill">Llengua · nivell inicial</p>
+      <h1>Com accentuem en català?</h1>
+      <p>En aquesta càpsula repassaràs quan porten accent les paraules <strong>agudes</strong>, <strong>planes</strong> i <strong>esdrúixoles</strong>. T’ajudarem amb una guia visual, exemples i un petit qüestionari autocorrectiu.</p>
+      <p class="muted">Durada orientativa: 15 minuts · Objectiu: reconèixer el tipus de paraula i aplicar la norma bàsica d’accentuació.</p>
+    </article>
+
+    <article class="grid tri-grid" aria-labelledby="mapa-tipus">
+      <h2 id="mapa-tipus" class="sr-only">Mapa visual dels tipus de paraules</h2>
+      <div class="card" role="group" aria-labelledby="agudes-title">
+        <h3 id="agudes-title">Paraules agudes</h3>
+        <p>La síl·laba tònica és l’<mark>última</mark>. S’accentuen si acaben en <strong>vocal</strong>, <strong>-as</strong>, <strong>-es</strong>, <strong>-is</strong>, <strong>-os</strong>, <strong>-us</strong>, <strong>-en</strong> o <strong>-in</strong>.</p>
+        <ul>
+          <li>caf<strong>é</strong>, cami<strong>ó</strong>, ciutad<strong>à</strong></li>
+          <li>perd<strong>ó</strong>, men<strong>ú</strong>, camins<strong>é</strong></li>
+        </ul>
+      </div>
+      <div class="card" role="group" aria-labelledby="planes-title">
+        <h3 id="planes-title">Paraules planes</h3>
+        <p>La síl·laba tònica és la <mark>penúltima</mark>. S’accentuen si <strong>no</strong> acaben en vocal, ni en <strong>-as</strong>, <strong>-es</strong>, <strong>-is</strong>, <strong>-os</strong>, <strong>-us</strong>.</p>
+        <ul>
+          <li>tàndem, fàcil, tèxtil</li>
+          <li>càlcul, règim, àngel</li>
+        </ul>
+      </div>
+      <div class="card" role="group" aria-labelledby="esdruixoles-title">
+        <h3 id="esdruixoles-title">Paraules esdrúixoles</h3>
+        <p>La síl·laba tònica és l’<mark>antepenúltima</mark>. <strong>Sempre</strong> porten accent.</p>
+        <ul>
+          <li>música, pàgina, insòlit</li>
+          <li>làmpada, números, mèdula</li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="card" aria-labelledby="passos">
+      <h2 id="passos">Passos ràpids per decidir si cal accent</h2>
+      <ol class="steps">
+        <li><strong>Separa la paraula en síl·labes</strong> i detecta quina sona més forta.</li>
+        <li><strong>Classifica</strong> la paraula: aguda (última), plana (penúltima) o esdrúixola (antepenúltima).</li>
+        <li><strong>Mira la terminació</strong>: aplica la norma corresponent i decideix si necessita accent.</li>
+        <li><strong>Repassa la grafia</strong>: recorda els dígrafs (ia, ie, io) i l’ús de la dièresi quan cal separar vocals.</li>
+      </ol>
+      <p class="note">Recorda: els monosíl·labs només s’accentuen si hi ha <em>dièresi</em> o <em>accents diacrítics</em> (bàsic: més/mes, déu/deu, sóna/sona).</p>
+    </article>
+
+    <article class="card" aria-labelledby="taula-exemples">
+      <h2 id="taula-exemples">Exemples bàsics</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Tipus</th>
+            <th scope="col">Paraula</th>
+            <th scope="col">Motiu de l’accent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tag">Aguda</td>
+            <td>perdó</td>
+            <td>Acaba en vocal → accent.</td>
+          </tr>
+          <tr>
+            <td class="tag">Aguda</td>
+            <td>germà</td>
+            <td>Acaba en -à (vocal) → accent.</td>
+          </tr>
+          <tr>
+            <td class="tag">Plana</td>
+            <td>túnel</td>
+            <td>No acaba en vocal → accent.</td>
+          </tr>
+          <tr>
+            <td class="tag">Plana</td>
+            <td>àngels</td>
+            <td>Acaba en consonant diferent de -s sonora → accent.</td>
+          </tr>
+          <tr>
+            <td class="tag">Esdrúixola</td>
+            <td>música</td>
+            <td>Totes les esdrúixoles s’accentuen.</td>
+          </tr>
+          <tr>
+            <td class="tag">Esdrúixola</td>
+            <td>pòlissa</td>
+            <td>Totes les esdrúixoles s’accentuen.</td>
+          </tr>
+        </tbody>
+      </table>
+    </article>
+
+    <article class="card" aria-labelledby="estrategies">
+      <h2 id="estrategies">Estratègies de suport</h2>
+      <ul>
+        <li><strong>Escolta la paraula</strong>: si l’última síl·laba sona forta, pensa si acaba en vocal o -n/-s → segurament porta accent.</li>
+        <li><strong>Marca les síl·labes</strong> amb barres: <em>ca-/fé</em>, <em>àr-/bre</em>, <em>nú-/me-/ros</em>.</li>
+        <li><strong>Relaciona amb la teva llengua</strong>: busca paraules similars en castellà o francès per recordar l’accentuació.</li>
+        <li><strong>Utilitza colors</strong>: pinta la síl·laba tònica amb un retolador diferent.</li>
+      </ul>
+    </article>
+
+    <article class="card" aria-labelledby="quiz-title">
+      <h2 id="quiz-title">Posa-ho en pràctica</h2>
+      <div id="quiz" aria-live="polite"></div>
+      <div class="row" style="justify-content:space-between">
+        <span class="pill" id="score" aria-live="polite">Puntuació: 0/5</span>
+        <button class="btn" id="retry" type="button">Torna a provar</button>
+      </div>
+    </article>
+
+    <article class="card" aria-labelledby="recursos">
+      <h2 id="recursos">Recursos extra</h2>
+      <ul>
+        <li><a href="https://www.escolar.com/ca/catalan/accentuacio" target="_blank" rel="noopener">Quadre resum d’accentuació (EscoLAr)</a></li>
+        <li><a href="https://aplicacions.llengua.gencat.cat/llc/AppJava/index.html" target="_blank" rel="noopener">Diccionari en línia de la Generalitat</a></li>
+        <li><a href="https://www.vocabulari.cat/gramatica/accentuacio" target="_blank" rel="noopener">Activitats interactives addicionals</a></li>
+      </ul>
+    </article>
+  </section>
+
+  <script>
+    const questions=[
+      {word:"cami",correct:"Aguda",explanation:"És aguda perquè la síl·laba forta és l'última. Acaba en vocal → camí."},
+      {word:"tunel",correct:"Plana",explanation:"És plana i acaba en consonant (-l). Les planes en consonant s'accentuen → túnel."},
+      {word:"medula",correct:"Esdrúixola",explanation:"Té la síl·laba forta a l'antepenúltima → mèdula."},
+      {word:"tambe",correct:"Aguda",explanation:"És aguda i acaba en vocal → també."},
+      {word:"regim",correct:"Plana",explanation:"És plana i acaba en consonant diferent de -s sonora → règim."}
+    ];
+
+    const quizEl=document.getElementById('quiz');
+    const scoreEl=document.getElementById('score');
+    const retryBtn=document.getElementById('retry');
+    const contrastToggle=document.getElementById('contrastToggle');
+
+    let state={index:0,score:0,answers:[]};
+
+    function shuffle(array){
+      return array.sort(()=>Math.random()-0.5);
+    }
+
+    function getChoices(){
+      return ["Aguda","Plana","Esdrúixola"];
+    }
+
+    function renderQuestion(){
+      quizEl.innerHTML="";
+      if(state.index>=questions.length){
+        const result=document.createElement('div');
+        result.className='question-card';
+        result.innerHTML=`<h3>Resultat final</h3><p>Has encertat <strong>${state.score}</strong> de ${questions.length} paraules.</p><p class="muted">Fes clic a "Torna a provar" per repetir el qüestionari amb l'ordre canviat.</p>`;
+        quizEl.appendChild(result);
+        scoreEl.textContent=`Puntuació: ${state.score}/${questions.length}`;
+        return;
+      }
+
+      const current=questions[state.index];
+      const card=document.createElement('div');
+      card.className='question-card';
+      card.innerHTML=`<h3>Quin tipus és <strong>${formatWord(current.word)}</strong>?</h3>`;
+      const choicesWrap=document.createElement('div');
+      choicesWrap.className='choices';
+
+      getChoices().forEach(choice=>{
+        const btn=document.createElement('button');
+        btn.className='choice-btn';
+        btn.type='button';
+        btn.textContent=choice;
+        btn.addEventListener('click',()=>selectAnswer(choice,btn));
+        choicesWrap.appendChild(btn);
+      });
+
+      const feedback=document.createElement('p');
+      feedback.className='feedback muted';
+      feedback.id='feedback';
+
+      card.appendChild(choicesWrap);
+      card.appendChild(feedback);
+      quizEl.appendChild(card);
+      scoreEl.textContent=`Puntuació: ${state.score}/${questions.length}`;
+    }
+
+    function formatWord(word){
+      switch(word){
+        case 'cami': return 'camí';
+        case 'tunel': return 'túnel';
+        case 'medula': return 'mèdula';
+        case 'tambe': return 'també';
+        case 'regim': return 'règim';
+        default: return word;
+      }
+    }
+
+    function selectAnswer(choice,btn){
+      const current=questions[state.index];
+      const buttons=[...quizEl.querySelectorAll('.choice-btn')];
+      buttons.forEach(b=>b.disabled=true);
+
+      const feedback=quizEl.querySelector('#feedback');
+      const correct=choice===current.correct;
+      if(correct){
+        state.score+=1;
+        feedback.classList.remove('muted');
+        feedback.classList.add('ok');
+        feedback.textContent=`Correcte! ${current.explanation}`;
+      }else{
+        feedback.classList.remove('muted');
+        feedback.classList.add('bad');
+        feedback.textContent=`No ben bé. ${current.explanation}`;
+      }
+
+      state.index+=1;
+      setTimeout(renderQuestion,900);
+    }
+
+    function restartQuiz(){
+      shuffle(questions);
+      state={index:0,score:0,answers:[]};
+      renderQuestion();
+    }
+
+    retryBtn.addEventListener('click',restartQuiz);
+
+    if(contrastToggle){
+      contrastToggle.addEventListener('click',()=>{
+        document.body.classList.toggle('contrast');
+        if(document.body.classList.contains('contrast')){
+          document.body.style.setProperty('--bg','#0f172a');
+          document.body.style.setProperty('--card','#111c34');
+          document.body.style.setProperty('--ink','#e2e8f0');
+          document.body.style.setProperty('--muted','#cbd5f5');
+          contrastToggle.innerHTML='☀️ Mode clar';
+        }else{
+          document.body.style.removeProperty('--bg');
+          document.body.style.removeProperty('--card');
+          document.body.style.removeProperty('--ink');
+          document.body.style.removeProperty('--muted');
+          contrastToggle.innerHTML='🌓 Mode contrast';
+        }
+      });
+    }
+
+    restartQuiz();
+  </script>
+</body>
+</html>

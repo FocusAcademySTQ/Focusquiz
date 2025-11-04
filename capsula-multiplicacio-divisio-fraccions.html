@@ -20,6 +20,7 @@
     h1,h2{margin:6px 0 10px}
     .muted{color:var(--muted)}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .topbar{justify-content:flex-start}
     .btn{appearance:none;border:0;border-radius:12px;padding:10px 14px;background:linear-gradient(135deg,var(--brand),var(--brand3));color:#0b1220;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(2,8,23,.08);transition:.2s transform}
     .btn:hover{transform:translateY(-1px)}
     .btn:disabled{opacity:.5;cursor:not-allowed}
@@ -45,6 +46,9 @@
 </head>
 <body>
   <section id="capsule">
+    <div class="row topbar" aria-label="Navegació ràpida">
+      <a class="btn" href="capsules.html">← Torna al menú</a>
+    </div>
     <!-- 1) Objectiu -->
     <article class="card" id="blk-1">
       <h1>🎯 Objectiu didàctic</h1>
