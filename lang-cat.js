@@ -2133,14 +2133,18 @@ function genCatLect(level, _opts = {}){
       name: 'Ortografia',
       desc: 'b/v, j/g, s/c/ç/z/x, corregir, r/rr, l/l·l.',
       category: 'cat',
+      usesLevels: false,
+      levelLabel: 'Mode lliure',
       gen: genCatOrt,
       config: OrtografiaConfig
     },
     {
-id: 'cat-morf',
+      id: 'cat-morf',
       name: 'Morfologia',
       desc: 'Subjecte, temps verbals, categories, concordança, funcions sintàctiques.',
       category: 'cat',
+      usesLevels: false,
+      levelLabel: 'Mode lliure',
       gen: genCatMorf,
       config: MorfologiaConfig
     },
@@ -2149,6 +2153,8 @@ id: 'cat-morf',
       name: 'Comprensió lectora bàsica',
       desc: 'Textos curts sobre instruccions, horaris i avisos.',
       category: 'cat',
+      usesLevels: false,
+      levelLabel: 'Mode lliure',
       gen: genCatLect
     }
   ];
