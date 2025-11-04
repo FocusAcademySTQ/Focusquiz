@@ -173,6 +173,12 @@ const morfSubthemes = [
   { value: 'funcions', label: 'Funcions sintàctiques' },
 ];
 
+const lectSubthemes = [
+  { value: 'instruccions', label: "Instruccions de l'escola" },
+  { value: 'horaris', label: 'Horaris i rutines' },
+  { value: 'avisos', label: 'Avisos a les famílies' },
+];
+
 const GEO_BASE_MODES = [
   { value: 'quiz', label: 'Preguntes generals' },
   { value: 'flag', label: 'Banderes' },
@@ -994,6 +1000,51 @@ const morfologiaDefinition = {
   },
 };
 
+function lecturaDefaults() {
+  return { sub: 'instruccions' };
+}
+
+function lecturaNormalize(options = {}) {
+  const defaults = lecturaDefaults();
+  const allowed = lectSubthemes.map((item) => item.value);
+  const sub = allowed.includes(options.sub) ? options.sub : defaults.sub;
+  return { sub };
+}
+
+const lecturaDefinition = {
+  defaults: lecturaDefaults,
+  normalize: lecturaNormalize,
+  render(options = {}) {
+    const opts = lecturaNormalize(options);
+    const radios = lectSubthemes
+      .map((item, index) => `
+        <label class="toggle"><input class="check" type="radio" name="cat-lect-sub" value="${item.value}" ${CHECKED(opts.sub === item.value || (!options.sub && index === 0))}> ${item.label}</label>
+      `)
+      .join('');
+    return createContainer('cat-lect', `
+      <div class="section-title">Subtemes de comprensió lectora</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Subtemes de comprensió lectora">
+          ${radios}
+        </div>
+      </div>
+      <div class="subtitle">Textos breus amb preguntes de comprensió literal i inferencial.</div>
+    `);
+  },
+  collect(card) {
+    const scope = safeQuery(card, '[data-module-config="cat-lect"]');
+    if (!scope) return lecturaDefaults();
+    const sub = getCheckedValue(scope, 'input[name="cat-lect-sub"]:checked', 'instruccions');
+    return lecturaNormalize({ sub });
+  },
+  summarize(options = {}) {
+    const opts = lecturaNormalize(options);
+    const subInfo = lectSubthemes.find((item) => item.value === opts.sub);
+    const subLabel = subInfo && subInfo.label ? subInfo.label : 'Subtema general';
+    return `Subtema: ${subLabel}`;
+  },
+};
+
 const geoEuropeDefinition = createGeoDefinition('geo-europe');
 const geoAmericaDefinition = createGeoDefinition('geo-america');
 const geoAfricaDefinition = createGeoDefinition('geo-africa');
@@ -1191,6 +1242,7 @@ export const MODULE_OPTION_DEFINITIONS = {
   func: functionsDefinition,
   'cat-ort': ortografiaDefinition,
   'cat-morf': morfologiaDefinition,
+  'cat-lect': lecturaDefinition,
   'geo-europe': geoEuropeDefinition,
   'geo-america': geoAmericaDefinition,
   'geo-africa': geoAfricaDefinition,
