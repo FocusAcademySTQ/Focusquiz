@@ -68,6 +68,8 @@ const elements = {
   assignmentFeedback: document.getElementById('assignmentFeedback'),
   assignmentClassSelect: document.getElementById('assignmentClass'),
   assignmentModuleSelect: document.getElementById('assignmentModule'),
+  assignmentLevelField: document.getElementById('assignmentLevelField'),
+  assignmentLevelInput: document.getElementById('assignmentLevelInput'),
   previewModule: document.getElementById('previewModule'),
   moduleConfig: document.getElementById('moduleConfig'),
   moduleConfigCard: document.getElementById('moduleConfigCard'),
@@ -359,6 +361,47 @@ function renderModuleOptions() {
   }
 }
 
+function resolveModuleInfo(moduleOrId) {
+  if (!moduleOrId) return null;
+  if (typeof moduleOrId === 'string') {
+    return MODULES.find((mod) => mod.id === moduleOrId) || null;
+  }
+  if (typeof moduleOrId === 'object' && moduleOrId !== null) {
+    return moduleOrId;
+  }
+  return null;
+}
+
+function moduleSupportsLevels(moduleOrId) {
+  const moduleInfo = resolveModuleInfo(moduleOrId);
+  if (!moduleInfo) return true;
+  return moduleInfo.usesLevels !== false;
+}
+
+function moduleFreeLevelLabel(moduleOrId) {
+  const moduleInfo = resolveModuleInfo(moduleOrId);
+  if (!moduleInfo) return 'Mode lliure';
+  return moduleInfo.levelLabel || 'Mode lliure';
+}
+
+function updateAssignmentLevelField(moduleId = state.assignmentDraft.moduleId) {
+  const moduleInfo = resolveModuleInfo(moduleId);
+  const usesLevels = moduleSupportsLevels(moduleInfo);
+  const field = elements.assignmentLevelField;
+  const input = elements.assignmentLevelInput;
+  if (field) {
+    field.classList.toggle('hidden', !usesLevels);
+  }
+  if (input) {
+    input.disabled = !usesLevels;
+    if (!usesLevels) {
+      input.value = '4';
+    } else if (!input.value) {
+      input.value = '1';
+    }
+  }
+}
+
 function setCurrentModule(moduleId, { preserveQuestions = false, presetOptions = null } = {}) {
   state.assignmentDraft.moduleId = moduleId || '';
   let normalizedOptions = {};
@@ -376,6 +419,7 @@ function setCurrentModule(moduleId, { preserveQuestions = false, presetOptions =
     }
   }
   renderModuleConfigUI(moduleId);
+  updateAssignmentLevelField(moduleId);
 }
 
 function syncAssignmentModuleFromSelect({ preserveQuestions = false } = {}) {
@@ -716,7 +760,15 @@ function renderAssignments() {
     addMeta('Estat', assignmentStatusLabel(assignment.status));
     addMeta('Preguntes', coalesce(quizConfig.count, '—'));
     addMeta('Temps', quizConfig.time ? `${quizConfig.time} min` : 'Sense límit');
-    addMeta('Nivell', coalesce(quizConfig.level, '—'));
+    const moduleInfo = resolveModuleInfo(assignment.module_id);
+    const usesLevels = moduleSupportsLevels(moduleInfo);
+    let levelText;
+    if (usesLevels) {
+      levelText = Number.isFinite(quizConfig.level) && quizConfig.level > 0 ? `Nivell ${quizConfig.level}` : '—';
+    } else {
+      levelText = quizConfig.levelLabel || moduleFreeLevelLabel(moduleInfo);
+    }
+    addMeta('Nivell', levelText);
     if (quizConfig.summary) {
       addMeta('Configuració', quizConfig.summary);
     }
@@ -1454,10 +1506,15 @@ async function createAssignment(formData) {
   const label = labelRaw || `${selectedClassName || ''} · ${moduleName || 'Prova'}`;
   const countRaw = Number.parseInt(formData.get('count'), 10);
   const timeRaw = Number.parseInt(formData.get('time'), 10);
+  const usesLevels = moduleSupportsLevels(module);
   const levelRaw = Number.parseInt(formData.get('level'), 10);
   const count = Number.isFinite(countRaw) ? Math.min(Math.max(countRaw, 1), 200) : null;
   const time = Number.isFinite(timeRaw) ? Math.min(Math.max(timeRaw, 0), 180) : null;
-  const level = Number.isFinite(levelRaw) ? Math.min(Math.max(levelRaw, 1), 4) : null;
+  const level = usesLevels
+    ? (Number.isFinite(levelRaw) ? Math.min(Math.max(levelRaw, 1), 4) : 1)
+    : 4;
+  const storedLevel = usesLevels ? level : 0;
+  const levelLabel = usesLevels ? null : moduleFreeLevelLabel(module);
   const dueAtRaw = readFormValue(formData, 'due_at').trim();
   const notesValue = readFormValue(formData, 'notes').trim();
   const notes = notesValue ? notesValue : null;
@@ -1475,8 +1532,11 @@ async function createAssignment(formData) {
     label,
     count: Number.isFinite(count) ? count : null,
     time: Number.isFinite(time) ? time : 0,
-    level: Number.isFinite(level) ? level : 1,
+    level: storedLevel,
   };
+  if (levelLabel) {
+    quizConfig.levelLabel = levelLabel;
+  }
   const summaryParts = [];
   const optionsSummary = summarizeModuleOptions(moduleId, moduleOptions);
   if (optionsSummary) summaryParts.push(optionsSummary);
@@ -1538,10 +1598,13 @@ async function previewSelectedModule() {
     : `${selectedClassName || 'Classe'} · ${moduleName || 'Prova'}`;
   const countRaw = Number.parseInt(formData.get('count'), 10);
   const timeRaw = Number.parseInt(formData.get('time'), 10);
+  const usesLevels = moduleSupportsLevels(module);
   const levelRaw = Number.parseInt(formData.get('level'), 10);
   const count = Number.isFinite(countRaw) ? Math.min(Math.max(countRaw, 1), 200) : 0;
   const time = Number.isFinite(timeRaw) ? Math.min(Math.max(timeRaw, 0), 180) : 0;
-  const level = Number.isFinite(levelRaw) ? Math.min(Math.max(levelRaw, 1), 4) : 1;
+  const level = usesLevels
+    ? (Number.isFinite(levelRaw) ? Math.min(Math.max(levelRaw, 1), 4) : 1)
+    : 4;
   const moduleOptions = collectModuleOptions();
   const validationError = validateModuleOptions(moduleId, moduleOptions);
   if (validationError) {
@@ -1576,7 +1639,9 @@ async function previewSelectedModule() {
   if (moduleName) url.searchParams.set('title', moduleName);
   if (Number.isFinite(count) && count > 0) url.searchParams.set('count', String(Math.min(Math.max(count, 1), 200)));
   if (Number.isFinite(time) && time > 0) url.searchParams.set('time', String(Math.min(Math.max(time, 0), 180)));
-  if (Number.isFinite(level)) url.searchParams.set('level', String(Math.min(Math.max(level, 1), 4)));
+  if (usesLevels && Number.isFinite(level)) {
+    url.searchParams.set('level', String(Math.min(Math.max(level, 1), 4)));
+  }
   if (encodedOptions) url.searchParams.set('opts', encodedOptions);
   url.searchParams.set('preview', '1');
   url.searchParams.set('autostart', '1');
