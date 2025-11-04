@@ -964,6 +964,65 @@ a.btn-secondary{
 .q{display:grid; gap:12px}
 .q h2{font-size: clamp(1.4rem, 2.8vw, 2.2rem); margin:6px 0}
 .q .meta{color:var(--muted); font-size:.95rem}
+.reading-card{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding:20px;
+  border-radius:18px;
+  border:1px solid rgba(99,102,241,0.18);
+  background:linear-gradient(180deg, rgba(255,255,255,0.98), rgba(232,240,255,0.88));
+  box-shadow:0 18px 42px rgba(15,23,42,0.08);
+}
+.reading-card__title{
+  font-size:clamp(1.1rem, 2.1vw, 1.45rem);
+  font-weight:700;
+  color:var(--ink);
+  padding:12px 16px;
+  border-radius:14px;
+  background:linear-gradient(120deg, rgba(129,140,248,0.22), rgba(59,130,246,0.12));
+  border:1px solid rgba(148,163,184,0.35);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.45);
+}
+.reading-card__passage{
+  font-size:1.02rem;
+  line-height:1.65;
+  color:var(--ink);
+  padding:16px 18px;
+  border-radius:16px;
+  background:linear-gradient(180deg, #ffffff, rgba(236,244,255,0.82));
+  border:1px solid rgba(148,163,184,0.25);
+}
+.reading-card__passage p{margin:0;}
+.reading-card__passage p + p{margin-top:0.9em;}
+.reading-card__question{
+  padding:16px 18px;
+  border-radius:16px;
+  border:1px solid rgba(122,162,255,0.35);
+  background:linear-gradient(95deg, rgba(122,162,255,0.18), rgba(34,197,94,0.12));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,0.45);
+  line-height:1.5;
+}
+.reading-card__question-label{
+  display:block;
+  font-size:0.75rem;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+.reading-card__question p{
+  margin:0;
+  font-size:1.05rem;
+  font-weight:600;
+  color:var(--ink);
+}
+.reading-card__question p + p{margin-top:0.6em;}
+@media (max-width: 640px){
+  .reading-card{padding:18px; gap:12px;}
+  .reading-card__passage{padding:14px 16px;}
+  .reading-card__question{padding:14px 16px;}
+}
 .answer-row{display:flex; gap:10px; align-items:center}
 .answer{flex:1; font-size:1.2rem}
 .quiz.coord-mode .answer-row{flex-wrap:wrap; gap:12px}
