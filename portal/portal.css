@@ -561,6 +561,17 @@
   }
 }
 
+#assignmentsPanel .portal-assignment-grid {
+  padding: clamp(18px, 2.4vw, 26px);
+  border-radius: 26px;
+  border: 1px solid rgba(217, 70, 239, 0.18);
+  background:
+    radial-gradient(460px 280px at 4% 0%, rgba(244, 114, 182, 0.2), transparent 74%),
+    radial-gradient(520px 320px at 110% 120%, rgba(192, 132, 252, 0.2), transparent 76%),
+    linear-gradient(135deg, rgba(253, 242, 248, 0.88), rgba(237, 233, 254, 0.7));
+  box-shadow: 0 36px 96px -54px rgba(217, 70, 239, 0.32);
+}
+
 .portal-assignment-grid__fields {
   margin: 0;
 }
@@ -1080,7 +1091,43 @@
 }
 
 .portal-tabpanel {
+  position: relative;
+  display: grid;
+  gap: clamp(24px, 3vw, 36px);
   margin-top: clamp(18px, 2.4vw, 28px);
+  padding: clamp(18px, 2.5vw, 28px);
+  border-radius: 34px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow: 0 40px 120px -84px rgba(30, 64, 175, 0.45);
+  isolation: isolate;
+  background: linear-gradient(135deg, rgba(248, 250, 252, 0.75), rgba(236, 244, 255, 0.55));
+}
+
+#classesPanel {
+  background:
+    radial-gradient(520px 320px at 0% 8%, rgba(59, 130, 246, 0.26), transparent 70%),
+    radial-gradient(480px 260px at 105% 110%, rgba(129, 140, 248, 0.22), transparent 74%),
+    linear-gradient(135deg, rgba(241, 245, 255, 0.72), rgba(248, 250, 252, 0.5));
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 50px 124px -78px rgba(59, 130, 246, 0.35);
+}
+
+#assignmentsPanel {
+  background:
+    radial-gradient(520px 320px at 6% 12%, rgba(244, 114, 182, 0.24), transparent 74%),
+    radial-gradient(520px 280px at 100% 108%, rgba(192, 132, 252, 0.22), transparent 72%),
+    linear-gradient(135deg, rgba(253, 242, 248, 0.75), rgba(237, 233, 254, 0.52));
+  border-color: rgba(236, 72, 153, 0.22);
+  box-shadow: 0 52px 128px -76px rgba(217, 70, 239, 0.3);
+}
+
+#resultsPanel {
+  background:
+    radial-gradient(520px 320px at 0% 14%, rgba(16, 185, 129, 0.26), transparent 74%),
+    radial-gradient(560px 280px at 100% 100%, rgba(14, 165, 233, 0.18), transparent 72%),
+    linear-gradient(135deg, rgba(236, 253, 245, 0.75), rgba(240, 253, 250, 0.5));
+  border-color: rgba(45, 212, 191, 0.24);
+  box-shadow: 0 52px 128px -76px rgba(13, 148, 136, 0.28);
 }
 
 .portal-subtabs {
@@ -1636,6 +1683,28 @@
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
+#classesPanel #classList {
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 26px;
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  background:
+    radial-gradient(420px 240px at 0% 0%, rgba(125, 211, 252, 0.22), transparent 74%),
+    radial-gradient(420px 220px at 100% 120%, rgba(129, 140, 248, 0.2), transparent 76%),
+    linear-gradient(135deg, rgba(241, 245, 255, 0.82), rgba(248, 250, 252, 0.68));
+  box-shadow: 0 32px 88px -60px rgba(59, 130, 246, 0.32);
+}
+
+#assignmentsPanel #assignmentList {
+  padding: clamp(16px, 2vw, 24px);
+  border-radius: 26px;
+  border: 1px solid rgba(236, 72, 153, 0.22);
+  background:
+    radial-gradient(420px 240px at 6% -6%, rgba(251, 207, 232, 0.26), transparent 76%),
+    radial-gradient(420px 240px at 110% 120%, rgba(221, 214, 254, 0.24), transparent 78%),
+    linear-gradient(135deg, rgba(253, 242, 248, 0.82), rgba(237, 233, 254, 0.68));
+  box-shadow: 0 32px 88px -60px rgba(217, 70, 239, 0.3);
+}
+
 .portal-empty {
   margin-top: 1.25rem;
   padding: 2rem;
@@ -1646,16 +1715,100 @@
   color: rgba(71, 85, 105, 0.85);
 }
 
+#classesPanel .portal-empty {
+  background: rgba(219, 234, 254, 0.55);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #1e3a8a;
+}
+
+#assignmentsPanel .portal-empty {
+  background: rgba(252, 231, 243, 0.58);
+  border-color: rgba(236, 72, 153, 0.42);
+  color: #9d174d;
+}
+
+#resultsPanel .portal-empty {
+  background: rgba(209, 250, 229, 0.6);
+  border-color: rgba(34, 197, 94, 0.42);
+  color: #047857;
+}
+
 .portal-class-card,
 .portal-assignment-card,
 .portal-result-card {
+  position: relative;
   display: grid;
   gap: 0.85rem;
-  padding: 1.25rem;
-  border-radius: 20px;
-  border: 1px solid rgba(148, 163, 184, 0.32);
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 26px 60px -32px rgba(30, 64, 175, 0.4);
+  padding: 1.35rem;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+.portal-class-card > *,
+.portal-assignment-card > *,
+.portal-result-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.portal-class-card {
+  border: 1px solid rgba(96, 165, 250, 0.32);
+  background:
+    radial-gradient(420px 220px at 8% -10%, rgba(56, 189, 248, 0.28), transparent 70%),
+    radial-gradient(420px 240px at 108% 120%, rgba(129, 140, 248, 0.22), transparent 74%),
+    rgba(255, 255, 255, 0.92);
+  box-shadow: 0 32px 68px -36px rgba(59, 130, 246, 0.4);
+}
+
+.portal-class-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  opacity: 0.95;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.portal-assignment-card {
+  border: 1px solid rgba(236, 72, 153, 0.26);
+  background:
+    radial-gradient(480px 260px at 6% -8%, rgba(244, 114, 182, 0.26), transparent 74%),
+    radial-gradient(460px 280px at 110% 120%, rgba(192, 132, 252, 0.22), transparent 76%),
+    rgba(255, 255, 255, 0.92);
+  box-shadow: 0 32px 72px -36px rgba(217, 70, 239, 0.34);
+}
+
+.portal-assignment-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(90deg, #f472b6, #c084fc, #facc15);
+  opacity: 0.95;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.portal-result-card {
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  background:
+    radial-gradient(500px 280px at 6% 0%, rgba(45, 212, 191, 0.26), transparent 74%),
+    radial-gradient(480px 260px at 100% 120%, rgba(56, 189, 248, 0.22), transparent 75%),
+    rgba(255, 255, 255, 0.94);
+  box-shadow: 0 32px 72px -34px rgba(13, 148, 136, 0.32);
+}
+
+.portal-result-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(90deg, #2dd4bf, #34d399, #38bdf8);
+  opacity: 0.95;
+  pointer-events: none;
+  z-index: 2;
 }
 
 .portal-class-card header,
@@ -1719,6 +1872,27 @@
   justify-content: flex-start;
 }
 
+.portal-class-card .portal-chip--muted {
+  background: rgba(56, 189, 248, 0.18);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.42);
+  box-shadow: 0 14px 32px -24px rgba(59, 130, 246, 0.45);
+}
+
+.portal-assignment-card .portal-chip--muted {
+  background: rgba(244, 114, 182, 0.2);
+  color: #be185d;
+  border-color: rgba(236, 72, 153, 0.4);
+  box-shadow: 0 14px 32px -24px rgba(217, 70, 239, 0.45);
+}
+
+.portal-result-card .portal-chip--muted {
+  background: rgba(45, 212, 191, 0.22);
+  color: #047857;
+  border-color: rgba(45, 212, 191, 0.44);
+  box-shadow: 0 14px 32px -24px rgba(13, 148, 136, 0.38);
+}
+
 .portal-class-roster {
   border-top: 1px solid rgba(148, 163, 184, 0.25);
   padding-top: 0.75rem;
@@ -1763,6 +1937,17 @@
   min-width: 0;
 }
 
+#resultsPanel #resultsFilters {
+  padding: clamp(16px, 2.4vw, 24px);
+  border-radius: 24px;
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  background:
+    radial-gradient(420px 240px at 0% 0%, rgba(45, 212, 191, 0.22), transparent 70%),
+    radial-gradient(420px 220px at 100% 120%, rgba(59, 130, 246, 0.18), transparent 74%),
+    linear-gradient(135deg, rgba(236, 253, 245, 0.88), rgba(219, 234, 254, 0.68));
+  box-shadow: 0 32px 86px -52px rgba(14, 165, 233, 0.32);
+}
+
 
 .portal-results-table-wrapper {
   display: flex;
@@ -1770,12 +1955,12 @@
   gap: 0.85rem;
   padding: 1rem clamp(0.75rem, 2vw, 1.25rem) clamp(1rem, 2.2vw, 1.4rem);
   border-radius: 24px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
+  border: 1px solid rgba(45, 212, 191, 0.26);
   background:
-    radial-gradient(480px 260px at 12% 8%, rgba(191, 219, 254, 0.28), transparent 70%),
-    radial-gradient(520px 320px at 90% -15%, rgba(196, 181, 253, 0.18), transparent 65%),
-    rgba(255, 255, 255, 0.92);
-  box-shadow: 0 28px 62px -34px rgba(30, 64, 175, 0.35);
+    radial-gradient(520px 280px at 10% 6%, rgba(45, 212, 191, 0.22), transparent 72%),
+    radial-gradient(520px 320px at 96% -12%, rgba(56, 189, 248, 0.2), transparent 68%),
+    linear-gradient(135deg, rgba(236, 253, 245, 0.9), rgba(219, 234, 254, 0.76));
+  box-shadow: 0 32px 88px -48px rgba(14, 165, 233, 0.32);
 }
 
 .portal-results-column-nav {
@@ -2035,8 +2220,9 @@
   justify-content: center;
   padding: 0.75rem 1.5rem;
   border-radius: 16px;
-  background: rgba(34, 197, 94, 0.12);
-  color: #166534;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(45, 212, 191, 0.28));
+  color: #0f766e;
+  box-shadow: 0 18px 42px -28px rgba(13, 148, 136, 0.42);
   font-size: clamp(2.25rem, 4vw, 3rem);
   font-weight: 700;
   line-height: 1;
