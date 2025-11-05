@@ -24,57 +24,72 @@
 
   <main class="wrap portal-main">
     <section class="panel card portal-hero">
-      <h1>Gestiona classes, proves i notes</h1>
-      <p class="subtitle">
-        Crea una classe amb els alumnes, assigna qualsevol mòdul FocusQuiz i comparteix el codi perquè l'alumnat faci la prova sense
-        registrar-se.
-      </p>
-      <div id="configWarning" class="portal-alert hidden">
-        Configura les claus Supabase a <code>SUPABASE_URL</code> i <code>SUPABASE_ANON_KEY</code> mitjançant variables d'entorn.
+      <div class="portal-hero-body">
+        <p class="portal-hero-kicker">Portal docent</p>
+        <h1>Gestiona classes, proves i notes</h1>
+        <p class="subtitle">
+          Crea una classe amb els alumnes, assigna qualsevol mòdul FocusQuiz i comparteix el codi perquè l'alumnat faci la prova sense
+          registrar-se.
+        </p>
+        <ul class="portal-hero-highlights">
+          <li>Organitza classes en pocs segons.</li>
+          <li>Configura proves amb opcions personalitzades.</li>
+          <li>Consulta resultats en directe des del centre.</li>
+        </ul>
+        <div id="configWarning" class="portal-alert hidden">
+          Configura les claus Supabase a <code>SUPABASE_URL</code> i <code>SUPABASE_ANON_KEY</code> mitjançant variables d'entorn.
+        </div>
+      </div>
+      <div class="portal-hero-graphic" aria-hidden="true">
+        <span class="portal-hero-orb"></span>
+        <span class="portal-hero-orb portal-hero-orb--secondary"></span>
+        <span class="portal-hero-grid"></span>
       </div>
     </section>
 
-    <section id="authPanel" class="panel card">
-      <h2 style="margin-bottom:0.75rem">Inicia sessió com a docent</h2>
-      <form id="loginForm" class="portal-form" autocomplete="on">
-        <label>
-          <span class="portal-field-label">Correu electrònic</span>
-          <input class="input" name="email" type="email" required placeholder="docent@centre.cat" autocomplete="username" />
-        </label>
-        <label>
-          <span class="portal-field-label">Contrasenya</span>
-          <input class="input" name="password" type="password" required placeholder="••••••" autocomplete="current-password" />
-        </label>
-        <button class="btn-primary" type="submit">Entrar</button>
-      </form>
-      <div id="authError" class="portal-error hidden"></div>
-    </section>
+    <div class="portal-auth-grid">
+      <section id="authPanel" class="panel card">
+        <h2 style="margin-bottom:0.75rem">Inicia sessió com a docent</h2>
+        <form id="loginForm" class="portal-form" autocomplete="on">
+          <label>
+            <span class="portal-field-label">Correu electrònic</span>
+            <input class="input" name="email" type="email" required placeholder="docent@centre.cat" autocomplete="username" />
+          </label>
+          <label>
+            <span class="portal-field-label">Contrasenya</span>
+            <input class="input" name="password" type="password" required placeholder="••••••" autocomplete="current-password" />
+          </label>
+          <button class="btn-primary" type="submit">Entrar</button>
+        </form>
+        <div id="authError" class="portal-error hidden"></div>
+      </section>
 
-    <section id="registerPanel" class="panel card">
-      <h2 style="margin-bottom:0.75rem">Encara no tens compte docent?</h2>
-      <p class="portal-muted" style="margin-top:0; margin-bottom:1rem;">
-        Registra't amb el teu correu de centre. Només el professorat pot accedir al gestor de classes.
-      </p>
-      <form id="signupForm" class="portal-form portal-form--two" autocomplete="on">
-        <label>
-          <span class="portal-field-label">Nom i cognoms</span>
-          <input class="input" name="full_name" type="text" required placeholder="Nom complet" autocomplete="name" />
-        </label>
-        <label>
-          <span class="portal-field-label">Correu professional</span>
-          <input class="input" name="signup_email" type="email" required placeholder="docent@centre.cat" autocomplete="email" />
-        </label>
-        <label>
-          <span class="portal-field-label">Contrasenya</span>
-          <input class="input" name="signup_password" type="password" minlength="6" required placeholder="Almenys 6 caràcters" autocomplete="new-password" />
-        </label>
-        <div class="portal-actions" style="margin-top:0.5rem;">
-          <button class="btn-secondary" type="submit">Crear compte docent</button>
-        </div>
-      </form>
-      <div id="signupSuccess" class="portal-success hidden" role="status" aria-live="polite" style="margin-top:1rem"></div>
-      <div id="signupError" class="portal-error hidden" role="alert" style="margin-top:1rem"></div>
-    </section>
+      <section id="registerPanel" class="panel card">
+        <h2 style="margin-bottom:0.75rem">Encara no tens compte docent?</h2>
+        <p class="portal-muted" style="margin-top:0; margin-bottom:1rem;">
+          Registra't amb el teu correu de centre. Només el professorat pot accedir al gestor de classes.
+        </p>
+        <form id="signupForm" class="portal-form portal-form--two" autocomplete="on">
+          <label>
+            <span class="portal-field-label">Nom i cognoms</span>
+            <input class="input" name="full_name" type="text" required placeholder="Nom complet" autocomplete="name" />
+          </label>
+          <label>
+            <span class="portal-field-label">Correu professional</span>
+            <input class="input" name="signup_email" type="email" required placeholder="docent@centre.cat" autocomplete="email" />
+          </label>
+          <label>
+            <span class="portal-field-label">Contrasenya</span>
+            <input class="input" name="signup_password" type="password" minlength="6" required placeholder="Almenys 6 caràcters" autocomplete="new-password" />
+          </label>
+          <div class="portal-actions" style="margin-top:0.5rem;">
+            <button class="btn-secondary" type="submit">Crear compte docent</button>
+          </div>
+        </form>
+        <div id="signupSuccess" class="portal-success hidden" role="status" aria-live="polite" style="margin-top:1rem"></div>
+        <div id="signupError" class="portal-error hidden" role="alert" style="margin-top:1rem"></div>
+      </section>
+    </div>
 
     <section id="sessionPanel" class="panel card hidden">
       <div class="portal-section-header">
