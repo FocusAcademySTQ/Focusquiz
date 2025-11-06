@@ -471,6 +471,25 @@ function renderModuleConfigUI(moduleId) {
   handleModuleConfigChanged({ fromUser: false });
 }
 
+function invalidateQuestionSet(noticeText) {
+  const hadCustomQuestions = Array.isArray(state.assignmentDraft.questionSet)
+    && state.assignmentDraft.questionSet.length > 0;
+  const hadPreviewToken = Boolean(state.assignmentDraft.previewToken);
+  if (!hadCustomQuestions && !hadPreviewToken) {
+    return false;
+  }
+  if (hadCustomQuestions) {
+    state.assignmentDraft.questionSet = [];
+  }
+  if (hadPreviewToken) {
+    state.assignmentDraft.previewToken = '';
+    closePreviewChannel();
+  }
+  state.assignmentDraft.notice = noticeText || '';
+  updateModuleSummary();
+  return true;
+}
+
 function handleModuleConfigChanged({ fromUser = false } = {}) {
   const moduleId = state.assignmentDraft.moduleId;
   if (!moduleId) {
@@ -489,14 +508,35 @@ function handleModuleConfigChanged({ fromUser = false } = {}) {
   const changed = previous !== next;
   state.assignmentDraft.options = normalized;
   if (fromUser && changed) {
-    if (state.assignmentDraft.questionSet.length) {
-      state.assignmentDraft.questionSet = [];
+    const cleared = invalidateQuestionSet(
+      'Has canviat les opcions. Previsualitza de nou per regenerar les preguntes.'
+    );
+    if (!cleared) {
+      state.assignmentDraft.notice = 'Has canviat les opcions. Previsualitza de nou per regenerar les preguntes.';
+      updateModuleSummary();
     }
-    state.assignmentDraft.notice = 'Has canviat les opcions. Previsualitza de nou per regenerar les preguntes.';
-  } else if (!fromUser && !state.assignmentDraft.questionSet.length) {
+    return;
+  }
+  if (!fromUser && !state.assignmentDraft.questionSet.length) {
     state.assignmentDraft.notice = '';
   }
   updateModuleSummary();
+}
+
+function handleBaseQuizConfigChanged(reason) {
+  const hasCustomSet = Array.isArray(state.assignmentDraft.questionSet)
+    && state.assignmentDraft.questionSet.length > 0;
+  const hasPreviewToken = Boolean(state.assignmentDraft.previewToken);
+  if (!hasCustomSet && !hasPreviewToken) return;
+
+  let notice = 'Has actualitzat la configuració de la prova. Previsualitza de nou per regenerar les preguntes.';
+  if (reason === 'count') {
+    notice = 'Has canviat el nombre de preguntes. Previsualitza de nou per regenerar-les.';
+  } else if (reason === 'level') {
+    notice = 'Has canviat el nivell. Previsualitza de nou per regenerar les preguntes.';
+  }
+
+  invalidateQuestionSet(notice);
 }
 
 function updateModuleSummary() {
@@ -1861,11 +1901,22 @@ function setupEventListeners() {
       const formData = new FormData(elements.assignmentForm);
       createAssignment(formData);
     });
+    const countInput = elements.assignmentForm.querySelector('input[name="count"]');
+    if (countInput) {
+      const handleCountChanged = () => handleBaseQuizConfigChanged('count');
+      countInput.addEventListener('input', handleCountChanged);
+      countInput.addEventListener('change', handleCountChanged);
+    }
   }
   if (elements.assignmentModuleSelect) {
     elements.assignmentModuleSelect.addEventListener('change', () => {
       syncAssignmentModuleFromSelect();
     });
+  }
+  if (elements.assignmentLevelInput) {
+    const handleLevelChanged = () => handleBaseQuizConfigChanged('level');
+    elements.assignmentLevelInput.addEventListener('input', handleLevelChanged);
+    elements.assignmentLevelInput.addEventListener('change', handleLevelChanged);
   }
   if (elements.previewModule) {
     elements.previewModule.addEventListener('click', previewSelectedModule);
