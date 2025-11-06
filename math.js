@@ -432,6 +432,7 @@ const labelText = (x,y,text)=> `<text class="svg-label" x="${x}" y="${y}">${text
 let circleFigId = 0;
 let polyFigId = 0;
 let compositeFigId = 0;
+let triSidesFigId = 0;
 
 function dimLineOutside(x1,y1,x2,y2,text,offset=16, orient='h'){
   if(orient==='h'){
@@ -478,6 +479,64 @@ function svgTriFig(b,h,units){
   <line x1="${C[0]}" y1="${C[1]}" x2="${Hx}" y2="${Hy}" stroke="#1f2937" stroke-dasharray="3 3"/>
   ${labelText(Hx+6, (C[1]+Hy)/2, `altura = ${h} ${units}`)}
   ${dimLineOutside(A[0], B[1], B[0], B[1], `base = ${b} ${units}`, 18, 'h')}
+  </svg>`;
+}
+
+function svgTriangleSidesFig(a,b,c,units){
+  const W=360, H=240, pad=14, rx=16;
+  const sides = [a,b,c];
+  const baseIndex = sides.indexOf(Math.max(...sides));
+  const baseLength = sides[baseIndex];
+  const otherIdx = [0,1,2].filter(i => i !== baseIndex);
+  const sideAC = sides[otherIdx[0]];
+  const sideBC = sides[otherIdx[1]];
+  const projectionRaw = (sideAC*sideAC + baseLength*baseLength - sideBC*sideBC) / (2*baseLength);
+  const projection = Math.min(Math.max(projectionRaw, 0), baseLength);
+  const heightRaw = Math.sqrt(Math.max(sideAC*sideAC - projection*projection, 1e-4));
+  const baseMargin = 32;
+  const baseY = H - 60;
+  const maxBaseSpan = W - 2*baseMargin;
+  const scale = Math.min(maxBaseSpan / baseLength, (baseY - (pad + 20)) / heightRaw);
+  const safeScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
+  const baseSpan = baseLength * safeScale;
+  const id = `triSides${++triSidesFigId}`;
+  const A = [ (W - baseSpan)/2, baseY ];
+  const B = [ A[0] + baseSpan, baseY ];
+  const C = [ A[0] + projection * safeScale, baseY - heightRaw * safeScale ];
+
+  function edgeLabel(p1, p2, text, offset){
+    const dx = p2[0] - p1[0];
+    const dy = p2[1] - p1[1];
+    const len = Math.hypot(dx, dy) || 1;
+    const nx = -dy / len;
+    const ny = dx / len;
+    const midX = (p1[0] + p2[0]) / 2;
+    const midY = (p1[1] + p2[1]) / 2;
+    const off = offset ?? 22;
+    const lx = midX + nx * off;
+    const ly = midY + ny * off;
+    return `<text class="svg-label" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}">${text}</text>`;
+  }
+
+  const baseText = `${baseLength} ${units}`;
+  const leftText = `${sideAC} ${units}`;
+  const rightText = `${sideBC} ${units}`;
+
+  return `
+    <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Triangle (costats)"><defs>
+      <linearGradient id="triSidesGrad${id}" x1="0" x2="1">
+        <stop offset="0" stop-color="#fbcfe8"/>
+        <stop offset="1" stop-color="#bfdbfe"/>
+      </linearGradient>
+    </defs>
+    <rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}" rx="${rx}" ry="${rx}" fill="#f8fafc" />
+    <polygon points="${A[0].toFixed(1)},${A[1].toFixed(1)} ${B[0].toFixed(1)},${B[1].toFixed(1)} ${C[0].toFixed(1)},${C[1].toFixed(1)}" fill="url(#triSidesGrad${id})" stroke="#64748b" stroke-width="2" />
+    <circle cx="${A[0].toFixed(1)}" cy="${A[1].toFixed(1)}" r="3.6" fill="#1f2937" />
+    <circle cx="${B[0].toFixed(1)}" cy="${B[1].toFixed(1)}" r="3.6" fill="#1f2937" />
+    <circle cx="${C[0].toFixed(1)}" cy="${C[1].toFixed(1)}" r="3.6" fill="#1f2937" />
+    ${edgeLabel(A, B, baseText, 28)}
+    ${edgeLabel(C, A, leftText, 26)}
+    ${edgeLabel(B, C, rightText, 26)}
   </svg>`;
 }
 
@@ -851,12 +910,7 @@ function genGeometry(level, opts={}){
       const b=rng(4, Math.max(6, Math.floor(sideMax/2)));
       const c=rng(Math.abs(a-b)+1, a+b-1);
       const W=360,H=230,p=14;
-      const html = `
-      <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Triangle (costats)">
-        <rect x="${p}" y="${p}" width="${W-2*p}" height="${H-2*p}" rx="16" ry="16" fill="#f8fafc" />
-        <polygon points="80,170 280,170 180,70" fill="#a7f3d0" stroke="#64748b"/>
-        ${labelText(180, 200, `costats: ${a}, ${b}, ${c} ${U}`)}
-      </svg>`;
+      const html = svgTriangleSidesFig(a,b,c,U);
       return packNum({ text:`Perímetre del triangle`, html, value: a+b+c, pow: 0 });
     }
   }
