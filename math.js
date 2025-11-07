@@ -228,7 +228,7 @@ function genFracArithmetic(level, opts={}){
   else res = divFrac(A,B);
   const fracA = fractionHtml(A[0], A[1]);
   const fracB = fractionHtml(B[0], B[1]);
-  const question = `Calcula: ${fracA} ${op} ${fracB} = ? (fracció)`;
+  const question = `Calcula: ${fracA} ${op} ${fracB} = ? `;
   return { type:'frac-arith', text: question, answer: `${res[0]}/${res[1]}` };
 }
 
