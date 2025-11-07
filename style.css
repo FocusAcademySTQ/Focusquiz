@@ -44,6 +44,30 @@ body{
     linear-gradient(180deg, var(--bg), #eef2ff 220px);
 }
 
+.math-frac{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  vertical-align:middle;
+  margin:0 .2em;
+  font-variant-numeric:tabular-nums;
+}
+
+.math-frac__num,
+.math-frac__den{
+  display:block;
+  padding:0 .3em;
+  text-align:center;
+}
+
+.math-frac__bar{
+  display:block;
+  align-self:stretch;
+  border-top:1.5px solid currentColor;
+  margin:.12em 0;
+}
+
 .sr-only{
   position:absolute;
   width:1px;
