@@ -102,6 +102,13 @@ function subFrac(a,b){ return normFrac(a[0]*b[1] - b[0]*a[1], a[1]*b[1]); }
 function mulFrac(a,b){ return normFrac(a[0]*b[0], a[1]*b[1]); }
 function divFrac(a,b){ return normFrac(a[0]*b[1], a[1]*b[0]); }
 
+function fractionHtml(n, d, label){
+  const num = String(n);
+  const den = String(d);
+  const safeLabel = label || `${num} sobre ${den}`;
+  return `<span class="math-frac" role="img" aria-label="${safeLabel}"><span aria-hidden="true" class="math-frac__num">${num}</span><span aria-hidden="true" class="math-frac__bar"></span><span aria-hidden="true" class="math-frac__den">${den}</span></span>`;
+}
+
 function svgGridFraction(cols, rows, filled){
   const w=300, h=160, pad=10;
   const pad2 = pad*2;
@@ -219,7 +226,10 @@ function genFracArithmetic(level, opts={}){
   else if(op==='−') res = subFrac(A,B);
   else if(op==='×') res = mulFrac(A,B);
   else res = divFrac(A,B);
-  return { type:'frac-arith', text:`Calcula: ${A[0]}/${A[1]} ${op} ${B[0]}/${B[1]} = ? (fracció)`, answer: `${res[0]}/${res[1]}` };
+  const fracA = fractionHtml(A[0], A[1]);
+  const fracB = fractionHtml(B[0], B[1]);
+  const question = `Calcula: ${fracA} ${op} ${fracB} = ? (fracció)`;
+  return { type:'frac-arith', text: question, answer: `${res[0]}/${res[1]}` };
 }
 
 function genFracSimplify(level, opts={}){
@@ -230,7 +240,8 @@ function genFracSimplify(level, opts={}){
     n = n2; d = d2;
   }
   const [fn, fd] = normFrac(n, d);
-  return { type:'frac-simplify', text:`Simplifica: ${n}/${d}`, answer: `${fn}/${fd}` };
+  const frac = fractionHtml(n, d);
+  return { type:'frac-simplify', text:`Simplifica: ${frac}`, answer: `${fn}/${fd}` };
 }
 
 function genFractions(level, opts={}){
