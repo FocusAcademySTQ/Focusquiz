@@ -51,7 +51,9 @@
     'Bòsnia i Hercegovina': 'ba',
     'Andorra': 'ad',
     'Liechtenstein': 'li',
+    'Mònaco': 'mc',
     'San Marino': 'sm',
+    'Ciutat del Vaticà': 'va',
     'Canadà': 'ca',
     'Estats Units': 'us',
     'Mèxic': 'mx',
@@ -61,9 +63,13 @@
     'Nicaragua': 'ni',
     'Costa Rica': 'cr',
     'Panamà': 'pa',
+    'Belize': 'bz',
     'Cuba': 'cu',
+    'Bahames': 'bs',
     'República Dominicana': 'do',
     'Haití': 'ht',
+    'Jamaica': 'jm',
+    'Trinitat i Tobago': 'tt',
     'Colòmbia': 'co',
     'Veneçuela': 've',
     'Equador': 'ec',
@@ -136,6 +142,7 @@
     'Israel': 'il',
     'Jordània': 'jo',
     'Síria': 'sy',
+    'Líban': 'lb',
     'Turquia': 'tr',
     'Qatar': 'qa',
     'Emirats Àrabs Units': 'ae',
@@ -146,7 +153,14 @@
     'Tadjikistan': 'tj',
     'Kirguizstan': 'kg',
     'Turkmenistan': 'tm',
-    'Mongòlia': 'mn'
+    'Mongòlia': 'mn',
+    'Austràlia': 'au',
+    'Nova Zelanda': 'nz',
+    'Papua Nova Guinea': 'pg',
+    'Fiji': 'fj',
+    'Samoa': 'ws',
+    'Tonga': 'to',
+    'Kiribati': 'ki'
   };
 
   const getFlagUrl = (country, size = 'svg') => {
@@ -210,7 +224,7 @@
         'Forma una bota al Mediterrani amb la capital a Roma.',
         'A l\'interior té els microestats de San Marino i Ciutat del Vaticà.'
       ],
-      neighbors: ['França', 'Suïssa', 'Àustria', 'Eslovènia', 'San Marino'],
+      neighbors: ['França', 'Suïssa', 'Àustria', 'Eslovènia', 'San Marino', 'Ciutat del Vaticà'],
       groups: ['mediterrani']
     },
     {
@@ -646,6 +660,34 @@
       ],
       neighbors: ['Itàlia'],
       groups: ['microstate']
+    },
+    {
+      name: 'Mònaco',
+      capital: 'Mònaco',
+      flag: '🇲🇨',
+      difficulty: 4,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        "Principat situat a la Costa Blava, famós pel seu casino de Montecarlo.",
+        'És el segon estat sobirà més petit del món.'
+      ],
+      neighbors: ['França'],
+      groups: ['microstate', 'mediterrani']
+    },
+    {
+      name: 'Ciutat del Vaticà',
+      capital: 'Ciutat del Vaticà',
+      flag: '🇻🇦',
+      difficulty: 4,
+      coastal: false,
+      landlocked: true,
+      clues: [
+        'És la seu de l\'Església Catòlica i el país més petit del món.',
+        'Conté la Basílica de Sant Pere i la Capella Sixtina.'
+      ],
+      neighbors: ['Itàlia'],
+      groups: ['microstate']
     }
   ];
 
@@ -657,7 +699,9 @@
     alps: 'la regió alpina',
     iberia: 'la península Ibèrica',
     microstate: 'els microestats europeus',
-    'illes-britaniques': 'les Illes Britàniques'
+    'illes-britaniques': 'les Illes Britàniques',
+    'europa-occidental': "l'Europa occidental",
+    'europa-central': "l'Europa central"
   };
 
   const AMERICA_COUNTRIES = [
@@ -700,7 +744,7 @@
         "Comparteix la península de Yucatán i té deserts com el de Sonora.",
         "La seva capital està construïda sobre l'antiga ciutat asteca de Tenochtitlan."
       ],
-      neighbors: ['Estats Units', 'Guatemala'],
+      neighbors: ['Estats Units', 'Guatemala', 'Belize'],
       groups: ['nord-america', 'mesoamerica']
     },
     {
@@ -714,8 +758,22 @@
         "Conserva temples maies com els de Tikal a la selva del Petén.",
         "La seva bandera té un quetzal, l'ocell nacional, al centre."
       ],
-      neighbors: ['Mèxic', 'Hondures', 'El Salvador'],
+      neighbors: ['Mèxic', 'Belize', 'Hondures', 'El Salvador'],
       groups: ['mesoamerica']
+    },
+    {
+      name: 'Belize',
+      capital: 'Belmopán',
+      flag: '🇧🇿',
+      difficulty: 3,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        "És l'únic país centreamericà amb anglès com a llengua oficial.",
+        "La seva costa inclou la Barrera de Corall de Belize, la segona més gran del món."
+      ],
+      neighbors: ['Mèxic', 'Guatemala'],
+      groups: ['mesoamerica', 'carib']
     },
     {
       name: 'Hondures',
@@ -802,6 +860,20 @@
       groups: ['carib']
     },
     {
+      name: 'Bahames',
+      capital: 'Nassau',
+      flag: '🇧🇸',
+      difficulty: 2,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        "Arxipèlag de més de 700 illes situades a l'est de Florida i al nord de Cuba.",
+        'Els seus colors representen la sorra daurada i el mar turquesa del Carib.'
+      ],
+      neighbors: ['Cuba'],
+      groups: ['carib']
+    },
+    {
       name: 'República Dominicana',
       capital: 'Santo Domingo',
       flag: '🇩🇴',
@@ -827,6 +899,34 @@
         "Comparteix l'illa amb la República Dominicana."
       ],
       neighbors: ['República Dominicana'],
+      groups: ['carib']
+    },
+    {
+      name: 'Jamaica',
+      capital: 'Kingston',
+      flag: '🇯🇲',
+      difficulty: 2,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        'País insular conegut pel reggae i la cultura rastafari.',
+        'El Blue Mountain Peak és el punt més alt, famós pels seus cafès.'
+      ],
+      neighbors: ['Cuba', 'Haití'],
+      groups: ['carib']
+    },
+    {
+      name: 'Trinitat i Tobago',
+      capital: 'Port d\'Espanya',
+      flag: '🇹🇹',
+      difficulty: 3,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        'Dues illes principals al sud del Carib amb tradició de carnaval i steelpan.',
+        'Té una economia basada en el petroli i el gas natural.'
+      ],
+      neighbors: ['Veneçuela'],
       groups: ['carib']
     },
     {
@@ -2021,7 +2121,7 @@
     }
   ];
 
-  const ASIA_GROUP_LABELS = {
+const ASIA_GROUP_LABELS = {
     'extrem-orient': "l'Extrem Orient",
     'sud-asia': 'el subcontinent indi',
     'sud-est': 'el sud-est asiàtic',
@@ -2029,6 +2129,114 @@
     'asia-central': 'Àsia Central',
     'peninsula-arabica': 'la península Aràbiga',
     illes: 'les grans illes asiàtiques'
+  };
+
+  const OCEANIA_COUNTRIES = [
+    {
+      name: 'Austràlia',
+      capital: 'Canberra',
+      flag: '🇦🇺',
+      difficulty: 1,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        "És el país més gran d'Oceania i alberga la Gran Barrera de Corall.",
+        'La capital és Canberra, tot i que Sydney i Melbourne són les ciutats més poblades.'
+      ],
+      neighbors: ['Papua Nova Guinea'],
+      groups: ['australasia']
+    },
+    {
+      name: 'Nova Zelanda',
+      capital: 'Wellington',
+      flag: '🇳🇿',
+      difficulty: 2,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        'Està formada per dues illes principals amb volcans i fiords espectaculars.',
+        'Els maoris anomenen el país Aotearoa, “terra del núvol blanc llarg”.'
+      ],
+      neighbors: ['Austràlia'],
+      groups: ['australasia', 'polinesia']
+    },
+    {
+      name: 'Papua Nova Guinea',
+      capital: 'Port Moresby',
+      flag: '🇵🇬',
+      difficulty: 3,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        'Comparteix l\'illa de Nova Guinea amb Indonèsia.',
+        'Acull centenars de llengües i una biodiversitat extraordinària.'
+      ],
+      neighbors: ['Indonèsia', 'Austràlia'],
+      groups: ['melanesia']
+    },
+    {
+      name: 'Fiji',
+      capital: 'Suva',
+      flag: '🇫🇯',
+      difficulty: 3,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        'Arxipèlag melanesi popular per les platges i els esculls de corall.',
+        'La canya de sucre i el turisme són motors clau de la seva economia.'
+      ],
+      neighbors: ['Tonga', 'Samoa'],
+      groups: ['melanesia']
+    },
+    {
+      name: 'Samoa',
+      capital: 'Apia',
+      flag: '🇼🇸',
+      difficulty: 3,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        'Nació polinèsia amb tradicions com la fa\'a Samoa i festivals de foc.',
+        'Comparteix amb Tonga i Fiji la regió central del Pacífic sud.'
+      ],
+      neighbors: ['Fiji', 'Tonga'],
+      groups: ['polinesia']
+    },
+    {
+      name: 'Tonga',
+      capital: 'Nuku\'alofa',
+      flag: '🇹🇴',
+      difficulty: 3,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        'És una monarquia polinèsia formada per més de 170 illes.',
+        'Les illes Ha\'apai i Vava\'u són conegudes per l\'avistament de balenes.'
+      ],
+      neighbors: ['Fiji', 'Samoa'],
+      groups: ['polinesia']
+    },
+    {
+      name: 'Kiribati',
+      capital: 'Tarawa Sud',
+      flag: '🇰🇮',
+      difficulty: 4,
+      coastal: true,
+      landlocked: false,
+      clues: [
+        'Estat insular que s\'escampa sobre tres fusos horaris al Pacífic central.',
+        'És especialment vulnerable a l\'augment del nivell del mar.'
+      ],
+      neighbors: [],
+      groups: ['micronesia']
+    }
+  ];
+
+  const OCEANIA_GROUP_LABELS = {
+    australasia: 'Australàsia',
+    melanesia: 'Melanèsia',
+    polinesia: 'Polinèsia',
+    micronesia: 'Micronèsia'
   };
 
   function formatOptionList(items = []) {
@@ -2330,6 +2538,19 @@
       region: { preposition: "d'Àsia", gentilic: 'asiàtic', levelLabel: 'Mode lliure' },
       countries: ASIA_COUNTRIES,
       groupLabels: ASIA_GROUP_LABELS,
+      configOptions: {
+        extraModes: [
+          { value: 'map', label: 'Mapa interactiu' }
+        ]
+      }
+    }),
+    createGeoModule({
+      id: 'geo-oceania',
+      name: "Països d'Oceania",
+      desc: 'Explora Australàsia, Melanèsia, Micronèsia i Polinèsia amb preguntes variades.',
+      region: { preposition: "d'Oceania", gentilic: 'oceànic', levelLabel: 'Mode lliure' },
+      countries: OCEANIA_COUNTRIES,
+      groupLabels: OCEANIA_GROUP_LABELS,
       configOptions: {
         extraModes: [
           { value: 'map', label: 'Mapa interactiu' }

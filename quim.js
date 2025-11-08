@@ -85,7 +85,7 @@
     { num:75, sym:"Re", name:"Renni" },
     { num:76, sym:"Os", name:"Osmi" },
     { num:77, sym:"Ir", name:"Iridi" },
-    { num:78, sym:"Pt", name:"Plató" },  // També s'accepta "Platí" en català
+    { num:78, sym:"Pt", name:"Platí" },
     { num:79, sym:"Au", name:"Or" },
     { num:80, sym:"Hg", name:"Mercuri" },
     { num:81, sym:"Tl", name:"Tal·li" },
@@ -183,22 +183,29 @@
   { syms:['Na','NO₃'], name:'Nitrat de sodi (NaNO₃)' },
   { syms:['K','NO₃'],  name:'Nitrat de potassi (KNO₃)' },
   { syms:['Ca','CO₃'], name:'Carbonat de calci (CaCO₃)' },
-  { syms:['Na','₂','SO₄'], name:'Sulfat de sodi (Na₂SO₄)' },
+  { syms:['Na₂SO₄'], name:'Sulfat de sodi (Na₂SO₄)' },
   { syms:['Cu','SO₄'], name:'Sulfat de coure(II) (CuSO₄)' },
 
   // Compostos moleculars senzills
   { syms:['H','O'],   name:'Aigua (H₂O)' },
-  { syms:['NH','₃'],  name:'Amoníac (NH₃)' },
-  { syms:['CH','₄'],  name:'Metà (CH₄)' },
-  { syms:['CO','₂'],  name:'Diòxid de carboni (CO₂)' },
+  { syms:['NH₃'],  name:'Amoníac (NH₃)' },
+  { syms:['CH₄'],  name:'Metà (CH₄)' },
+  { syms:['C₂H₆O'],  name:'Etanol (C₂H₆O)' },
   { syms:['CO'],      name:'Monòxid de carboni (CO)' },
 
   // Altres compostos interessants
   { syms:['Na','HCO₃'], name:'Bicarbonat de sodi (NaHCO₃)' },
   { syms:['Ca','SO₄'],  name:'Sulfat de calci (CaSO₄)' },
-  { syms:['Fe','₂','S','₃'], name:'Sulfur de ferro(III) (Fe₂S₃)' },
+  { syms:['Fe₂S₃'], name:'Sulfur de ferro(III) (Fe₂S₃)' },
   { syms:['Ag','NO₃'],  name:'Nitrat de plata (AgNO₃)' },
-  { syms:['Zn','Cl₂'],  name:'Clorur de zinc (ZnCl₂)' }
+  { syms:['ZnCl₂'],  name:'Clorur de zinc (ZnCl₂)' },
+  { syms:['Na₂CO₃'], name:'Carbonat de sodi (Na₂CO₃)' },
+  { syms:['KMnO₄'], name:'Permanganat de potassi (KMnO₄)' },
+  { syms:['NH₄Cl'], name:"Clorur d'amoni (NH₄Cl)" },
+  { syms:['CuSO₄·5H₂O'], name:'Sulfat de coure(II) pentahidrat (CuSO₄·5H₂O)' },
+  { syms:['Ca₃(PO₄)₂'], name:'Fosfat de calci (Ca₃(PO₄)₂)' },
+  { syms:['CH₃COOH'], name:'Àcid acètic (CH₃COOH)' },
+  { syms:['C₆H₁₂O₆'], name:'Glucosa (C₆H₁₂O₆)' }
 ];
   function genCompounds(){
     const c = pick(COMPOUNDS);
@@ -354,6 +361,31 @@ const GROUP_COLORS = {
   'actínid': '#fcd34d'          // marró groguenc
 };
 
+const GROUP_DISPLAY_LABELS = {
+  'alcalí': 'metall alcalí',
+  'alcalinoterri': 'metall alcalinoterri',
+  'metall-transició': 'metall de transició',
+  'post-transició': 'metall post-transició',
+  'metaloide': 'metaloide',
+  'no-metal': 'no metall',
+  'gas-noble': 'gas noble',
+  'lantànid': 'lantànid',
+  'actínid': 'actínid'
+};
+
+const GROUP_BY_SYMBOL = PERIODIC.reduce((acc, entry) => {
+  acc[entry.sym] = entry.group;
+  return acc;
+}, {});
+
+E.forEach((el) => {
+  const code = GROUP_BY_SYMBOL[el.sym];
+  el.groupCode = code;
+  el.group = GROUP_DISPLAY_LABELS[code] || 'grup desconegut';
+});
+
+const GROUP_OPTIONS = [...new Set(E.map((el) => el.group).filter(Boolean))];
+
 function periodicTableSVG(targetSym){
   const cellW=60, cellH=60, gap=6, left=10, top=10;
   const cols=18, rows=10;
@@ -391,11 +423,12 @@ function genMap(){
 
 
   // —————————————— 5) CLASSIFICACIÓ RÀPIDA (tria el grup) ——————————————
-  const GROUPS = ['metall alcalí','metall alcalinoterri','metall','no metall','gas noble'];
   function genClassify(){
     const el = pick(E);
-    const opts = shuffle([el.group, ...shuffle(GROUPS.filter(g=>g!==el.group)).slice(0,3)]);
-    return { type:'chem-class', text:`A quin grup pertany <b>${el.name}</b>?`, options:opts, answer: el.group };
+    const answer = el.group || 'grup desconegut';
+    const distractors = shuffle(GROUP_OPTIONS.filter((g) => g !== answer)).slice(0, 3);
+    const options = shuffle([answer].concat(distractors));
+    return { type:'chem-class', text:`A quin grup pertany <b>${el.name}</b>?`, options, answer };
   }
 
   // —————————————— GENERADOR PRINCIPAL ——————————————
@@ -720,7 +753,7 @@ window.__chemPick = function(sym){
   const CHEM_MODULES = [{
     id:'chem',
     name:'Taula periòdica',
-    desc:'Quiz ràpid, compostos, mapa interactiu i classificació.',
+    desc:'Quiz ràpid, mapa interactiu, classificació i construcció de compostos.',
      usesLevels: false,
      levelLabel: 'Mode lliure',
     gen: genChem,
@@ -729,7 +762,7 @@ window.__chemPick = function(sym){
   },{
     id:'chem-compounds',
     name:'Fórmules i compostos',
-    desc:'Valències, fórmules bàsiques i compostos moleculars.',
+    desc:'Valències, fórmules inorgàniques i compostos moleculars amb teclat químic.',
      usesLevels: false,
      levelLabel: 'Mode lliure',
     gen: genCompoundsExtra,
