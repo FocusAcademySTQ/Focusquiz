@@ -77,6 +77,10 @@ function openAsiaMap(){
   openMapOverlay("Mapa interactiu dels països d'Àsia", 'geo-asia-map.html');
 }
 
+function openOceaniaMap(){
+  openMapOverlay("Mapa interactiu dels països d'Oceania", 'geo-oceania-map.html');
+}
+
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => Array.from(document.querySelectorAll(q));
 const rng = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
@@ -830,6 +834,13 @@ function openConfig(moduleId){
       <div class="controls">
         <a class="btn-secondary" href="geo-asia-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
       </div>`;
+  } else if(pendingModule.id === 'geo-oceania') {
+    wrap.innerHTML = `
+      <div class="section-title">Recurs interactiu</div>
+      <p class="subtitle">Situa els països d'Oceania sobre el mapa i relaciona'ls amb les seves illes i regions.</p>
+      <div class="controls">
+        <a class="btn-secondary" href="geo-oceania-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
+      </div>`;
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -1003,6 +1014,12 @@ function startFromConfig(meta){
     }
     if (pendingModule?.id === 'geo-asia') {
       openAsiaMap();
+      pendingUrlQuizConfig = null;
+      pendingUrlQuizOverrides = null;
+      return;
+    }
+    if (pendingModule?.id === 'geo-oceania') {
+      openOceaniaMap();
       pendingUrlQuizConfig = null;
       pendingUrlQuizOverrides = null;
       return;
