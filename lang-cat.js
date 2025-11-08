@@ -1435,9 +1435,6 @@ const BANK_MORFO_CATEGORIES = [
   options: ["Adverbi", "Nom comú", "Adjectiu", "Verb"], 
   answer: `Adverbi` 
 }
-
-
-
 ];
 
 const BANK_MORFO_CONCORDANCA = [
@@ -1756,7 +1753,7 @@ const BANK_MORFO_FUNCIONS = [
     text: `Funció de "un llibre" en: "Vaig comprar un llibre"`,
     options: ["Complement directe", "Subjecte", "Atribut", "Complement de lloc"],
     answer: `Complement directe`
-  }
+  },
    {
     text: `Funció de "al parc" en: "La Marta juga al parc"`,
     options: ["Complement circumstancial de lloc", "Subjecte", "Complement directe", "Complement de règim"],
