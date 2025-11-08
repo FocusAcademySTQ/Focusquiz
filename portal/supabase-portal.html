@@ -106,6 +106,7 @@
     <div id="portalTabs" class="portal-tabs hidden" data-portal-tablist role="tablist" aria-label="Eines del professorat">
       <button id="tab-classes" class="portal-tab" type="button" data-tab="classes" role="tab" aria-controls="classesPanel" aria-selected="false">Classes</button>
       <button id="tab-assignments" class="portal-tab" type="button" data-tab="assignments" role="tab" aria-controls="assignmentsPanel" aria-selected="false">Assignacions</button>
+      <button id="tab-live" class="portal-tab" type="button" data-tab="live" role="tab" aria-controls="livePanel" aria-selected="false">Live</button>
       <button id="tab-results" class="portal-tab" type="button" data-tab="results" role="tab" aria-controls="resultsPanel" aria-selected="false">Resultats</button>
     </div>
 
@@ -229,6 +230,171 @@
         <div id="assignmentEmptyState" class="portal-empty hidden">
           <p>Encara no hi ha proves publicades. Crea'n una amb el formulari superior.</p>
         </div>
+      </section>
+    </section>
+
+    <section id="livePanel" class="portal-tabpanel hidden" data-tab-panel="live" role="tabpanel" aria-labelledby="tab-live">
+      <section class="panel card">
+        <div class="portal-section-header">
+          <div>
+            <p class="portal-section-title">Mode Live</p>
+            <h2>Crea un quiz i prepara la partida</h2>
+          </div>
+          <div class="portal-actions">
+            <button id="liveRefresh" class="btn-ghost" type="button">Actualitza</button>
+          </div>
+        </div>
+        <p class="portal-muted">
+          Guarda plantilles amb preguntes pròpies o connecta-les amb qualsevol mòdul FocusQuiz. Després, llança-les en directe
+          i comparteix el codi amb l'alumnat.
+        </p>
+        <form id="liveQuizForm" class="portal-form portal-form--two">
+          <label>
+            <span class="portal-field-label">Classe</span>
+            <select id="liveQuizClass" class="input" name="class_id" required></select>
+          </label>
+          <label>
+            <span class="portal-field-label">Títol del quiz</span>
+            <input id="liveQuizTitle" class="input" name="title" type="text" placeholder="Quiz de capitals" required />
+          </label>
+          <label>
+            <span class="portal-field-label">Mòdul FocusQuiz (opcional)</span>
+            <select id="liveQuizModule" class="input" name="module_id">
+              <option value="">— Quiz manual —</option>
+            </select>
+            <span class="portal-field-hint">Permet reutilitzar preguntes dels mòduls estàndard.</span>
+          </label>
+          <label>
+            <span class="portal-field-label">Temps per pregunta (segons)</span>
+            <input id="liveQuizTime" class="input" name="default_time_limit" type="number" min="5" max="600" value="20" />
+          </label>
+          <label>
+            <span class="portal-field-label">Bonificació per segon</span>
+            <input id="liveQuizSpeedBonus" class="input" name="speed_bonus" type="number" min="0" max="1000" step="0.5" value="5" />
+            <span class="portal-field-hint">Es multiplica pels segons restants per calcular punts extra.</span>
+          </label>
+        </form>
+        <fieldset class="portal-live-builder">
+          <legend>Afegir pregunta manual</legend>
+          <p class="portal-muted">Crea preguntes pròpies amb quatre opcions. Les pots combinar amb preguntes automàtiques.</p>
+          <div id="liveQuestionForm" class="portal-live-question-form">
+            <label class="portal-form--stack">
+              <span class="portal-field-label">Enunciat</span>
+              <textarea id="liveQuestionPrompt" class="input" name="prompt" rows="3" placeholder="Quina és la capital d'Espanya?" required></textarea>
+            </label>
+            <div class="portal-live-option-grid">
+              <label>
+                <span class="portal-field-label">Opció A</span>
+                <input id="liveQuestionOptionA" class="input" name="option_a" type="text" placeholder="Barcelona" required />
+              </label>
+              <label>
+                <span class="portal-field-label">Opció B</span>
+                <input id="liveQuestionOptionB" class="input" name="option_b" type="text" placeholder="Madrid" required />
+              </label>
+              <label>
+                <span class="portal-field-label">Opció C</span>
+                <input id="liveQuestionOptionC" class="input" name="option_c" type="text" placeholder="València" />
+              </label>
+              <label>
+                <span class="portal-field-label">Opció D</span>
+                <input id="liveQuestionOptionD" class="input" name="option_d" type="text" placeholder="Sevilla" />
+              </label>
+            </div>
+            <div class="portal-form portal-form--two">
+              <label>
+                <span class="portal-field-label">Resposta correcta</span>
+                <select id="liveQuestionCorrect" class="input" name="correct_option" required>
+                  <option value="A">Opció A</option>
+                  <option value="B">Opció B</option>
+                  <option value="C">Opció C</option>
+                  <option value="D">Opció D</option>
+                </select>
+              </label>
+              <label>
+                <span class="portal-field-label">Temps límit (segons)</span>
+                <input id="liveQuestionTime" class="input" name="time_limit" type="number" min="5" max="600" value="20" />
+              </label>
+            </div>
+            <div class="portal-form portal-form--two">
+              <label>
+                <span class="portal-field-label">Punts base</span>
+                <input id="liveQuestionPoints" class="input" name="points" type="number" min="0" max="1000" value="100" />
+              </label>
+              <label>
+                <span class="portal-field-label">Bonificació per segon</span>
+                <input id="liveQuestionSpeed" class="input" name="speed_bonus" type="number" min="0" max="1000" step="0.5" value="5" />
+              </label>
+            </div>
+            <div id="liveQuestionError" class="portal-error hidden" role="alert"></div>
+            <div class="portal-actions">
+              <button id="liveQuestionAdd" class="btn-secondary" type="button">Afegir pregunta</button>
+              <button id="liveQuestionReset" class="btn-ghost" type="button">Neteja el formulari</button>
+            </div>
+          </div>
+          <div class="portal-live-question-summary">
+            <div class="portal-live-question-summary__header">
+              <h3>Preguntes personalitzades</h3>
+              <p id="liveQuestionSummary" class="portal-muted">Encara no hi ha preguntes afegides.</p>
+            </div>
+            <ol id="liveQuestionsList" class="portal-live-question-list"></ol>
+            <div id="liveQuestionsEmptyState" class="portal-empty">No s'ha afegit cap pregunta manual.</div>
+          </div>
+        </fieldset>
+        <div id="liveQuizFeedback" class="portal-muted" role="status" aria-live="polite"></div>
+        <div class="portal-actions">
+          <button id="liveQuizSave" class="btn-primary" type="button">Guardar quiz Live</button>
+          <button id="liveQuizReset" class="btn-ghost" type="button">Reinicia la plantilla</button>
+        </div>
+      </section>
+
+      <section class="panel card">
+        <div class="portal-section-header">
+          <h2>Quizzes guardats</h2>
+          <p class="portal-muted">Tria un quiz per utilitzar-lo en una partida en directe.</p>
+        </div>
+        <div id="liveQuizList" class="portal-grid"></div>
+        <div id="liveQuizEmptyState" class="portal-empty hidden">Encara no hi ha cap quiz Live guardat.</div>
+      </section>
+
+      <section class="panel card">
+        <div class="portal-section-header">
+          <div>
+            <p class="portal-section-title">Nova partida</p>
+            <h2>Genera un codi per a l'alumnat</h2>
+          </div>
+          <div class="portal-actions">
+            <button id="liveGameRefresh" class="btn-ghost" type="button">Actualitza</button>
+          </div>
+        </div>
+        <form id="liveGameForm" class="portal-form portal-form--two">
+          <label>
+            <span class="portal-field-label">Classe</span>
+            <select id="liveGameClass" class="input" name="class_id" required></select>
+          </label>
+          <label>
+            <span class="portal-field-label">Quiz Live</span>
+            <select id="liveGameQuiz" class="input" name="quiz_id" required></select>
+          </label>
+          <label>
+            <span class="portal-field-label">Temps per pregunta (segons)</span>
+            <input id="liveGameTime" class="input" name="question_time_limit" type="number" min="5" max="600" value="20" />
+          </label>
+          <label>
+            <span class="portal-field-label">Punts base</span>
+            <input id="liveGamePoints" class="input" name="question_points" type="number" min="0" max="1000" value="100" />
+          </label>
+          <label>
+            <span class="portal-field-label">Bonificació per segon</span>
+            <input id="liveGameBonus" class="input" name="speed_bonus" type="number" min="0" max="1000" step="0.5" value="5" />
+          </label>
+        </form>
+        <p class="portal-muted">Quan creïs la partida es generarà un codi (per exemple <strong>FQ7D9K</strong>) i un enllaç directe.</p>
+        <div id="liveGameFeedback" class="portal-muted" role="status" aria-live="polite"></div>
+        <div class="portal-actions">
+          <button id="liveGameCreate" class="btn-primary" type="button">Crear partida Live</button>
+        </div>
+        <div id="liveGameList" class="portal-live-game-list"></div>
+        <div id="liveGameEmptyState" class="portal-empty hidden">Encara no hi ha partides actives.</div>
       </section>
     </section>
 
