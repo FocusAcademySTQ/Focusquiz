@@ -101,6 +101,186 @@
   box-shadow: 0 40px 96px -52px rgba(15, 23, 42, 0.6);
 }
 
+.portal-live-builder {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 20px;
+  border: 1px dashed rgba(148, 163, 184, 0.38);
+  background: rgba(255, 255, 255, 0.75);
+  display: grid;
+  gap: 1.25rem;
+}
+
+.portal-live-builder legend {
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0 0.5rem;
+}
+
+.portal-live-question-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.portal-live-option-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+
+.portal-live-question-summary {
+  display: grid;
+  gap: 1rem;
+}
+
+.portal-live-question-summary__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.portal-live-question-summary__header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.portal-live-question-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.portal-live-question {
+  border-radius: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(248, 250, 252, 0.7);
+  padding: 1rem 1.1rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.portal-live-question header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.65rem;
+}
+
+.portal-live-question-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.portal-live-question-meta {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.portal-live-options {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portal-live-options li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.92rem;
+}
+
+.portal-live-options li strong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  background: rgba(148, 163, 255, 0.2);
+  color: rgba(59, 130, 246, 0.9);
+  font-size: 0.85rem;
+}
+
+.portal-live-question-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.portal-live-quiz-card {
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 1.2rem 1.35rem;
+  display: grid;
+  gap: 0.8rem;
+  box-shadow: 0 18px 48px -32px rgba(59, 130, 246, 0.28);
+}
+
+.portal-live-quiz-card h3 {
+  margin: 0;
+  font-size: 1.08rem;
+  letter-spacing: -0.01em;
+}
+
+.portal-live-quiz-card p {
+  margin: 0;
+}
+
+.portal-live-quiz-card .portal-live-question-actions {
+  justify-content: flex-start;
+}
+
+.portal-live-game-list {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.portal-live-game-card {
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 1.1rem 1.25rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.portal-live-game-card header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.portal-live-game-code {
+  font-size: 1.35rem;
+  letter-spacing: 0.18em;
+  font-weight: 800;
+  color: rgba(59, 130, 246, 0.95);
+}
+
+.portal-live-game-meta {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.portal-live-game-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
 .portal-hero {
   position: relative;
   display: grid;

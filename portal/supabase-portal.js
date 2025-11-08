@@ -27,6 +27,7 @@ const state = {
   supabase: null,
   session: null,
   profile: null,
+  profileError: null,
   activeTab: 'classes',
   classes: [],
   assignments: [],
@@ -39,6 +40,27 @@ const state = {
     questionSet: [],
     notice: '',
     previewToken: '',
+  },
+  live: {
+    quizzes: [],
+    games: [],
+    quizDraft: {
+      classId: '',
+      title: '',
+      moduleId: '',
+      defaultTimeLimit: 20,
+      defaultPoints: 100,
+      speedBonus: 5,
+      questions: [],
+    },
+    questionDraft: null,
+    gameDraft: {
+      classId: '',
+      quizId: '',
+      timeLimit: 20,
+      points: 100,
+      speedBonus: 5,
+    },
   },
 };
 
@@ -89,9 +111,49 @@ const elements = {
   refreshResults: document.getElementById('refreshResults'),
   resultsClassFilter: document.getElementById('resultsClassFilter'),
   resultsAssignmentFilter: document.getElementById('resultsAssignmentFilter'),
+  liveQuizForm: document.getElementById('liveQuizForm'),
+  liveQuizClass: document.getElementById('liveQuizClass'),
+  liveQuizTitle: document.getElementById('liveQuizTitle'),
+  liveQuizModule: document.getElementById('liveQuizModule'),
+  liveQuizTime: document.getElementById('liveQuizTime'),
+  liveQuizSpeedBonus: document.getElementById('liveQuizSpeedBonus'),
+  liveQuestionPrompt: document.getElementById('liveQuestionPrompt'),
+  liveQuestionOptionA: document.getElementById('liveQuestionOptionA'),
+  liveQuestionOptionB: document.getElementById('liveQuestionOptionB'),
+  liveQuestionOptionC: document.getElementById('liveQuestionOptionC'),
+  liveQuestionOptionD: document.getElementById('liveQuestionOptionD'),
+  liveQuestionCorrect: document.getElementById('liveQuestionCorrect'),
+  liveQuestionTime: document.getElementById('liveQuestionTime'),
+  liveQuestionPoints: document.getElementById('liveQuestionPoints'),
+  liveQuestionSpeed: document.getElementById('liveQuestionSpeed'),
+  liveQuestionError: document.getElementById('liveQuestionError'),
+  liveQuestionSummary: document.getElementById('liveQuestionSummary'),
+  liveQuestionAdd: document.getElementById('liveQuestionAdd'),
+  liveQuestionReset: document.getElementById('liveQuestionReset'),
+  liveQuestionsList: document.getElementById('liveQuestionsList'),
+  liveQuestionsEmpty: document.getElementById('liveQuestionsEmptyState'),
+  liveQuizFeedback: document.getElementById('liveQuizFeedback'),
+  liveQuizSave: document.getElementById('liveQuizSave'),
+  liveQuizReset: document.getElementById('liveQuizReset'),
+  liveQuizList: document.getElementById('liveQuizList'),
+  liveQuizEmpty: document.getElementById('liveQuizEmptyState'),
+  liveRefresh: document.getElementById('liveRefresh'),
+  liveGameForm: document.getElementById('liveGameForm'),
+  liveGameClass: document.getElementById('liveGameClass'),
+  liveGameQuiz: document.getElementById('liveGameQuiz'),
+  liveGameTime: document.getElementById('liveGameTime'),
+  liveGamePoints: document.getElementById('liveGamePoints'),
+  liveGameBonus: document.getElementById('liveGameBonus'),
+  liveGameFeedback: document.getElementById('liveGameFeedback'),
+  liveGameCreate: document.getElementById('liveGameCreate'),
+  liveGameList: document.getElementById('liveGameList'),
+  liveGameEmpty: document.getElementById('liveGameEmptyState'),
+  liveGameRefresh: document.getElementById('liveGameRefresh'),
 };
 
 let previewChannel = null;
+
+ensureLiveDrafts();
 
 function getNested(source, keys, fallback) {
   let current = source;
@@ -112,6 +174,119 @@ function readFormValue(formData, key) {
   if (!formData || typeof formData.get !== 'function') return '';
   const raw = formData.get(key);
   return raw === null || raw === undefined ? '' : String(raw);
+}
+
+function createLocalId(prefix = 'id') {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function ensureLiveDrafts() {
+  if (!state.live) {
+    state.live = {
+      quizzes: [],
+      games: [],
+      quizDraft: {
+        classId: '',
+        title: '',
+        moduleId: '',
+        defaultTimeLimit: 20,
+        defaultPoints: 100,
+        speedBonus: 5,
+        questions: [],
+      },
+      questionDraft: null,
+      gameDraft: {
+        classId: '',
+        quizId: '',
+        timeLimit: 20,
+        points: 100,
+        speedBonus: 5,
+      },
+    };
+  }
+  if (!state.live.quizDraft) {
+    state.live.quizDraft = {
+      classId: '',
+      title: '',
+      moduleId: '',
+      defaultTimeLimit: 20,
+      defaultPoints: 100,
+      speedBonus: 5,
+      questions: [],
+    };
+  }
+  if (!state.live.gameDraft) {
+    state.live.gameDraft = {
+      classId: '',
+      quizId: '',
+      timeLimit: 20,
+      points: 100,
+      speedBonus: 5,
+    };
+  }
+  if (!state.live.questionDraft) {
+    state.live.questionDraft = createLiveQuestionDraft();
+  }
+}
+
+function createLiveQuestionDraft() {
+  const quizDraft = state.live ? state.live.quizDraft : null;
+  const defaultTime = quizDraft && Number.isFinite(quizDraft.defaultTimeLimit)
+    ? quizDraft.defaultTimeLimit
+    : 20;
+  const defaultPoints = quizDraft && Number.isFinite(quizDraft.defaultPoints)
+    ? quizDraft.defaultPoints
+    : 100;
+  const defaultBonus = quizDraft && Number.isFinite(quizDraft.speedBonus)
+    ? quizDraft.speedBonus
+    : 0;
+  return {
+    id: createLocalId('liveq'),
+    prompt: '',
+    options: [
+      { key: 'A', text: '' },
+      { key: 'B', text: '' },
+      { key: 'C', text: '' },
+      { key: 'D', text: '' },
+    ],
+    correctOption: 'A',
+    timeLimit: defaultTime,
+    points: defaultPoints,
+    speedBonus: defaultBonus,
+  };
+}
+
+function setNestedState(path, value) {
+  if (!path) return;
+  const keys = path.split('.');
+  let current = state;
+  for (let index = 0; index < keys.length - 1; index += 1) {
+    const key = keys[index];
+    if (!Object.prototype.hasOwnProperty.call(current, key) || typeof current[key] !== 'object' || current[key] === null) {
+      current[key] = {};
+    }
+    current = current[key];
+  }
+  current[keys[keys.length - 1]] = value;
+}
+
+function getNestedState(path, fallback = '') {
+  if (!path) return fallback;
+  const keys = path.split('.');
+  let current = state;
+  for (let index = 0; index < keys.length; index += 1) {
+    if (current === null || current === undefined) return fallback;
+    current = current[keys[index]];
+  }
+  return current === undefined ? fallback : current;
+}
+
+function safeCssEscape(value) {
+  if (typeof value !== 'string') return value;
+  if (typeof CSS !== 'undefined' && typeof CSS.escape === 'function') {
+    return CSS.escape(value);
+  }
+  return value.replace(/["]|\\/g, '\\$&');
 }
 
 function getActiveSupabaseConfig() {
@@ -194,6 +369,7 @@ async function loadProfile() {
   const user = state.session && state.session.user ? state.session.user : null;
   const userId = user ? user.id : null;
   if (!userId) return null;
+  state.profileError = null;
   const { data, error } = await client
     .from('profiles')
     .select('id, full_name, email')
@@ -201,6 +377,8 @@ async function loadProfile() {
     .maybeSingle();
   if (error) {
     console.error('No s\'ha pogut recuperar el perfil', error);
+    state.profile = null;
+    state.profileError = error;
     return null;
   }
   if (!data) {
@@ -215,12 +393,41 @@ async function loadProfile() {
     });
     if (insertError) {
       console.error('No s\'ha pogut crear el perfil', insertError);
+      state.profile = null;
+      state.profileError = insertError;
       return null;
     }
     return loadProfile();
   }
   state.profile = data;
+  state.profileError = null;
   return state.profile;
+}
+
+function supabaseErrorMessage(error) {
+  if (!error) return '';
+  if (typeof error === 'string') return error;
+  if (error.message) return error.message;
+  if (error.error_description) return error.error_description;
+  try {
+    return JSON.stringify(error);
+  } catch (serializationError) {
+    console.warn('No s\'ha pogut serialitzar l\'error de Supabase', serializationError);
+    return '';
+  }
+}
+
+function renderProfileWarning() {
+  if (!elements.authError) return;
+  if (state.session && !state.profile) {
+    const detail = supabaseErrorMessage(state.profileError);
+    const troubleshooting =
+      "Sessió iniciada però no s'ha pogut carregar el perfil docent. Revisa que hagis executat els scripts `supabase/setup.sql` i `supabase/live-mode.sql` i que la taula `profiles` contingui el teu usuari.";
+    const message = detail ? `${troubleshooting} Detall Supabase: ${detail}` : troubleshooting;
+    showError(elements.authError, message);
+    return;
+  }
+  showError(elements.authError, '');
 }
 
 function updateAuthUI() {
@@ -315,20 +522,44 @@ function formatDateTime(value, options = { dateStyle: 'short', timeStyle: 'short
 }
 
 function renderClassOptions() {
-  if (!elements.assignmentClassSelect) return;
-  elements.assignmentClassSelect.innerHTML = '';
-  if (!state.classes.length) {
-    const option = document.createElement('option');
-    option.value = '';
-    option.textContent = 'Cap classe disponible';
-    elements.assignmentClassSelect.appendChild(option);
-    return;
-  }
-  state.classes.forEach((cls) => {
-    const option = document.createElement('option');
-    option.value = cls.id;
-    option.textContent = `${cls.class_name} · ${cls.join_code}`;
-    elements.assignmentClassSelect.appendChild(option);
+  const selects = [
+    { node: elements.assignmentClassSelect, stateAccessor: null },
+    { node: elements.liveQuizClass, stateAccessor: 'live.quizDraft.classId' },
+    { node: elements.liveGameClass, stateAccessor: 'live.gameDraft.classId' },
+  ];
+
+  const options = state.classes.map((cls) => ({
+    value: cls.id,
+    label: `${cls.class_name} · ${cls.join_code}`,
+  }));
+
+  selects.forEach((entry) => {
+    const { node, stateAccessor } = entry;
+    if (!node) return;
+    node.innerHTML = '';
+    if (!options.length) {
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Cap classe disponible';
+      node.appendChild(placeholder);
+      if (stateAccessor) {
+        setNestedState(stateAccessor, '');
+      }
+      return;
+    }
+    options.forEach((option) => {
+      const element = document.createElement('option');
+      element.value = option.value;
+      element.textContent = option.label;
+      node.appendChild(element);
+    });
+    if (stateAccessor) {
+      const currentValue = getNestedState(stateAccessor);
+      const hasValue = options.some((option) => option.value === currentValue);
+      const desired = hasValue ? currentValue : options[0].value;
+      setNestedState(stateAccessor, desired);
+      node.value = desired;
+    }
   });
 }
 
@@ -358,6 +589,617 @@ function renderModuleOptions() {
     syncAssignmentModuleFromSelect({ preserveQuestions: desiredModule === previousModule });
   } else {
     setCurrentModule('', { preserveQuestions: false });
+  }
+
+  if (elements.liveQuizModule) {
+    const liveSelect = elements.liveQuizModule;
+    const currentModule = state.live && state.live.quizDraft ? state.live.quizDraft.moduleId : '';
+    liveSelect.innerHTML = '';
+    const manualOption = document.createElement('option');
+    manualOption.value = '';
+    manualOption.textContent = '— Quiz manual —';
+    liveSelect.appendChild(manualOption);
+    let groupLabel = null;
+    sorted.forEach((module) => {
+      if (module.category !== groupLabel) {
+        groupLabel = module.category;
+        const optGroup = document.createElement('optgroup');
+        optGroup.label = CATEGORY_LABELS[module.category] || module.category;
+        liveSelect.appendChild(optGroup);
+      }
+      const option = document.createElement('option');
+      option.value = module.id;
+      option.textContent = module.name;
+      const parentGroup = liveSelect.lastElementChild;
+      if (parentGroup && parentGroup.tagName.toLowerCase() === 'optgroup') {
+        parentGroup.appendChild(option);
+      } else {
+        liveSelect.appendChild(option);
+      }
+    });
+    if (currentModule && liveSelect.querySelector(`option[value="${safeCssEscape(currentModule)}"]`)) {
+      liveSelect.value = currentModule;
+    } else {
+      liveSelect.value = '';
+      if (state.live && state.live.quizDraft) {
+        state.live.quizDraft.moduleId = '';
+      }
+    }
+  }
+}
+
+function syncLiveQuizFormInputs() {
+  ensureLiveDrafts();
+  const draft = state.live.quizDraft;
+  if (elements.liveQuizClass) {
+    const options = Array.from(elements.liveQuizClass.options || []);
+    const hasValue = options.some((option) => option.value === draft.classId);
+    if (hasValue) {
+      elements.liveQuizClass.value = draft.classId;
+    } else if (options.length > 0) {
+      draft.classId = options[0].value;
+      elements.liveQuizClass.value = draft.classId;
+    }
+  }
+  if (elements.liveQuizTitle) {
+    elements.liveQuizTitle.value = draft.title || '';
+  }
+  if (elements.liveQuizModule) {
+    const moduleOption = elements.liveQuizModule.querySelector(`option[value="${safeCssEscape(draft.moduleId || '')}"]`);
+    elements.liveQuizModule.value = moduleOption ? draft.moduleId : '';
+    if (!moduleOption) {
+      draft.moduleId = '';
+    }
+  }
+  if (elements.liveQuizTime) {
+    elements.liveQuizTime.value = Number.isFinite(draft.defaultTimeLimit) ? draft.defaultTimeLimit : 20;
+  }
+  if (elements.liveQuizSpeedBonus) {
+    elements.liveQuizSpeedBonus.value = Number.isFinite(draft.speedBonus) ? draft.speedBonus : 0;
+  }
+  ensureLiveQuestionDraft();
+  renderLiveQuestionDraft();
+  renderLiveQuestions();
+  renderLiveQuizSelectors();
+}
+
+function renderLiveQuestionDraft() {
+  ensureLiveDrafts();
+  const draft = state.live.questionDraft || createLiveQuestionDraft();
+  state.live.questionDraft = draft;
+  if (elements.liveQuestionPrompt) {
+    elements.liveQuestionPrompt.value = draft.prompt || '';
+  }
+  const optionInputs = [
+    elements.liveQuestionOptionA,
+    elements.liveQuestionOptionB,
+    elements.liveQuestionOptionC,
+    elements.liveQuestionOptionD,
+  ];
+  optionInputs.forEach((input, index) => {
+    if (!input) return;
+    const option = draft.options[index];
+    input.value = option && option.text ? option.text : '';
+  });
+  if (elements.liveQuestionCorrect) {
+    elements.liveQuestionCorrect.value = draft.correctOption || 'A';
+  }
+  if (elements.liveQuestionTime) {
+    elements.liveQuestionTime.value = Number.isFinite(draft.timeLimit) ? draft.timeLimit : 20;
+  }
+  if (elements.liveQuestionPoints) {
+    elements.liveQuestionPoints.value = Number.isFinite(draft.points) ? draft.points : 100;
+  }
+  if (elements.liveQuestionSpeed) {
+    elements.liveQuestionSpeed.value = Number.isFinite(draft.speedBonus) ? draft.speedBonus : 0;
+  }
+}
+
+function resetLiveQuestionForm() {
+  ensureLiveDrafts();
+  state.live.questionDraft = createLiveQuestionDraft();
+  if (elements.liveQuestionError) {
+    elements.liveQuestionError.textContent = '';
+    elements.liveQuestionError.classList.add('hidden');
+  }
+  renderLiveQuestionDraft();
+}
+
+function resetLiveQuizDraft({ preserveClass = true } = {}) {
+  ensureLiveDrafts();
+  const fallbackClass = preserveClass ? state.live.quizDraft.classId : '';
+  const defaultClass = fallbackClass || (state.classes[0] ? state.classes[0].id : '');
+  state.live.quizDraft = {
+    classId: defaultClass,
+    title: '',
+    moduleId: '',
+    defaultTimeLimit: 20,
+    defaultPoints: 100,
+    speedBonus: 5,
+    questions: [],
+  };
+  state.live.questionDraft = createLiveQuestionDraft();
+  syncLiveQuizFormInputs();
+  renderLiveQuestions();
+}
+
+function renderLiveQuestions() {
+  ensureLiveDrafts();
+  const questions = Array.isArray(state.live.quizDraft.questions) ? state.live.quizDraft.questions : [];
+  const list = elements.liveQuestionsList;
+  const emptyState = elements.liveQuestionsEmpty;
+  const summary = elements.liveQuestionSummary;
+  if (!list || !emptyState || !summary) return;
+  list.innerHTML = '';
+  if (!questions.length) {
+    emptyState.classList.remove('hidden');
+    summary.textContent = 'Encara no hi ha preguntes afegides.';
+    return;
+  }
+  emptyState.classList.add('hidden');
+  summary.textContent = `${questions.length} preguntes manuals guardades.`;
+  questions.forEach((question, index) => {
+    const item = document.createElement('li');
+    item.className = 'portal-live-question';
+    item.dataset.questionId = question.id;
+
+    const header = document.createElement('header');
+    const title = document.createElement('h4');
+    title.className = 'portal-live-question-title';
+    title.textContent = `${index + 1}. ${question.prompt}`;
+    header.appendChild(title);
+
+    const meta = document.createElement('p');
+    meta.className = 'portal-live-question-meta';
+    const timePart = Number.isFinite(question.timeLimit) ? `${question.timeLimit}s` : '—';
+    const pointsPart = Number.isFinite(question.points) ? `${question.points} punts` : '—';
+    const bonusPart = Number.isFinite(question.speedBonus) && question.speedBonus > 0 ? `+${question.speedBonus}/s` : 'sense bonus';
+    meta.textContent = `Temps: ${timePart} · Puntuació: ${pointsPart} · ${bonusPart}`;
+    header.appendChild(meta);
+
+    item.appendChild(header);
+
+    const optionsList = document.createElement('ul');
+    optionsList.className = 'portal-live-options';
+    (question.options || []).forEach((option) => {
+      if (!option || !option.text) return;
+      const row = document.createElement('li');
+      const badge = document.createElement('strong');
+      badge.textContent = option.key || '';
+      row.appendChild(badge);
+      const span = document.createElement('span');
+      span.textContent = option.text;
+      if (option.key === question.correctOption) {
+        span.style.fontWeight = '700';
+      }
+      row.appendChild(span);
+      optionsList.appendChild(row);
+    });
+    item.appendChild(optionsList);
+
+    const actions = document.createElement('div');
+    actions.className = 'portal-live-question-actions';
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'btn-ghost';
+    removeButton.dataset.removeQuestionId = question.id;
+    removeButton.textContent = 'Elimina';
+    actions.appendChild(removeButton);
+    item.appendChild(actions);
+
+    list.appendChild(item);
+  });
+}
+
+function renderLiveQuizSelectors() {
+  ensureLiveDrafts();
+  if (!elements.liveGameQuiz) return;
+  const select = elements.liveGameQuiz;
+  const quizzes = state.live.quizzes || [];
+  const previousValue = state.live.gameDraft ? state.live.gameDraft.quizId : '';
+  select.innerHTML = '';
+  if (!quizzes.length) {
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Cap quiz disponible';
+    select.appendChild(placeholder);
+    setNestedState('live.gameDraft.quizId', '');
+    return;
+  }
+  quizzes.forEach((quiz) => {
+    const option = document.createElement('option');
+    option.value = quiz.id;
+    option.textContent = quiz.title;
+    select.appendChild(option);
+  });
+  const hasPrevious = quizzes.some((quiz) => quiz.id === previousValue);
+  const desired = hasPrevious ? previousValue : quizzes[0].id;
+  setNestedState('live.gameDraft.quizId', desired);
+  select.value = desired;
+}
+
+function syncLiveGameForm() {
+  ensureLiveDrafts();
+  const draft = state.live.gameDraft;
+  if (elements.liveGameClass) {
+    const options = Array.from(elements.liveGameClass.options || []);
+    const hasValue = options.some((option) => option.value === draft.classId);
+    if (hasValue) {
+      elements.liveGameClass.value = draft.classId;
+    } else if (options.length > 0) {
+      draft.classId = options[0].value;
+      elements.liveGameClass.value = draft.classId;
+    }
+  }
+  if (elements.liveGameQuiz) {
+    const options = Array.from(elements.liveGameQuiz.options || []);
+    const hasValue = options.some((option) => option.value === draft.quizId);
+    if (hasValue) {
+      elements.liveGameQuiz.value = draft.quizId;
+    } else if (options.length > 0) {
+      draft.quizId = options[0].value;
+      elements.liveGameQuiz.value = draft.quizId;
+    }
+  }
+  if (elements.liveGameTime) {
+    elements.liveGameTime.value = Number.isFinite(draft.timeLimit) ? draft.timeLimit : 20;
+  }
+  if (elements.liveGamePoints) {
+    elements.liveGamePoints.value = Number.isFinite(draft.points) ? draft.points : 100;
+  }
+  if (elements.liveGameBonus) {
+    elements.liveGameBonus.value = Number.isFinite(draft.speedBonus) ? draft.speedBonus : 0;
+  }
+}
+
+function renderLiveQuizzes() {
+  ensureLiveDrafts();
+  const container = elements.liveQuizList;
+  const emptyState = elements.liveQuizEmpty;
+  if (!container || !emptyState) return;
+  const quizzes = state.live.quizzes || [];
+  container.innerHTML = '';
+  if (!quizzes.length) {
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  emptyState.classList.add('hidden');
+  quizzes.forEach((quiz) => {
+    const card = document.createElement('article');
+    card.className = 'portal-live-quiz-card';
+    card.dataset.quizId = quiz.id;
+
+    const title = document.createElement('h3');
+    title.textContent = quiz.title;
+    card.appendChild(title);
+
+    const meta = document.createElement('p');
+    meta.className = 'portal-muted';
+    const classInfo = state.classes.find((cls) => cls.id === quiz.class_id);
+    const moduleInfo = MODULES.find((mod) => mod.id === quiz.module_id);
+    const parts = [];
+    if (classInfo) {
+      parts.push(`${classInfo.class_name} · ${classInfo.join_code}`);
+    }
+    if (moduleInfo) {
+      parts.push(`Mòdul ${moduleInfo.name}`);
+    } else if (quiz.module_id) {
+      parts.push(`Mòdul ${quiz.module_id}`);
+    }
+    parts.push(`${quiz.questions.length} preguntes manuals`);
+    meta.textContent = parts.join(' · ');
+    card.appendChild(meta);
+
+    const controls = document.createElement('div');
+    controls.className = 'portal-live-question-actions';
+    const useButton = document.createElement('button');
+    useButton.type = 'button';
+    useButton.className = 'btn-secondary';
+    useButton.dataset.quizId = quiz.id;
+    useButton.dataset.quizAction = 'focus';
+    useButton.textContent = 'Utilitza al Live';
+    controls.appendChild(useButton);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'btn-ghost';
+    deleteButton.dataset.quizId = quiz.id;
+    deleteButton.dataset.quizAction = 'delete';
+    deleteButton.textContent = 'Elimina';
+    controls.appendChild(deleteButton);
+
+    card.appendChild(controls);
+    container.appendChild(card);
+  });
+}
+
+function renderLiveGames() {
+  ensureLiveDrafts();
+  const container = elements.liveGameList;
+  const emptyState = elements.liveGameEmpty;
+  if (!container || !emptyState) return;
+  const games = state.live.games || [];
+  container.innerHTML = '';
+  if (!games.length) {
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  emptyState.classList.add('hidden');
+  games.forEach((game) => {
+    const card = document.createElement('article');
+    card.className = 'portal-live-game-card';
+    card.dataset.gameId = game.id;
+
+    const header = document.createElement('header');
+    const title = document.createElement('h3');
+    title.textContent = game.quiz_title || 'Quiz Live';
+    header.appendChild(title);
+
+    const code = document.createElement('span');
+    code.className = 'portal-live-game-code';
+    code.textContent = game.join_code || '';
+    header.appendChild(code);
+    card.appendChild(header);
+
+    const meta = document.createElement('p');
+    meta.className = 'portal-live-game-meta';
+    const classInfo = state.classes.find((cls) => cls.id === game.class_id);
+    const statusLabel = game.status ? game.status.charAt(0).toUpperCase() + game.status.slice(1) : 'En preparació';
+    const playerCount = Number.isFinite(game.player_count) ? `${game.player_count} alumnes` : 'Sense participants';
+    const className = classInfo ? classInfo.class_name : game.class_name;
+    const joinCode = classInfo ? classInfo.join_code : game.class_join_code;
+    const classText = className ? (joinCode ? `${className} · ${joinCode}` : className) : '';
+    const details = [classText, statusLabel, playerCount].filter(Boolean).join(' · ');
+    meta.textContent = details;
+    card.appendChild(meta);
+
+    const link = document.createElement('p');
+    link.className = 'portal-muted';
+    const playUrl = new URL('../play/', window.location.href);
+    const joinUrl = `${playUrl.origin}${playUrl.pathname}?code=${encodeURIComponent(game.join_code || '')}`;
+    link.textContent = `Enllaç per als alumnes: ${joinUrl}`;
+    card.appendChild(link);
+
+    const actions = document.createElement('div');
+    actions.className = 'portal-live-game-actions';
+
+    const copyButton = document.createElement('button');
+    copyButton.type = 'button';
+    copyButton.className = 'btn-secondary';
+    copyButton.dataset.gameId = game.id;
+    copyButton.dataset.gameAction = 'copy';
+    copyButton.textContent = 'Copia el codi';
+    actions.appendChild(copyButton);
+
+    const endButton = document.createElement('button');
+    endButton.type = 'button';
+    endButton.className = 'btn-ghost';
+    endButton.dataset.gameId = game.id;
+    endButton.dataset.gameAction = game.status === 'completed' ? 'archive' : 'close';
+    endButton.textContent = game.status === 'completed' ? 'Arxiva' : 'Tanca partida';
+    actions.appendChild(endButton);
+
+    card.appendChild(actions);
+    container.appendChild(card);
+  });
+}
+
+function handleLiveQuestionAdd() {
+  ensureLiveDrafts();
+  const promptInput = elements.liveQuestionPrompt;
+  const prompt = (promptInput && typeof promptInput.value === 'string' ? promptInput.value : '').trim();
+  if (!prompt) {
+    if (elements.liveQuestionError) {
+      elements.liveQuestionError.textContent = 'Introdueix l\'enunciat de la pregunta.';
+      elements.liveQuestionError.classList.remove('hidden');
+    }
+    return;
+  }
+  const optionInputs = [
+    { node: elements.liveQuestionOptionA, key: 'A' },
+    { node: elements.liveQuestionOptionB, key: 'B' },
+    { node: elements.liveQuestionOptionC, key: 'C' },
+    { node: elements.liveQuestionOptionD, key: 'D' },
+  ];
+  const options = optionInputs.map(({ node, key }) => ({
+    key,
+    text: (node && typeof node.value === 'string' ? node.value : '').trim(),
+  }));
+  const filled = options.filter((option) => option.text.length > 0);
+  if (filled.length < 2) {
+    if (elements.liveQuestionError) {
+      elements.liveQuestionError.textContent = 'Calen almenys dues opcions amb text.';
+      elements.liveQuestionError.classList.remove('hidden');
+    }
+    return;
+  }
+  const correctSelect = elements.liveQuestionCorrect;
+  const desiredCorrect = correctSelect ? correctSelect.value : 'A';
+  const hasCorrect = filled.some((option) => option.key === desiredCorrect);
+  if (!hasCorrect) {
+    if (elements.liveQuestionError) {
+      elements.liveQuestionError.textContent = 'La resposta correcta ha de tenir text.';
+      elements.liveQuestionError.classList.remove('hidden');
+    }
+    return;
+  }
+  const timeInput = elements.liveQuestionTime;
+  const pointsInput = elements.liveQuestionPoints;
+  const bonusInput = elements.liveQuestionSpeed;
+  const rawTime = timeInput ? Number.parseInt(timeInput.value, 10) : NaN;
+  const rawPoints = pointsInput ? Number.parseInt(pointsInput.value, 10) : NaN;
+  const rawBonus = bonusInput ? Number.parseFloat(bonusInput.value) : NaN;
+  const timeLimit = Number.isFinite(rawTime) ? Math.min(Math.max(rawTime, 5), 600) : state.live.quizDraft.defaultTimeLimit;
+  const points = Number.isFinite(rawPoints) ? Math.min(Math.max(rawPoints, 0), 1000) : state.live.quizDraft.defaultPoints;
+  const speedBonus = Number.isFinite(rawBonus) ? Math.min(Math.max(rawBonus, 0), 1000) : state.live.quizDraft.speedBonus;
+  const question = {
+    id: createLocalId('liveq'),
+    prompt,
+    options: options.map((option) => ({ key: option.key, text: option.text })),
+    correctOption: desiredCorrect,
+    timeLimit,
+    points,
+    speedBonus,
+  };
+  state.live.quizDraft.questions = [...state.live.quizDraft.questions, question];
+  if (elements.liveQuestionError) {
+    elements.liveQuestionError.textContent = '';
+    elements.liveQuestionError.classList.add('hidden');
+  }
+  resetLiveQuestionForm();
+  renderLiveQuestions();
+}
+
+function handleLiveQuestionRemove(questionId) {
+  ensureLiveDrafts();
+  if (!questionId) return;
+  state.live.quizDraft.questions = state.live.quizDraft.questions.filter((question) => question.id !== questionId);
+  renderLiveQuestions();
+}
+
+function handleLiveQuizFieldChange(event) {
+  ensureLiveDrafts();
+  const target = event ? event.target : null;
+  if (!target) return;
+  const value = target.value;
+  switch (target.id) {
+    case 'liveQuizClass':
+      state.live.quizDraft.classId = value;
+      state.live.gameDraft.classId = value;
+      break;
+    case 'liveQuizTitle':
+      state.live.quizDraft.title = value;
+      break;
+    case 'liveQuizModule':
+      state.live.quizDraft.moduleId = value || '';
+      break;
+    case 'liveQuizTime': {
+      const numeric = Number.parseInt(value, 10);
+      const sanitized = Number.isFinite(numeric) ? Math.min(Math.max(numeric, 5), 600) : state.live.quizDraft.defaultTimeLimit;
+      state.live.quizDraft.defaultTimeLimit = sanitized;
+      if (state.live.questionDraft) {
+        state.live.questionDraft.timeLimit = sanitized;
+        renderLiveQuestionDraft();
+      }
+      break;
+    }
+    case 'liveQuizSpeedBonus': {
+      const numeric = Number.parseFloat(value);
+      const sanitized = Number.isFinite(numeric) ? Math.min(Math.max(numeric, 0), 1000) : state.live.quizDraft.speedBonus;
+      state.live.quizDraft.speedBonus = sanitized;
+      if (state.live.questionDraft) {
+        state.live.questionDraft.speedBonus = sanitized;
+        renderLiveQuestionDraft();
+      }
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+function handleLiveQuestionFieldChange(event) {
+  ensureLiveDrafts();
+  const target = event ? event.target : null;
+  if (!target) return;
+  const draft = state.live.questionDraft;
+  if (!draft) return;
+  const value = target.value;
+  switch (target.id) {
+    case 'liveQuestionPrompt':
+      draft.prompt = value;
+      break;
+    case 'liveQuestionOptionA':
+      draft.options[0].text = value;
+      break;
+    case 'liveQuestionOptionB':
+      draft.options[1].text = value;
+      break;
+    case 'liveQuestionOptionC':
+      draft.options[2].text = value;
+      break;
+    case 'liveQuestionOptionD':
+      draft.options[3].text = value;
+      break;
+    case 'liveQuestionCorrect':
+      draft.correctOption = value || 'A';
+      break;
+    case 'liveQuestionTime': {
+      const numeric = Number.parseInt(value, 10);
+      draft.timeLimit = Number.isFinite(numeric) ? Math.min(Math.max(numeric, 5), 600) : draft.timeLimit;
+      break;
+    }
+    case 'liveQuestionPoints': {
+      const numeric = Number.parseInt(value, 10);
+      draft.points = Number.isFinite(numeric) ? Math.min(Math.max(numeric, 0), 1000) : draft.points;
+      break;
+    }
+    case 'liveQuestionSpeed': {
+      const numeric = Number.parseFloat(value);
+      draft.speedBonus = Number.isFinite(numeric) ? Math.min(Math.max(numeric, 0), 1000) : draft.speedBonus;
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+function handleLiveGameFieldChange(event) {
+  ensureLiveDrafts();
+  const target = event ? event.target : null;
+  if (!target) return;
+  const value = target.value;
+  switch (target.id) {
+    case 'liveGameClass':
+      state.live.gameDraft.classId = value;
+      break;
+    case 'liveGameTime': {
+      const numeric = Number.parseInt(value, 10);
+      state.live.gameDraft.timeLimit = Number.isFinite(numeric) ? Math.min(Math.max(numeric, 5), 600) : state.live.gameDraft.timeLimit;
+      break;
+    }
+    case 'liveGamePoints': {
+      const numeric = Number.parseInt(value, 10);
+      state.live.gameDraft.points = Number.isFinite(numeric) ? Math.min(Math.max(numeric, 0), 1000) : state.live.gameDraft.points;
+      break;
+    }
+    case 'liveGameBonus': {
+      const numeric = Number.parseFloat(value);
+      state.live.gameDraft.speedBonus = Number.isFinite(numeric) ? Math.min(Math.max(numeric, 0), 1000) : state.live.gameDraft.speedBonus;
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+function handleLiveGameQuizChange(event) {
+  ensureLiveDrafts();
+  const target = event ? event.target : null;
+  if (!target) return;
+  const quizId = target.value;
+  state.live.gameDraft.quizId = quizId;
+  const quiz = state.live.quizzes.find((item) => item.id === quizId);
+  if (quiz) {
+    if (quiz.class_id) {
+      state.live.gameDraft.classId = quiz.class_id;
+      if (elements.liveGameClass) {
+        elements.liveGameClass.value = quiz.class_id;
+      }
+      state.live.quizDraft.classId = quiz.class_id;
+    }
+    if (Number.isFinite(quiz.default_time_limit)) {
+      state.live.gameDraft.timeLimit = quiz.default_time_limit;
+      if (elements.liveGameTime) elements.liveGameTime.value = quiz.default_time_limit;
+    }
+    if (Number.isFinite(quiz.default_points)) {
+      state.live.gameDraft.points = quiz.default_points;
+      if (elements.liveGamePoints) elements.liveGamePoints.value = quiz.default_points;
+    }
+    if (Number.isFinite(quiz.speed_bonus)) {
+      state.live.gameDraft.speedBonus = quiz.speed_bonus;
+      if (elements.liveGameBonus) elements.liveGameBonus.value = quiz.speed_bonus;
+    }
   }
 }
 
@@ -1790,11 +2632,359 @@ async function loadSubmissions() {
   }));
 }
 
+async function loadLiveQuizzes() {
+  const client = createSupabaseClient();
+  if (!client || !state.profile) return;
+  try {
+    const { data, error } = await client
+      .from('quizzes')
+      .select(
+        'id, title, module_id, class_id, default_time_limit, default_points, speed_bonus, created_at, updated_at, quiz_questions(id, question_index, prompt, options, correct_option, time_limit, points, speed_bonus)'
+      )
+      .eq('teacher_id', state.profile.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    const quizzes = Array.isArray(data) ? data : [];
+    state.live.quizzes = quizzes.map((quiz) => {
+      const questionList = Array.isArray(quiz.quiz_questions)
+        ? quiz.quiz_questions
+            .slice()
+            .sort((a, b) => (a.question_index || 0) - (b.question_index || 0))
+            .map((question) => ({
+              id: question.id,
+              index: question.question_index,
+              prompt: question.prompt,
+              options: Array.isArray(question.options)
+                ? question.options.map((option) => ({
+                    key: option.key || option.letter || option.label || '',
+                    text: option.text || option.value || option.label || '',
+                  }))
+                : [],
+              correctOption: question.correct_option,
+              timeLimit: question.time_limit,
+              points: question.points,
+              speedBonus: Number.isFinite(Number.parseFloat(question.speed_bonus))
+                ? Number.parseFloat(question.speed_bonus)
+                : 0,
+            }))
+        : [];
+      return {
+        id: quiz.id,
+        title: quiz.title,
+        module_id: quiz.module_id,
+        class_id: quiz.class_id,
+        default_time_limit: quiz.default_time_limit,
+        default_points: quiz.default_points,
+        speed_bonus: Number.isFinite(Number.parseFloat(quiz.speed_bonus))
+          ? Number.parseFloat(quiz.speed_bonus)
+          : 0,
+        created_at: quiz.created_at,
+        updated_at: quiz.updated_at,
+        questions: questionList,
+      };
+    });
+  } catch (error) {
+    console.error('No s\'han pogut carregar els quizzes Live', error);
+    state.live.quizzes = [];
+  }
+  renderLiveQuizzes();
+  renderLiveQuizSelectors();
+  syncLiveGameForm();
+}
+
+async function loadLiveGames() {
+  const client = createSupabaseClient();
+  if (!client || !state.profile) return;
+  try {
+    const { data, error } = await client
+      .from('games')
+      .select(
+        'id, quiz_id, class_id, join_code, status, current_question, question_time_limit, question_points, speed_bonus, created_at, updated_at, ended_at, quiz:quizzes(title, class_id, default_time_limit, default_points, speed_bonus), class:classes(class_name, join_code), players:players(id)'
+      )
+      .eq('teacher_id', state.profile.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    const games = Array.isArray(data) ? data : [];
+    state.live.games = games.map((game) => ({
+      id: game.id,
+      quiz_id: game.quiz_id,
+      class_id: game.class_id,
+      join_code: game.join_code,
+      status: game.status,
+      current_question: game.current_question,
+      question_time_limit: game.question_time_limit,
+      question_points: game.question_points,
+      speed_bonus: Number.isFinite(Number.parseFloat(game.speed_bonus))
+        ? Number.parseFloat(game.speed_bonus)
+        : 0,
+      created_at: game.created_at,
+      updated_at: game.updated_at,
+      ended_at: game.ended_at,
+      quiz_title: game.quiz ? game.quiz.title : null,
+      player_count: Array.isArray(game.players) ? game.players.length : 0,
+      class_name: game.class ? game.class.class_name : null,
+      class_join_code: game.class ? game.class.join_code : null,
+    }));
+  } catch (error) {
+    console.error('No s\'han pogut carregar les partides Live', error);
+    state.live.games = [];
+  }
+  renderLiveGames();
+}
+
 function renderAll() {
   renderClasses();
   renderAssignments();
   buildResultsFilters();
   renderResults();
+  renderLiveQuizzes();
+  renderLiveGames();
+}
+
+async function createLiveQuiz() {
+  ensureLiveDrafts();
+  const client = createSupabaseClient();
+  if (!client || !state.profile) return;
+  const draft = state.live.quizDraft;
+  const classId = draft.classId;
+  const title = (draft.title || '').trim();
+  const moduleId = draft.moduleId ? draft.moduleId : null;
+  const defaultTime = Number.isFinite(draft.defaultTimeLimit)
+    ? Math.min(Math.max(draft.defaultTimeLimit, 5), 600)
+    : 20;
+  const defaultPoints = Number.isFinite(draft.defaultPoints)
+    ? Math.min(Math.max(draft.defaultPoints, 0), 1000)
+    : 100;
+  const speedBonus = Number.isFinite(draft.speedBonus)
+    ? Math.min(Math.max(draft.speedBonus, 0), 1000)
+    : 0;
+  const manualQuestions = Array.isArray(draft.questions) ? draft.questions : [];
+
+  if (!classId) {
+    if (elements.liveQuizFeedback) {
+      elements.liveQuizFeedback.textContent = 'Selecciona una classe per al quiz.';
+    }
+    return;
+  }
+  if (!title) {
+    if (elements.liveQuizFeedback) {
+      elements.liveQuizFeedback.textContent = 'Introdueix un títol per al quiz Live.';
+    }
+    return;
+  }
+  if (!moduleId && manualQuestions.length === 0) {
+    if (elements.liveQuizFeedback) {
+      elements.liveQuizFeedback.textContent = 'Afegeix almenys una pregunta o selecciona un mòdul FocusQuiz.';
+    }
+    return;
+  }
+
+  if (elements.liveQuizFeedback) {
+    elements.liveQuizFeedback.textContent = 'Guardant quiz Live...';
+  }
+
+  try {
+    const { data, error } = await client
+      .from('quizzes')
+      .insert({
+        teacher_id: state.profile.id,
+        class_id: classId,
+        title,
+        module_id: moduleId,
+        default_time_limit: defaultTime,
+        default_points: defaultPoints,
+        speed_bonus: speedBonus,
+      })
+      .select('id')
+      .single();
+    if (error) throw error;
+    const quizId = data ? data.id : null;
+    if (quizId && manualQuestions.length) {
+      const rows = manualQuestions.map((question, index) => ({
+        quiz_id: quizId,
+        question_index: index + 1,
+        prompt: question.prompt,
+        options: question.options,
+        correct_option: question.correctOption,
+        time_limit: Number.isFinite(question.timeLimit)
+          ? Math.min(Math.max(question.timeLimit, 5), 600)
+          : defaultTime,
+        points: Number.isFinite(question.points)
+          ? Math.min(Math.max(question.points, 0), 1000)
+          : defaultPoints,
+        speed_bonus: Number.isFinite(question.speedBonus)
+          ? Math.min(Math.max(question.speedBonus, 0), 1000)
+          : speedBonus,
+      }));
+      const { error: questionError } = await client.from('quiz_questions').insert(rows);
+      if (questionError) throw questionError;
+    }
+    if (elements.liveQuizFeedback) {
+      elements.liveQuizFeedback.textContent = 'Quiz Live guardat correctament.';
+    }
+    resetLiveQuizDraft({ preserveClass: true });
+    await loadLiveQuizzes();
+  } catch (error) {
+    console.error('No s\'ha pogut guardar el quiz Live', error);
+    if (elements.liveQuizFeedback) {
+      elements.liveQuizFeedback.textContent = 'No s\'ha pogut guardar el quiz Live. Torna-ho a provar.';
+    }
+  }
+  if (elements.liveQuizFeedback) {
+    setTimeout(() => {
+      if (elements.liveQuizFeedback) {
+        elements.liveQuizFeedback.textContent = '';
+      }
+    }, 3000);
+  }
+}
+
+async function deleteLiveQuiz(quizId) {
+  if (!quizId) return;
+  const client = createSupabaseClient();
+  if (!client || !state.profile) return;
+  try {
+    const { error } = await client.from('quizzes').delete().eq('id', quizId).eq('teacher_id', state.profile.id);
+    if (error) throw error;
+    await loadLiveQuizzes();
+  } catch (error) {
+    console.error('No s\'ha pogut eliminar el quiz Live', error);
+    window.alert('No s\'ha pogut eliminar el quiz Live. Revisa la connexió i torna-ho a provar.');
+  }
+}
+
+function focusLiveQuiz(quizId) {
+  ensureLiveDrafts();
+  const quiz = state.live.quizzes.find((item) => item.id === quizId);
+  if (!quiz) return;
+  state.live.gameDraft.quizId = quiz.id;
+  state.live.gameDraft.classId = quiz.class_id || state.live.gameDraft.classId;
+  state.live.gameDraft.timeLimit = Number.isFinite(quiz.default_time_limit) ? quiz.default_time_limit : state.live.gameDraft.timeLimit;
+  state.live.gameDraft.points = Number.isFinite(quiz.default_points) ? quiz.default_points : state.live.gameDraft.points;
+  state.live.gameDraft.speedBonus = Number.isFinite(quiz.speed_bonus) ? quiz.speed_bonus : state.live.gameDraft.speedBonus;
+  if (state.live.quizDraft) {
+    state.live.quizDraft.classId = quiz.class_id || state.live.quizDraft.classId;
+    state.live.quizDraft.moduleId = quiz.module_id || '';
+    if (Number.isFinite(quiz.default_time_limit)) {
+      state.live.quizDraft.defaultTimeLimit = quiz.default_time_limit;
+    }
+    if (Number.isFinite(quiz.default_points)) {
+      state.live.quizDraft.defaultPoints = quiz.default_points;
+    }
+    if (Number.isFinite(quiz.speed_bonus)) {
+      state.live.quizDraft.speedBonus = quiz.speed_bonus;
+    }
+  }
+  syncLiveQuizFormInputs();
+  syncLiveGameForm();
+}
+
+async function createLiveGame() {
+  ensureLiveDrafts();
+  const client = createSupabaseClient();
+  if (!client || !state.profile) return;
+  const draft = state.live.gameDraft;
+  const classId = elements.liveGameClass ? elements.liveGameClass.value : draft.classId;
+  const quizId = elements.liveGameQuiz ? elements.liveGameQuiz.value : draft.quizId;
+  const rawTime = elements.liveGameTime ? Number.parseInt(elements.liveGameTime.value, 10) : draft.timeLimit;
+  const rawPoints = elements.liveGamePoints ? Number.parseInt(elements.liveGamePoints.value, 10) : draft.points;
+  const rawBonus = elements.liveGameBonus ? Number.parseFloat(elements.liveGameBonus.value) : draft.speedBonus;
+  const timeLimit = Number.isFinite(rawTime) ? Math.min(Math.max(rawTime, 5), 600) : 20;
+  const points = Number.isFinite(rawPoints) ? Math.min(Math.max(rawPoints, 0), 1000) : 100;
+  const speedBonus = Number.isFinite(rawBonus) ? Math.min(Math.max(rawBonus, 0), 1000) : 0;
+
+  if (!classId || !quizId) {
+    if (elements.liveGameFeedback) {
+      elements.liveGameFeedback.textContent = 'Selecciona una classe i un quiz Live.';
+    }
+    return;
+  }
+
+  if (elements.liveGameFeedback) {
+    elements.liveGameFeedback.textContent = 'Creant partida Live...';
+  }
+
+  try {
+    const { data, error } = await client
+      .from('games')
+      .insert({
+        class_id: classId,
+        quiz_id: quizId,
+        teacher_id: state.profile.id,
+        question_time_limit: timeLimit,
+        question_points: points,
+        speed_bonus: speedBonus,
+      })
+      .select('id, join_code')
+      .single();
+    if (error) throw error;
+    state.live.gameDraft = {
+      classId,
+      quizId,
+      timeLimit,
+      points,
+      speedBonus,
+    };
+    if (elements.liveGameFeedback) {
+      const joinCode = data && data.join_code ? data.join_code : '';
+      elements.liveGameFeedback.textContent = joinCode
+        ? `Partida creada. Comparteix el codi ${joinCode} amb l'alumnat.`
+        : 'Partida creada.';
+    }
+    await loadLiveGames();
+  } catch (error) {
+    console.error('No s\'ha pogut crear la partida Live', error);
+    if (elements.liveGameFeedback) {
+      elements.liveGameFeedback.textContent = 'No s\'ha pogut crear la partida. Torna-ho a provar.';
+    }
+  }
+  if (elements.liveGameFeedback) {
+    setTimeout(() => {
+      if (elements.liveGameFeedback && elements.liveGameFeedback.textContent.startsWith('Partida')) {
+        elements.liveGameFeedback.textContent = '';
+      }
+    }, 4000);
+  }
+}
+
+async function updateLiveGameStatus(gameId, status) {
+  if (!gameId || !status) return;
+  const client = createSupabaseClient();
+  if (!client || !state.profile) return;
+  try {
+    const updates = { status };
+    if (status === 'completed' || status === 'cancelled') {
+      updates.ended_at = new Date().toISOString();
+    }
+    const { error } = await client.from('games').update(updates).eq('id', gameId).eq('teacher_id', state.profile.id);
+    if (error) throw error;
+    await loadLiveGames();
+  } catch (error) {
+    console.error('No s\'ha pogut actualitzar l\'estat de la partida', error);
+    window.alert('No s\'ha pogut actualitzar la partida. Torna-ho a provar.');
+  }
+}
+
+async function copyLiveGameCode(game) {
+  if (!game || !game.join_code) return;
+  const joinCode = game.join_code;
+  try {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      await navigator.clipboard.writeText(joinCode);
+      if (elements.liveGameFeedback) {
+        elements.liveGameFeedback.textContent = `Codi ${joinCode} copiat al porta-retalls.`;
+        setTimeout(() => {
+          if (elements.liveGameFeedback && elements.liveGameFeedback.textContent.includes(joinCode)) {
+            elements.liveGameFeedback.textContent = '';
+          }
+        }, 2500);
+      }
+      return;
+    }
+  } catch (error) {
+    console.warn('No s\'ha pogut copiar el codi amb l\'API Clipboard', error);
+  }
+  window.prompt('Copia el codi de partida i comparteix-lo amb l\'alumnat:', joinCode);
 }
 
 async function handleLogin(event) {
@@ -1846,11 +3036,37 @@ async function handleLogout() {
   await client.auth.signOut();
   state.session = null;
   state.profile = null;
+  state.profileError = null;
   state.classes = [];
   state.assignments = [];
   state.submissions = [];
+  state.live = {
+    quizzes: [],
+    games: [],
+    quizDraft: {
+      classId: '',
+      title: '',
+      moduleId: '',
+      defaultTimeLimit: 20,
+      defaultPoints: 100,
+      speedBonus: 5,
+      questions: [],
+    },
+    questionDraft: null,
+    gameDraft: {
+      classId: '',
+      quizId: '',
+      timeLimit: 20,
+      points: 100,
+      speedBonus: 5,
+    },
+  };
+  ensureLiveDrafts();
+  renderLiveQuizzes();
+  renderLiveGames();
   setCurrentModule('', { preserveQuestions: false });
   updateAuthUI();
+  renderProfileWarning();
 }
 
 async function refreshData() {
@@ -1860,11 +3076,16 @@ async function refreshData() {
     await loadClasses();
     await loadAssignments();
     await loadSubmissions();
+    await loadLiveQuizzes();
+    await loadLiveGames();
   }
   renderModuleOptions();
   renderClassOptions();
   renderAll();
+  syncLiveQuizFormInputs();
+  syncLiveGameForm();
   updateAuthUI();
+  renderProfileWarning();
 }
 
 function setupEventListeners() {
@@ -1951,6 +3172,135 @@ function setupEventListeners() {
   window.addEventListener('message', handlePreviewMessage);
   window.addEventListener('storage', handlePreviewStorageMessage);
   window.addEventListener('beforeunload', closePreviewChannel);
+
+  if (elements.liveQuizClass) {
+    elements.liveQuizClass.addEventListener('change', handleLiveQuizFieldChange);
+  }
+  if (elements.liveQuizTitle) {
+    elements.liveQuizTitle.addEventListener('input', handleLiveQuizFieldChange);
+  }
+  if (elements.liveQuizModule) {
+    elements.liveQuizModule.addEventListener('change', handleLiveQuizFieldChange);
+  }
+  if (elements.liveQuizTime) {
+    const handler = handleLiveQuizFieldChange;
+    elements.liveQuizTime.addEventListener('input', handler);
+    elements.liveQuizTime.addEventListener('change', handler);
+  }
+  if (elements.liveQuizSpeedBonus) {
+    const handler = handleLiveQuizFieldChange;
+    elements.liveQuizSpeedBonus.addEventListener('input', handler);
+    elements.liveQuizSpeedBonus.addEventListener('change', handler);
+  }
+  if (elements.liveQuizSave) {
+    elements.liveQuizSave.addEventListener('click', createLiveQuiz);
+  }
+  if (elements.liveQuizReset) {
+    elements.liveQuizReset.addEventListener('click', () => resetLiveQuizDraft({ preserveClass: true }));
+  }
+  if (elements.liveQuestionAdd) {
+    elements.liveQuestionAdd.addEventListener('click', handleLiveQuestionAdd);
+  }
+  if (elements.liveQuestionReset) {
+    elements.liveQuestionReset.addEventListener('click', resetLiveQuestionForm);
+  }
+  const liveQuestionInputs = [
+    elements.liveQuestionPrompt,
+    elements.liveQuestionOptionA,
+    elements.liveQuestionOptionB,
+    elements.liveQuestionOptionC,
+    elements.liveQuestionOptionD,
+    elements.liveQuestionCorrect,
+    elements.liveQuestionTime,
+    elements.liveQuestionPoints,
+    elements.liveQuestionSpeed,
+  ];
+  liveQuestionInputs.forEach((input) => {
+    if (!input) return;
+    const handler = handleLiveQuestionFieldChange;
+    const eventName = input.tagName && input.tagName.toLowerCase() === 'select' ? 'change' : 'input';
+    input.addEventListener(eventName, handler);
+  });
+  if (elements.liveQuestionsList) {
+    elements.liveQuestionsList.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target.closest('[data-remove-question-id]') : null;
+      if (!target) return;
+      const questionId = target.getAttribute('data-remove-question-id');
+      if (questionId) {
+        handleLiveQuestionRemove(questionId);
+      }
+    });
+  }
+  if (elements.liveRefresh) {
+    elements.liveRefresh.addEventListener('click', async () => {
+      await loadLiveQuizzes();
+      await loadLiveGames();
+    });
+  }
+  if (elements.liveGameClass) {
+    elements.liveGameClass.addEventListener('change', handleLiveGameFieldChange);
+  }
+  if (elements.liveGameTime) {
+    const handler = handleLiveGameFieldChange;
+    elements.liveGameTime.addEventListener('input', handler);
+    elements.liveGameTime.addEventListener('change', handler);
+  }
+  if (elements.liveGamePoints) {
+    const handler = handleLiveGameFieldChange;
+    elements.liveGamePoints.addEventListener('input', handler);
+    elements.liveGamePoints.addEventListener('change', handler);
+  }
+  if (elements.liveGameBonus) {
+    const handler = handleLiveGameFieldChange;
+    elements.liveGameBonus.addEventListener('input', handler);
+    elements.liveGameBonus.addEventListener('change', handler);
+  }
+  if (elements.liveGameQuiz) {
+    elements.liveGameQuiz.addEventListener('change', (event) => {
+      handleLiveGameQuizChange(event);
+    });
+  }
+  if (elements.liveGameCreate) {
+    elements.liveGameCreate.addEventListener('click', createLiveGame);
+  }
+  if (elements.liveGameRefresh) {
+    elements.liveGameRefresh.addEventListener('click', async () => {
+      await loadLiveGames();
+    });
+  }
+  if (elements.liveQuizList) {
+    elements.liveQuizList.addEventListener('click', (event) => {
+      const button = event.target instanceof Element ? event.target.closest('button[data-quiz-action]') : null;
+      if (!button) return;
+      const quizId = button.getAttribute('data-quiz-id');
+      const action = button.getAttribute('data-quiz-action');
+      if (!quizId || !action) return;
+      if (action === 'delete') {
+        deleteLiveQuiz(quizId);
+      } else if (action === 'focus') {
+        focusLiveQuiz(quizId);
+        switchTab('live');
+      }
+    });
+  }
+  if (elements.liveGameList) {
+    elements.liveGameList.addEventListener('click', (event) => {
+      const button = event.target instanceof Element ? event.target.closest('button[data-game-action]') : null;
+      if (!button) return;
+      const gameId = button.getAttribute('data-game-id');
+      const action = button.getAttribute('data-game-action');
+      if (!gameId || !action) return;
+      const game = state.live.games.find((item) => item.id === gameId);
+      if (!game) return;
+      if (action === 'copy') {
+        copyLiveGameCode(game);
+      } else if (action === 'close') {
+        updateLiveGameStatus(gameId, 'completed');
+      } else if (action === 'archive') {
+        updateLiveGameStatus(gameId, 'cancelled');
+      }
+    });
+  }
 }
 
 async function init() {
