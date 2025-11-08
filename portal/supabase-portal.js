@@ -27,6 +27,7 @@ const state = {
   supabase: null,
   session: null,
   profile: null,
+  profileError: null,
   activeTab: 'classes',
   classes: [],
   assignments: [],
@@ -368,6 +369,7 @@ async function loadProfile() {
   const user = state.session && state.session.user ? state.session.user : null;
   const userId = user ? user.id : null;
   if (!userId) return null;
+  state.profileError = null;
   const { data, error } = await client
     .from('profiles')
     .select('id, full_name, email')
@@ -375,6 +377,8 @@ async function loadProfile() {
     .maybeSingle();
   if (error) {
     console.error('No s\'ha pogut recuperar el perfil', error);
+    state.profile = null;
+    state.profileError = error;
     return null;
   }
   if (!data) {
@@ -389,12 +393,41 @@ async function loadProfile() {
     });
     if (insertError) {
       console.error('No s\'ha pogut crear el perfil', insertError);
+      state.profile = null;
+      state.profileError = insertError;
       return null;
     }
     return loadProfile();
   }
   state.profile = data;
+  state.profileError = null;
   return state.profile;
+}
+
+function supabaseErrorMessage(error) {
+  if (!error) return '';
+  if (typeof error === 'string') return error;
+  if (error.message) return error.message;
+  if (error.error_description) return error.error_description;
+  try {
+    return JSON.stringify(error);
+  } catch (serializationError) {
+    console.warn('No s\'ha pogut serialitzar l\'error de Supabase', serializationError);
+    return '';
+  }
+}
+
+function renderProfileWarning() {
+  if (!elements.authError) return;
+  if (state.session && !state.profile) {
+    const detail = supabaseErrorMessage(state.profileError);
+    const troubleshooting =
+      "Sessió iniciada però no s'ha pogut carregar el perfil docent. Revisa que hagis executat els scripts `supabase/setup.sql` i `supabase/live-mode.sql` i que la taula `profiles` contingui el teu usuari.";
+    const message = detail ? `${troubleshooting} Detall Supabase: ${detail}` : troubleshooting;
+    showError(elements.authError, message);
+    return;
+  }
+  showError(elements.authError, '');
 }
 
 function updateAuthUI() {
@@ -3003,6 +3036,7 @@ async function handleLogout() {
   await client.auth.signOut();
   state.session = null;
   state.profile = null;
+  state.profileError = null;
   state.classes = [];
   state.assignments = [];
   state.submissions = [];
@@ -3032,6 +3066,7 @@ async function handleLogout() {
   renderLiveGames();
   setCurrentModule('', { preserveQuestions: false });
   updateAuthUI();
+  renderProfileWarning();
 }
 
 async function refreshData() {
@@ -3050,6 +3085,7 @@ async function refreshData() {
   syncLiveQuizFormInputs();
   syncLiveGameForm();
   updateAuthUI();
+  renderProfileWarning();
 }
 
 function setupEventListeners() {
