@@ -1757,6 +1757,356 @@ const BANK_MORFO_FUNCIONS = [
     options: ["Complement directe", "Subjecte", "Atribut", "Complement de lloc"],
     answer: `Complement directe`
   }
+   {
+    text: `Funció de "al parc" en: "La Marta juga al parc"`,
+    options: ["Complement circumstancial de lloc", "Subjecte", "Complement directe", "Complement de règim"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "un llibre" en: "Vaig comprar un llibre"`,
+    options: ["Complement directe", "Subjecte", "Atribut", "Complement de lloc"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "Els alumnes" en: "Els alumnes estudien molt"`,
+    options: ["Subjecte", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Subjecte`
+  },
+  {
+    text: `Funció de "amb els amics" en: "Vaig sortir amb els amics"`,
+    options: ["Complement circumstancial de companyia", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de companyia`
+  },
+  {
+    text: `Funció de "a la Maria" en: "He vist a la Maria"`,
+    options: ["Complement directe", "Complement indirecte", "Complement de règim", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "al seu germà" en: "Va donar el regal al seu germà"`,
+    options: ["Complement directe", "Complement indirecte", "Subjecte", "Atribut"],
+    answer: `Complement indirecte`
+  },
+  {
+    text: `Funció de "de Barcelona" en: "El tren de Barcelona arriba a les deu"`,
+    options: ["Complement del nom", "Complement de règim", "Complement circumstancial de lloc", "Atribut"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "feliç" en: "Estic feliç"`,
+    options: ["Atribut", "Complement directe", "Subjecte", "Complement predicatiu"],
+    answer: `Atribut`
+  },
+  {
+    text: `Funció de "de viatjar" en: "Tinc ganes de viatjar"`,
+    options: ["Complement del nom", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "sobre política" en: "Parlen sobre política"`,
+    options: ["Complement de règim", "Complement directe", "Complement circumstancial de tema", "Atribut"],
+    answer: `Complement de règim`
+  },
+  {
+    text: `Funció de "demà" en: "Vindré demà"`,
+    options: ["Complement circumstancial de temps", "Complement directe", "Complement de règim", "Subjecte"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "tranquil" en: "El nen dorm tranquil"`,
+    options: ["Complement predicatiu", "Atribut", "Complement directe", "Complement del nom"],
+    answer: `Complement predicatiu`
+  },
+  {
+    text: `Funció de "a casa" en: "Anirem a casa"`,
+    options: ["Complement circumstancial de lloc", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "pel carrer" en: "Va caminar pel carrer"`,
+    options: ["Complement circumstancial de lloc", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "a estudiar" en: "Es dedica a estudiar"`,
+    options: ["Complement de règim", "Complement directe", "Atribut", "Complement del nom"],
+    answer: `Complement de règim`
+  },
+   {
+    text: `Funció de "una carta" en: "La Maria escriu una carta"`,
+    options: ["Complement directe", "Subjecte", "Complement indirecte", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "als seus pares" en: "En Joan explica la història als seus pares"`,
+    options: ["Complement indirecte", "Complement directe", "Complement de règim", "Complement del nom"],
+    answer: `Complement indirecte`
+  },
+  {
+    text: `Funció de "cada matí" en: "Corro cada matí"`,
+    options: ["Complement circumstancial de temps", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "amb entusiasme" en: "Treballa amb entusiasme"`,
+    options: ["Complement circumstancial de manera", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "de química" en: "El professor de química és simpàtic"`,
+    options: ["Complement del nom", "Complement de règim", "Atribut", "Complement circumstancial de tema"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "a la tarda" en: "Ens veurem a la tarda"`,
+    options: ["Complement circumstancial de temps", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "les flors" en: "El vent mou les flors"`,
+    options: ["Complement directe", "Subjecte", "Atribut", "Complement del nom"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "la setmana vinent" en: "Anirem de viatge la setmana vinent"`,
+    options: ["Complement circumstancial de temps", "Complement del nom", "Atribut", "Complement directe"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "a poc a poc" en: "Camina a poc a poc"`,
+    options: ["Complement circumstancial de manera", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "dels alumnes" en: "El comportament dels alumnes ha millorat"`,
+    options: ["Complement del nom", "Subjecte", "Atribut", "Complement directe"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "a sobre la taula" en: "Els llibres són a sobre la taula"`,
+    options: ["Complement circumstancial de lloc", "Complement directe", "Atribut", "Complement del nom"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "molt bé" en: "Els nens s’han portat molt bé"`,
+    options: ["Complement circumstancial de manera", "Atribut", "Complement de règim", "Complement directe"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "content" en: "El professor sembla content"`,
+    options: ["Atribut", "Complement predicatiu", "Complement directe", "Subjecte"],
+    answer: `Atribut`
+  },
+  {
+    text: `Funció de "per telèfon" en: "Ens hem parlat per telèfon"`,
+    options: ["Complement circumstancial de mitjà", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de mitjà`
+  },
+  {
+    text: `Funció de "d’ajuda" en: "Necessito una mica d’ajuda"`,
+    options: ["Complement del nom", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "de la biblioteca" en: "He tret un llibre de la biblioteca"`,
+    options: ["Complement circumstancial de lloc", "Complement del nom", "Complement de règim", "Complement directe"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "a la meva mare" en: "Li he comprat flors a la meva mare"`,
+    options: ["Complement indirecte", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement indirecte`
+  },
+  {
+    text: `Funció de "els deures" en: "Els alumnes fan els deures"`,
+    options: ["Complement directe", "Subjecte", "Complement de règim", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "a les vuit" en: "El tren surt a les vuit"`,
+    options: ["Complement circumstancial de temps", "Complement directe", "Atribut", "Complement del nom"],
+    answer: `Complement circumstancial de temps`
+  },
+  {
+    text: `Funció de "amb un somriure" en: "Em va saludar amb un somriure"`,
+    options: ["Complement circumstancial de manera", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "a París" en: "Viu a París"`,
+    options: ["Complement circumstancial de lloc", "Complement directe", "Complement del nom", "Atribut"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "contenta" en: "La Laia arriba contenta"`,
+    options: ["Complement predicatiu", "Atribut", "Complement directe", "Complement del nom"],
+    answer: `Complement predicatiu`
+  },
+  {
+    text: `Funció de "de menjar" en: "Tinc ganes de menjar"`,
+    options: ["Complement del nom", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "de la feina" en: "Estic cansat de la feina"`,
+    options: ["Complement de règim", "Complement del nom", "Atribut", "Complement circumstancial de lloc"],
+    answer: `Complement de règim`
+  },
+  {
+    text: `Funció de "molt alt" en: "En Pau és molt alt"`,
+    options: ["Atribut", "Complement predicatiu", "Complement directe", "Subjecte"],
+    answer: `Atribut`
+  },
+  {
+    text: `Funció de "amb el cotxe" en: "Anem amb el cotxe"`,
+    options: ["Complement circumstancial de mitjà", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de mitjà`
+  },
+  {
+    text: `Funció de "el concert" en: "Esperem el concert amb il·lusió"`,
+    options: ["Complement directe", "Complement del nom", "Complement de règim", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "a punt" en: "El sopar està a punt"`,
+    options: ["Atribut", "Complement predicatiu", "Complement de règim", "Complement directe"],
+    answer: `Atribut`
+  },
+  {
+    text: `Funció de "de neu" en: "El paisatge de neu era preciós"`,
+    options: ["Complement del nom", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "al cinema" en: "Anem sovint al cinema"`,
+    options: ["Complement circumstancial de lloc", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "en silenci" en: "Els alumnes escolten en silenci"`,
+    options: ["Complement circumstancial de manera", "Complement directe", "Complement del nom", "Atribut"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "de tu" en: "Depenc de tu"`,
+    options: ["Complement de règim", "Complement directe", "Complement indirecte", "Atribut"],
+    answer: `Complement de règim`
+  },
+  {
+    text: `Funció de "els nens" en: "Els nens juguen al pati"`,
+    options: ["Subjecte", "Complement directe", "Complement circumstancial de lloc", "Atribut"],
+    answer: `Subjecte`
+  },
+  {
+    text: `Funció de "amb por" en: "Respon amb por"`,
+    options: ["Complement circumstancial de manera", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "el futbol" en: "M’agrada el futbol"`,
+    options: ["Subjecte", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Subjecte`
+  },
+  {
+    text: `Funció de "de l’institut" en: "Els professors de l’institut treballen molt"`,
+    options: ["Complement del nom", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "al bosc" en: "Els nens van perdre’s al bosc"`,
+    options: ["Complement circumstancial de lloc", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "als companys" en: "Ha escrit als companys"`,
+    options: ["Complement indirecte", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement indirecte`
+  },
+  {
+    text: `Funció de "una pel·lícula" en: "Vam veure una pel·lícula divertida"`,
+    options: ["Complement directe", "Subjecte", "Complement del nom", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "aigua" en: "El got és d’aigua"`,
+    options: ["Complement del nom", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "molt ràpidament" en: "El gos corre molt ràpidament"`,
+    options: ["Complement circumstancial de manera", "Complement directe", "Atribut", "Complement de règim"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "de sortir" en: "Tinc por de sortir"`,
+    options: ["Complement del nom", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement del nom`
+  },
+  {
+    text: `Funció de "el llibre" en: "He trobat el llibre molt interessant"`,
+    options: ["Complement directe", "Subjecte", "Complement predicatiu", "Atribut"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "molt interessant" en: "He trobat el llibre molt interessant"`,
+    options: ["Complement predicatiu", "Atribut", "Complement del nom", "Complement directe"],
+    answer: `Complement predicatiu`
+  },
+  {
+    text: `Funció de "a la classe" en: "Entren a la classe"`,
+    options: ["Complement circumstancial de lloc", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "aigua freda" en: "Prefereixo aigua freda"`,
+    options: ["Complement del nom", "Complement directe", "Atribut", "Subjecte"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "perquè plou" en: "No sortim perquè plou"`,
+    options: ["Oració subordinada adverbial causal", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Oració subordinada adverbial causal`
+  },
+  {
+    text: `Funció de "amb els ulls tancats" en: "Dorm amb els ulls tancats"`,
+    options: ["Complement circumstancial de manera", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de manera`
+  },
+  {
+    text: `Funció de "de menjar sa" en: "És important menjar sa"`,
+    options: ["Subjecte oracional", "Complement directe", "Atribut", "Complement del nom"],
+    answer: `Subjecte oracional`
+  },
+  {
+    text: `Funció de "el cotxe" en: "En Toni condueix el cotxe cada dia"`,
+    options: ["Complement directe", "Complement del nom", "Atribut", "Complement de règim"],
+    answer: `Complement directe`
+  },
+  {
+    text: `Funció de "a casa seva" en: "Dorm a casa seva"`,
+    options: ["Complement circumstancial de lloc", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de lloc`
+  },
+  {
+    text: `Funció de "amb la pluja" en: "Amb la pluja, no hem pogut sortir"`,
+    options: ["Complement circumstancial de causa", "Complement de règim", "Complement directe", "Atribut"],
+    answer: `Complement circumstancial de causa`
+  },
+  {
+    text: `Funció de "de llegir" en: "M’encanta llegir"`,
+    options: ["Subjecte oracional", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Subjecte oracional`
+  },
+  {
+    text: `Funció de "de vacances" en: "La família està de vacances"`,
+    options: ["Atribut", "Complement del nom", "Complement de règim", "Complement circumstancial de lloc"],
+    answer: `Atribut`
+  },
+  {
+    text: `Funció de "amb atenció" en: "Escolta amb atenció"`,
+    options: ["Complement circumstancial de manera", "Complement directe", "Complement de règim", "Atribut"],
+    answer: `Complement circumstancial de manera`
+  }
 ];
 
 const BANK_MORFO_BASIQUES = [
