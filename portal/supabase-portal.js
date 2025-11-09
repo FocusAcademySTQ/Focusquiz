@@ -442,11 +442,14 @@ function renderProfileWarning() {
   if (state.session && !state.profile) {
     const detail = supabaseErrorMessage(state.profileError);
     const troubleshooting =
-      "Sessió iniciada però no s'ha pogut carregar el perfil docent. Revisa que hagis executat els scripts `supabase/setup.sql` i `supabase/live-mode.sql` i comprova manualment el teu perfil amb aquests passos:\n" +
-      "1. SQL Editor → enganxa tot el contingut de `supabase/setup.sql` (botó **Raw**) i prem **Run**.\n" +
-      "2. Executa `select id, full_name, email, role from public.profiles order by created_at desc;` i verifica que hi surt el teu `uuid`.\n" +
-      "3. Si falta, crea'l amb `insert into public.profiles (id, full_name, email) values ('<uuid>', '<Nom i cognoms>', '<correu@example.com>') on conflict (id) do update set full_name = excluded.full_name, email = excluded.email;`.\n" +
-      "4. Confirma que `auth.users` té el correu verificat: `update auth.users set email_confirmed_at = now() where email = '<correu@example.com>' and email_confirmed_at is null;`.";
+      "Sessió iniciada però no s'ha pogut carregar el perfil docent. Torna a preparar la base de dades de Supabase amb aquest itinerari SQL (tots els scripts són a la carpeta `supabase/` del projecte):\n" +
+      "1. SQL Editor → botó **Raw** de `supabase/setup.sql`, enganxa'l sencer i prem **Run**. Si uses partides en viu, repeteix amb `supabase/live-mode.sql`.\n" +
+      "2. Verifica que RLS estigui actiu amb `select n.nspname, c.relname, c.relrowsecurity from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relname in ('profiles','classes','assignments','submissions','quizzes','quiz_questions','games','players','answers') order by c.relname;`.\n" +
+      "3. Si alguna taula surt amb `relrowsecurity = f`, executa `alter table public.<taula> enable row level security;` (substitueix `<taula>` per cada nom que falti) i torna a llançar el bloc de polítiques de `supabase/setup.sql`.\n" +
+      "4. Revisa que les polítiques existeixin amb `select pol.polname, tab.relname from pg_policy pol join pg_class tab on pol.polrelid = tab.oid join pg_namespace nsp on nsp.oid = tab.relnamespace where nsp.nspname = 'public' and tab.relname in ('profiles','classes','assignments','submissions','quizzes','quiz_questions','games','players','answers') order by tab.relname, pol.polname;`.\n" +
+      "5. Comprova la fila del docent: `select id, full_name, email, role from public.profiles order by created_at desc;` i confirma que el teu `uuid` hi apareix amb `role = 'teacher'`.\n" +
+      "6. Si falta o és incorrecta, recrea-la amb `insert into public.profiles (id, full_name, email) values ('<uuid>', '<Nom i cognoms>', '<correu@example.com>') on conflict (id) do update set full_name = excluded.full_name, email = excluded.email;`.\n" +
+      "7. Verifica que el compte d'Auth estigui confirmat: `update auth.users set email_confirmed_at = now() where email = '<correu@example.com>' and email_confirmed_at is null;`.";
     const message = detail ? `${troubleshooting} Detall Supabase: ${detail}` : troubleshooting;
     showError(elements.authError, message);
     return;
