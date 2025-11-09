@@ -430,6 +430,70 @@ function normalizeQuestion(raw) {
   };
 }
 
+const QUESTION_SELECT = 'id, question_index, prompt, options, time_limit, points, speed_bonus';
+
+function coerceQuestionIndex(value) {
+  if (value === null || value === undefined) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+async function fetchQuestionWithFallback(client, quizId, questionIndex) {
+  const baseQuery = () =>
+    client
+      .from('quiz_questions')
+      .select(QUESTION_SELECT)
+      .eq('quiz_id', quizId);
+
+  const { data, error } = await baseQuery()
+    .eq('question_index', questionIndex)
+    .maybeSingle();
+  if (error) throw error;
+  if (data) {
+    return { row: data, displayIndex: questionIndex };
+  }
+
+  const { data: allRows, error: listError } = await baseQuery()
+    .order('question_index', { ascending: true });
+  if (listError) throw listError;
+  if (!Array.isArray(allRows) || allRows.length === 0) {
+    return null;
+  }
+
+  const normalizedRows = allRows.map((row) => {
+    const clone = Object.assign({}, row);
+    clone.question_index = coerceQuestionIndex(clone.question_index);
+    return clone;
+  });
+
+  const exactMatch = normalizedRows.find((row) => row.question_index === questionIndex);
+  if (exactMatch) {
+    return { row: exactMatch, displayIndex: questionIndex };
+  }
+
+  const zeroBasedIndex = Number.isInteger(questionIndex) ? questionIndex - 1 : null;
+  if (
+    Number.isInteger(zeroBasedIndex) &&
+    zeroBasedIndex >= 0 &&
+    zeroBasedIndex < normalizedRows.length
+  ) {
+    return { row: normalizedRows[zeroBasedIndex], displayIndex: questionIndex };
+  }
+
+  const fallbackRow = normalizedRows[0];
+  const fallbackIndex = coerceQuestionIndex(fallbackRow.question_index);
+  let displayIndex = null;
+  if (Number.isInteger(questionIndex) && questionIndex > 0) {
+    displayIndex = questionIndex;
+  } else if (Number.isInteger(fallbackIndex) && fallbackIndex > 0) {
+    displayIndex = fallbackIndex;
+  }
+  return {
+    row: fallbackRow,
+    displayIndex,
+  };
+}
+
 async function fetchQuestion(quizId, questionIndex) {
   if (!quizId || !Number.isInteger(questionIndex)) {
     clearQuestionState();
@@ -449,24 +513,32 @@ async function fetchQuestion(quizId, questionIndex) {
   state.answer = createInitialAnswerState();
   renderQuestion();
   try {
-    const { data, error } = await client
-      .from('quiz_questions')
-      .select('id, question_index, prompt, options, time_limit, points, speed_bonus')
-      .eq('quiz_id', quizId)
-      .eq('question_index', questionIndex)
-      .maybeSingle();
+    const result = await fetchQuestionWithFallback(client, quizId, questionIndex);
     if (requestId !== state.questionRequestId) {
       return;
     }
-    if (error) throw error;
-    if (!data) {
+    if (!result) {
       state.questionLoading = false;
       state.questionError = 'No s\'ha trobat la pregunta actual.';
       state.question = null;
       renderQuestion();
       return;
     }
-    state.question = normalizeQuestion(data);
+    const normalized = normalizeQuestion(result.row);
+    if (normalized) {
+      if (Number.isInteger(result.displayIndex)) {
+        normalized.index = result.displayIndex;
+      } else if (Number.isInteger(questionIndex) && questionIndex > 0) {
+        normalized.index = questionIndex;
+      }
+    }
+    state.question = normalized;
+    if (!state.question) {
+      state.questionError = 'No s\'ha pogut interpretar la pregunta.';
+      state.questionLoading = false;
+      renderQuestion();
+      return;
+    }
     state.questionLoading = false;
     state.questionError = '';
     renderQuestion();
