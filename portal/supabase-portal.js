@@ -394,7 +394,15 @@ async function loadProfile() {
     if (insertError) {
       console.error('No s\'ha pogut crear el perfil', insertError);
       state.profile = null;
-      state.profileError = insertError;
+      if (insertError && insertError.code === '23505') {
+        state.profileError = {
+          ...insertError,
+          message:
+            "Ja existeix un altre perfil amb el mateix correu electrònic. Verifica que la fila de la taula `profiles` utilitzi el mateix `uuid` que l'usuari docent de Supabase Auth i elimina possibles duplicats abans de tornar-ho a provar.",
+        };
+      } else {
+        state.profileError = insertError;
+      }
       return null;
     }
     return loadProfile();
