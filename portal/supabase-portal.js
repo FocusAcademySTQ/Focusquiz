@@ -394,7 +394,7 @@ async function loadProfile() {
     if (insertError) {
       console.error('No s\'ha pogut crear el perfil', insertError);
       state.profile = null;
-      state.profileError = insertError;
+      state.profileError = normalizeProfileInsertError(insertError);
       return null;
     }
     return loadProfile();
@@ -417,12 +417,39 @@ function supabaseErrorMessage(error) {
   }
 }
 
+function normalizeProfileInsertError(error) {
+  if (!error) return error;
+  const message = typeof error.message === 'string' ? error.message : '';
+  if (error.code === '23505') {
+    return {
+      ...error,
+      message:
+        "Ja existeix un altre perfil amb el mateix correu electrònic. Verifica que la fila de la taula `profiles` utilitzi el mateix `uuid` que l'usuari docent de Supabase Auth i elimina possibles duplicats abans de tornar-ho a provar.",
+    };
+  }
+  if (message.includes('syntax error at or near "{"') || message.includes("import { createClient")) {
+    return {
+      ...error,
+      message:
+        "Supabase ha rebut codi JavaScript (`import { createClient } ...`) com si fos SQL. Torna a obrir `supabase/setup.sql` (botó **Raw**) i enganxa només aquest script al SQL Editor; no passis arxius `.js` al motor SQL abans de repetir l'operació.",
+    };
+  }
+  return error;
+}
+
 function renderProfileWarning() {
   if (!elements.authError) return;
   if (state.session && !state.profile) {
     const detail = supabaseErrorMessage(state.profileError);
     const troubleshooting =
-      "Sessió iniciada però no s'ha pogut carregar el perfil docent. Revisa que hagis executat els scripts `supabase/setup.sql` i `supabase/live-mode.sql` i que la taula `profiles` contingui el teu usuari.";
+      "Sessió iniciada però no s'ha pogut carregar el perfil docent. Torna a preparar la base de dades de Supabase amb aquest itinerari SQL (tots els scripts són a la carpeta `supabase/` del projecte):\n" +
+      "1. SQL Editor → botó **Raw** de `supabase/setup.sql`, enganxa'l sencer i prem **Run**. Si uses partides en viu, repeteix amb `supabase/live-mode.sql`.\n" +
+      "2. Verifica que RLS estigui actiu amb `select n.nspname, c.relname, c.relrowsecurity from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relname in ('profiles','classes','assignments','submissions','quizzes','quiz_questions','games','players','answers') order by c.relname;`.\n" +
+      "3. Si alguna taula surt amb `relrowsecurity = f`, executa `alter table public.<taula> enable row level security;` (substitueix `<taula>` per cada nom que falti) i torna a llançar el bloc de polítiques de `supabase/setup.sql`.\n" +
+      "4. Revisa que les polítiques existeixin amb `select pol.polname, tab.relname from pg_policy pol join pg_class tab on pol.polrelid = tab.oid join pg_namespace nsp on nsp.oid = tab.relnamespace where nsp.nspname = 'public' and tab.relname in ('profiles','classes','assignments','submissions','quizzes','quiz_questions','games','players','answers') order by tab.relname, pol.polname;`.\n" +
+      "5. Comprova la fila del docent: `select id, full_name, email, role from public.profiles order by created_at desc;` i confirma que el teu `uuid` hi apareix amb `role = 'teacher'`.\n" +
+      "6. Si falta o és incorrecta, recrea-la amb `insert into public.profiles (id, full_name, email) values ('<uuid>', '<Nom i cognoms>', '<correu@example.com>') on conflict (id) do update set full_name = excluded.full_name, email = excluded.email;`.\n" +
+      "7. Verifica que el compte d'Auth estigui confirmat: `update auth.users set email_confirmed_at = now() where email = '<correu@example.com>' and email_confirmed_at is null;`.";
     const message = detail ? `${troubleshooting} Detall Supabase: ${detail}` : troubleshooting;
     showError(elements.authError, message);
     return;
