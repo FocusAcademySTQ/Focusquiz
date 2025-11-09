@@ -23,12 +23,14 @@ const state = {
   storedPlayer: null,
   loading: false,
   refreshTimer: null,
+  playerRefreshTimer: null,
   refreshing: false,
   question: null,
   questionLoading: false,
   questionError: '',
   questionRequestId: 0,
   answer: createInitialAnswerState(),
+  playersLoading: false,
 };
 
 const STATUS_LABELS = {
@@ -50,6 +52,7 @@ const elements = {
   code: document.getElementById('playCode'),
   className: document.getElementById('playClass'),
   joinForm: document.getElementById('joinForm'),
+  joinSection: document.getElementById('joinSection'),
   nameInput: document.getElementById('playerName'),
   joinFeedback: document.getElementById('joinFeedback'),
   joinSuccess: document.getElementById('joinSuccess'),
@@ -91,6 +94,8 @@ function showError(message) {
   if (elements.main) {
     elements.main.hidden = true;
   }
+  clearGameRefresh();
+  clearPlayerRefresh();
 }
 
 function showMain() {
@@ -208,13 +213,32 @@ function setJoinSuccess(message) {
 
 function renderJoinSection() {
   const joined = Boolean(state.player && state.player.id);
+  const status = state.game ? state.game.status || 'waiting' : 'waiting';
+  const showForm = !joined && status !== 'completed' && status !== 'cancelled';
+  if (elements.joinSection) {
+    const hideSection = joined && (status === 'active' || status === 'paused' || status === 'completed');
+    elements.joinSection.hidden = hideSection;
+  }
   if (elements.joinForm) {
-    elements.joinForm.hidden = joined;
+    elements.joinForm.hidden = !showForm;
+  }
+  if (elements.joinFeedback && !showForm) {
+    elements.joinFeedback.textContent = '';
   }
   if (elements.joinHint) {
-    elements.joinHint.textContent = joined
-      ? 'Si necessites canviar el nom, avisa el professorat perquè et torni a convidar.'
-      : 'Introdueix el teu nom tal com el coneix el professorat.';
+    if (joined) {
+      elements.joinHint.textContent =
+        status === 'waiting'
+          ? 'Si necessites canviar el nom, avisa el professorat perquè et torni a convidar.'
+          : 'Ja formes part de la partida. Prepara\'t per respondre!';
+    } else if (!showForm) {
+      elements.joinHint.textContent =
+        status === 'completed' || status === 'cancelled'
+          ? 'La partida ja ha finalitzat.'
+          : 'Demana al professorat que t\'afegeixi si encara no hi ets.';
+    } else {
+      elements.joinHint.textContent = 'Introdueix el teu nom tal com el coneix el professorat.';
+    }
   }
   if (joined) {
     setJoinSuccess(`Has entrat com ${state.player.name}.`);
@@ -290,6 +314,7 @@ function applyGamePatch(patch) {
   renderJoinSection();
   handleGameChange(previousGame);
   ensureGameRefresh();
+  ensurePlayerRefresh();
 }
 
 function renderGameInfo() {
@@ -368,7 +393,14 @@ function makeOptionKey(index) {
 
 function normalizeQuestion(raw) {
   if (!raw || typeof raw !== 'object') return null;
-  const options = Array.isArray(raw.options) ? raw.options : [];
+  let options = Array.isArray(raw.options) ? raw.options : [];
+  if (!Array.isArray(raw.options) && raw.options && typeof raw.options === 'object') {
+    options = Object.entries(raw.options).map(([key, value]) => ({
+      key,
+      text: typeof value === 'string' ? value : String(value),
+      value: key,
+    }));
+  }
   const normalizedOptions = options.map((option, index) => {
     let key = '';
     let text = '';
@@ -418,7 +450,14 @@ function normalizeQuestion(raw) {
   return {
     id: raw.id || null,
     index: Number.isInteger(raw.question_index) ? raw.question_index : null,
-    prompt: typeof raw.prompt === 'string' ? raw.prompt : '',
+    prompt:
+      typeof raw.prompt === 'string' && raw.prompt.trim()
+        ? raw.prompt.trim()
+        : typeof raw.question === 'string' && raw.question.trim()
+        ? raw.question.trim()
+        : typeof raw.text === 'string' && raw.text.trim()
+        ? raw.text.trim()
+        : '',
     options: normalizedOptions,
     timeLimit: Number.isFinite(Number.parseInt(raw.time_limit, 10))
       ? Number.parseInt(raw.time_limit, 10)
@@ -582,12 +621,14 @@ function handleGameChange(previousGame) {
   if (status === 'completed' || status === 'cancelled') {
     clearQuestionState(true);
     renderQuestion();
+    loadPlayers();
     return;
   }
 
   const questionChanged = previousQuizId !== currentGame.quiz_id || previousIndex !== currentIndex;
   if (questionChanged) {
     fetchQuestion(currentGame.quiz_id, currentIndex);
+    loadPlayers();
     return;
   }
 
@@ -598,6 +639,9 @@ function handleGameChange(previousGame) {
 
   if (previousStatus !== status) {
     renderQuestion();
+    if (status === 'active' || status === 'paused') {
+      loadPlayers();
+    }
   }
 }
 
@@ -771,7 +815,15 @@ function renderPlayers() {
     row.className = 'play-score-row';
     const position = document.createElement('span');
     position.className = 'play-score-position';
-    position.textContent = `${index + 1}`;
+    if (index === 0) {
+      position.textContent = '🥇';
+    } else if (index === 1) {
+      position.textContent = '🥈';
+    } else if (index === 2) {
+      position.textContent = '🥉';
+    } else {
+      position.textContent = `#${index + 1}`;
+    }
     row.appendChild(position);
 
     const name = document.createElement('span');
@@ -788,6 +840,9 @@ function renderPlayers() {
     stats.textContent = `${scoreLabel} pts · ${correctLabel}`;
     row.appendChild(stats);
 
+    if (index <= 2) {
+      row.classList.add(`is-top-${index + 1}`);
+    }
     if (state.player && state.player.id === player.id) {
       row.classList.add('is-self');
     }
@@ -973,6 +1028,8 @@ async function submitAnswer() {
 async function loadPlayers() {
   const client = ensureClient();
   if (!client || !state.game) return;
+  if (state.playersLoading) return;
+  state.playersLoading = true;
   try {
     const { data, error } = await client
       .from('players')
@@ -986,6 +1043,8 @@ async function loadPlayers() {
     renderQuestion();
   } catch (error) {
     console.error('No s\'han pogut carregar els participants.', error);
+  } finally {
+    state.playersLoading = false;
   }
 }
 
@@ -1063,6 +1122,12 @@ function shouldRefreshGame() {
   return status === 'waiting' || status === 'active' || status === 'paused';
 }
 
+function shouldRefreshPlayers() {
+  if (!state.game) return false;
+  const status = state.game.status;
+  return status === 'waiting' || status === 'active' || status === 'paused';
+}
+
 async function fetchLatestGame() {
   if (!shouldRefreshGame()) {
     clearGameRefresh();
@@ -1106,6 +1171,25 @@ function ensureGameRefresh() {
   }
   if (!state.refreshTimer) {
     state.refreshTimer = window.setInterval(fetchLatestGame, 5000);
+  }
+}
+
+function clearPlayerRefresh() {
+  if (state.playerRefreshTimer) {
+    window.clearInterval(state.playerRefreshTimer);
+    state.playerRefreshTimer = null;
+  }
+}
+
+function ensurePlayerRefresh() {
+  if (!shouldRefreshPlayers()) {
+    clearPlayerRefresh();
+    return;
+  }
+  if (!state.playerRefreshTimer) {
+    state.playerRefreshTimer = window.setInterval(() => {
+      loadPlayers();
+    }, 5000);
   }
 }
 

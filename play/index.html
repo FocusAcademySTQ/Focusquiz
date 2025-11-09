@@ -8,6 +8,11 @@
   <link rel="stylesheet" href="../style.css" />
 </head>
 <body class="play-page">
+  <div class="play-atmosphere" aria-hidden="true">
+    <span class="play-aurora play-aurora--one"></span>
+    <span class="play-aurora play-aurora--two"></span>
+    <span class="play-aurora play-aurora--three"></span>
+  </div>
   <header class="topbar">
     <div class="wrap row header-bar">
       <div class="brand">
@@ -65,7 +70,7 @@
         </div>
       </section>
 
-      <section class="panel card play-join" aria-labelledby="joinTitle">
+      <section id="joinSection" class="panel card play-join" aria-labelledby="joinTitle">
         <header class="play-section-header">
           <h2 id="joinTitle">Uneix-te a la partida</h2>
           <p id="joinHint" class="portal-muted">Introdueix el teu nom tal com el coneix el professorat.</p>
