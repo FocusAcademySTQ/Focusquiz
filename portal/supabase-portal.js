@@ -394,15 +394,7 @@ async function loadProfile() {
     if (insertError) {
       console.error('No s\'ha pogut crear el perfil', insertError);
       state.profile = null;
-      if (insertError && insertError.code === '23505') {
-        state.profileError = {
-          ...insertError,
-          message:
-            "Ja existeix un altre perfil amb el mateix correu electrònic. Verifica que la fila de la taula `profiles` utilitzi el mateix `uuid` que l'usuari docent de Supabase Auth i elimina possibles duplicats abans de tornar-ho a provar.",
-        };
-      } else {
-        state.profileError = insertError;
-      }
+      state.profileError = normalizeProfileInsertError(insertError);
       return null;
     }
     return loadProfile();
@@ -423,6 +415,26 @@ function supabaseErrorMessage(error) {
     console.warn('No s\'ha pogut serialitzar l\'error de Supabase', serializationError);
     return '';
   }
+}
+
+function normalizeProfileInsertError(error) {
+  if (!error) return error;
+  const message = typeof error.message === 'string' ? error.message : '';
+  if (error.code === '23505') {
+    return {
+      ...error,
+      message:
+        "Ja existeix un altre perfil amb el mateix correu electrònic. Verifica que la fila de la taula `profiles` utilitzi el mateix `uuid` que l'usuari docent de Supabase Auth i elimina possibles duplicats abans de tornar-ho a provar.",
+    };
+  }
+  if (message.includes('syntax error at or near "{"') || message.includes("import { createClient")) {
+    return {
+      ...error,
+      message:
+        "Supabase ha rebut codi JavaScript (`import { createClient } ...`) com si fos SQL. Torna a obrir `supabase/setup.sql` (botó **Raw**) i enganxa només aquest script al SQL Editor; no passis arxius `.js` al motor SQL abans de repetir l'operació.",
+    };
+  }
+  return error;
 }
 
 function renderProfileWarning() {
