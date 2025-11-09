@@ -2745,6 +2745,28 @@ function init(){
     renderResults();
   }
 
+  const liveJoinForm = document.getElementById('homeLiveJoinForm');
+  const liveJoinCodeInput = document.getElementById('homeLiveJoinCode');
+  if (liveJoinCodeInput) {
+    liveJoinCodeInput.addEventListener('input', () => {
+      const raw = liveJoinCodeInput.value || '';
+      const cleaned = raw.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 8);
+      liveJoinCodeInput.value = cleaned;
+    });
+  }
+  if (liveJoinForm) {
+    liveJoinForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const value = liveJoinCodeInput ? liveJoinCodeInput.value.trim().toUpperCase() : '';
+      if (!value) {
+        window.alert('Introdueix un codi de partida vàlid.');
+        return;
+      }
+      const target = `play/index.html?code=${encodeURIComponent(value)}`;
+      window.location.href = target;
+    });
+  }
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
