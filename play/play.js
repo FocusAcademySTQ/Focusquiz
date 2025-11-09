@@ -11,6 +11,8 @@ const state = {
   players: [],
   storedPlayer: null,
   loading: false,
+  refreshTimer: null,
+  refreshing: false,
 };
 
 const STATUS_LABELS = {
@@ -201,6 +203,66 @@ function renderJoinSection() {
       elements.nameInput.value = state.storedPlayer.name;
     }
   }
+}
+
+function normalizeInteger(value) {
+  if (value === null || value === undefined) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeFloat(value) {
+  if (value === null || value === undefined) return null;
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function extractGamePatch(data, includeRelations = false) {
+  if (!data || typeof data !== 'object') return null;
+  const patch = {};
+  const assignIfPresent = (sourceKey, targetKey = sourceKey, transform) => {
+    if (Object.prototype.hasOwnProperty.call(data, sourceKey)) {
+      const raw = data[sourceKey];
+      patch[targetKey] = typeof transform === 'function' ? transform(raw) : raw;
+    }
+  };
+
+  assignIfPresent('id');
+  assignIfPresent('quiz_id');
+  assignIfPresent('class_id');
+  assignIfPresent('join_code');
+  assignIfPresent('status');
+  assignIfPresent('created_at');
+  assignIfPresent('updated_at');
+  assignIfPresent('ended_at');
+  assignIfPresent('current_question', 'current_question', normalizeInteger);
+  assignIfPresent('question_time_limit', 'question_time_limit', normalizeInteger);
+  assignIfPresent('question_points', 'question_points', normalizeFloat);
+  assignIfPresent('speed_bonus', 'speed_bonus', normalizeFloat);
+
+  if (includeRelations) {
+    if (Object.prototype.hasOwnProperty.call(data, 'quiz')) {
+      patch.quiz_title = data.quiz && typeof data.quiz === 'object' ? data.quiz.title || null : null;
+      patch.quiz_description = data.quiz && typeof data.quiz === 'object' ? data.quiz.description || null : null;
+    }
+    if (Object.prototype.hasOwnProperty.call(data, 'class')) {
+      patch.class_name = data.class && typeof data.class === 'object' ? data.class.class_name || null : null;
+    }
+  } else {
+    assignIfPresent('quiz_title');
+    assignIfPresent('quiz_description');
+    assignIfPresent('class_name');
+  }
+
+  return patch;
+}
+
+function applyGamePatch(patch) {
+  if (!patch) return;
+  state.game = state.game ? Object.assign({}, state.game, patch) : Object.assign({}, patch);
+  renderGameInfo();
+  renderJoinSection();
+  ensureGameRefresh();
 }
 
 function renderGameInfo() {
@@ -394,31 +456,8 @@ function subscribeToGame() {
   const channel = client
     .channel(`game-${state.game.id}`)
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'games', filter: `id=eq.${state.game.id}` }, (payload) => {
-      const updates = Object.assign({}, payload.new);
-      if (updates) {
-        if ('current_question' in updates) {
-          updates.current_question = Number.isFinite(Number.parseInt(updates.current_question, 10))
-            ? Number.parseInt(updates.current_question, 10)
-            : null;
-        }
-        if ('question_time_limit' in updates) {
-          updates.question_time_limit = Number.isFinite(Number.parseInt(updates.question_time_limit, 10))
-            ? Number.parseInt(updates.question_time_limit, 10)
-            : null;
-        }
-        if ('question_points' in updates) {
-          updates.question_points = Number.isFinite(Number.parseFloat(updates.question_points))
-            ? Number.parseFloat(updates.question_points)
-            : null;
-        }
-        if ('speed_bonus' in updates) {
-          updates.speed_bonus = Number.isFinite(Number.parseFloat(updates.speed_bonus))
-            ? Number.parseFloat(updates.speed_bonus)
-            : 0;
-        }
-      }
-      state.game = Object.assign({}, state.game, updates);
-      renderGameInfo();
+      const patch = extractGamePatch(payload.new || {});
+      applyGamePatch(patch);
     })
     .on(
       'postgres_changes',
@@ -458,41 +497,12 @@ async function loadGame() {
       showError('No s\'ha trobat cap partida amb aquest codi.');
       return;
     }
-    const parsedTimeLimit = Number.isFinite(Number.parseInt(data.question_time_limit, 10))
-      ? Number.parseInt(data.question_time_limit, 10)
-      : null;
-    const parsedPoints = Number.isFinite(Number.parseFloat(data.question_points))
-      ? Number.parseFloat(data.question_points)
-      : null;
-    const parsedSpeed = Number.isFinite(Number.parseFloat(data.speed_bonus))
-      ? Number.parseFloat(data.speed_bonus)
-      : 0;
-    const parsedCurrentQuestion = Number.isFinite(Number.parseInt(data.current_question, 10))
-      ? Number.parseInt(data.current_question, 10)
-      : null;
-    state.game = {
-      id: data.id,
-      quiz_id: data.quiz_id,
-      class_id: data.class_id,
-      join_code: data.join_code,
-      status: data.status,
-      current_question: parsedCurrentQuestion,
-      question_time_limit: parsedTimeLimit,
-      question_points: parsedPoints,
-      speed_bonus: parsedSpeed,
-      created_at: data.created_at,
-      updated_at: data.updated_at,
-      ended_at: data.ended_at,
-      quiz_title: data.quiz ? data.quiz.title : null,
-      quiz_description: data.quiz ? data.quiz.description : null,
-      class_name: data.class ? data.class.class_name : null,
-    };
+    const patch = extractGamePatch(data, true);
+    applyGamePatch(patch);
     state.players = [];
     state.player = null;
     state.storedPlayer = loadStoredPlayer(state.code);
     showMain();
-    renderGameInfo();
-    renderJoinSection();
     subscribeToGame();
   } catch (error) {
     console.error('No s\'ha pogut carregar la partida.', error);
@@ -501,6 +511,58 @@ async function loadGame() {
     } else {
       showError('No s\'ha pogut accedir a la partida. Torna-ho a provar.');
     }
+  }
+}
+
+function shouldRefreshGame() {
+  if (!state.game) return false;
+  const status = state.game.status;
+  return status === 'waiting' || status === 'active' || status === 'paused';
+}
+
+async function fetchLatestGame() {
+  if (!shouldRefreshGame()) {
+    clearGameRefresh();
+    return;
+  }
+  if (state.refreshing) return;
+  const client = ensureClient();
+  if (!client || !state.game || !state.game.id) return;
+  state.refreshing = true;
+  try {
+    const { data, error } = await client
+      .from('games')
+      .select(
+        'id, quiz_id, class_id, join_code, status, current_question, question_time_limit, question_points, speed_bonus, created_at, updated_at, ended_at, quiz:quizzes(title, description), class:classes(class_name)'
+      )
+      .eq('id', state.game.id)
+      .maybeSingle();
+    if (error) throw error;
+    if (data) {
+      const patch = extractGamePatch(data, true);
+      applyGamePatch(patch);
+    }
+  } catch (error) {
+    console.warn('No s\'ha pogut actualitzar l\'estat de la partida.', error);
+  } finally {
+    state.refreshing = false;
+  }
+}
+
+function clearGameRefresh() {
+  if (state.refreshTimer) {
+    window.clearInterval(state.refreshTimer);
+    state.refreshTimer = null;
+  }
+}
+
+function ensureGameRefresh() {
+  if (!shouldRefreshGame()) {
+    clearGameRefresh();
+    return;
+  }
+  if (!state.refreshTimer) {
+    state.refreshTimer = window.setInterval(fetchLatestGame, 5000);
   }
 }
 
@@ -528,6 +590,7 @@ function setupForm() {
 }
 
 function cleanup() {
+  clearGameRefresh();
   if (state.supabase && state.channel) {
     try {
       state.supabase.removeChannel(state.channel);
