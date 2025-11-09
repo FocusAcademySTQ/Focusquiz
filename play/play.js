@@ -227,15 +227,34 @@ function renderGameInfo() {
   }
   if (elements.scoreMeta) {
     const parts = [];
-    if (Number.isInteger(state.game.current_question)) {
-      parts.push(`Pregunta ${state.game.current_question}`);
-    }
-    if (state.game.status === 'active' && Number.isFinite(state.game.question_time_limit)) {
-      parts.push(`${state.game.question_time_limit}s per respondre`);
-    }
-    if (state.game.status === 'completed' && state.game.ended_at) {
-      const ended = formatTimestamp(state.game.ended_at);
-      if (ended) parts.push(`Finalitzada a les ${ended}`);
+    const status = state.game.status;
+    if (status === 'waiting') {
+      parts.push('Esperant que el professorat comenci la partida.');
+    } else {
+      if (Number.isInteger(state.game.current_question)) {
+        parts.push(`Pregunta ${state.game.current_question}`);
+      }
+      if ((status === 'active' || status === 'paused') && Number.isFinite(state.game.question_time_limit)) {
+        parts.push(`${state.game.question_time_limit}s per respondre`);
+      }
+      if (Number.isFinite(state.game.question_points)) {
+        parts.push(`${state.game.question_points} punts base`);
+      }
+      if (Number.isFinite(state.game.speed_bonus) && state.game.speed_bonus > 0) {
+        parts.push(`+${state.game.speed_bonus} pts/segon`);
+      }
+      if (status === 'paused') {
+        parts.unshift('Partida en pausa');
+      }
+      if (status === 'completed' && state.game.ended_at) {
+        const ended = formatTimestamp(state.game.ended_at);
+        if (ended) parts.push(`Finalitzada a les ${ended}`);
+      } else if (status === 'cancelled') {
+        parts.push('Sessió cancel·lada pel professorat.');
+      }
+      if (!parts.length && status === 'active') {
+        parts.push('Partida en progrés.');
+      }
     }
     elements.scoreMeta.textContent = parts.join(' · ');
   }
@@ -375,7 +394,30 @@ function subscribeToGame() {
   const channel = client
     .channel(`game-${state.game.id}`)
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'games', filter: `id=eq.${state.game.id}` }, (payload) => {
-      state.game = Object.assign({}, state.game, payload.new);
+      const updates = Object.assign({}, payload.new);
+      if (updates) {
+        if ('current_question' in updates) {
+          updates.current_question = Number.isFinite(Number.parseInt(updates.current_question, 10))
+            ? Number.parseInt(updates.current_question, 10)
+            : null;
+        }
+        if ('question_time_limit' in updates) {
+          updates.question_time_limit = Number.isFinite(Number.parseInt(updates.question_time_limit, 10))
+            ? Number.parseInt(updates.question_time_limit, 10)
+            : null;
+        }
+        if ('question_points' in updates) {
+          updates.question_points = Number.isFinite(Number.parseFloat(updates.question_points))
+            ? Number.parseFloat(updates.question_points)
+            : null;
+        }
+        if ('speed_bonus' in updates) {
+          updates.speed_bonus = Number.isFinite(Number.parseFloat(updates.speed_bonus))
+            ? Number.parseFloat(updates.speed_bonus)
+            : 0;
+        }
+      }
+      state.game = Object.assign({}, state.game, updates);
       renderGameInfo();
     })
     .on(
@@ -416,18 +458,28 @@ async function loadGame() {
       showError('No s\'ha trobat cap partida amb aquest codi.');
       return;
     }
+    const parsedTimeLimit = Number.isFinite(Number.parseInt(data.question_time_limit, 10))
+      ? Number.parseInt(data.question_time_limit, 10)
+      : null;
+    const parsedPoints = Number.isFinite(Number.parseFloat(data.question_points))
+      ? Number.parseFloat(data.question_points)
+      : null;
+    const parsedSpeed = Number.isFinite(Number.parseFloat(data.speed_bonus))
+      ? Number.parseFloat(data.speed_bonus)
+      : 0;
+    const parsedCurrentQuestion = Number.isFinite(Number.parseInt(data.current_question, 10))
+      ? Number.parseInt(data.current_question, 10)
+      : null;
     state.game = {
       id: data.id,
       quiz_id: data.quiz_id,
       class_id: data.class_id,
       join_code: data.join_code,
       status: data.status,
-      current_question: data.current_question,
-      question_time_limit: data.question_time_limit,
-      question_points: data.question_points,
-      speed_bonus: Number.isFinite(Number.parseFloat(data.speed_bonus))
-        ? Number.parseFloat(data.speed_bonus)
-        : 0,
+      current_question: parsedCurrentQuestion,
+      question_time_limit: parsedTimeLimit,
+      question_points: parsedPoints,
+      speed_bonus: parsedSpeed,
       created_at: data.created_at,
       updated_at: data.updated_at,
       ended_at: data.ended_at,
