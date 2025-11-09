@@ -1741,6 +1741,114 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
 }
 
+.play-question {
+  display: grid;
+  gap: 1rem;
+}
+
+.play-question-body {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.play-question-message {
+  min-height: 1.1rem;
+  margin: 0;
+}
+
+.play-question-prompt {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.play-question-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.play-question-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.play-question-options {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.play-question-option {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 2px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.94);
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.play-question-option:hover,
+.play-question-option:focus-within {
+  border-color: rgba(99, 102, 241, 0.65);
+  box-shadow: 0 18px 38px -28px rgba(79, 70, 229, 0.4);
+}
+
+.play-question-option.is-selected {
+  border-color: rgba(79, 70, 229, 0.85);
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.2), rgba(219, 234, 254, 0.45));
+}
+
+.play-question-option.is-submitted {
+  border-color: rgba(16, 185, 129, 0.7);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(236, 253, 245, 0.9));
+}
+
+.play-question-option.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+  box-shadow: none;
+}
+
+.play-question-option input[type='radio'] {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: rgba(79, 70, 229, 0.95);
+  justify-self: start;
+}
+
+.play-question-option-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  font-weight: 700;
+  color: rgba(79, 70, 229, 0.95);
+  background: rgba(224, 231, 255, 0.8);
+}
+
+.play-question-option-text {
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.play-feedback.is-success {
+  color: #16a34a;
+}
+
+.play-feedback.is-muted {
+  color: rgba(71, 85, 105, 0.95);
+}
+
 .play-section-header {
   display: flex;
   align-items: flex-start;

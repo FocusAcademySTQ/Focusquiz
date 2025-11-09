@@ -2,6 +2,17 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { resolveSupabaseConfig } from '../portal/supabase-config.js';
 
 let cachedConfig = resolveSupabaseConfig();
+
+function createInitialAnswerState() {
+  return {
+    selectedOption: '',
+    submittedOption: '',
+    submitting: false,
+    feedback: '',
+    error: '',
+  };
+}
+
 const state = {
   supabase: null,
   channel: null,
@@ -13,6 +24,11 @@ const state = {
   loading: false,
   refreshTimer: null,
   refreshing: false,
+  question: null,
+  questionLoading: false,
+  questionError: '',
+  questionRequestId: 0,
+  answer: createInitialAnswerState(),
 };
 
 const STATUS_LABELS = {
@@ -41,6 +57,14 @@ const elements = {
   scoreList: document.getElementById('scoreList'),
   scoreEmpty: document.getElementById('scoreEmpty'),
   scoreMeta: document.getElementById('scoreMeta'),
+  questionSection: document.getElementById('questionSection'),
+  questionMeta: document.getElementById('questionMeta'),
+  questionMessage: document.getElementById('questionMessage'),
+  questionPrompt: document.getElementById('questionPrompt'),
+  questionForm: document.getElementById('questionForm'),
+  questionOptions: document.getElementById('questionOptions'),
+  questionSubmit: document.getElementById('questionSubmit'),
+  questionFeedback: document.getElementById('questionFeedback'),
 };
 
 function parseCodeFromLocation() {
@@ -239,6 +263,7 @@ function extractGamePatch(data, includeRelations = false) {
   assignIfPresent('question_time_limit', 'question_time_limit', normalizeInteger);
   assignIfPresent('question_points', 'question_points', normalizeFloat);
   assignIfPresent('speed_bonus', 'speed_bonus', normalizeFloat);
+  assignIfPresent('question_started_at');
 
   if (includeRelations) {
     if (Object.prototype.hasOwnProperty.call(data, 'quiz')) {
@@ -259,9 +284,11 @@ function extractGamePatch(data, includeRelations = false) {
 
 function applyGamePatch(patch) {
   if (!patch) return;
+  const previousGame = state.game ? Object.assign({}, state.game) : null;
   state.game = state.game ? Object.assign({}, state.game, patch) : Object.assign({}, patch);
   renderGameInfo();
   renderJoinSection();
+  handleGameChange(previousGame);
   ensureGameRefresh();
 }
 
@@ -322,6 +349,334 @@ function renderGameInfo() {
   }
 }
 
+function clearQuestionState(cancelPending = false) {
+  if (cancelPending) {
+    state.questionRequestId += 1;
+  }
+  state.question = null;
+  state.questionLoading = false;
+  state.questionError = '';
+  state.answer = createInitialAnswerState();
+}
+
+function makeOptionKey(index) {
+  if (Number.isInteger(index) && index >= 0 && index < 26) {
+    return String.fromCharCode(65 + index);
+  }
+  return `${index + 1}`;
+}
+
+function normalizeQuestion(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const options = Array.isArray(raw.options) ? raw.options : [];
+  const normalizedOptions = options.map((option, index) => {
+    let key = '';
+    let text = '';
+    let valueCandidate = null;
+
+    if (option && typeof option === 'object' && !Array.isArray(option)) {
+      const rawKey = option.key || option.letter || option.label;
+      if (typeof rawKey === 'string' && rawKey.trim()) {
+        key = rawKey.trim();
+      }
+      const rawText = option.text || option.value || option.label;
+      if (typeof rawText === 'string' && rawText.trim()) {
+        text = rawText.trim();
+      }
+      if (option.value !== undefined && option.value !== null) {
+        valueCandidate = option.value;
+      } else if (typeof option.choice === 'string' && option.choice.trim()) {
+        valueCandidate = option.choice.trim();
+      } else if (key) {
+        valueCandidate = key;
+      }
+    } else if (typeof option === 'string') {
+      text = option.trim();
+    } else if (option !== null && option !== undefined) {
+      text = String(option);
+    }
+
+    const fallbackKey = key || makeOptionKey(index);
+    let value = valueCandidate;
+    if (typeof value === 'string') {
+      value = value.trim() || fallbackKey;
+    } else if (value !== null && value !== undefined) {
+      value = String(value);
+    } else {
+      value = fallbackKey;
+    }
+
+    const labelText = text || `Opció ${fallbackKey}`;
+    return {
+      id: `${raw.id || 'question'}-${index}`,
+      key: fallbackKey,
+      text: labelText,
+      value,
+    };
+  });
+
+  return {
+    id: raw.id || null,
+    index: Number.isInteger(raw.question_index) ? raw.question_index : null,
+    prompt: typeof raw.prompt === 'string' ? raw.prompt : '',
+    options: normalizedOptions,
+    timeLimit: Number.isFinite(Number.parseInt(raw.time_limit, 10))
+      ? Number.parseInt(raw.time_limit, 10)
+      : null,
+    points: Number.isFinite(Number.parseFloat(raw.points)) ? Number.parseFloat(raw.points) : null,
+    speedBonus: Number.isFinite(Number.parseFloat(raw.speed_bonus))
+      ? Number.parseFloat(raw.speed_bonus)
+      : null,
+  };
+}
+
+async function fetchQuestion(quizId, questionIndex) {
+  if (!quizId || !Number.isInteger(questionIndex)) {
+    clearQuestionState();
+    renderQuestion();
+    return;
+  }
+  const client = ensureClient();
+  if (!client) {
+    clearQuestionState();
+    renderQuestion();
+    return;
+  }
+  const requestId = ++state.questionRequestId;
+  state.questionLoading = true;
+  state.questionError = '';
+  state.question = null;
+  state.answer = createInitialAnswerState();
+  renderQuestion();
+  try {
+    const { data, error } = await client
+      .from('quiz_questions')
+      .select('id, question_index, prompt, options, time_limit, points, speed_bonus')
+      .eq('quiz_id', quizId)
+      .eq('question_index', questionIndex)
+      .maybeSingle();
+    if (requestId !== state.questionRequestId) {
+      return;
+    }
+    if (error) throw error;
+    if (!data) {
+      state.questionLoading = false;
+      state.questionError = 'No s\'ha trobat la pregunta actual.';
+      state.question = null;
+      renderQuestion();
+      return;
+    }
+    state.question = normalizeQuestion(data);
+    state.questionLoading = false;
+    state.questionError = '';
+    renderQuestion();
+  } catch (error) {
+    if (requestId !== state.questionRequestId) {
+      return;
+    }
+    console.error('No s\'ha pogut carregar la pregunta.', error);
+    state.questionLoading = false;
+    state.questionError = 'No s\'ha pogut carregar la pregunta. Torna-ho a provar en uns segons.';
+    state.question = null;
+    renderQuestion();
+  }
+}
+
+function handleGameChange(previousGame) {
+  const currentGame = state.game;
+  if (!currentGame) {
+    clearQuestionState(true);
+    renderQuestion();
+    return;
+  }
+  const currentIndex = Number.isInteger(currentGame.current_question) ? currentGame.current_question : null;
+  const previousIndex = previousGame ? previousGame.current_question : null;
+  const previousQuizId = previousGame ? previousGame.quiz_id : null;
+  const previousStatus = previousGame ? previousGame.status : null;
+  const status = currentGame.status || 'waiting';
+
+  if (!currentGame.quiz_id || !currentIndex || currentIndex <= 0) {
+    clearQuestionState(true);
+    renderQuestion();
+    return;
+  }
+
+  if (status === 'waiting') {
+    clearQuestionState(true);
+    renderQuestion();
+    return;
+  }
+
+  if (status === 'completed' || status === 'cancelled') {
+    clearQuestionState(true);
+    renderQuestion();
+    return;
+  }
+
+  const questionChanged = previousQuizId !== currentGame.quiz_id || previousIndex !== currentIndex;
+  if (questionChanged) {
+    fetchQuestion(currentGame.quiz_id, currentIndex);
+    return;
+  }
+
+  if (!state.question && !state.questionLoading) {
+    fetchQuestion(currentGame.quiz_id, currentIndex);
+    return;
+  }
+
+  if (previousStatus !== status) {
+    renderQuestion();
+  }
+}
+
+function renderQuestion() {
+  if (!elements.questionSection) return;
+  const game = state.game;
+  if (!game) {
+    elements.questionSection.hidden = true;
+    return;
+  }
+  elements.questionSection.hidden = false;
+
+  const question = state.question;
+  const status = game.status || 'waiting';
+  const questionIndex = Number.isInteger(game.current_question) && game.current_question > 0 ? game.current_question : null;
+
+  if (elements.questionMeta) {
+    const metaParts = [];
+    if (questionIndex) {
+      metaParts.push(`Pregunta ${questionIndex}`);
+    }
+    const timeLimit = Number.isFinite(question && question.timeLimit)
+      ? question.timeLimit
+      : Number.isFinite(game.question_time_limit)
+      ? game.question_time_limit
+      : null;
+    if (Number.isFinite(timeLimit) && timeLimit > 0) {
+      metaParts.push(`${timeLimit}s per respondre`);
+    }
+    const points = Number.isFinite(question && question.points)
+      ? question.points
+      : Number.isFinite(game.question_points)
+      ? game.question_points
+      : null;
+    if (Number.isFinite(points) && points > 0) {
+      metaParts.push(`${points} punts base`);
+    }
+    const speedBonus = Number.isFinite(question && question.speedBonus)
+      ? question.speedBonus
+      : Number.isFinite(game.speed_bonus)
+      ? game.speed_bonus
+      : null;
+    if (Number.isFinite(speedBonus) && speedBonus > 0) {
+      metaParts.push(`+${speedBonus} pts/segon`);
+    }
+    elements.questionMeta.textContent = metaParts.join(' · ');
+  }
+
+  let message = '';
+  if (!questionIndex) {
+    message =
+      status === 'waiting'
+        ? 'Esperant que el professorat comenci la partida.'
+        : 'Encara no hi ha cap pregunta activa.';
+  }
+  if (status === 'completed') {
+    message = 'La partida ha finalitzat. Consulta el marcador per veure els resultats.';
+  } else if (status === 'cancelled') {
+    message = 'La partida s\'ha cancel·lat. Espera noves indicacions del professorat.';
+  } else if (status === 'waiting') {
+    message = 'Esperant que el professorat comenci la partida.';
+  } else if (state.questionLoading) {
+    message = 'Carregant la pregunta…';
+  } else if (!question && !state.questionLoading && questionIndex) {
+    message = state.questionError || 'El professorat està preparant la pregunta següent.';
+  }
+
+  if (!message && status === 'paused') {
+    message = 'La partida està en pausa. Espera indicacions del professorat.';
+  }
+  if (!message && question && (!state.player || !state.player.id)) {
+    message = 'Entra a la partida amb el teu nom per poder respondre.';
+  }
+
+  if (elements.questionMessage) {
+    elements.questionMessage.textContent = message || '';
+    elements.questionMessage.hidden = !message;
+  }
+
+  const showPrompt = Boolean(question && question.prompt && !state.questionLoading);
+  if (elements.questionPrompt) {
+    elements.questionPrompt.textContent = showPrompt ? question.prompt : '';
+    elements.questionPrompt.hidden = !showPrompt;
+  }
+
+  const showForm = Boolean(question && !state.questionLoading);
+  if (elements.questionForm) {
+    elements.questionForm.hidden = !showForm;
+  }
+
+  if (elements.questionOptions) {
+    elements.questionOptions.innerHTML = '';
+  }
+
+  if (showForm && elements.questionOptions) {
+    const options = Array.isArray(question.options) ? question.options : [];
+    const isAnswered = Boolean(state.answer.submittedOption);
+    const canAnswer = Boolean(state.player && state.player.id && status === 'active');
+    const disableOptions = isAnswered || state.answer.submitting || !canAnswer;
+    options.forEach((option, index) => {
+      const label = document.createElement('label');
+      label.className = 'play-question-option';
+      if (state.answer.selectedOption === option.value) {
+        label.classList.add('is-selected');
+      }
+      if (state.answer.submittedOption === option.value) {
+        label.classList.add('is-submitted');
+      }
+      if (disableOptions) {
+        label.classList.add('is-disabled');
+      }
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'choice';
+      input.value = option.value;
+      input.checked = state.answer.selectedOption === option.value;
+      input.disabled = disableOptions;
+      const keySpan = document.createElement('span');
+      keySpan.className = 'play-question-option-key';
+      keySpan.textContent = option.key || makeOptionKey(index);
+      const textSpan = document.createElement('span');
+      textSpan.className = 'play-question-option-text';
+      textSpan.textContent = option.text || `Opció ${index + 1}`;
+      label.appendChild(input);
+      label.appendChild(keySpan);
+      label.appendChild(textSpan);
+      elements.questionOptions.appendChild(label);
+    });
+  }
+
+  if (elements.questionSubmit) {
+    const isAnswered = Boolean(state.answer.submittedOption);
+    const canAnswer = Boolean(state.player && state.player.id && status === 'active');
+    elements.questionSubmit.disabled =
+      !showForm || isAnswered || state.answer.submitting || !state.answer.selectedOption || !canAnswer;
+    elements.questionSubmit.textContent = isAnswered ? 'Resposta enviada' : 'Enviar resposta';
+  }
+
+  if (elements.questionFeedback) {
+    const hasError = Boolean(state.answer.error);
+    const hasSuccess = Boolean(state.answer.feedback) && !hasError;
+    elements.questionFeedback.textContent = state.answer.error || state.answer.feedback || '';
+    elements.questionFeedback.classList.toggle('is-success', hasSuccess);
+    elements.questionFeedback.classList.toggle('is-muted', !hasError && !hasSuccess && Boolean(state.answer.submittedOption));
+    if (!state.answer.error && !state.answer.feedback && !state.answer.submittedOption) {
+      elements.questionFeedback.classList.remove('is-success');
+      elements.questionFeedback.classList.remove('is-muted');
+    }
+  }
+}
+
 function renderPlayers() {
   if (!elements.scoreList || !elements.scoreEmpty) return;
   const players = Array.isArray(state.players) ? state.players.slice() : [];
@@ -377,6 +732,7 @@ function applyStoredPlayer() {
   if (player) {
     state.player = player;
     storePlayer(state.code, player);
+    state.storedPlayer = { id: player.id, name: player.name };
   } else if (state.players.length) {
     const fallback = state.players.find((item) =>
       item.name && state.storedPlayer && item.name.trim().toLowerCase() === state.storedPlayer.name.trim().toLowerCase()
@@ -384,8 +740,15 @@ function applyStoredPlayer() {
     if (fallback) {
       state.player = fallback;
       storePlayer(state.code, fallback);
+      state.storedPlayer = { id: fallback.id, name: fallback.name };
+    } else if (state.player && state.player.id === state.storedPlayer.id) {
+      state.player = null;
+      storePlayer(state.code, null);
+      state.storedPlayer = null;
+      state.answer = createInitialAnswerState();
     }
   }
+  renderQuestion();
 }
 
 async function joinGame(name) {
@@ -414,9 +777,11 @@ async function joinGame(name) {
     if (error) throw error;
     state.player = data;
     storePlayer(state.code, data);
+    state.storedPlayer = { id: data.id, name: data.name };
     state.players = Array.isArray(state.players) ? [...state.players, data] : [data];
     renderPlayers();
     renderJoinSection();
+    renderQuestion();
     clearJoinFeedback();
   } catch (error) {
     console.error('No s\'ha pogut afegir el jugador.', error);
@@ -425,6 +790,111 @@ async function joinGame(name) {
     } else {
       setJoinFeedback('No s\'ha pogut unir a la partida. Torna-ho a provar.');
     }
+  }
+}
+
+async function submitAnswer() {
+  if (!state.game) {
+    state.answer.error = 'No s\'ha trobat la partida.';
+    state.answer.feedback = '';
+    renderQuestion();
+    return;
+  }
+  if (!state.player || !state.player.id) {
+    state.answer.error = 'Has d\'entrar a la partida per respondre.';
+    state.answer.feedback = '';
+    renderQuestion();
+    return;
+  }
+  if (!state.question || !state.question.id) {
+    state.answer.error = 'La pregunta encara no està disponible.';
+    state.answer.feedback = '';
+    renderQuestion();
+    return;
+  }
+  if (state.answer.submitting) return;
+  const status = state.game.status;
+  if (status !== 'active') {
+    state.answer.error =
+      status === 'paused'
+        ? 'La partida està en pausa. Espera que el professorat la reprengui.'
+        : 'Ara mateix no es poden enviar respostes.';
+    state.answer.feedback = '';
+    renderQuestion();
+    return;
+  }
+  if (state.answer.submittedOption) {
+    state.answer.feedback = 'Ja has enviat la teva resposta per aquesta pregunta.';
+    state.answer.error = '';
+    renderQuestion();
+    return;
+  }
+  if (!state.answer.selectedOption) {
+    state.answer.error = 'Selecciona una opció per enviar la resposta.';
+    state.answer.feedback = '';
+    renderQuestion();
+    return;
+  }
+  const questionIndex = Number.isInteger(state.question.index)
+    ? state.question.index
+    : Number.isInteger(state.game.current_question)
+    ? state.game.current_question
+    : null;
+  if (!questionIndex) {
+    state.answer.error = 'No s\'ha pogut identificar la pregunta actual.';
+    state.answer.feedback = '';
+    renderQuestion();
+    return;
+  }
+  const client = ensureClient();
+  if (!client) {
+    state.answer.error = 'No s\'ha pogut connectar amb el servidor.';
+    state.answer.feedback = '';
+    renderQuestion();
+    return;
+  }
+  const choice = state.answer.selectedOption;
+  state.answer.submitting = true;
+  state.answer.error = '';
+  state.answer.feedback = '';
+  renderQuestion();
+  const payload = {
+    game_id: state.game.id,
+    player_id: state.player.id,
+    quiz_question_id: state.question.id,
+    question_index: questionIndex,
+    choice,
+  };
+  if (state.game.question_started_at) {
+    const started = Date.parse(state.game.question_started_at);
+    if (Number.isFinite(started)) {
+      const elapsedSeconds = (Date.now() - started) / 1000;
+      if (Number.isFinite(elapsedSeconds) && elapsedSeconds >= 0) {
+        payload.time_spent = Number(elapsedSeconds.toFixed(3));
+      }
+    }
+  }
+  try {
+    const { error } = await client.from('answers').insert(payload);
+    if (error) throw error;
+    state.answer.submitting = false;
+    state.answer.submittedOption = choice;
+    state.answer.feedback = 'Resposta enviada! Espera la següent indicació.';
+    state.answer.error = '';
+    renderQuestion();
+    await loadPlayers();
+  } catch (error) {
+    state.answer.submitting = false;
+    if (error && error.code === '23505') {
+      state.answer.submittedOption = choice;
+      state.answer.feedback = 'Ja havies respost aquesta pregunta.';
+      state.answer.error = '';
+    } else {
+      console.error('No s\'ha pogut enviar la resposta.', error);
+      state.answer.error = 'No s\'ha pogut enviar la resposta. Torna-ho a provar.';
+      state.answer.feedback = '';
+    }
+    renderQuestion();
   }
 }
 
@@ -441,6 +911,7 @@ async function loadPlayers() {
     applyStoredPlayer();
     renderPlayers();
     renderJoinSection();
+    renderQuestion();
   } catch (error) {
     console.error('No s\'han pogut carregar els participants.', error);
   }
@@ -488,7 +959,7 @@ async function loadGame() {
     const { data, error } = await client
       .from('games')
       .select(
-        'id, quiz_id, class_id, join_code, status, current_question, question_time_limit, question_points, speed_bonus, created_at, updated_at, ended_at, quiz:quizzes(title, description), class:classes(class_name)'
+        'id, quiz_id, class_id, join_code, status, current_question, question_time_limit, question_points, question_started_at, speed_bonus, created_at, updated_at, ended_at, quiz:quizzes(title, description), class:classes(class_name)'
       )
       .eq('join_code', state.code)
       .maybeSingle();
@@ -533,7 +1004,7 @@ async function fetchLatestGame() {
     const { data, error } = await client
       .from('games')
       .select(
-        'id, quiz_id, class_id, join_code, status, current_question, question_time_limit, question_points, speed_bonus, created_at, updated_at, ended_at, quiz:quizzes(title, description), class:classes(class_name)'
+        'id, quiz_id, class_id, join_code, status, current_question, question_time_limit, question_points, question_started_at, speed_bonus, created_at, updated_at, ended_at, quiz:quizzes(title, description), class:classes(class_name)'
       )
       .eq('id', state.game.id)
       .maybeSingle();
@@ -566,6 +1037,27 @@ function ensureGameRefresh() {
   }
 }
 
+function setupQuestionForm() {
+  if (!elements.questionForm) return;
+  elements.questionForm.addEventListener('change', (event) => {
+    const target = event.target;
+    if (!target || target.name !== 'choice') return;
+    if (state.answer.submittedOption) {
+      target.checked = target.value === state.answer.submittedOption;
+      return;
+    }
+    const value = typeof target.value === 'string' ? target.value.trim() : `${target.value}`;
+    state.answer.selectedOption = value;
+    state.answer.error = '';
+    state.answer.feedback = '';
+    renderQuestion();
+  });
+  elements.questionForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    submitAnswer();
+  });
+}
+
 function setupForm() {
   if (!elements.joinForm) return;
   elements.joinForm.addEventListener('submit', (event) => {
@@ -591,6 +1083,7 @@ function setupForm() {
 
 function cleanup() {
   clearGameRefresh();
+  clearQuestionState(true);
   if (state.supabase && state.channel) {
     try {
       state.supabase.removeChannel(state.channel);
@@ -607,6 +1100,7 @@ function init() {
     showError('Cal un codi de partida per accedir-hi.');
     return;
   }
+  setupQuestionForm();
   setupForm();
   loadGame();
 }

@@ -46,6 +46,25 @@
     </section>
 
     <section class="play-layout">
+      <section class="panel card play-question" id="questionSection" aria-labelledby="questionTitle" aria-live="polite">
+        <header class="play-section-header">
+          <h2 id="questionTitle">Pregunta en curs</h2>
+          <p id="questionMeta" class="portal-muted"></p>
+        </header>
+        <p id="questionMessage" class="play-question-message portal-muted"></p>
+        <div id="questionBody" class="play-question-body">
+          <p id="questionPrompt" class="play-question-prompt"></p>
+          <form id="questionForm" class="play-question-form" autocomplete="off" hidden>
+            <fieldset class="play-question-fieldset">
+              <legend class="sr-only">Opcions de resposta</legend>
+              <div id="questionOptions" class="play-question-options"></div>
+            </fieldset>
+            <button id="questionSubmit" class="pill" type="submit">Enviar resposta</button>
+          </form>
+          <p id="questionFeedback" class="play-feedback" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
       <section class="panel card play-join" aria-labelledby="joinTitle">
         <header class="play-section-header">
           <h2 id="joinTitle">Uneix-te a la partida</h2>
