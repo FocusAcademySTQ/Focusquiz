@@ -442,7 +442,11 @@ function renderProfileWarning() {
   if (state.session && !state.profile) {
     const detail = supabaseErrorMessage(state.profileError);
     const troubleshooting =
-      "Sessió iniciada però no s'ha pogut carregar el perfil docent. Revisa que hagis executat els scripts `supabase/setup.sql` i `supabase/live-mode.sql` i que la taula `profiles` contingui el teu usuari.";
+      "Sessió iniciada però no s'ha pogut carregar el perfil docent. Revisa que hagis executat els scripts `supabase/setup.sql` i `supabase/live-mode.sql` i comprova manualment el teu perfil amb aquests passos:\n" +
+      "1. SQL Editor → enganxa tot el contingut de `supabase/setup.sql` (botó **Raw**) i prem **Run**.\n" +
+      "2. Executa `select id, full_name, email, role from public.profiles order by created_at desc;` i verifica que hi surt el teu `uuid`.\n" +
+      "3. Si falta, crea'l amb `insert into public.profiles (id, full_name, email) values ('<uuid>', '<Nom i cognoms>', '<correu@example.com>') on conflict (id) do update set full_name = excluded.full_name, email = excluded.email;`.\n" +
+      "4. Confirma que `auth.users` té el correu verificat: `update auth.users set email_confirmed_at = now() where email = '<correu@example.com>' and email_confirmed_at is null;`.";
     const message = detail ? `${troubleshooting} Detall Supabase: ${detail}` : troubleshooting;
     showError(elements.authError, message);
     return;
