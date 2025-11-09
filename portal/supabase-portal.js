@@ -229,6 +229,25 @@ function ensureLiveDrafts() {
   }
 }
 
+function ensureLiveQuestionDraft() {
+  if (!state.live) state.live = {};
+  if (!state.live.quizDraft) {
+    state.live.quizDraft = {
+      classId: '',
+      title: '',
+      moduleId: '',
+      defaultTimeLimit: 20,
+      defaultPoints: 100,
+      speedBonus: 5,
+      questions: [],
+    };
+  }
+  if (!state.live.questionDraft) {
+    state.live.questionDraft = createLiveQuestionDraft();
+  }
+}
+
+
 function createLiveQuestionDraft() {
   const quizDraft = state.live ? state.live.quizDraft : null;
   const defaultTime = quizDraft && Number.isFinite(quizDraft.defaultTimeLimit)
