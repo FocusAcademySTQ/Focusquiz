@@ -245,38 +245,63 @@
           </div>
         </div>
         <p class="portal-muted">
-          Guarda plantilles amb preguntes pròpies o connecta-les amb qualsevol mòdul FocusQuiz. Després, llança-les en directe
-          i comparteix el codi amb l'alumnat.
+          Guarda plantilles amb preguntes pròpies i fes-les servir en directe amb la classe. Comparteix el codi amb l'alumnat
+          i segueix el marcador en temps real.
         </p>
-        <form id="liveQuizForm" class="portal-form portal-form--two">
-          <label>
-            <span class="portal-field-label">Classe</span>
-            <select id="liveQuizClass" class="input" name="class_id" required></select>
-          </label>
-          <label>
-            <span class="portal-field-label">Títol del quiz</span>
-            <input id="liveQuizTitle" class="input" name="title" type="text" placeholder="Quiz de capitals" required />
-          </label>
-          <label>
-            <span class="portal-field-label">Mòdul FocusQuiz (opcional)</span>
-            <select id="liveQuizModule" class="input" name="module_id">
-              <option value="">— Quiz manual —</option>
-            </select>
-            <span class="portal-field-hint">Permet reutilitzar preguntes dels mòduls estàndard.</span>
-          </label>
-          <label>
-            <span class="portal-field-label">Temps per pregunta (segons)</span>
-            <input id="liveQuizTime" class="input" name="default_time_limit" type="number" min="5" max="600" value="20" />
-          </label>
-          <label>
-            <span class="portal-field-label">Bonificació per segon</span>
-            <input id="liveQuizSpeedBonus" class="input" name="speed_bonus" type="number" min="0" max="1000" step="0.5" value="5" />
-            <span class="portal-field-hint">Es multiplica pels segons restants per calcular punts extra.</span>
-          </label>
+        <form id="liveQuizForm" class="portal-live-form">
+          <div class="portal-live-form__grid">
+            <section class="portal-live-form__card portal-live-form__card--setup">
+              <p class="portal-live-chip">Configuració bàsica</p>
+              <label>
+                <span class="portal-field-label">Classe</span>
+                <select id="liveQuizClass" class="input" name="class_id" required></select>
+              </label>
+              <label>
+                <span class="portal-field-label">Títol del quiz</span>
+                <input
+                  id="liveQuizTitle"
+                  class="input"
+                  name="title"
+                  type="text"
+                  placeholder="Quiz de capitals"
+                  required
+                />
+              </label>
+            </section>
+            <section class="portal-live-form__card portal-live-form__card--timing">
+              <p class="portal-live-chip">Temps i puntuació</p>
+              <label>
+                <span class="portal-field-label">Temps per pregunta (segons)</span>
+                <input
+                  id="liveQuizTime"
+                  class="input"
+                  name="default_time_limit"
+                  type="number"
+                  min="5"
+                  max="600"
+                  value="20"
+                />
+              </label>
+              <label>
+                <span class="portal-field-label">Bonificació per segon</span>
+                <input
+                  id="liveQuizSpeedBonus"
+                  class="input"
+                  name="speed_bonus"
+                  type="number"
+                  min="0"
+                  max="1000"
+                  step="0.5"
+                  value="5"
+                />
+                <span class="portal-field-hint">Es multiplica pels segons restants per calcular punts extra.</span>
+              </label>
+            </section>
+          </div>
         </form>
         <fieldset class="portal-live-builder">
           <legend>Afegir pregunta manual</legend>
-          <p class="portal-muted">Crea preguntes pròpies amb quatre opcions. Les pots combinar amb preguntes automàtiques.</p>
+          <p class="portal-muted">Crea preguntes pròpies amb quatre opcions i un ritme adaptat a la teva classe.</p>
           <div id="liveQuestionForm" class="portal-live-question-form">
             <label class="portal-form--stack">
               <span class="portal-field-label">Enunciat</span>

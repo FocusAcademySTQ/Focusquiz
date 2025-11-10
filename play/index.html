@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FocusQuiz Live</title>
+  <meta name="description" content="Uneix-te a partides FocusQuiz Live amb el codi compartit pel teu professorat." />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="play-page">
+  <div class="play-atmosphere" aria-hidden="true">
+    <span class="play-aurora play-aurora--one"></span>
+    <span class="play-aurora play-aurora--two"></span>
+    <span class="play-aurora play-aurora--three"></span>
+  </div>
+  <header class="topbar">
+    <div class="wrap row header-bar">
+      <div class="brand">
+        <div class="logo">FQ</div>
+        <h1>FocusQuiz Live</h1>
+      </div>
+      <nav class="main-nav" aria-label="Navegació principal">
+        <a class="pill" href="../index.html">🏠 Inici</a>
+        <a class="pill" href="../capsules.html">🎓 Càpsules</a>
+        <a class="pill" href="../portal/supabase-portal.html">Accés professorat</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap play-main" id="playMain" hidden>
+    <section class="panel card play-hero" aria-live="polite">
+      <div>
+        <p class="portal-section-title" id="playSubtitle">Partida</p>
+        <h2 id="playTitle" class="play-title">—</h2>
+        <p id="playDescription" class="play-description"></p>
+      </div>
+      <dl class="play-meta" aria-describedby="playStatusHelp">
+        <div>
+          <dt>Estat</dt>
+          <dd id="playStatus" class="play-status-badge">Carregant…</dd>
+        </div>
+        <div>
+          <dt>Codi</dt>
+          <dd id="playCode" class="play-code">—</dd>
+        </div>
+        <div>
+          <dt>Classe</dt>
+          <dd id="playClass" class="play-class">—</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="play-layout">
+      <section class="panel card play-question" id="questionSection" aria-labelledby="questionTitle" aria-live="polite">
+        <header class="play-section-header">
+          <h2 id="questionTitle">Pregunta en curs</h2>
+          <p id="questionMeta" class="portal-muted"></p>
+        </header>
+        <p id="questionMessage" class="play-question-message portal-muted"></p>
+        <div id="questionBody" class="play-question-body">
+          <p id="questionPrompt" class="play-question-prompt"></p>
+          <form id="questionForm" class="play-question-form" autocomplete="off" hidden>
+            <fieldset class="play-question-fieldset">
+              <legend class="sr-only">Opcions de resposta</legend>
+              <div id="questionOptions" class="play-question-options"></div>
+            </fieldset>
+            <button id="questionSubmit" class="pill" type="submit">Enviar resposta</button>
+          </form>
+          <p id="questionFeedback" class="play-feedback" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section id="joinSection" class="panel card play-join" aria-labelledby="joinTitle">
+        <header class="play-section-header">
+          <h2 id="joinTitle">Uneix-te a la partida</h2>
+          <p id="joinHint" class="portal-muted">Introdueix el teu nom tal com el coneix el professorat.</p>
+        </header>
+        <form id="joinForm" class="play-join-form" autocomplete="off" hidden>
+          <label class="portal-field-label" for="playerName">Nom i cognoms</label>
+          <input id="playerName" class="input" type="text" name="playerName" minlength="2" maxlength="80" required placeholder="Exemple: Joana Martí" />
+          <button class="pill" type="submit">Entra a la partida</button>
+        </form>
+        <div id="joinSuccess" class="play-join-success" hidden role="status" aria-live="polite"></div>
+        <p id="joinFeedback" class="play-feedback" role="alert"></p>
+      </section>
+
+      <section class="panel card play-scoreboard" aria-labelledby="scoreTitle">
+        <div class="play-section-header">
+          <h2 id="scoreTitle">Marcador</h2>
+          <div id="scoreMeta" class="portal-muted"></div>
+        </div>
+        <div id="scoreEmpty" class="play-empty" hidden>Encara no hi ha participants connectats.</div>
+        <ol id="scoreList" class="play-score-list"></ol>
+      </section>
+    </section>
+  </main>
+
+  <section id="playError" class="wrap panel card play-error" hidden>
+    <h2>Partida no disponible</h2>
+    <p id="playErrorMessage">Comprova que el codi és correcte o que la partida continua oberta.</p>
+    <a class="pill" href="../index.html">← Torna a l'inici</a>
+  </section>
+
+  <script type="module" src="../portal/supabase-config.js"></script>
+  <script type="module" src="./play.js"></script>
+</body>
+</html>
