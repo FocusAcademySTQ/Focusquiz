@@ -24,6 +24,7 @@ const state = {
   loading: false,
   refreshTimer: null,
   playerRefreshTimer: null,
+  playerReloadTimer: null,
   refreshing: false,
   question: null,
   questionLoading: false,
@@ -595,6 +596,7 @@ async function fetchQuestion(quizId, questionIndex) {
 
 function handleGameChange(previousGame) {
   const currentGame = state.game;
+  clearScheduledPlayerReload();
   if (!currentGame) {
     clearQuestionState(true);
     renderQuestion();
@@ -622,6 +624,7 @@ function handleGameChange(previousGame) {
     clearQuestionState(true);
     renderQuestion();
     loadPlayers();
+    schedulePlayerReload(1200);
     return;
   }
 
@@ -629,6 +632,7 @@ function handleGameChange(previousGame) {
   if (questionChanged) {
     fetchQuestion(currentGame.quiz_id, currentIndex);
     loadPlayers();
+    schedulePlayerReload(1200);
     return;
   }
 
@@ -641,6 +645,7 @@ function handleGameChange(previousGame) {
     renderQuestion();
     if (status === 'active' || status === 'paused') {
       loadPlayers();
+      schedulePlayerReload(1000);
     }
   }
 }
@@ -1010,6 +1015,7 @@ async function submitAnswer() {
     state.answer.error = '';
     renderQuestion();
     await loadPlayers();
+    schedulePlayerReload(900);
   } catch (error) {
     state.answer.submitting = false;
     if (error && error.code === '23505') {
@@ -1028,6 +1034,7 @@ async function submitAnswer() {
 async function loadPlayers() {
   const client = ensureClient();
   if (!client || !state.game) return;
+  clearScheduledPlayerReload();
   if (state.playersLoading) return;
   state.playersLoading = true;
   try {
@@ -1181,6 +1188,21 @@ function clearPlayerRefresh() {
   }
 }
 
+function clearScheduledPlayerReload() {
+  if (state.playerReloadTimer) {
+    window.clearTimeout(state.playerReloadTimer);
+    state.playerReloadTimer = null;
+  }
+}
+
+function schedulePlayerReload(delay = 900) {
+  clearScheduledPlayerReload();
+  state.playerReloadTimer = window.setTimeout(() => {
+    state.playerReloadTimer = null;
+    loadPlayers();
+  }, Math.max(250, delay));
+}
+
 function ensurePlayerRefresh() {
   if (!shouldRefreshPlayers()) {
     clearPlayerRefresh();
@@ -1239,6 +1261,8 @@ function setupForm() {
 
 function cleanup() {
   clearGameRefresh();
+  clearPlayerRefresh();
+  clearScheduledPlayerReload();
   clearQuestionState(true);
   if (state.supabase && state.channel) {
     try {

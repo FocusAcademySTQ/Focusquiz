@@ -47,7 +47,6 @@ const state = {
     quizDraft: {
       classId: '',
       title: '',
-      moduleId: '',
       defaultTimeLimit: 20,
       defaultPoints: 100,
       speedBonus: 5,
@@ -122,7 +121,6 @@ const elements = {
   liveQuizForm: document.getElementById('liveQuizForm'),
   liveQuizClass: document.getElementById('liveQuizClass'),
   liveQuizTitle: document.getElementById('liveQuizTitle'),
-  liveQuizModule: document.getElementById('liveQuizModule'),
   liveQuizTime: document.getElementById('liveQuizTime'),
   liveQuizSpeedBonus: document.getElementById('liveQuizSpeedBonus'),
   liveQuestionPrompt: document.getElementById('liveQuestionPrompt'),
@@ -216,7 +214,6 @@ function ensureLiveDrafts() {
     state.live.quizDraft = {
       classId: '',
       title: '',
-      moduleId: '',
       defaultTimeLimit: 20,
       defaultPoints: 100,
       speedBonus: 5,
@@ -243,7 +240,6 @@ function ensureLiveQuestionDraft() {
     state.live.quizDraft = {
       classId: '',
       title: '',
-      moduleId: '',
       defaultTimeLimit: 20,
       defaultPoints: 100,
       speedBonus: 5,
@@ -645,41 +641,6 @@ function renderModuleOptions() {
     setCurrentModule('', { preserveQuestions: false });
   }
 
-  if (elements.liveQuizModule) {
-    const liveSelect = elements.liveQuizModule;
-    const currentModule = state.live && state.live.quizDraft ? state.live.quizDraft.moduleId : '';
-    liveSelect.innerHTML = '';
-    const manualOption = document.createElement('option');
-    manualOption.value = '';
-    manualOption.textContent = '— Quiz manual —';
-    liveSelect.appendChild(manualOption);
-    let groupLabel = null;
-    sorted.forEach((module) => {
-      if (module.category !== groupLabel) {
-        groupLabel = module.category;
-        const optGroup = document.createElement('optgroup');
-        optGroup.label = CATEGORY_LABELS[module.category] || module.category;
-        liveSelect.appendChild(optGroup);
-      }
-      const option = document.createElement('option');
-      option.value = module.id;
-      option.textContent = module.name;
-      const parentGroup = liveSelect.lastElementChild;
-      if (parentGroup && parentGroup.tagName.toLowerCase() === 'optgroup') {
-        parentGroup.appendChild(option);
-      } else {
-        liveSelect.appendChild(option);
-      }
-    });
-    if (currentModule && liveSelect.querySelector(`option[value="${safeCssEscape(currentModule)}"]`)) {
-      liveSelect.value = currentModule;
-    } else {
-      liveSelect.value = '';
-      if (state.live && state.live.quizDraft) {
-        state.live.quizDraft.moduleId = '';
-      }
-    }
-  }
 }
 
 function syncLiveQuizFormInputs() {
@@ -697,13 +658,6 @@ function syncLiveQuizFormInputs() {
   }
   if (elements.liveQuizTitle) {
     elements.liveQuizTitle.value = draft.title || '';
-  }
-  if (elements.liveQuizModule) {
-    const moduleOption = elements.liveQuizModule.querySelector(`option[value="${safeCssEscape(draft.moduleId || '')}"]`);
-    elements.liveQuizModule.value = moduleOption ? draft.moduleId : '';
-    if (!moduleOption) {
-      draft.moduleId = '';
-    }
   }
   if (elements.liveQuizTime) {
     elements.liveQuizTime.value = Number.isFinite(draft.defaultTimeLimit) ? draft.defaultTimeLimit : 20;
@@ -766,7 +720,6 @@ function resetLiveQuizDraft({ preserveClass = true } = {}) {
   state.live.quizDraft = {
     classId: defaultClass,
     title: '',
-    moduleId: '',
     defaultTimeLimit: 20,
     defaultPoints: 100,
     speedBonus: 5,
@@ -930,17 +883,12 @@ function renderLiveQuizzes() {
     const meta = document.createElement('p');
     meta.className = 'portal-muted';
     const classInfo = state.classes.find((cls) => cls.id === quiz.class_id);
-    const moduleInfo = MODULES.find((mod) => mod.id === quiz.module_id);
     const parts = [];
     if (classInfo) {
       parts.push(`${classInfo.class_name} · ${classInfo.join_code}`);
     }
-    if (moduleInfo) {
-      parts.push(`Mòdul ${moduleInfo.name}`);
-    } else if (quiz.module_id) {
-      parts.push(`Mòdul ${quiz.module_id}`);
-    }
-    parts.push(`${quiz.questions.length} preguntes manuals`);
+    const questionLabel = quiz.questions.length === 1 ? 'pregunta pròpia' : 'preguntes pròpies';
+    parts.push(`${quiz.questions.length} ${questionLabel}`);
     meta.textContent = parts.join(' · ');
     card.appendChild(meta);
 
@@ -1233,9 +1181,6 @@ function handleLiveQuizFieldChange(event) {
       break;
     case 'liveQuizTitle':
       state.live.quizDraft.title = value;
-      break;
-    case 'liveQuizModule':
-      state.live.quizDraft.moduleId = value || '';
       break;
     case 'liveQuizTime': {
       const numeric = Number.parseInt(value, 10);
@@ -2918,7 +2863,6 @@ async function createLiveQuiz() {
   const draft = state.live.quizDraft;
   const classId = draft.classId;
   const title = (draft.title || '').trim();
-  const moduleId = draft.moduleId ? draft.moduleId : null;
   const defaultTime = Number.isFinite(draft.defaultTimeLimit)
     ? Math.min(Math.max(draft.defaultTimeLimit, 5), 600)
     : 20;
@@ -2942,9 +2886,9 @@ async function createLiveQuiz() {
     }
     return;
   }
-  if (!moduleId && manualQuestions.length === 0) {
+  if (manualQuestions.length === 0) {
     if (elements.liveQuizFeedback) {
-      elements.liveQuizFeedback.textContent = 'Afegeix almenys una pregunta o selecciona un mòdul FocusQuiz.';
+      elements.liveQuizFeedback.textContent = 'Afegeix almenys una pregunta manual abans de guardar el quiz.';
     }
     return;
   }
@@ -2960,7 +2904,7 @@ async function createLiveQuiz() {
         teacher_id: state.profile.id,
         class_id: classId,
         title,
-        module_id: moduleId,
+        module_id: null,
         default_time_limit: defaultTime,
         default_points: defaultPoints,
         speed_bonus: speedBonus,
@@ -3034,7 +2978,6 @@ function focusLiveQuiz(quizId) {
   state.live.gameDraft.speedBonus = Number.isFinite(quiz.speed_bonus) ? quiz.speed_bonus : state.live.gameDraft.speedBonus;
   if (state.live.quizDraft) {
     state.live.quizDraft.classId = quiz.class_id || state.live.quizDraft.classId;
-    state.live.quizDraft.moduleId = quiz.module_id || '';
     if (Number.isFinite(quiz.default_time_limit)) {
       state.live.quizDraft.defaultTimeLimit = quiz.default_time_limit;
     }
@@ -3271,7 +3214,6 @@ async function handleLogout() {
     quizDraft: {
       classId: '',
       title: '',
-      moduleId: '',
       defaultTimeLimit: 20,
       defaultPoints: 100,
       speedBonus: 5,
@@ -3403,9 +3345,6 @@ function setupEventListeners() {
   }
   if (elements.liveQuizTitle) {
     elements.liveQuizTitle.addEventListener('input', handleLiveQuizFieldChange);
-  }
-  if (elements.liveQuizModule) {
-    elements.liveQuizModule.addEventListener('change', handleLiveQuizFieldChange);
   }
   if (elements.liveQuizTime) {
     const handler = handleLiveQuizFieldChange;
