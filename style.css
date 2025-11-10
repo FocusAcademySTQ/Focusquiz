@@ -2020,7 +2020,22 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   border: 1px solid rgba(59, 130, 246, 0.22);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: 0 22px 45px -32px rgba(30, 64, 175, 0.4);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
 }
+
+.play-score-row::after {
+  content: '';
+  position: absolute;
+  inset: -110% -40% auto -40%;
+  height: 220%;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.75) 50%, transparent 100%);
+  transform: translateX(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+
 
 .play-score-row.is-top-1 {
   border-color: rgba(249, 168, 38, 0.6);
@@ -2040,6 +2055,54 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
 .play-score-row.is-self {
   border-color: rgba(16, 185, 129, 0.55);
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(255, 255, 255, 0.95));
+}
+
+.play-score-row.is-updated,
+.play-score-row.is-top-1.is-updated,
+.play-score-row.is-top-2.is-updated,
+.play-score-row.is-top-3.is-updated,
+.play-score-row.is-self.is-updated {
+  border-color: rgba(59, 130, 246, 0.6);
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.16), rgba(255, 255, 255, 0.98));
+  box-shadow: 0 28px 48px -26px rgba(59, 130, 246, 0.55);
+  animation: play-score-burst 0.85s ease;
+}
+
+.play-score-row.is-updated::after,
+.play-score-row.is-top-1.is-updated::after,
+.play-score-row.is-top-2.is-updated::after,
+.play-score-row.is-top-3.is-updated::after,
+.play-score-row.is-self.is-updated::after {
+  animation: play-score-glint 0.85s ease forwards;
+}
+
+@keyframes play-score-burst {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.05);
+  }
+  55% {
+    transform: scale(0.98);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes play-score-glint {
+  0% {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
 }
 
 .play-score-position {

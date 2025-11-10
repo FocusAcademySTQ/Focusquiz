@@ -32,6 +32,7 @@ const state = {
   questionRequestId: 0,
   answer: createInitialAnswerState(),
   playersLoading: false,
+  lastPlayerSnapshot: [],
 };
 
 const STATUS_LABELS = {
@@ -345,6 +346,18 @@ function renderGameInfo() {
     const status = state.game.status;
     if (status === 'waiting') {
       parts.push('Esperant que el professorat comenci la partida.');
+    } else if (status === 'completed') {
+      if (state.game.ended_at) {
+        const ended = formatTimestamp(state.game.ended_at);
+        if (ended) {
+          parts.push(`Partida finalitzada a les ${ended}`);
+        }
+      }
+      if (!parts.length) {
+        parts.push('La partida ha finalitzat.');
+      }
+    } else if (status === 'cancelled') {
+      parts.push('Sessió cancel·lada pel professorat.');
     } else {
       if (Number.isInteger(state.game.current_question)) {
         parts.push(`Pregunta ${state.game.current_question}`);
@@ -360,12 +373,6 @@ function renderGameInfo() {
       }
       if (status === 'paused') {
         parts.unshift('Partida en pausa');
-      }
-      if (status === 'completed' && state.game.ended_at) {
-        const ended = formatTimestamp(state.game.ended_at);
-        if (ended) parts.push(`Finalitzada a les ${ended}`);
-      } else if (status === 'cancelled') {
-        parts.push('Sessió cancel·lada pel professorat.');
       }
       if (!parts.length && status === 'active') {
         parts.push('Partida en progrés.');
@@ -506,18 +513,25 @@ async function fetchQuestionWithFallback(client, quizId, questionIndex) {
     return clone;
   });
 
+  const highestIndex = normalizedRows.reduce((acc, row) => {
+    const idx = coerceQuestionIndex(row.question_index);
+    return Number.isInteger(idx) && idx > acc ? idx : acc;
+  }, 0);
+
+  if (Number.isInteger(questionIndex) && questionIndex > 0 && questionIndex > highestIndex) {
+    return { ended: true, displayIndex: questionIndex, maxIndex: highestIndex };
+  }
+
   const exactMatch = normalizedRows.find((row) => row.question_index === questionIndex);
   if (exactMatch) {
     return { row: exactMatch, displayIndex: questionIndex };
   }
 
-  const zeroBasedIndex = Number.isInteger(questionIndex) ? questionIndex - 1 : null;
-  if (
-    Number.isInteger(zeroBasedIndex) &&
-    zeroBasedIndex >= 0 &&
-    zeroBasedIndex < normalizedRows.length
-  ) {
-    return { row: normalizedRows[zeroBasedIndex], displayIndex: questionIndex };
+  if (Number.isInteger(questionIndex) && questionIndex > 0) {
+    const zeroBasedIndex = questionIndex - 1;
+    if (zeroBasedIndex >= 0 && zeroBasedIndex < normalizedRows.length) {
+      return { row: normalizedRows[zeroBasedIndex], displayIndex: questionIndex };
+    }
   }
 
   const fallbackRow = normalizedRows[0];
@@ -557,7 +571,14 @@ async function fetchQuestion(quizId, questionIndex) {
     if (requestId !== state.questionRequestId) {
       return;
     }
-    if (!result) {
+    if (result && result.ended) {
+      state.questionLoading = false;
+      state.questionError = '';
+      state.question = null;
+      renderQuestion();
+      return;
+    }
+    if (!result || !result.row) {
       state.questionLoading = false;
       state.questionError = 'No s\'ha trobat la pregunta actual.';
       state.question = null;
@@ -657,10 +678,13 @@ function renderQuestion() {
     elements.questionSection.hidden = true;
     return;
   }
-  elements.questionSection.hidden = false;
-
   const question = state.question;
   const status = game.status || 'waiting';
+  if (status === 'completed' || status === 'cancelled') {
+    elements.questionSection.hidden = true;
+    return;
+  }
+  elements.questionSection.hidden = false;
   const questionIndex = Number.isInteger(game.current_question) && game.current_question > 0 ? game.current_question : null;
 
   if (elements.questionMeta) {
@@ -804,9 +828,12 @@ function renderPlayers() {
   if (players.length === 0) {
     elements.scoreEmpty.hidden = false;
     elements.scoreList.innerHTML = '';
+    state.lastPlayerSnapshot = [];
     return;
   }
   elements.scoreEmpty.hidden = true;
+  const previousSnapshot = Array.isArray(state.lastPlayerSnapshot) ? state.lastPlayerSnapshot : [];
+  const previousMap = new Map(previousSnapshot.map((item) => [item.id, item]));
   players.sort((a, b) => {
     const scoreDiff = Number.parseFloat(b.score || 0) - Number.parseFloat(a.score || 0);
     if (Math.abs(scoreDiff) > 0.0001) return scoreDiff;
@@ -818,6 +845,7 @@ function renderPlayers() {
   players.forEach((player, index) => {
     const row = document.createElement('li');
     row.className = 'play-score-row';
+    row.dataset.playerId = player.id || '';
     const position = document.createElement('span');
     position.className = 'play-score-position';
     if (index === 0) {
@@ -839,9 +867,13 @@ function renderPlayers() {
     const stats = document.createElement('span');
     stats.className = 'play-score-stats';
     const scoreLabel = formatScore(player.score);
-    const correctLabel = Number.isFinite(player.correct_answers)
-      ? `${player.correct_answers}/${player.answer_count || 0} encerts`
-      : `${player.answer_count || 0} respostes`;
+    const parsedCorrect = Number.isFinite(Number.parseInt(player.correct_answers, 10))
+      ? Number.parseInt(player.correct_answers, 10)
+      : null;
+    const parsedCount = Number.isFinite(Number.parseInt(player.answer_count, 10))
+      ? Number.parseInt(player.answer_count, 10)
+      : 0;
+    const correctLabel = parsedCorrect !== null ? `${parsedCorrect}/${parsedCount} encerts` : `${parsedCount} respostes`;
     stats.textContent = `${scoreLabel} pts · ${correctLabel}`;
     row.appendChild(stats);
 
@@ -852,10 +884,49 @@ function renderPlayers() {
       row.classList.add('is-self');
     }
 
+    const previousEntry = previousMap.get(player.id);
+    const previousScore = previousEntry && Number.isFinite(Number.parseFloat(previousEntry.score))
+      ? Number.parseFloat(previousEntry.score)
+      : 0;
+    const previousCorrect = previousEntry && Number.isFinite(Number.parseInt(previousEntry.correct_answers, 10))
+      ? Number.parseInt(previousEntry.correct_answers, 10)
+      : 0;
+    const previousCount = previousEntry && Number.isFinite(Number.parseInt(previousEntry.answer_count, 10))
+      ? Number.parseInt(previousEntry.answer_count, 10)
+      : 0;
+    const currentScore = Number.isFinite(Number.parseFloat(player.score)) ? Number.parseFloat(player.score) : 0;
+    const currentCorrect = Number.isFinite(Number.parseInt(player.correct_answers, 10))
+      ? Number.parseInt(player.correct_answers, 10)
+      : 0;
+    const currentCount = Number.isFinite(Number.parseInt(player.answer_count, 10))
+      ? Number.parseInt(player.answer_count, 10)
+      : 0;
+    const hasChanged =
+      !previousEntry ||
+      Math.abs(currentScore - previousScore) > 0.009 ||
+      currentCorrect !== previousCorrect ||
+      currentCount !== previousCount;
+    if (hasChanged) {
+      row.classList.add('is-updated');
+      setTimeout(() => {
+        row.classList.remove('is-updated');
+      }, 900);
+    }
+
     fragment.appendChild(row);
   });
   elements.scoreList.innerHTML = '';
   elements.scoreList.appendChild(fragment);
+  state.lastPlayerSnapshot = players.map((player) => ({
+    id: player.id,
+    score: Number.isFinite(Number.parseFloat(player.score)) ? Number.parseFloat(player.score) : 0,
+    correct_answers: Number.isFinite(Number.parseInt(player.correct_answers, 10))
+      ? Number.parseInt(player.correct_answers, 10)
+      : 0,
+    answer_count: Number.isFinite(Number.parseInt(player.answer_count, 10))
+      ? Number.parseInt(player.answer_count, 10)
+      : 0,
+  }));
 }
 
 function applyStoredPlayer() {

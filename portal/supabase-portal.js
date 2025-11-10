@@ -71,6 +71,9 @@ const LIVE_STATUS_LABELS = {
   cancelled: 'Cancel·lada',
 };
 
+const SCORE_EPSILON = 0.01;
+const SCOREBOARD_UPDATE_DELAY_MS = 1100;
+
 const elements = {
   configWarning: document.getElementById('configWarning'),
   authPanel: document.getElementById('authPanel'),
@@ -158,6 +161,7 @@ const elements = {
 };
 
 let previewChannel = null;
+const liveScorePromises = new Map();
 
 ensureLiveDrafts();
 
@@ -174,6 +178,10 @@ function getNested(source, keys, fallback) {
 
 function coalesce(value, fallback) {
   return value === null || value === undefined ? fallback : value;
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function readFormValue(formData, key) {
@@ -926,6 +934,242 @@ function getLiveQuizQuestionCount(game) {
   if (!quiz) return 0;
   const manualQuestions = Array.isArray(quiz.questions) ? quiz.questions.length : 0;
   return manualQuestions;
+}
+
+async function ensureLiveQuizLoaded(quizId) {
+  if (!quizId) return null;
+  ensureLiveDrafts();
+  const existing = state.live.quizzes.find((item) => item.id === quizId);
+  if (existing) return existing;
+  const client = createSupabaseClient();
+  if (!client || !state.profile) return null;
+  try {
+    const { data, error } = await client
+      .from('quizzes')
+      .select(
+        'id, title, class_id, default_time_limit, default_points, speed_bonus, quiz_questions(id, question_index, prompt, options, correct_option, time_limit, points, speed_bonus)'
+      )
+      .eq('id', quizId)
+      .eq('teacher_id', state.profile.id)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return null;
+    const questionList = Array.isArray(data.quiz_questions)
+      ? data.quiz_questions
+          .slice()
+          .sort((a, b) => (a.question_index || 0) - (b.question_index || 0))
+          .map((question) => ({
+            id: question.id,
+            index: question.question_index,
+            prompt: question.prompt,
+            options: Array.isArray(question.options)
+              ? question.options.map((option) => ({
+                  key: option.key || option.letter || option.label || '',
+                  text: option.text || option.value || option.label || '',
+                }))
+              : [],
+            correctOption: question.correct_option,
+            timeLimit: question.time_limit,
+            points: question.points,
+            speedBonus: Number.isFinite(Number.parseFloat(question.speed_bonus))
+              ? Number.parseFloat(question.speed_bonus)
+              : 0,
+          }))
+      : [];
+    const quiz = {
+      id: data.id,
+      title: data.title,
+      class_id: data.class_id,
+      default_time_limit: data.default_time_limit,
+      default_points: data.default_points,
+      speed_bonus: Number.isFinite(Number.parseFloat(data.speed_bonus))
+        ? Number.parseFloat(data.speed_bonus)
+        : 0,
+      questions: questionList,
+    };
+    state.live.quizzes = Array.isArray(state.live.quizzes)
+      ? state.live.quizzes.filter((item) => item.id !== quiz.id).concat([quiz])
+      : [quiz];
+    return quiz;
+  } catch (error) {
+    console.error('No s\'ha pogut carregar el quiz Live', error);
+    return null;
+  }
+}
+
+async function recalculateLiveScores(game) {
+  if (!game || !game.id) return;
+  if (liveScorePromises.has(game.id)) {
+    return liveScorePromises.get(game.id);
+  }
+  const promise = (async () => {
+    const client = createSupabaseClient();
+    if (!client || !state.profile) return;
+    const quiz = await ensureLiveQuizLoaded(game.quiz_id);
+    if (!quiz) return;
+
+    const { data: playersData, error: playersError } = await client
+      .from('players')
+      .select('id, score, correct_answers, answer_count, last_answered_at')
+      .eq('game_id', game.id);
+    if (playersError) {
+      console.error('No s\'han pogut recuperar els participants per calcular el marcador', playersError);
+      return;
+    }
+    const players = Array.isArray(playersData) ? playersData : [];
+    if (!players.length) return;
+
+    const { data: answersData, error: answersError } = await client
+      .from('answers')
+      .select('id, player_id, question_index, choice, time_spent, created_at')
+      .eq('game_id', game.id);
+    if (answersError) {
+      console.error('No s\'han pogut recuperar les respostes del Live', answersError);
+      return;
+    }
+    const answers = Array.isArray(answersData) ? answersData : [];
+    if (!answers.length) return;
+
+    const defaults = {
+      points: Number.isFinite(Number.parseFloat(game.question_points))
+        ? Number.parseFloat(game.question_points)
+        : Number.isFinite(Number.parseFloat(quiz.default_points))
+        ? Number.parseFloat(quiz.default_points)
+        : 100,
+      timeLimit: Number.isFinite(Number.parseInt(game.question_time_limit, 10))
+        ? Number.parseInt(game.question_time_limit, 10)
+        : Number.isFinite(Number.parseInt(quiz.default_time_limit, 10))
+        ? Number.parseInt(quiz.default_time_limit, 10)
+        : 20,
+      speedBonus: Number.isFinite(Number.parseFloat(game.speed_bonus))
+        ? Number.parseFloat(game.speed_bonus)
+        : Number.isFinite(Number.parseFloat(quiz.speed_bonus))
+        ? Number.parseFloat(quiz.speed_bonus)
+        : 0,
+    };
+
+    const questionLookup = new Map();
+    (quiz.questions || []).forEach((question, index) => {
+      const indexValue = Number.isInteger(question.index) ? question.index : index + 1;
+      questionLookup.set(indexValue, {
+        correctOption:
+          typeof question.correctOption === 'string' && question.correctOption.trim()
+            ? question.correctOption.trim().toUpperCase()
+            : '',
+        points: Number.isFinite(Number.parseFloat(question.points))
+          ? Number.parseFloat(question.points)
+          : null,
+        timeLimit: Number.isFinite(Number.parseInt(question.timeLimit, 10))
+          ? Number.parseInt(question.timeLimit, 10)
+          : null,
+        speedBonus: Number.isFinite(Number.parseFloat(question.speedBonus))
+          ? Number.parseFloat(question.speedBonus)
+          : null,
+      });
+    });
+
+    const statsByPlayer = new Map();
+    answers.forEach((answer) => {
+      if (!answer || !answer.player_id) return;
+      const question = questionLookup.get(answer.question_index) || {};
+      const correctOption = question.correctOption || '';
+      const choice = typeof answer.choice === 'string' ? answer.choice.trim().toUpperCase() : '';
+      const isCorrect = Boolean(correctOption) && correctOption === choice;
+
+      const basePoints = Number.isFinite(question.points) ? question.points : defaults.points;
+      const timeLimit = Number.isFinite(question.timeLimit) ? question.timeLimit : defaults.timeLimit;
+      const speedBonus = Number.isFinite(question.speedBonus) ? question.speedBonus : defaults.speedBonus;
+
+      const parsedTime = Number.isFinite(Number.parseFloat(answer.time_spent))
+        ? Number.parseFloat(answer.time_spent)
+        : null;
+      const clampedTime = Number.isFinite(timeLimit)
+        ? Math.min(Math.max(parsedTime === null ? timeLimit : parsedTime, 0), timeLimit)
+        : parsedTime;
+      const remaining = Number.isFinite(timeLimit) && Number.isFinite(clampedTime)
+        ? Math.max(0, timeLimit - clampedTime)
+        : 0;
+      const bonus = Number.isFinite(speedBonus) && speedBonus > 0 ? remaining * speedBonus : 0;
+      const awarded = isCorrect && Number.isFinite(basePoints) ? basePoints + bonus : 0;
+
+      const stats = statsByPlayer.get(answer.player_id) || {
+        score: 0,
+        correct: 0,
+        count: 0,
+        lastAnswered: null,
+      };
+      stats.count += 1;
+      if (isCorrect) {
+        stats.correct += 1;
+        stats.score += awarded;
+      }
+      const createdAt = answer.created_at ? Date.parse(answer.created_at) : NaN;
+      if (Number.isFinite(createdAt)) {
+        if (!stats.lastAnswered || createdAt > stats.lastAnswered) {
+          stats.lastAnswered = createdAt;
+        }
+      }
+      statsByPlayer.set(answer.player_id, stats);
+    });
+
+    if (!statsByPlayer.size) return;
+
+    const updates = [];
+    players.forEach((player) => {
+      if (!player || !player.id) return;
+      const stats = statsByPlayer.get(player.id) || {
+        score: 0,
+        correct: 0,
+        count: 0,
+        lastAnswered: null,
+      };
+      const newScore = Number.isFinite(stats.score) ? Number(stats.score.toFixed(2)) : 0;
+      const newCorrect = Number.isFinite(stats.correct) ? stats.correct : 0;
+      const newCount = Number.isFinite(stats.count) ? stats.count : 0;
+      const newLast = stats.lastAnswered ? new Date(stats.lastAnswered).toISOString() : null;
+
+      const previousScore = Number.isFinite(Number.parseFloat(player.score))
+        ? Number.parseFloat(player.score)
+        : 0;
+      const previousCorrect = Number.isFinite(Number.parseInt(player.correct_answers, 10))
+        ? Number.parseInt(player.correct_answers, 10)
+        : 0;
+      const previousCount = Number.isFinite(Number.parseInt(player.answer_count, 10))
+        ? Number.parseInt(player.answer_count, 10)
+        : 0;
+      const previousLast = player.last_answered_at ? new Date(player.last_answered_at).toISOString() : null;
+
+      const scoreChanged = Math.abs(previousScore - newScore) > SCORE_EPSILON;
+      const correctChanged = previousCorrect !== newCorrect;
+      const countChanged = previousCount !== newCount;
+      const lastChanged = (previousLast || '') !== (newLast || '');
+
+      if (scoreChanged || correctChanged || countChanged || lastChanged) {
+        updates.push({
+          id: player.id,
+          score: newScore,
+          correct_answers: newCorrect,
+          answer_count: newCount,
+          last_answered_at: newLast,
+        });
+      }
+    });
+
+    if (!updates.length) return;
+
+    const { error: updateError } = await client.from('players').upsert(updates, { onConflict: 'id' });
+    if (updateError) {
+      console.error('No s\'ha pogut actualitzar el marcador del Live', updateError);
+    }
+  })()
+    .catch((error) => {
+      console.error('Error inesperat recalculant el marcador del Live', error);
+    })
+    .finally(() => {
+      liveScorePromises.delete(game.id);
+    });
+  liveScorePromises.set(game.id, promise);
+  return promise;
 }
 
 function formatLiveGameProgress(game) {
@@ -3116,16 +3360,30 @@ async function pauseLiveGame(game) {
 
 async function advanceLiveGameQuestion(game) {
   if (!game) return;
-  const nextQuestion = Number.isInteger(game.current_question) && game.current_question >= 1 ? game.current_question + 1 : 1;
+  await recalculateLiveScores(game);
+  await delay(SCOREBOARD_UPDATE_DELAY_MS);
+  const totalQuestions = getLiveQuizQuestionCount(game);
+  const currentQuestion = Number.isInteger(game.current_question) && game.current_question >= 1 ? game.current_question : 0;
+  const nextQuestion = currentQuestion + 1;
+  if (!totalQuestions || (Number.isInteger(totalQuestions) && nextQuestion > totalQuestions)) {
+    await completeLiveGame(game, { skipScoreRecalc: true, delayForScoreboard: false });
+    return;
+  }
   await updateLiveGameStatus(game.id, 'active', {
-    current_question: nextQuestion,
+    current_question: nextQuestion > 0 ? nextQuestion : 1,
     question_started_at: new Date().toISOString(),
   });
 }
 
-async function completeLiveGame(game) {
+async function completeLiveGame(game, { skipScoreRecalc = false, delayForScoreboard = true } = {}) {
   if (!game) return;
-  await updateLiveGameStatus(game.id, 'completed');
+  if (!skipScoreRecalc) {
+    await recalculateLiveScores(game);
+    if (delayForScoreboard) {
+      await delay(SCOREBOARD_UPDATE_DELAY_MS);
+    }
+  }
+  await updateLiveGameStatus(game.id, 'completed', { question_started_at: null });
 }
 
 async function archiveLiveGame(game) {
@@ -3448,7 +3706,7 @@ function setupEventListeners() {
     });
   }
   if (elements.liveGameList) {
-    elements.liveGameList.addEventListener('click', (event) => {
+    elements.liveGameList.addEventListener('click', async (event) => {
       const button = event.target instanceof Element ? event.target.closest('button[data-game-action]') : null;
       if (!button) return;
       const gameId = button.getAttribute('data-game-id');
@@ -3459,17 +3717,17 @@ function setupEventListeners() {
       if (action === 'copy') {
         copyLiveGameCode(game);
       } else if (action === 'start') {
-        startLiveGame(game);
+        await startLiveGame(game);
       } else if (action === 'resume') {
-        resumeLiveGame(game);
+        await resumeLiveGame(game);
       } else if (action === 'pause') {
-        pauseLiveGame(game);
+        await pauseLiveGame(game);
       } else if (action === 'next') {
-        advanceLiveGameQuestion(game);
+        await advanceLiveGameQuestion(game);
       } else if (action === 'complete' || action === 'close') {
-        completeLiveGame(game);
+        await completeLiveGame(game);
       } else if (action === 'cancel' || action === 'archive') {
-        archiveLiveGame(game);
+        await archiveLiveGame(game);
       }
     });
   }
