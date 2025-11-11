@@ -1021,7 +1021,7 @@ async function recalculateLiveScores(game) {
 
     const { data: answersData, error: answersError } = await client
       .from('answers')
-      .select('id, player_id, question_index, choice, time_spent, created_at')
+      .select('id, player_id, quiz_question_id, question_index, choice, time_spent, created_at')
       .eq('game_id', game.id);
     if (answersError) {
       console.error('No s\'han pogut recuperar les respostes del Live', answersError);
@@ -1049,9 +1049,11 @@ async function recalculateLiveScores(game) {
     };
 
     const questionLookup = new Map();
+    const questionById = new Map();
     (quiz.questions || []).forEach((question, index) => {
       const indexValue = Number.isInteger(question.index) ? question.index : index + 1;
-      questionLookup.set(indexValue, {
+      const entry = {
+        index: indexValue,
         correctOption:
           typeof question.correctOption === 'string' && question.correctOption.trim()
             ? question.correctOption.trim().toUpperCase()
@@ -1065,20 +1067,35 @@ async function recalculateLiveScores(game) {
         speedBonus: Number.isFinite(Number.parseFloat(question.speedBonus))
           ? Number.parseFloat(question.speedBonus)
           : null,
-      });
+      };
+      if (Number.isInteger(entry.index)) {
+        questionLookup.set(entry.index, entry);
+      }
+      if (question.id) {
+        questionById.set(question.id, entry);
+      }
     });
 
     const statsByPlayer = new Map();
     answers.forEach((answer) => {
       if (!answer || !answer.player_id) return;
-      const question = questionLookup.get(answer.question_index) || {};
-      const correctOption = question.correctOption || '';
+      const parsedIndex = Number.isFinite(Number.parseInt(answer.question_index, 10))
+        ? Number.parseInt(answer.question_index, 10)
+        : null;
+      let question = null;
+      if (Number.isInteger(parsedIndex)) {
+        question = questionLookup.get(parsedIndex) || null;
+      }
+      if (!question && answer.quiz_question_id) {
+        question = questionById.get(answer.quiz_question_id) || null;
+      }
+      const correctOption = question && question.correctOption ? question.correctOption : '';
       const choice = typeof answer.choice === 'string' ? answer.choice.trim().toUpperCase() : '';
       const isCorrect = Boolean(correctOption) && correctOption === choice;
 
-      const basePoints = Number.isFinite(question.points) ? question.points : defaults.points;
-      const timeLimit = Number.isFinite(question.timeLimit) ? question.timeLimit : defaults.timeLimit;
-      const speedBonus = Number.isFinite(question.speedBonus) ? question.speedBonus : defaults.speedBonus;
+      const basePoints = question && Number.isFinite(question.points) ? question.points : defaults.points;
+      const timeLimit = question && Number.isFinite(question.timeLimit) ? question.timeLimit : defaults.timeLimit;
+      const speedBonus = question && Number.isFinite(question.speedBonus) ? question.speedBonus : defaults.speedBonus;
 
       const parsedTime = Number.isFinite(Number.parseFloat(answer.time_spent))
         ? Number.parseFloat(answer.time_spent)
