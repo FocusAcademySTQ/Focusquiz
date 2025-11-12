@@ -2163,7 +2163,7 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   }
 }
 
-.home-live-cta {
+.home-page .home-live-cta {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(200px, 260px);
   gap: 2rem;
@@ -2174,7 +2174,7 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   overflow: hidden;
 }
 
-.home-live-cta::after {
+.home-page .home-live-cta::after {
   content: '';
   position: absolute;
   inset: -20% auto auto 55%;
@@ -2185,12 +2185,12 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   pointer-events: none;
 }
 
-.home-live-cta__body {
+.home-page .home-live-cta__body {
   display: grid;
   gap: 1rem;
 }
 
-.home-live-cta__art {
+.home-page .home-live-cta__art {
   position: relative;
   border-radius: 24px;
   background: radial-gradient(circle at 30% 30%, rgba(248, 113, 113, 0.4), transparent 65%),
@@ -2199,7 +2199,7 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   min-height: 220px;
 }
 
-.home-live-cta__art::after {
+.home-page .home-live-cta__art::after {
   content: '🎯';
   position: absolute;
   font-size: clamp(3rem, 8vw, 4.75rem);
@@ -2207,38 +2207,38 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   transform: translate(-50%, -50%) rotate(-8deg);
 }
 
-.home-live-join-form {
+.home-page .home-live-join-form {
   display: grid;
   gap: 0.75rem;
 }
 
-.home-live-join-controls {
+.home-page .home-live-join-controls {
   display: flex;
   gap: 0.75rem;
   align-items: center;
 }
 
-.home-live-join-controls .input {
+.home-page .home-live-join-controls .input {
   text-transform: uppercase;
   letter-spacing: 0.18em;
 }
 
-.home-live-join-controls .pill {
+.home-page .home-live-join-controls .pill {
   white-space: nowrap;
 }
 
-.home-live-join-hint {
+.home-page .home-live-join-hint {
   margin: 0;
   color: var(--muted);
   font-size: 0.95rem;
 }
 
 @media (max-width: 900px) {
-  .home-live-cta {
+  .home-page .home-live-cta {
     grid-template-columns: 1fr;
   }
 
-  .home-live-cta__art {
+  .home-page .home-live-cta__art {
     min-height: 160px;
   }
 }
