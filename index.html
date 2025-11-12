@@ -145,6 +145,32 @@
           </p>
         </form>
 
+        <section class="panel card home-live-cta" aria-labelledby="homeLiveTitle">
+          <div class="home-live-cta__body">
+            <p class="portal-section-title">Partides Live</p>
+            <h2 id="homeLiveTitle">Tens un codi FocusQuiz?</h2>
+            <p class="subtitle">Escriu el codi que t'ha compartit el professorat i entra directament a la partida en viu.</p>
+            <form id="homeLiveJoinForm" class="home-live-join-form" autocomplete="off">
+              <label class="portal-field-label" for="homeLiveJoinCode">Codi de partida</label>
+              <div class="home-live-join-controls">
+                <input
+                  id="homeLiveJoinCode"
+                  class="input"
+                  type="text"
+                  name="code"
+                  minlength="4"
+                  maxlength="8"
+                  required
+                  placeholder="Exemple: 72F8FE"
+                />
+                <button class="pill" type="submit">Unir-me</button>
+              </div>
+              <p class="home-live-join-hint">Et portarem a la sala de joc i només hauràs d'introduir el teu nom.</p>
+            </form>
+          </div>
+          <div class="home-live-cta__art" aria-hidden="true"></div>
+        </section>
+
         <script>
           document.addEventListener('DOMContentLoaded', () => {
             // 🔹 Mostra recomanació del tutor
@@ -303,23 +329,6 @@
           Escriu un nom d’alumne/a al filtre per veure el seu perfil.
         </div>
       </div>
-    </section>
-
-    <section class="panel card home-live-cta" aria-labelledby="homeLiveTitle">
-      <div class="home-live-cta__body">
-        <p class="portal-section-title">Partides Live</p>
-        <h2 id="homeLiveTitle">Tens un codi FocusQuiz?</h2>
-        <p class="subtitle">Escriu el codi que t'ha compartit el professorat i entra directament a la partida en viu.</p>
-        <form id="homeLiveJoinForm" class="home-live-join-form" autocomplete="off">
-          <label class="portal-field-label" for="homeLiveJoinCode">Codi de partida</label>
-          <div class="home-live-join-controls">
-            <input id="homeLiveJoinCode" class="input" type="text" name="code" minlength="4" maxlength="8" required placeholder="Exemple: 72F8FE" />
-            <button class="pill" type="submit">Unir-me</button>
-          </div>
-          <p class="home-live-join-hint">Et portarem a la sala de joc i només hauràs d'introduir el teu nom.</p>
-        </form>
-      </div>
-      <div class="home-live-cta__art" aria-hidden="true"></div>
     </section>
 
     <!-- ABOUT -->
