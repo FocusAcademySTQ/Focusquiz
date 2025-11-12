@@ -72,7 +72,7 @@ const LIVE_STATUS_LABELS = {
 };
 
 const SCORE_EPSILON = 0.01;
-const SCOREBOARD_UPDATE_DELAY_MS = 1100;
+const SCOREBOARD_UPDATE_DELAY_MS = 5000;
 
 const elements = {
   configWarning: document.getElementById('configWarning'),
