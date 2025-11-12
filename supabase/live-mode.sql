@@ -297,4 +297,194 @@ create policy "Players submit live answers" on public.answers
     )
   );
 
+drop trigger if exists trg_live_answer_calculations on public.answers;
+drop trigger if exists trg_live_player_totals on public.answers;
+drop function if exists public.refresh_live_player_totals();
+drop function if exists public.update_live_player_totals(uuid);
+drop function if exists public.calculate_live_answer_details();
+
+create or replace function public.calculate_live_answer_details()
+returns trigger
+language plpgsql
+as $$
+declare
+  game_record record;
+  question_record record;
+  default_points numeric(10, 2);
+  default_time_limit integer;
+  default_speed_bonus numeric(10, 2);
+  effective_points numeric(10, 2);
+  effective_time_limit integer;
+  effective_speed_bonus numeric(10, 2);
+  normalized_choice text;
+  normalized_correct text;
+  elapsed numeric(8, 3);
+  remaining numeric(10, 3);
+  bonus numeric(12, 4);
+  awarded numeric(12, 4);
+begin
+  if new.game_id is null or new.player_id is null then
+    new.is_correct := null;
+    new.points_awarded := 0;
+    return new;
+  end if;
+
+  select
+    g.quiz_id,
+    g.question_points,
+    g.question_time_limit,
+    g.speed_bonus
+  into game_record
+  from public.games g
+  where g.id = new.game_id;
+
+  if not found then
+    new.is_correct := null;
+    new.points_awarded := 0;
+    return new;
+  end if;
+
+  default_points := coalesce(game_record.question_points, 100);
+  default_time_limit := coalesce(game_record.question_time_limit, 20);
+  default_speed_bonus := coalesce(game_record.speed_bonus, 0);
+
+  if new.quiz_question_id is not null then
+    select
+      q.correct_option,
+      q.points,
+      q.time_limit,
+      q.speed_bonus
+    into question_record
+    from public.quiz_questions q
+    where q.id = new.quiz_question_id;
+  end if;
+
+  if question_record.correct_option is null then
+    select
+      q.correct_option,
+      q.points,
+      q.time_limit,
+      q.speed_bonus
+    into question_record
+    from public.quiz_questions q
+    where q.quiz_id = game_record.quiz_id
+      and q.question_index = new.question_index
+    limit 1;
+  end if;
+
+  normalized_correct := upper(trim(coalesce(question_record.correct_option, '')));
+  normalized_choice := upper(trim(coalesce(new.choice::text, '')));
+  new.choice := normalized_choice;
+
+  effective_points := coalesce(question_record.points, default_points, 0);
+  if effective_points < 0 then
+    effective_points := 0;
+  end if;
+
+  effective_time_limit := coalesce(question_record.time_limit, default_time_limit);
+  if effective_time_limit is not null and effective_time_limit < 0 then
+    effective_time_limit := null;
+  end if;
+
+  effective_speed_bonus := coalesce(question_record.speed_bonus, default_speed_bonus, 0);
+  if effective_speed_bonus < 0 then
+    effective_speed_bonus := 0;
+  end if;
+
+  new.is_correct := normalized_correct <> '' and normalized_choice <> '' and normalized_choice = normalized_correct;
+
+  elapsed := new.time_spent;
+  if elapsed is null and effective_time_limit is not null then
+    elapsed := effective_time_limit;
+  end if;
+  if elapsed is not null then
+    if elapsed < 0 then
+      elapsed := 0;
+    end if;
+    if effective_time_limit is not null then
+      elapsed := least(elapsed, effective_time_limit);
+    end if;
+  end if;
+
+  remaining := 0;
+  if effective_time_limit is not null and elapsed is not null then
+    remaining := greatest(0, effective_time_limit - elapsed);
+  end if;
+
+  bonus := 0;
+  if new.is_correct and effective_speed_bonus > 0 and remaining > 0 then
+    bonus := remaining * effective_speed_bonus;
+  end if;
+
+  if new.is_correct then
+    awarded := effective_points + bonus;
+  else
+    awarded := 0;
+  end if;
+
+  new.points_awarded := round(coalesce(awarded, 0)::numeric, 2);
+
+  return new;
+end;
+$$;
+
+create or replace function public.update_live_player_totals(player_uuid uuid)
+returns void
+language plpgsql
+as $$
+declare
+  totals record;
+begin
+  if player_uuid is null then
+    return;
+  end if;
+
+  select
+    coalesce(sum(a.points_awarded), 0) as total_score,
+    coalesce(sum(case when a.is_correct then 1 else 0 end), 0) as total_correct,
+    count(a.id) as total_answers,
+    max(a.created_at) as last_answered
+  into totals
+  from public.answers a
+  where a.player_id = player_uuid;
+
+  update public.players p
+  set
+    score = round(coalesce(totals.total_score, 0)::numeric, 2),
+    correct_answers = coalesce(totals.total_correct, 0),
+    answer_count = coalesce(totals.total_answers, 0),
+    last_answered_at = totals.last_answered
+  where p.id = player_uuid;
+end;
+$$;
+
+create or replace function public.refresh_live_player_totals()
+returns trigger
+language plpgsql
+as $$
+begin
+  if tg_op = 'DELETE' then
+    perform public.update_live_player_totals(old.player_id);
+  elsif tg_op = 'UPDATE' then
+    if new.player_id is distinct from old.player_id then
+      perform public.update_live_player_totals(old.player_id);
+    end if;
+    perform public.update_live_player_totals(new.player_id);
+  else
+    perform public.update_live_player_totals(new.player_id);
+  end if;
+  return null;
+end;
+$$;
+
+create trigger trg_live_answer_calculations
+before insert or update on public.answers
+for each row
+execute function public.calculate_live_answer_details();
+
+create trigger trg_live_player_totals
+after insert or update or delete on public.answers
+for each row
+execute function public.refresh_live_player_totals();
+
 commit;
