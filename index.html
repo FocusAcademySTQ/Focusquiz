@@ -101,33 +101,33 @@
 
     <section class="landing-feedback">
       <header>
-        <p class="eyebrow">Feedback immediat</p>
-        <h2>Comprova al moment què passa a l'aula</h2>
-        <p>Les dades de cada partida alimenten estadístiques, gràfiques i tutories perquè puguis reaccionar sense esperar informes.</p>
+        <p class="eyebrow">Comprova al moment què passa a l'aula</p>
+        <h2>Feedback accionable mentre tothom treballa</h2>
+        <p>Els indicadors en directe, les alertes intel·ligents i els informes finals et permeten actuar sense esperar a acabar la sessió.</p>
       </header>
-      <div class="landing-feedback-grid">
+      <div class="feedback-grid">
         <article class="feedback-card feedback-card--highlight">
           <div>
-            <div class="feature-icon">📈</div>
-            <h3>Estadístiques instantànies</h3>
-            <p>Resums automàtics de respostes encertades, temps i evolució per alumne. Ideal per detectar qui necessita reforç.</p>
+            <h3>Quadre d'indicadors en directe</h3>
+            <p>Visualitza quants alumnes han completat l'activitat, els encerts i el temps mitjà. Tot s'actualitza mentre treballen.</p>
           </div>
           <div class="feedback-graph" aria-hidden="true">
-            <div class="feedback-graph__bars"></div>
+            <div class="feedback-graph__bar" style="--value:0.78"></div>
+            <div class="feedback-graph__bar" style="--value:0.62"></div>
+            <div class="feedback-graph__bar" style="--value:0.92"></div>
+            <div class="feedback-graph__bar" style="--value:0.48"></div>
           </div>
         </article>
         <article class="feedback-card">
-          <div class="feature-icon">📊</div>
-          <h3>Gràfiques comprensibles</h3>
-          <p>Visualitza progressos amb línies i anells senzills que es poden projectar a classe o compartir amb famílies.</p>
-          <span class="feature-link">Consulta exemples →</span>
+          <h3>Alertes d'atenció immediates</h3>
+          <p>Rep avisos quan algú queda encallat o s'allunya del ritme. El tutor virtual ressalta els alumnes que necessiten suport per intervenir-hi al moment.</p>
+          <span class="feedback-pill">Tutor virtual actiu</span>
         </article>
-        <a class="feedback-card feedback-card--link" href="portal/supabase-portal.html">
-          <div class="feature-icon">🤖</div>
-          <h3>Tutor virtual</h3>
-          <p>Connecta't al portal docent o integra <code>tutor.js</code> per tenir recomanacions automatitzades per als teus grups.</p>
-          <span class="feature-link">Entrar al portal docent →</span>
-        </a>
+        <article class="feedback-card">
+          <h3>Resum de feedback personalitzat</h3>
+          <p>En finalitzar l'activitat obtens punts forts, errors freqüents i suggeriments de teoria o flashcards per continuar treballant.</p>
+          <a class="feature-link" href="teoria.html">Obrir recomanacions de teoria →</a>
+        </article>
       </div>
     </section>
 
@@ -136,6 +136,7 @@
       <p>Entra a l'espai de pràctiques i activa la teva sessió FocusQuiz.</p>
       <div class="hero-cta hero-cta--bridge">
         <a class="cta-primary" href="app.html">Entrar a Focus Academy</a>
+        <span class="cta-middle">Per començar</span>
         <a class="cta-secondary" href="portal/supabase-portal.html">Accés professorat</a>
       </div>
     </section>
