@@ -104,7 +104,7 @@ Després d'executar l'script, entra al portal docent (`portal/supabase-portal.ht
 - Llistar i eliminar quizzes guardats o reutilitzar-los per a una partida.
 - Generar partides en directe per a qualsevol classe, obtenir el codi i compartir l'enllaç `https://focusquiz.netlify.app/play?code=XXXXXX` amb l'alumnat.
 
-Recorda mantenir el formulari de l'alumnat a `index.html` (etiqueta "Has rebut un codi de prova?") perquè també accepti els codis generats des del mode Live.
+Recorda mantenir el formulari de l'alumnat a `app.html` (etiqueta "Has rebut un codi de prova?") perquè també accepti els codis generats des del mode Live.
 
 ### Flux d'ús ràpid
 

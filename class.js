@@ -288,7 +288,7 @@ function launchAssignment(assignment) {
   const moduleId = assignment.module_id;
   const moduleInfo = resolveModuleInfo(moduleId);
   const usesLevels = moduleSupportsLevels(moduleInfo);
-  const baseUrl = new URL('index.html', window.location.href);
+  const baseUrl = new URL('app.html', window.location.href);
   const params = new URLSearchParams();
   params.set('module', moduleId);
   params.set('assignment', assignment.id);

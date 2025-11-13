@@ -2886,7 +2886,7 @@ async function previewSelectedModule() {
   const previewToken = `fq-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   state.assignmentDraft.previewToken = previewToken;
   openPreviewChannel(previewToken);
-  const url = new URL('../index.html', window.location.href);
+  const url = new URL('../app.html', window.location.href);
   url.searchParams.set('module', moduleId);
   if (label) url.searchParams.set('label', label);
   if (moduleName) url.searchParams.set('title', moduleName);
