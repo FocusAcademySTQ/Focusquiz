@@ -11,7 +11,7 @@
 <div id="loginOverlay" class="login-overlay" hidden>
   <div class="login-dialog">
     <h2 class="login-title">Accedeix a Focus Academy</h2>
-    <p class="login-subtitle">Tria un usuari existent o crea'n un de nou. Les dades es queden en aquest dispositiu (local).</p>
+    <p class="login-subtitle">Tria un usuari existent o escriu un nom nou: així guardarem els exàmens i podràs veure els resultats només en aquest dispositiu.</p>
 
     <label class="login-label" for="loginUserList">Usuaris existents</label>
     <div class="login-row">
@@ -22,6 +22,7 @@
     <div class="login-divider" role="presentation"></div>
 
     <label class="login-label" for="newUserName">Crear nou usuari</label>
+    <p class="login-help">Posa-hi un nom senzill (per exemple «La classe de 4t» o el teu nom) per reconèixer on guardem els exàmens i notes.</p>
     <input id="newUserName" class="login-input input" placeholder="Nom (mínim 2 caràcters)" />
     <div class="login-row">
       <button id="btnCreateUser" class="btn login-primary">Crea i entra</button>
@@ -29,14 +30,7 @@
     </div>
 
     <div class="login-footer">
-      <small>Tot en localStorage · Sense servidors</small>
-      <button id="btnContinueGuest" class="btn-secondary login-small">Anul·la (no disponible)</button>
-    </div>
-
-    <div class="login-imports">
-      <input id="importFile" type="file" hidden />
-      <button id="btnExport" class="btn-ghost">Exporta totes dades</button>
-      <button id="btnImport" class="btn-ghost">Importa dades</button>
+      <small>💡 Només cal posar un nom per tenir guardats els exàmens i consultar els resultats quan tornis. Tot queda en localStorage, sense servidors.</small>
     </div>
   </div>
 </div>
