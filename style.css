@@ -2430,6 +2430,107 @@ body.landing-body {
   box-shadow: var(--shadow);
 }
 
+.landing-feedback {
+  background: rgba(255,255,255,0.85);
+  padding: 40px clamp(1rem, 4vw, 56px);
+  border-radius: 32px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.landing-feedback header {
+  max-width: 760px;
+}
+
+.landing-feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.feedback-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedback-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 35px rgba(15,23,42,0.12);
+}
+
+.feedback-card--highlight {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  background: linear-gradient(135deg, rgba(143,181,255,0.18), rgba(127,231,201,0.35));
+}
+
+.feedback-card--link {
+  border: 1px solid rgba(15,23,42,0.08);
+}
+
+.feedback-graph {
+  background: linear-gradient(135deg, #e0edff, #c7fff0);
+  border-radius: 20px;
+  min-height: 140px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+}
+
+.feedback-graph::after {
+  content: "";
+  position: absolute;
+  inset: 10px 14px;
+  border-radius: 16px;
+  border: 1px dashed rgba(15,23,42,0.1);
+  pointer-events: none;
+}
+
+.feedback-graph__bars {
+  width: 100%;
+  height: 100%;
+  background-image:
+    linear-gradient(90deg, rgba(255,255,255,0.55) 10%, transparent 10%),
+    linear-gradient(0deg, rgba(255,255,255,0.85) 25%, transparent 25%);
+  background-size: 50px 100%, 100% 40px;
+  position: relative;
+}
+
+.feedback-graph__bars::after,
+.feedback-graph__bars::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 14%;
+  border-radius: 999px 999px 0 0;
+  background: rgba(15,23,42,0.15);
+}
+
+.feedback-graph__bars::before {
+  left: 10%;
+  height: 45%;
+}
+
+.feedback-graph__bars::after {
+  right: 20%;
+  height: 70%;
+  background: rgba(255,255,255,0.65);
+}
+
 .audience-list {
   list-style: none;
   padding: 0;
@@ -2464,5 +2565,7 @@ body.landing-body {
 
 @media (max-width: 640px) {
   .landing-header { flex-direction: column; gap: 12px; }
+  .feedback-card--highlight { grid-column: span 1; }
+  .landing-feedback-grid { grid-template-columns: 1fr; }
   .landing-cta { padding: 32px; }
 }
