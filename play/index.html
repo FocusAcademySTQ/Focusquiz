@@ -85,12 +85,22 @@
       </section>
 
       <section class="panel card play-scoreboard" aria-labelledby="scoreTitle">
-        <div class="play-section-header">
+        <header class="play-score-header">
           <h2 id="scoreTitle">Marcador</h2>
-          <div id="scoreMeta" class="portal-muted"></div>
-        </div>
+          <p id="scoreMeta" class="play-score-meta"></p>
+        </header>
         <div id="scoreEmpty" class="play-empty" hidden>Encara no hi ha participants connectats.</div>
-        <ol id="scoreList" class="play-score-list"></ol>
+        <table id="scoreTable" class="play-score-table" aria-describedby="scoreTitle" hidden>
+          <thead>
+            <tr>
+              <th scope="col" class="play-score-col-position">Posició</th>
+              <th scope="col" class="play-score-col-name">Nom</th>
+              <th scope="col" class="play-score-col-points">Punts</th>
+              <th scope="col" class="play-score-col-answers">Encerts</th>
+            </tr>
+          </thead>
+          <tbody id="scoreList"></tbody>
+        </table>
       </section>
     </section>
   </main>

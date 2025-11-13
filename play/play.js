@@ -32,7 +32,6 @@ const state = {
   questionRequestId: 0,
   answer: createInitialAnswerState(),
   playersLoading: false,
-  lastPlayerSnapshot: [],
 };
 
 const STATUS_LABELS = {
@@ -61,6 +60,7 @@ const elements = {
   joinHint: document.getElementById('joinHint'),
   scoreList: document.getElementById('scoreList'),
   scoreEmpty: document.getElementById('scoreEmpty'),
+  scoreTable: document.getElementById('scoreTable'),
   scoreMeta: document.getElementById('scoreMeta'),
   questionSection: document.getElementById('questionSection'),
   questionMeta: document.getElementById('questionMeta'),
@@ -341,45 +341,77 @@ function renderGameInfo() {
     elements.status.textContent = formatStatus(state.game.status);
     elements.status.dataset.status = state.game.status || '';
   }
-  if (elements.scoreMeta) {
-    const parts = [];
-    const status = state.game.status;
-    if (status === 'waiting') {
-      parts.push('Esperant que el professorat comenci la partida.');
-    } else if (status === 'completed') {
-      if (state.game.ended_at) {
-        const ended = formatTimestamp(state.game.ended_at);
-        if (ended) {
-          parts.push(`Partida finalitzada a les ${ended}`);
-        }
-      }
-      if (!parts.length) {
-        parts.push('La partida ha finalitzat.');
-      }
-    } else if (status === 'cancelled') {
-      parts.push('Sessió cancel·lada pel professorat.');
-    } else {
-      if (Number.isInteger(state.game.current_question)) {
-        parts.push(`Pregunta ${state.game.current_question}`);
-      }
-      if ((status === 'active' || status === 'paused') && Number.isFinite(state.game.question_time_limit)) {
-        parts.push(`${state.game.question_time_limit}s per respondre`);
-      }
-      if (Number.isFinite(state.game.question_points)) {
-        parts.push(`${state.game.question_points} punts base`);
-      }
-      if (Number.isFinite(state.game.speed_bonus) && state.game.speed_bonus > 0) {
-        parts.push(`+${state.game.speed_bonus} pts/segon`);
-      }
-      if (status === 'paused') {
-        parts.unshift('Partida en pausa');
-      }
-      if (!parts.length && status === 'active') {
-        parts.push('Partida en progrés.');
+  renderScoreMeta();
+}
+
+function renderScoreMeta(playersOverride) {
+  if (!elements.scoreMeta) return;
+  const players = Array.isArray(playersOverride)
+    ? playersOverride
+    : Array.isArray(state.players)
+    ? state.players
+    : [];
+  const parts = [];
+  const status = state.game ? state.game.status : 'waiting';
+  const currentQuestion = state.game && Number.isInteger(state.game.current_question)
+    ? state.game.current_question
+    : null;
+  if (status === 'waiting') {
+    parts.push('Esperant que el professorat comenci la partida.');
+  } else if (status === 'completed') {
+    if (state.game && state.game.ended_at) {
+      const ended = formatTimestamp(state.game.ended_at);
+      if (ended) {
+        parts.push(`Partida finalitzada a les ${ended}`);
       }
     }
-    elements.scoreMeta.textContent = parts.join(' · ');
+    if (!parts.length) {
+      parts.push('La partida ha finalitzat.');
+    }
+  } else if (status === 'cancelled') {
+    parts.push('Sessió cancel·lada pel professorat.');
+  } else {
+    if (status === 'paused') {
+      parts.push('Partida en pausa');
+    } else if (status === 'active') {
+      parts.push('Partida en joc');
+    }
+    if (currentQuestion && currentQuestion > 0) {
+      parts.push(`Pregunta ${currentQuestion}`);
+    }
   }
+
+  const participantCount = players.length;
+  if (participantCount === 0) {
+    parts.push('Sense participants connectats');
+  } else if (participantCount === 1) {
+    parts.push('1 participant connectat');
+  } else {
+    parts.push(`${participantCount} participants connectats`);
+  }
+
+  let latestAnswer = null;
+  players.forEach((player) => {
+    if (!player || !player.last_answered_at) return;
+    const timestamp = Date.parse(player.last_answered_at);
+    if (!Number.isFinite(timestamp)) return;
+    if (latestAnswer === null || timestamp > latestAnswer) {
+      latestAnswer = timestamp;
+    }
+  });
+  let hasRecentAnswer = false;
+  if (latestAnswer !== null && status !== 'waiting' && status !== 'cancelled') {
+    const label = formatTimestamp(new Date(latestAnswer).toISOString());
+    if (label) {
+      parts.push(`Darrera resposta ${label}`);
+      hasRecentAnswer = true;
+    }
+  }
+  if (!hasRecentAnswer && status === 'active' && participantCount > 0) {
+    parts.push('Esperant respostes');
+  }
+
+  elements.scoreMeta.textContent = parts.join(' · ');
 }
 
 function clearQuestionState(cancelPending = false) {
@@ -828,105 +860,73 @@ function renderPlayers() {
   if (players.length === 0) {
     elements.scoreEmpty.hidden = false;
     elements.scoreList.innerHTML = '';
-    state.lastPlayerSnapshot = [];
+    if (elements.scoreTable) {
+      elements.scoreTable.hidden = true;
+    }
+    renderScoreMeta([]);
     return;
   }
   elements.scoreEmpty.hidden = true;
-  const previousSnapshot = Array.isArray(state.lastPlayerSnapshot) ? state.lastPlayerSnapshot : [];
-  const previousMap = new Map(previousSnapshot.map((item) => [item.id, item]));
+  if (elements.scoreTable) {
+    elements.scoreTable.hidden = false;
+  }
   players.sort((a, b) => {
     const scoreDiff = Number.parseFloat(b.score || 0) - Number.parseFloat(a.score || 0);
     if (Math.abs(scoreDiff) > 0.0001) return scoreDiff;
-    const correctDiff = (b.correct_answers || 0) - (a.correct_answers || 0);
+    const correctDiff = Number.parseInt(b.correct_answers || 0, 10) - Number.parseInt(a.correct_answers || 0, 10);
     if (correctDiff !== 0) return correctDiff;
-    return a.name.localeCompare(b.name, 'ca', { sensitivity: 'base' });
+    const lastAnsweredA = a && a.last_answered_at ? Date.parse(a.last_answered_at) : 0;
+    const lastAnsweredB = b && b.last_answered_at ? Date.parse(b.last_answered_at) : 0;
+    if (Number.isFinite(lastAnsweredA) && Number.isFinite(lastAnsweredB) && lastAnsweredA !== lastAnsweredB) {
+      return lastAnsweredB - lastAnsweredA;
+    }
+    const nameA = a && a.name ? a.name : '';
+    const nameB = b && b.name ? b.name : '';
+    return nameA.localeCompare(nameB, 'ca', { sensitivity: 'base' });
   });
   const fragment = document.createDocumentFragment();
   players.forEach((player, index) => {
-    const row = document.createElement('li');
+    const row = document.createElement('tr');
     row.className = 'play-score-row';
-    row.dataset.playerId = player.id || '';
-    const position = document.createElement('span');
-    position.className = 'play-score-position';
-    if (index === 0) {
-      position.textContent = '🥇';
-    } else if (index === 1) {
-      position.textContent = '🥈';
-    } else if (index === 2) {
-      position.textContent = '🥉';
-    } else {
-      position.textContent = `#${index + 1}`;
+    if (player && player.id) {
+      row.dataset.playerId = player.id;
     }
-    row.appendChild(position);
 
-    const name = document.createElement('span');
-    name.className = 'play-score-name';
-    name.textContent = player.name || 'Sense nom';
-    row.appendChild(name);
+    const positionCell = document.createElement('td');
+    positionCell.className = 'play-score-col-position';
+    positionCell.textContent = `#${index + 1}`;
+    row.appendChild(positionCell);
 
-    const stats = document.createElement('span');
-    stats.className = 'play-score-stats';
-    const scoreLabel = formatScore(player.score);
-    const parsedCorrect = Number.isFinite(Number.parseInt(player.correct_answers, 10))
+    const nameCell = document.createElement('td');
+    nameCell.className = 'play-score-col-name';
+    nameCell.textContent = player && player.name ? player.name : 'Sense nom';
+    row.appendChild(nameCell);
+
+    const scoreCell = document.createElement('td');
+    scoreCell.className = 'play-score-points';
+    scoreCell.textContent = `${formatScore(player && player.score)} pts`;
+    row.appendChild(scoreCell);
+
+    const answersCell = document.createElement('td');
+    answersCell.className = 'play-score-answers';
+    const correct = Number.isFinite(Number.parseInt(player && player.correct_answers, 10))
       ? Number.parseInt(player.correct_answers, 10)
-      : null;
-    const parsedCount = Number.isFinite(Number.parseInt(player.answer_count, 10))
+      : 0;
+    const answered = Number.isFinite(Number.parseInt(player && player.answer_count, 10))
       ? Number.parseInt(player.answer_count, 10)
       : 0;
-    const correctLabel = parsedCorrect !== null ? `${parsedCorrect}/${parsedCount} encerts` : `${parsedCount} respostes`;
-    stats.textContent = `${scoreLabel} pts · ${correctLabel}`;
-    row.appendChild(stats);
+    answersCell.textContent = `${correct}/${answered}`;
+    row.appendChild(answersCell);
 
-    if (index <= 2) {
-      row.classList.add(`is-top-${index + 1}`);
-    }
     if (state.player && state.player.id === player.id) {
       row.classList.add('is-self');
-    }
-
-    const previousEntry = previousMap.get(player.id);
-    const previousScore = previousEntry && Number.isFinite(Number.parseFloat(previousEntry.score))
-      ? Number.parseFloat(previousEntry.score)
-      : 0;
-    const previousCorrect = previousEntry && Number.isFinite(Number.parseInt(previousEntry.correct_answers, 10))
-      ? Number.parseInt(previousEntry.correct_answers, 10)
-      : 0;
-    const previousCount = previousEntry && Number.isFinite(Number.parseInt(previousEntry.answer_count, 10))
-      ? Number.parseInt(previousEntry.answer_count, 10)
-      : 0;
-    const currentScore = Number.isFinite(Number.parseFloat(player.score)) ? Number.parseFloat(player.score) : 0;
-    const currentCorrect = Number.isFinite(Number.parseInt(player.correct_answers, 10))
-      ? Number.parseInt(player.correct_answers, 10)
-      : 0;
-    const currentCount = Number.isFinite(Number.parseInt(player.answer_count, 10))
-      ? Number.parseInt(player.answer_count, 10)
-      : 0;
-    const hasChanged =
-      !previousEntry ||
-      Math.abs(currentScore - previousScore) > 0.009 ||
-      currentCorrect !== previousCorrect ||
-      currentCount !== previousCount;
-    if (hasChanged) {
-      row.classList.add('is-updated');
-      setTimeout(() => {
-        row.classList.remove('is-updated');
-      }, 900);
     }
 
     fragment.appendChild(row);
   });
   elements.scoreList.innerHTML = '';
   elements.scoreList.appendChild(fragment);
-  state.lastPlayerSnapshot = players.map((player) => ({
-    id: player.id,
-    score: Number.isFinite(Number.parseFloat(player.score)) ? Number.parseFloat(player.score) : 0,
-    correct_answers: Number.isFinite(Number.parseInt(player.correct_answers, 10))
-      ? Number.parseInt(player.correct_answers, 10)
-      : 0,
-    answer_count: Number.isFinite(Number.parseInt(player.answer_count, 10))
-      ? Number.parseInt(player.answer_count, 10)
-      : 0,
-  }));
+  renderScoreMeta(players);
 }
 
 function applyStoredPlayer() {
