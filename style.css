@@ -2240,9 +2240,7 @@ body.landing-body {
   justify-content: space-between;
   align-items: center;
   padding: 24px clamp(1.5rem, 5vw, 80px);
-  max-width: 1200px;
   width: 100%;
-  margin: 0 auto;
 }
 
 .landing-brand { display: flex; gap: 12px; align-items: center; }
@@ -2264,10 +2262,18 @@ body.landing-body {
   color: var(--ink);
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 2px solid transparent;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  padding: 10px 22px;
+  background: rgba(255,255,255,0.9);
+  box-shadow: var(--shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.landing-link:hover { border-color: var(--ink); }
+.landing-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(15,23,42,0.15);
+}
 
 .landing-main {
   flex: 1;
@@ -2305,6 +2311,16 @@ body.landing-body {
 }
 
 .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+.hero-cta--bridge {
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+.cta-middle {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
 
 .cta-primary,
 .cta-secondary {
