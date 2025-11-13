@@ -1,463 +1,115 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Focus Academy · Espai de repàs</title>
-  <meta name="description" content="Pràctiques de matemàtiques per a estudiants. Single-file, sense dependències." />
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Academy · Benvinguda</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
-  <!-- LOGIN LOCAL (overlay) -->
-<div id="loginOverlay" class="login-overlay" hidden>
-  <div class="login-dialog">
-    <h2 class="login-title">Accedeix a Focus Academy</h2>
-    <p class="login-subtitle">Tria un usuari existent o crea'n un de nou. Les dades es queden en aquest dispositiu (local).</p>
-
-    <label class="login-label" for="loginUserList">Usuaris existents</label>
-    <div class="login-row">
-      <select id="loginUserList" class="login-select"></select>
-      <button id="btnLoginSelect" class="pill login-small">Entrar</button>
-    </div>
-
-    <div class="login-divider" role="presentation"></div>
-
-    <label class="login-label" for="newUserName">Crear nou usuari</label>
-    <input id="newUserName" class="login-input input" placeholder="Nom (mínim 2 caràcters)" />
-    <div class="login-row">
-      <button id="btnCreateUser" class="btn login-primary">Crea i entra</button>
-      <button id="btnDeleteUser" class="btn-ghost login-ghost">Suprimeix seleccionat</button>
-    </div>
-
-    <div class="login-footer">
-      <small>Tot en localStorage · Sense servidors</small>
-      <button id="btnContinueGuest" class="btn-secondary login-small">Anul·la (no disponible)</button>
-    </div>
-
-    <div class="login-imports">
-      <input id="importFile" type="file" hidden />
-      <button id="btnExport" class="btn-ghost">Exporta totes dades</button>
-      <button id="btnImport" class="btn-ghost">Importa dades</button>
-    </div>
-  </div>
-</div>
-
-<body class="home-page">
-  <header class="topbar">
-    <div class="wrap row header-bar">
-
-      <!-- 🔹 Marca -->
-      <div class="brand">
-        <div class="logo">FQ</div>
-        <h1>Focus Academy</h1>
+<body class="landing-body">
+  <header class="landing-header">
+    <div class="landing-brand">
+      <div class="brand-mark">FQ</div>
+      <div class="brand-text">
+        <span class="brand-label">Focus Academy</span>
+        <small>Repàs gamificat</small>
       </div>
-
-      <!-- 🔹 Navegació principal -->
-      <nav class="main-nav" aria-label="Navegació principal">
-        <button class="pill nav-btn" data-view="home" type="button" onclick="showView('home')">🏠 Inici</button>
-        <button class="pill nav-btn" data-view="results" type="button" onclick="showView('results')">📊 Resultats</button>
-        <button class="pill nav-btn" data-view="about" type="button" onclick="showView('about')">ℹ️ Qui som?</button>
-        <div class="nav-dropdown" data-dropdown>
-          <button
-            class="pill nav-btn nav-dropdown-toggle"
-            type="button"
-            id="theoryDropdownToggle"
-            aria-haspopup="true"
-            aria-expanded="false"
-            aria-controls="theoryDropdownMenu"
-          >
-            📘 Teoria
-          </button>
-          <div class="dropdown-menu" id="theoryDropdownMenu" role="menu" aria-labelledby="theoryDropdownToggle">
-            <a class="dropdown-item" href="teoria.html" role="menuitem">🔢- Matemàtiques</a>
-            <a class="dropdown-item" href="teoriacatala.html" role="menuitem">📚 - Català</a>
-          </div>
-        </div>
-        <a class="pill" href="https://focuscat.onrender.com/" target="_blank" rel="noopener" title="Focus Exams">FE</a>
-        <a class="pill" href="/portal/supabase-portal.html" title="Gestor Supabase">Accés professorat</a>
-      </nav>
-
-      <!-- 🔹 Usuari actiu -->
-      <div class="user-controls">
-        <span id="activeUser" class="chip user-chip" aria-live="polite">
-          👤 <span class="label">Sessió no iniciada</span>
-        </span>
-        <button id="switchUserBtn" class="pill small" type="button">Canvia</button>
-        <button id="logoutBtn" class="pill small" type="button">Surt</button>
-      </div>
-
     </div>
+    <a class="landing-link" href="app.html">Entrar directe</a>
   </header>
 
-  <main class="wrap">
-    <!-- HOME -->
-    <section id="view-home" class="hero">
-      <div class="panel card">
-        <h2 class="title">Benvingut/da! 👋</h2>
-        <p class="subtitle">Tria un mòdul per configurar-lo i començar. Tot queda guardat en aquest dispositiu (sense comptes).</p>
-
-        <div id="moduleGrid"></div>
-
-        <!-- 🧠 Consell del tutor -->
-        <div id="recommendation" class="panel card tutor-card">
-          <h3 class="title tutor-title">Consell del teu tutor virtual 🤖</h3>
-          <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
+  <main class="landing-main">
+    <section class="landing-hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Repàs digital per primària i ESO</p>
+        <h1>Aprèn, practica i competeix amb FocusQuiz</h1>
+        <p class="hero-subtitle">Centralitza mòduls, flashcards, càpsules i partides live en un sol espai pensat per a docents i alumnes.</p>
+        <div class="hero-cta">
+          <a class="cta-primary" href="app.html">Comença</a>
+          <a class="cta-secondary" href="capsules.html">Explora recursos</a>
         </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hero-gradient"></div>
+        <div class="hero-tiles">
+          <div class="hero-tile">🔤 Codis d'aula</div>
+          <div class="hero-tile">🧠 Flashcards</div>
+          <div class="hero-tile">📊 Estadístiques</div>
+          <div class="hero-tile">🎯 Mòduls</div>
+        </div>
+      </div>
+    </section>
 
-        <a class="learning-card" href="flashcards.html">
-          <div class="learning-icon" aria-hidden="true">🃏</div>
-          <div class="learning-body">
-            <p class="learning-kicker">Nova pràctica</p>
-            <h3 class="learning-title">Flashcards d'estudi</h3>
-            <p class="learning-copy">Accedeix al menú complet de targetes amb repetició espaiada, notes i estadístiques.</p>
-          </div>
-          <span class="learning-pill">Entrar →</span>
+    <section class="landing-features">
+      <header>
+        <p class="eyebrow">Tot en un sol clic</p>
+        <h2>Resum de funcionalitats clau</h2>
+        <p>Accedeix a cada experiència sense sortir de Focus Academy.</p>
+      </header>
+      <div class="feature-grid">
+        <a class="feature-card" href="app.html#moduleGrid">
+          <div class="feature-icon">🎯</div>
+          <h3>Pràctica per mòduls</h3>
+          <p>Entrena per assignatura amb itineraris adaptables.</p>
+          <span class="feature-link">Obrir grid de mòduls →</span>
         </a>
-    
-<a class="learning-card" href="capsules.html">
-          <div class="learning-icon" aria-hidden="true">🎓</div>
-          <div class="learning-body">
-            <p class="learning-kicker">Nou espai</p>
-            <h3 class="learning-title">Espai d'aprenentatge</h3>
-            <p class="learning-copy">Accedeix a càpsules guiades per practicar pas a pas abans de fer els exàmens.</p>
-          </div>
-          <span class="learning-pill">Entrar →</span>
+        <a class="feature-card" href="flashcards.html">
+          <div class="feature-icon">🧠</div>
+          <h3>Flashcards SRS</h3>
+          <p>Recorda conceptes clau amb repetició espaiada.</p>
+          <span class="feature-link">Anar a flashcards →</span>
         </a>
-        
-        
-        <form id="classCodeForm" class="class-code-form" autocomplete="off">
-          <label class="class-code-label" for="classCodeInput">Has rebut un codi de prova?</label>
-          <div class="class-code-row">
-            <input
-              id="classCodeInput"
-              class="input"
-              type="text"
-              name="classCode"
-              minlength="4"
-              maxlength="12"
-              required
-              placeholder="Introdueix el codi del test"
-              aria-describedby="classCodeHelp"
-            />
-            <button class="pill" type="submit">Entra a l'aula</button>
-          </div>
-          <p id="classCodeHelp" class="portal-muted">
-            Els tests FocusQuiz ara es fan a l'espai d'aula. Escriu el codi que t'ha donat el teu professorat.
-          </p>
-        </form>
-
-        <section class="panel card home-live-cta" aria-labelledby="homeLiveTitle">
-          <div class="home-live-cta__body">
-            <p class="portal-section-title">Partides Live</p>
-            <h2 id="homeLiveTitle">Tens un codi FocusQuiz?</h2>
-            <p class="subtitle">Escriu el codi que t'ha compartit el professorat i entra directament a la partida en viu.</p>
-            <form id="homeLiveJoinForm" class="home-live-join-form" autocomplete="off">
-              <label class="portal-field-label" for="homeLiveJoinCode">Codi de partida</label>
-              <div class="home-live-join-controls">
-                <input
-                  id="homeLiveJoinCode"
-                  class="input"
-                  type="text"
-                  name="code"
-                  minlength="4"
-                  maxlength="8"
-                  required
-                  placeholder="Exemple: 72F8FE"
-                />
-                <button class="pill" type="submit">Unir-me</button>
-              </div>
-              <p class="home-live-join-hint">Et portarem a la sala de joc i només hauràs d'introduir el teu nom.</p>
-            </form>
-          </div>
-          <div class="home-live-cta__art" aria-hidden="true"></div>
-        </section>
-
-        <script>
-          document.addEventListener('DOMContentLoaded', () => {
-            // 🔹 Mostra recomanació del tutor
-            showRecommendation('#recommendationText');
-
-            // 🔹 Mostra l'usuari actiu (si n'hi ha)
-            const current = localStorage.getItem('lastStudent');
-            const badge = document.getElementById('activeUser');
-            if (badge) {
-              const label = badge.querySelector('.label');
-              if (label) label.textContent = current || 'Sessió no iniciada';
-              badge.classList.toggle('is-empty', !current);
-            }
-
-            const form = document.getElementById('classCodeForm');
-            if (form) {
-              form.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const input = document.getElementById('classCodeInput');
-                if (!input) return;
-                const code = (input.value || '').trim().toUpperCase();
-                if (!code) {
-                  input.focus();
-                  return;
-                }
-                const target = new URL('class.html', window.location.href);
-                target.searchParams.set('code', code);
-                window.location.href = target.toString();
-              });
-            }
-
-          });
-        </script>
-      </div>
-    </section>
-    <!-- CONFIG -->
-    <section id="view-config" class="hidden">
-      <div class="panel card">
-        <div class="row" style="align-items:center">
-          <div>
-            <h2 class="title" id="cfg-title" style="margin:0">Configura el mòdul</h2>
-            <p class="subtitle" id="cfg-desc"></p>
-          </div>
-          <div class="controls">
-            <button class="btn-secondary" onclick="showView('home')">← Torna</button>
-            <button onclick="startFromConfig()">Comença</button>
-          </div>
-        </div>
-
-        <div class="section-title">Opcions comunes</div>
-        <div class="controls">
-          <label class="field chip">Preguntes
-            <select id="cfg-count">
-              <option>10</option><option>20</option><option>30</option><option>50</option>
-            </select>
-          </label>
-          <label class="field chip">Temps (min)
-            <select id="cfg-time">
-              <option value="0">Sense límit</option><option>5</option><option>10</option><option>15</option><option>20</option>
-            </select>
-          </label>
-          <label class="field chip" id="cfg-level-wrap">Nivell (1–4)
-            <select id="cfg-level"></select>
-          </label>
-        </div>
-
-        <div id="cfg-specific"></div>
+        <a class="feature-card" href="capsules.html">
+          <div class="feature-icon">📚</div>
+          <h3>Càpsules guiades</h3>
+          <p>Mini lliçons visuals per introduir o reforçar teoria.</p>
+          <span class="feature-link">Repassar càpsules →</span>
+        </a>
+        <a class="feature-card" href="app.html#livePlay">
+          <div class="feature-icon">⚡</div>
+          <h3>Partides live</h3>
+          <p>Comparteix codis amb la classe i competeix en directe.</p>
+          <span class="feature-link">Organitza una partida →</span>
+        </a>
       </div>
     </section>
 
-   <!-- QUIZ -->
-<section id="view-quiz" class="hidden">
-  <div class="quiz">
-
-    <!-- 🔹 Columna esquerra -->
-    <div id="leftCol">
-      <div class="panel card">
-        <div class="q-header">
-          <div style="display:flex; align-items:center; gap:10px">
-            <span id="qModule" class="chip">—</span>
-            <span id="qLevel" class="chip">Nivell 1</span>
-            <span id="timer" class="chip timer">--:--</span>
-          </div>
-          <div class="progress" style="flex:1"><i id="bar"></i></div>
-        </div>
-
-        <div class="q">
-          <div class="meta" id="qMeta">Pregunta 1 de 10</div>
-          <h2 id="qText">—</h2>
-          <div id="qMedia" style="margin:4px 0 2px"></div>
-          <div class="answer-row">
-            <input id="answer" class="input answer" placeholder="Resposta" type="text" />
-            <button id="btnCheck">Comprova (↵)</button>
-            <button class="btn-secondary" id="btnSkip">Omet (→)</button>
-          </div>
-          <div id="feedback"></div>
-        </div>
+    <section class="landing-split">
+      <div>
+        <p class="eyebrow">Sense registres complicats</p>
+        <h2>Funciona offline i guarda les dades en local</h2>
+        <p>FocusQuiz no requereix servidors ni correus personals. Tot el progrés es guarda en el dispositiu mitjançant localStorage, perfecte per a aules amb poc internet.</p>
       </div>
-    </div>
-
-    <!-- 🔹 Columna dreta (teclat o opcions) -->
-    <div id="rightCol">
-      <div class="panel card" id="keypad"></div>
-    </div>
-
-  </div>
-</section>
-
-
-    <!-- RESULTS -->
-    <section id="view-results" class="hidden">
-      <div class="panel card">
-        <div class="row">
-          <h3 class="title" style="margin:0">Resultats guardats</h3>
-          <div class="tbl-actions">
-            <button class="btn-secondary" onclick="exportCSV()">Exporta CSV</button>
-            <button class="btn-ghost" onclick="clearResults()">Neteja</button>
-          </div>
-        </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px">
-          <label class="chip">Filtra mòdul: <select id="filter-module"></select></label>
-          <label class="chip">Alumne/a: <input id="filter-student" class="input" placeholder="Tots" style="width:160px"></label>
-        </div>
-        <div id="resultsTable">No hi ha dades encara.</div>
-      </div>
-
-      <!-- PERFIL / ANALYTICS -->
-      <div class="panel card" id="results-analytics">
-        <div class="row" style="align-items:center">
-          <h3 class="title" style="margin:0">Perfil i gràfiques</h3>
-          <div class="subtitle">Es basa en el filtre d'<b>alumne</b> i (opcionalment) el de <b>mòdul</b>.</div>
-        </div>
-
-        <!-- KPIs -->
-        <div class="kpi-grid" id="kpiWrap">
-          <!-- S’omple des de JS -->
-        </div>
-
-        <!-- Charts -->
-        <div class="charts-grid">
-          <div class="chart-card">
-            <div class="chart-title">Evolució de puntuació</div>
-            <div id="chartScoreTrend"></div>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">Mitjana per mòdul</div>
-            <div id="chartByModule"></div>
-          </div>
-          <div class="chart-card">
-            <div class="chart-title">Temps vs Puntuació</div>
-            <div id="chartTimeVsScore"></div>
-          </div>
-        </div>
-
-        <div id="analyticsHint" class="chip" style="margin-top:10px; display:none">
-          Escriu un nom d’alumne/a al filtre per veure el seu perfil.
-        </div>
+      <div>
+        <p class="eyebrow">Per a qui és?</p>
+        <ul class="audience-list">
+          <li><strong>Estudiants:</strong> motivació extra amb punts i reptes.</li>
+          <li><strong>Docents:</strong> accés a codis i portals per gestionar sessions.</li>
+          <li><strong>Famílies:</strong> seguiment ràpid del progrés sense comptes.</li>
+        </ul>
       </div>
     </section>
 
-    <!-- ABOUT -->
-<section id="view-about" class="hidden">
-  <div class="panel card">
-    <h3 class="title" style="margin-top:0">Sobre aquesta eina</h3>
-    <p class="subtitle">
-      Web single-file creada per <strong>Focus Academy</strong>, sense comptes ni dependències.  
-      Dades locals al navegador.
-    </p>
-    <ul>
-      <li><strong>Generador de preguntes</strong> per a Matemàtiques (aritmètica, fraccions, percentatges, equacions, geometria, estadística, unitats), Llengua catalana i castellana (ortografia, categories gramaticals, sintaxi), Química (elements, fórmules i compostos) i Geografia (països i banderes).</li>
-      <li><strong>Temps opcional</strong>, nivell 1–4, i repàs de només les preguntes errònies.</li>
-      <li><strong>Historial exportable</strong> a CSV i <strong>gràfics de rendiment</strong>.</li>
-      <li><strong>Tutor personalitzat</strong> que t’acompanya pas a pas en l’aprenentatge.</li>
-    </ul>
-  </div>
-</section>
-
-    <footer class="wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px">
-      <div>Fet per Focus Academy Sant Cugat · © <span id="year"></span></div>
-      <img src="https://static.wixstatic.com/media/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png/v1/crop/x_836,y_591,w_1877,h_1328/fill/w_642,h_454,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/543803_e8b22e64a34945f9ba54d4ca39fa3645~mv2.png"
-           alt="Logo Focus Academy" style="height:40px; width:auto; object-fit:contain"
-           referrerpolicy="no-referrer" />
-  </footer>
+    <section class="landing-cta">
+      <h2>Preparat/ada per començar?</h2>
+      <p>Entra a l'espai de pràctiques i activa la teva sessió FocusQuiz.</p>
+      <div class="hero-cta">
+        <a class="cta-primary" href="app.html">Entrar a Focus Academy</a>
+        <a class="cta-secondary" href="portal/supabase-portal.html">Accés professorat</a>
+      </div>
+    </section>
   </main>
 
-  <!-- 🔹 Carrega primer els mòduls auxiliars -->
-  <script src="lang-cat.js" defer></script>
-  <script src="quim.js" defer></script>
-  <script src="geo.js" defer></script>
-  <script src="tutor.js"></script>
-  <script src="flashcards.js" defer></script>
-
-  <!-- 🔹 Després el bloc del login local -->
-  <script>
-  document.addEventListener('DOMContentLoaded', ()=> {
-    const overlay = document.querySelector('#loginOverlay');
-    const userList = document.querySelector('#loginUserList');
-    const btnSelect = document.querySelector('#btnLoginSelect');
-    const btnCreate = document.querySelector('#btnCreateUser');
-    const btnDelete = document.querySelector('#btnDeleteUser');
-    const inputNew = document.querySelector('#newUserName');
-
-    function setOverlayVisible(open) {
-      if (!overlay) return;
-      overlay.classList.toggle('is-active', open);
-      overlay.toggleAttribute('hidden', !open);
-      overlay.style.display = open ? 'flex' : 'none';
-    }
-
-    // 🔹 Carrega usuaris guardats
-    function refreshUsers(){
-      const users = JSON.parse(localStorage.getItem('students') || '[]');
-      userList.innerHTML = users.map(u=>`<option>${u}</option>`).join('');
-    }
-
-    // 🔹 Mostra overlay si no hi ha usuari actiu
-    const current = localStorage.getItem('lastStudent');
-    setOverlayVisible(!current);
-
-    // 🔹 Entrar amb usuari existent
-    btnSelect.addEventListener('click', ()=>{
-      const name = userList.value.trim();
-      if(!name) return alert('Selecciona un usuari.');
-      localStorage.setItem('lastStudent', name);
-      setOverlayVisible(false);
-      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
-    });
-
-    // 🔹 Crear nou usuari
-    btnCreate.addEventListener('click', ()=>{
-      const name = inputNew.value.trim();
-      if(name.length < 2) return alert('Nom massa curt.');
-      const users = JSON.parse(localStorage.getItem('students') || '[]');
-      if(!users.includes(name)) users.push(name);
-      localStorage.setItem('students', JSON.stringify(users));
-      localStorage.setItem('lastStudent', name);
-      refreshUsers();
-      inputNew.value = '';
-      setOverlayVisible(false);
-      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
-    });
-
-    // 🔹 Esborrar usuari
-    btnDelete.addEventListener('click', ()=>{
-      const name = userList.value.trim();
-      if(!name) return alert('Selecciona un usuari.');
-      const users = JSON.parse(localStorage.getItem('students') || '[]').filter(u => u !== name);
-      localStorage.setItem('students', JSON.stringify(users));
-      if(localStorage.getItem('lastStudent') === name) localStorage.removeItem('lastStudent');
-      refreshUsers();
-      if(!localStorage.getItem('lastStudent')){
-        setOverlayVisible(true);
-        document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
-      }
-    });
-
-    // 🔹 Botó "Canvia d'usuari"
-    const switchBtn = document.getElementById('switchUserBtn');
-    if (switchBtn) {
-      switchBtn.addEventListener('click', () => {
-        localStorage.removeItem('lastStudent');
-        setOverlayVisible(true);
-        document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
-      });
-    }
-
-    // 🔹 Botó "Tanca sessió"
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        const currentName = localStorage.getItem('lastStudent');
-        if (!currentName || confirm(`Vols tancar la sessió de ${currentName}?`)) {
-          localStorage.removeItem('lastStudent');
-          setOverlayVisible(true);
-          if (currentName) alert('Sessió tancada.');
-          document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
-        }
-      });
-    }
-
-    refreshUsers();
-  });
-  </script>
-
-  <!-- 🔹 Lògica principal i generadors de matemàtiques -->
-  <script type="module" src="supabase/student-sync.js"></script>
-  <script src="main.js" defer></script>
-  <script src="math.js" defer></script>
+  <footer class="landing-footer">
+    <small>© 2024 Focus Academy · Materials educatius de proximitat</small>
+    <nav>
+      <a href="capsules.html">Càpsules</a>
+      <a href="teoria.html">Teoria</a>
+      <a href="portal/supabase-portal.html">Portal docents</a>
+    </nav>
+  </footer>
 </body>
 </html>
