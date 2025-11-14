@@ -1586,6 +1586,47 @@ function handleCoordQuadrantClick(event){
   checkAnswer();
 }
 
+function createChoiceOptionsHtml(options = [], { autoSubmit = true } = {}){
+  if(!Array.isArray(options) || !options.length) return '';
+  const submitAttr = autoSubmit ? 'true' : 'false';
+  const buttons = options.map(opt => {
+    const label = escapeHTML(String(opt));
+    return `
+      <button type="button" class="option" data-choice-value="${label}">${label}</button>
+    `;
+  }).join('');
+  return `<div class="options" data-choice-group data-auto-submit="${submitAttr}">${buttons}</div>`;
+}
+
+function bindChoiceOptionHandlers(root){
+  const container = root || document;
+  if(!container || !container.querySelectorAll) return;
+  const groups = container.querySelectorAll('[data-choice-group]');
+  groups.forEach(group => {
+    if(group.dataset.choiceBound === 'true') return;
+    group.dataset.choiceBound = 'true';
+    group.addEventListener('click', handleChoiceOptionClick);
+  });
+}
+
+function handleChoiceOptionClick(event){
+  const button = event.target.closest('button[data-choice-value]');
+  if(!button) return;
+  event.preventDefault();
+  const value = button.getAttribute('data-choice-value') || '';
+  const answerInput = document.getElementById('answer');
+  if(answerInput){
+    answerInput.value = value;
+  }
+  const group = button.closest('[data-choice-group]');
+  const autoSubmit = group ? group.dataset.autoSubmit !== 'false' : true;
+  if(autoSubmit){
+    checkAnswer();
+  } else {
+    answerInput?.focus();
+  }
+}
+
 function renderQuestion(){
   const q = session.questions[session.idx];
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
@@ -1624,10 +1665,10 @@ function renderQuestion(){
 
     if (hasOptions) {
       $('#answer').style.display = 'none';
-      const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
-      `).join('');
-      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+      if (keypad) {
+        keypad.innerHTML = createChoiceOptionsHtml(q.options);
+        bindChoiceOptionHandlers(keypad);
+      }
       toggleRightCol(true);
     } else {
       $('#answer').style.display = 'block';
@@ -1644,10 +1685,10 @@ function renderQuestion(){
 
     if (hasOptions) {
       $('#answer').style.display = 'none';
-      const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
-      `).join('');
-      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+      if (keypad) {
+        keypad.innerHTML = createChoiceOptionsHtml(q.options);
+        bindChoiceOptionHandlers(keypad);
+      }
       toggleRightCol(true);
     } else {
       $('#answer').style.display = 'block';
@@ -1663,10 +1704,11 @@ function renderQuestion(){
     toggleRightCol(false);
 
     if (q.options && Array.isArray(q.options)) {
-      const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
-      `).join('');
-      $('#qMedia').innerHTML += `<div class="options">${optionsHtml}</div>`;
+      const media = document.getElementById('qMedia');
+      if (media) {
+        media.innerHTML += createChoiceOptionsHtml(q.options);
+        bindChoiceOptionHandlers(media);
+      }
     }
 
   } else {
