@@ -117,26 +117,34 @@
         </a>
         
         
-        <form id="classCodeForm" class="class-code-form" autocomplete="off">
-          <label class="class-code-label" for="classCodeInput">Has rebut un codi de prova?</label>
-          <div class="class-code-row">
-            <input
-              id="classCodeInput"
-              class="input"
-              type="text"
-              name="classCode"
-              minlength="4"
-              maxlength="12"
-              required
-              placeholder="Introdueix el codi del test"
-              aria-describedby="classCodeHelp"
-            />
-            <button class="pill" type="submit">Entra a l'aula</button>
+        <section class="panel card home-live-cta home-class-cta" aria-labelledby="homeClassTitle">
+          <div class="home-live-cta__body">
+            <p class="portal-section-title">Aula FocusQuiz</p>
+            <h2 id="homeClassTitle">Has rebut un codi de prova?</h2>
+            <p class="subtitle">Escriu el codi que t'ha donat el professorat i entra directament a l'espai de proves.</p>
+            <form id="classCodeForm" class="home-live-join-form" autocomplete="off">
+              <label class="portal-field-label" for="classCodeInput">Codi del test</label>
+              <div class="home-live-join-controls">
+                <input
+                  id="classCodeInput"
+                  class="input"
+                  type="text"
+                  name="classCode"
+                  minlength="4"
+                  maxlength="12"
+                  required
+                  placeholder="Exemple: TR01A2"
+                  aria-describedby="classCodeHelp"
+                />
+                <button class="pill" type="submit">Entra a l'aula</button>
+              </div>
+              <p id="classCodeHelp" class="home-live-join-hint">
+                Els tests FocusQuiz ara es fan a l'espai d'aula. Escriu el codi que t'ha donat el teu professorat.
+              </p>
+            </form>
           </div>
-          <p id="classCodeHelp" class="portal-muted">
-            Els tests FocusQuiz ara es fan a l'espai d'aula. Escriu el codi que t'ha donat el teu professorat.
-          </p>
-        </form>
+          <div class="home-live-cta__art home-class-cta__art" aria-hidden="true"></div>
+        </section>
 
         <section class="panel card home-live-cta" aria-labelledby="homeLiveTitle">
           <div class="home-live-cta__body">

@@ -1506,52 +1506,6 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   .quiz .options { grid-template-columns: 1fr; }
 }
 
-/* ===================== Aula FocusQuiz ===================== */
-.class-code-form {
-  margin: 1.5rem 0 2.5rem;
-  padding: 1.25rem;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15), rgba(236, 72, 153, 0.12));
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 18px 45px -20px rgba(79, 70, 229, 0.55);
-  display: grid;
-  gap: 0.75rem;
-}
-
-.class-code-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: #1f2937;
-}
-
-.class-code-row {
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-}
-
-.class-code-row .input {
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-}
-
-.class-code-row .pill {
-  min-width: 11rem;
-}
-
-@media (max-width: 720px) {
-  .class-code-row {
-    grid-template-columns: 1fr;
-  }
-
-  .class-code-row .pill {
-    width: 100%;
-  }
-}
-
 .class-page {
   background: radial-gradient(circle at top, rgba(165, 180, 252, 0.25), transparent 55%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.94));
@@ -2198,6 +2152,18 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   font-size: clamp(3rem, 8vw, 4.75rem);
   inset: 50% auto auto 50%;
   transform: translate(-50%, -50%) rotate(-8deg);
+}
+
+.home-page .home-class-cta__art {
+  background: radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.45), transparent 65%),
+    radial-gradient(circle at 70% 65%, rgba(167, 139, 250, 0.45), transparent 70%),
+    linear-gradient(145deg, rgba(79, 70, 229, 0.25), rgba(14, 165, 233, 0.28));
+}
+
+.home-page .home-class-cta__art::after {
+  content: '🏫';
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  transform: translate(-50%, -50%) rotate(-4deg);
 }
 
 .home-page .home-live-join-form {
