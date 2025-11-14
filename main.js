@@ -2205,6 +2205,21 @@ function finishQuiz(timeUp){
 
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
   const mistakes = session.count - session.correct;
+  const wrongs = Math.max(0, mistakes);
+  const timeLimitLabel = session.time ? `Límit ${fmtTime(session.time)}` : 'Sense límit';
+  const statBlocks = [
+    { label: 'Preguntes totals', value: session.count, detail: 'Total respostes' },
+    { label: 'Correctes', value: session.correct, detail: `${score}% encerts` },
+    { label: 'Errors', value: wrongs, detail: wrongs ? 'Per repassar' : 'Cap error' },
+    { label: 'Temps invertit', value: fmtTime(elapsed), detail: timeLimitLabel }
+  ];
+  const statsHTML = statBlocks.map((stat) => `
+        <div class="exam-finish__stat">
+          <span class="exam-finish__stat-pill">${stat.label}</span>
+          <strong class="exam-finish__stat-value">${stat.value}</strong>
+          <span class="exam-finish__stat-detail">${stat.detail}</span>
+        </div>`).join('');
+
   const html = `
 <section class="exam-finish" aria-labelledby="examFinishTitle">
   <header class="exam-finish__header">
@@ -2213,34 +2228,21 @@ function finishQuiz(timeUp){
   </header>
   <div class="exam-finish__body">
     <div class="exam-finish__col exam-finish__col--main">
-      <div class="section-title">Resultat</div>
-      <p class="exam-finish__score">${score}%</p>
-      <p class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</p>
-      <div class="exam-finish__actions">
-        ${wrongsBtn}
-        <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
-        <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
-        <button class="btn-ghost" onclick="closeModalAndGoHome()">Tanca</button>
+      <div class="exam-finish__main-card">
+        <div class="section-title">Resultat</div>
+        <p class="exam-finish__score">${score}%</p>
+        <p class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</p>
+        <div class="exam-finish__actions">
+          ${wrongsBtn}
+          <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
+          <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
+          <button class="btn-ghost" onclick="closeModalAndGoHome()">Tanca</button>
+        </div>
       </div>
     </div>
     <div class="exam-finish__col exam-finish__col--stats">
       <div class="exam-finish__stat-grid" aria-label="Resum de l'examen">
-        <div class="exam-finish__stat">
-          <span class="exam-finish__stat-label">Preguntes</span>
-          <strong class="exam-finish__stat-value">${session.count}</strong>
-        </div>
-        <div class="exam-finish__stat">
-          <span class="exam-finish__stat-label">Correctes</span>
-          <strong class="exam-finish__stat-value">${session.correct}</strong>
-        </div>
-        <div class="exam-finish__stat">
-          <span class="exam-finish__stat-label">Errors</span>
-          <strong class="exam-finish__stat-value">${Math.max(0, mistakes)}</strong>
-        </div>
-        <div class="exam-finish__stat">
-          <span class="exam-finish__stat-label">Temps invertit</span>
-          <strong class="exam-finish__stat-value">${fmtTime(elapsed)}</strong>
-        </div>
+${statsHTML}
       </div>
     </div>
   </div>
@@ -2249,7 +2251,7 @@ function finishQuiz(timeUp){
     ${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
   </section>
 </section>`;
-  showModal(html, { innerClass: 'modal-inner--balanced' });
+  showModal(html, { innerClass: 'modal-inner--balanced modal-inner--floating' });
 }
 
 function redoWrongs(){
