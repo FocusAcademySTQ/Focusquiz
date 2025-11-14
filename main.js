@@ -1,10 +1,11 @@
 /* ===================== UTILS ===================== */
 
-function showModal(contentHTML){
+function showModal(contentHTML, options = {}){
   closeModal();
   const overlay = document.createElement('div');
   overlay.className = 'modal';
-  overlay.innerHTML = `<div class="modal-inner panel card" role="dialog" aria-modal="true">${contentHTML}</div>`;
+  const extraClass = options.innerClass ? ` ${options.innerClass}` : '';
+  overlay.innerHTML = `<div class="modal-inner panel card${extraClass}" role="dialog" aria-modal="true">${contentHTML}</div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
 }
@@ -2203,27 +2204,52 @@ function finishQuiz(timeUp){
   }
 
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
+  const mistakes = session.count - session.correct;
   const html = `
-<h3 style="margin-top:0">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
-<p class="subtitle">${name} · ${moduleName} · ${levelLabel}</p>
-<div class="row" style="align-items:flex-end; gap:16px">
-  <div>
-    <div class="section-title">Resultat</div>
-    <div style="font-size:2.2rem; font-weight:900">${score}%</div>
-    <div class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</div>
-    <div class="controls" style="margin-top:10px; flex-wrap:wrap">
-      ${wrongsBtn}
-      <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
-      <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
-      <button class="btn-ghost" onclick="closeModalAndGoHome()">Tanca</button>
+<section class="exam-finish" aria-labelledby="examFinishTitle">
+  <header class="exam-finish__header">
+    <h3 class="exam-finish__title" id="examFinishTitle">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
+    <p class="subtitle">${name} · ${moduleName} · ${levelLabel}</p>
+  </header>
+  <div class="exam-finish__body">
+    <div class="exam-finish__col exam-finish__col--main">
+      <div class="section-title">Resultat</div>
+      <p class="exam-finish__score">${score}%</p>
+      <p class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</p>
+      <div class="exam-finish__actions">
+        ${wrongsBtn}
+        <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
+        <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
+        <button class="btn-ghost" onclick="closeModalAndGoHome()">Tanca</button>
+      </div>
+    </div>
+    <div class="exam-finish__col exam-finish__col--stats">
+      <div class="exam-finish__stat-grid" aria-label="Resum de l'examen">
+        <div class="exam-finish__stat">
+          <span class="exam-finish__stat-label">Preguntes</span>
+          <strong class="exam-finish__stat-value">${session.count}</strong>
+        </div>
+        <div class="exam-finish__stat">
+          <span class="exam-finish__stat-label">Correctes</span>
+          <strong class="exam-finish__stat-value">${session.correct}</strong>
+        </div>
+        <div class="exam-finish__stat">
+          <span class="exam-finish__stat-label">Errors</span>
+          <strong class="exam-finish__stat-value">${Math.max(0, mistakes)}</strong>
+        </div>
+        <div class="exam-finish__stat">
+          <span class="exam-finish__stat-label">Temps invertit</span>
+          <strong class="exam-finish__stat-value">${fmtTime(elapsed)}</strong>
+        </div>
+      </div>
     </div>
   </div>
-  <div style="flex:1"></div>
-</div>
-<div class="section-title">Errors i correccions</div>
-${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
-`;
-  showModal(html);
+  <section class="exam-finish__errors" aria-live="polite">
+    <div class="section-title">Errors i correccions</div>
+    ${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
+  </section>
+</section>`;
+  showModal(html, { innerClass: 'modal-inner--balanced' });
 }
 
 function redoWrongs(){
