@@ -1,10 +1,11 @@
 /* ===================== UTILS ===================== */
 
-function showModal(contentHTML){
+function showModal(contentHTML, options = {}){
   closeModal();
   const overlay = document.createElement('div');
   overlay.className = 'modal';
-  overlay.innerHTML = `<div class="modal-inner panel card" role="dialog" aria-modal="true">${contentHTML}</div>`;
+  const extraClass = options.innerClass ? ` ${options.innerClass}` : '';
+  overlay.innerHTML = `<div class="modal-inner panel card${extraClass}" role="dialog" aria-modal="true">${contentHTML}</div>`;
   document.body.appendChild(overlay);
   overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
 }
@@ -1586,6 +1587,47 @@ function handleCoordQuadrantClick(event){
   checkAnswer();
 }
 
+function createChoiceOptionsHtml(options = [], { autoSubmit = true } = {}){
+  if(!Array.isArray(options) || !options.length) return '';
+  const submitAttr = autoSubmit ? 'true' : 'false';
+  const buttons = options.map(opt => {
+    const label = escapeHTML(String(opt));
+    return `
+      <button type="button" class="option" data-choice-value="${label}">${label}</button>
+    `;
+  }).join('');
+  return `<div class="options" data-choice-group data-auto-submit="${submitAttr}">${buttons}</div>`;
+}
+
+function bindChoiceOptionHandlers(root){
+  const container = root || document;
+  if(!container || !container.querySelectorAll) return;
+  const groups = container.querySelectorAll('[data-choice-group]');
+  groups.forEach(group => {
+    if(group.dataset.choiceBound === 'true') return;
+    group.dataset.choiceBound = 'true';
+    group.addEventListener('click', handleChoiceOptionClick);
+  });
+}
+
+function handleChoiceOptionClick(event){
+  const button = event.target.closest('button[data-choice-value]');
+  if(!button) return;
+  event.preventDefault();
+  const value = button.getAttribute('data-choice-value') || '';
+  const answerInput = document.getElementById('answer');
+  if(answerInput){
+    answerInput.value = value;
+  }
+  const group = button.closest('[data-choice-group]');
+  const autoSubmit = group ? group.dataset.autoSubmit !== 'false' : true;
+  if(autoSubmit){
+    checkAnswer();
+  } else {
+    answerInput?.focus();
+  }
+}
+
 function renderQuestion(){
   const q = session.questions[session.idx];
   $('#qMeta').textContent = `Pregunta ${session.idx+1} de ${session.count}`;
@@ -1624,10 +1666,10 @@ function renderQuestion(){
 
     if (hasOptions) {
       $('#answer').style.display = 'none';
-      const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
-      `).join('');
-      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+      if (keypad) {
+        keypad.innerHTML = createChoiceOptionsHtml(q.options);
+        bindChoiceOptionHandlers(keypad);
+      }
       toggleRightCol(true);
     } else {
       $('#answer').style.display = 'block';
@@ -1644,10 +1686,10 @@ function renderQuestion(){
 
     if (hasOptions) {
       $('#answer').style.display = 'none';
-      const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
-      `).join('');
-      if (keypad) keypad.innerHTML = `<div class="options">${optionsHtml}</div>`;
+      if (keypad) {
+        keypad.innerHTML = createChoiceOptionsHtml(q.options);
+        bindChoiceOptionHandlers(keypad);
+      }
       toggleRightCol(true);
     } else {
       $('#answer').style.display = 'block';
@@ -1663,10 +1705,11 @@ function renderQuestion(){
     toggleRightCol(false);
 
     if (q.options && Array.isArray(q.options)) {
-      const optionsHtml = q.options.map(opt => `
-        <button class="option" onclick="$('#answer').value='${opt}'; checkAnswer()">${opt}</button>
-      `).join('');
-      $('#qMedia').innerHTML += `<div class="options">${optionsHtml}</div>`;
+      const media = document.getElementById('qMedia');
+      if (media) {
+        media.innerHTML += createChoiceOptionsHtml(q.options);
+        bindChoiceOptionHandlers(media);
+      }
     }
 
   } else {
@@ -2161,27 +2204,54 @@ function finishQuiz(timeUp){
   }
 
   const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
+  const mistakes = session.count - session.correct;
+  const wrongs = Math.max(0, mistakes);
+  const timeLimitLabel = session.time ? `Límit ${fmtTime(session.time)}` : 'Sense límit';
+  const statBlocks = [
+    { label: 'Preguntes totals', value: session.count, detail: 'Total respostes' },
+    { label: 'Correctes', value: session.correct, detail: `${score}% encerts` },
+    { label: 'Errors', value: wrongs, detail: wrongs ? 'Per repassar' : 'Cap error' },
+    { label: 'Temps invertit', value: fmtTime(elapsed), detail: timeLimitLabel }
+  ];
+  const statsHTML = statBlocks.map((stat) => `
+        <div class="exam-finish__stat">
+          <span class="exam-finish__stat-pill">${stat.label}</span>
+          <strong class="exam-finish__stat-value">${stat.value}</strong>
+          <span class="exam-finish__stat-detail">${stat.detail}</span>
+        </div>`).join('');
+
   const html = `
-<h3 style="margin-top:0">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
-<p class="subtitle">${name} · ${moduleName} · ${levelLabel}</p>
-<div class="row" style="align-items:flex-end; gap:16px">
-  <div>
-    <div class="section-title">Resultat</div>
-    <div style="font-size:2.2rem; font-weight:900">${score}%</div>
-    <div class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</div>
-    <div class="controls" style="margin-top:10px; flex-wrap:wrap">
-      ${wrongsBtn}
-      <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
-      <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
-      <button class="btn-ghost" onclick="closeModalAndGoHome()">Tanca</button>
+<section class="exam-finish" aria-labelledby="examFinishTitle">
+  <header class="exam-finish__header">
+    <h3 class="exam-finish__title" id="examFinishTitle">${timeUp? 'Temps exhaurit ⏱️':'Prova finalitzada 🎉'}</h3>
+    <p class="subtitle">${name} · ${moduleName} · ${levelLabel}</p>
+  </header>
+  <div class="exam-finish__body">
+    <div class="exam-finish__col exam-finish__col--main">
+      <div class="exam-finish__main-card">
+        <div class="section-title">Resultat</div>
+        <p class="exam-finish__score">${score}%</p>
+        <p class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</p>
+        <div class="exam-finish__actions">
+          ${wrongsBtn}
+          <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
+          <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
+          <button class="btn-ghost" onclick="closeModalAndGoHome()">Tanca</button>
+        </div>
+      </div>
+    </div>
+    <div class="exam-finish__col exam-finish__col--stats">
+      <div class="exam-finish__stat-grid" aria-label="Resum de l'examen">
+${statsHTML}
+      </div>
     </div>
   </div>
-  <div style="flex:1"></div>
-</div>
-<div class="section-title">Errors i correccions</div>
-${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
-`;
-  showModal(html);
+  <section class="exam-finish__errors" aria-live="polite">
+    <div class="section-title">Errors i correccions</div>
+    ${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
+  </section>
+</section>`;
+  showModal(html, { innerClass: 'modal-inner--balanced modal-inner--floating' });
 }
 
 function redoWrongs(){
