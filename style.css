@@ -1506,52 +1506,6 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   .quiz .options { grid-template-columns: 1fr; }
 }
 
-/* ===================== Aula FocusQuiz ===================== */
-.class-code-form {
-  margin: 1.5rem 0 2.5rem;
-  padding: 1.25rem;
-  border-radius: 18px;
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.15), rgba(236, 72, 153, 0.12));
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 18px 45px -20px rgba(79, 70, 229, 0.55);
-  display: grid;
-  gap: 0.75rem;
-}
-
-.class-code-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: #1f2937;
-}
-
-.class-code-row {
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-}
-
-.class-code-row .input {
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-}
-
-.class-code-row .pill {
-  min-width: 11rem;
-}
-
-@media (max-width: 720px) {
-  .class-code-row {
-    grid-template-columns: 1fr;
-  }
-
-  .class-code-row .pill {
-    width: 100%;
-  }
-}
-
 .class-page {
   background: radial-gradient(circle at top, rgba(165, 180, 252, 0.25), transparent 55%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.94));
@@ -2158,11 +2112,13 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
 
 .home-page .home-live-cta {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(200px, 260px);
-  gap: 2rem;
-  margin-top: 2rem;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 160px);
+  gap: 1.1rem;
+  margin-top: 1.25rem;
+  padding: 1.35rem;
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(165, 243, 252, 0.22));
   border: 1px solid rgba(59, 130, 246, 0.22);
+  border-radius: 18px;
   position: relative;
   overflow: hidden;
 }
@@ -2180,24 +2136,36 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
 
 .home-page .home-live-cta__body {
   display: grid;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .home-page .home-live-cta__art {
   position: relative;
-  border-radius: 24px;
-  background: radial-gradient(circle at 30% 30%, rgba(248, 113, 113, 0.4), transparent 65%),
-    radial-gradient(circle at 70% 70%, rgba(251, 191, 36, 0.45), transparent 65%),
-    linear-gradient(145deg, rgba(79, 70, 229, 0.2), rgba(14, 165, 233, 0.28));
-  min-height: 220px;
+  border-radius: 16px;
+  background: radial-gradient(circle at 30% 30%, rgba(248, 113, 113, 0.35), transparent 65%),
+    radial-gradient(circle at 70% 70%, rgba(251, 191, 36, 0.4), transparent 65%),
+    linear-gradient(145deg, rgba(79, 70, 229, 0.18), rgba(14, 165, 233, 0.24));
+  min-height: 140px;
 }
 
 .home-page .home-live-cta__art::after {
   content: '🎯';
   position: absolute;
-  font-size: clamp(3rem, 8vw, 4.75rem);
+  font-size: clamp(2.8rem, 6vw, 4rem);
   inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%) rotate(-8deg);
+  transform: translate(-50%, -50%);
+}
+
+.home-page .home-class-cta__art {
+  background: radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.45), transparent 65%),
+    radial-gradient(circle at 70% 65%, rgba(167, 139, 250, 0.45), transparent 70%),
+    linear-gradient(145deg, rgba(79, 70, 229, 0.25), rgba(14, 165, 233, 0.28));
+}
+
+.home-page .home-class-cta__art::after {
+  content: '🏫';
+  font-size: clamp(2.8rem, 6vw, 3.75rem);
+  transform: translate(-50%, -50%);
 }
 
 .home-page .home-live-join-form {
@@ -2229,10 +2197,12 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
 @media (max-width: 900px) {
   .home-page .home-live-cta {
     grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1.15rem;
   }
 
   .home-page .home-live-cta__art {
-    min-height: 160px;
+    min-height: 120px;
   }
 }
 
