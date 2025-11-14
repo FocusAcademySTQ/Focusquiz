@@ -2136,7 +2136,24 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
 
 .home-page .home-live-cta__body {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.45rem;
+}
+
+.home-page .home-live-cta .portal-section-title {
+  margin: 0;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+
+.home-page .home-live-cta h2 {
+  margin: 0;
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  line-height: 1.2;
+}
+
+.home-page .home-live-cta .subtitle {
+  margin: 0;
+  line-height: 1.35;
 }
 
 .home-page .home-live-cta__art {
@@ -2170,7 +2187,7 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
 
 .home-page .home-live-join-form {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.45rem;
 }
 
 .home-page .home-live-join-controls {
@@ -2191,7 +2208,8 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
 .home-page .home-live-join-hint {
   margin: 0;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
 }
 
 @media (max-width: 900px) {
