@@ -141,6 +141,18 @@ const elements = {
   liveQuestionReset: document.getElementById('liveQuestionReset'),
   liveQuestionsList: document.getElementById('liveQuestionsList'),
   liveQuestionsEmpty: document.getElementById('liveQuestionsEmptyState'),
+  livePreviewTitle: document.getElementById('livePreviewTitle'),
+  livePreviewPrompt: document.getElementById('livePreviewPrompt'),
+  livePreviewOptions: document.getElementById('livePreviewOptions'),
+  livePreviewMeta: document.getElementById('livePreviewMeta'),
+  livePreviewHint: document.getElementById('livePreviewHint'),
+  livePreviewPrev: document.getElementById('livePreviewPrev'),
+  livePreviewNext: document.getElementById('livePreviewNext'),
+  livePreviewFullscreen: document.getElementById('livePreviewFullscreen'),
+  livePreviewStage: document.getElementById('livePreviewStage'),
+  liveLibraryList: document.getElementById('liveLibraryList'),
+  liveLibraryEmpty: document.getElementById('liveLibraryEmptyState'),
+  liveQuickPoll: document.getElementById('liveQuickPoll'),
   liveQuizFeedback: document.getElementById('liveQuizFeedback'),
   liveQuizSave: document.getElementById('liveQuizSave'),
   liveQuizReset: document.getElementById('liveQuizReset'),
@@ -216,6 +228,13 @@ function ensureLiveDrafts() {
         points: 100,
         speedBonus: 5,
       },
+      preview: {
+        source: 'draft',
+        quizId: '',
+        questionId: '',
+        title: '',
+      },
+      questionLibrary: [],
     };
   }
   if (!state.live.quizDraft) {
@@ -239,6 +258,12 @@ function ensureLiveDrafts() {
   }
   if (!state.live.questionDraft) {
     state.live.questionDraft = createLiveQuestionDraft();
+  }
+  if (!state.live.preview) {
+    state.live.preview = { source: 'draft', quizId: '', questionId: '', title: '' };
+  }
+  if (!state.live.questionLibrary) {
+    state.live.questionLibrary = [];
   }
 }
 
@@ -285,6 +310,329 @@ function createLiveQuestionDraft() {
     points: defaultPoints,
     speedBonus: defaultBonus,
   };
+}
+
+function setLivePreview({ quizId = '', questionId = '', source = 'draft', title = '' } = {}) {
+  ensureLiveDrafts();
+  state.live.preview = {
+    quizId: quizId || '',
+    questionId: questionId || '',
+    source: source || 'draft',
+    title: title || state.live.quizDraft.title || 'Quiz Live',
+  };
+  renderLivePreview();
+}
+
+function resolvePreviewCollection(preview = state.live.preview) {
+  ensureLiveDrafts();
+  const current = preview || state.live.preview || {};
+  if (current.source === 'saved' || current.source === 'library') {
+    const quiz = state.live.quizzes.find((item) => item.id === current.quizId);
+    const questions = quiz && Array.isArray(quiz.questions) ? quiz.questions : [];
+    return {
+      questions,
+      title: current.title || (quiz ? quiz.title : 'Quiz Live'),
+      sourceLabel: quiz ? `Quiz guardat · ${quiz.title}` : 'Quiz guardat',
+    };
+  }
+  const draft = state.live.quizDraft || { questions: [] };
+  return {
+    questions: Array.isArray(draft.questions) ? draft.questions : [],
+    title: current.title || draft.title || 'Esborrany Live',
+    sourceLabel: 'Plantilla en edició',
+  };
+}
+
+function renderLivePreview() {
+  ensureLiveDrafts();
+  const preview = state.live.preview || {};
+  const { questions, title, sourceLabel } = resolvePreviewCollection(preview);
+  const hasQuestions = Array.isArray(questions) && questions.length > 0;
+  const target = preview.questionId
+    ? questions.find((question) => question.id === preview.questionId)
+    : questions[0];
+  if (
+    !elements.livePreviewTitle ||
+    !elements.livePreviewPrompt ||
+    !elements.livePreviewOptions ||
+    !elements.livePreviewMeta ||
+    !elements.livePreviewHint
+  ) {
+    return;
+  }
+  elements.livePreviewTitle.textContent = title || 'Prèvia Live';
+  elements.livePreviewPrompt.textContent = target ? target.prompt : '';
+  elements.livePreviewOptions.innerHTML = '';
+  if (!hasQuestions || !target) {
+    elements.livePreviewHint.textContent = 'Selecciona una pregunta per mostrar-la en pantalla.';
+    elements.livePreviewMeta.textContent = 'Sense prèvia disponible.';
+    return;
+  }
+  const options = Array.isArray(target.options) ? target.options : [];
+  options.forEach((option) => {
+    if (!option || !option.text) return;
+    const row = document.createElement('li');
+    const badge = document.createElement('strong');
+    badge.textContent = option.key || '';
+    row.appendChild(badge);
+    const text = document.createElement('span');
+    text.textContent = option.text;
+    if (option.key === target.correctOption) {
+      text.dataset.correct = 'true';
+    }
+    row.appendChild(text);
+    elements.livePreviewOptions.appendChild(row);
+  });
+  const timePart = Number.isFinite(target.timeLimit) ? `${target.timeLimit}s` : '—';
+  const pointsPart = Number.isFinite(target.points) ? `${target.points} punts` : '—';
+  const bonusPart = Number.isFinite(target.speedBonus) && target.speedBonus > 0 ? `+${target.speedBonus}/s` : 'sense bonus';
+  elements.livePreviewMeta.textContent = `Temps: ${timePart} · Puntuació: ${pointsPart} · ${bonusPart}`;
+  elements.livePreviewHint.textContent = sourceLabel || 'Plantilla Live';
+}
+
+function cycleLivePreview(step = 1) {
+  ensureLiveDrafts();
+  const preview = state.live.preview || {};
+  const { questions } = resolvePreviewCollection(preview);
+  if (!Array.isArray(questions) || questions.length === 0) return;
+  const currentIndex = preview.questionId
+    ? questions.findIndex((question) => question.id === preview.questionId)
+    : 0;
+  const nextIndex = (currentIndex + step + questions.length) % questions.length;
+  const nextQuestion = questions[nextIndex];
+  if (nextQuestion) {
+    setLivePreview({
+      quizId: preview.quizId,
+      questionId: nextQuestion.id,
+      source: preview.source || 'draft',
+      title: preview.title,
+    });
+  }
+}
+
+function setPreviewFromQuestion(question, { quizId = '', source = 'draft', title = '' } = {}) {
+  if (!question) return;
+  setLivePreview({ quizId, questionId: question.id, source, title });
+}
+
+async function setPreviewFromQuiz(quizId) {
+  ensureLiveDrafts();
+  if (!quizId) return;
+  const quiz = (await ensureLiveQuizLoaded(quizId)) || state.live.quizzes.find((item) => item.id === quizId);
+  if (!quiz || !Array.isArray(quiz.questions) || !quiz.questions.length) return;
+  setLivePreview({
+    quizId: quiz.id,
+    questionId: quiz.questions[0].id,
+    source: 'saved',
+    title: quiz.title,
+  });
+}
+
+async function setPreviewFromGame(game) {
+  ensureLiveDrafts();
+  if (!game) return;
+  const quiz = await ensureLiveQuizLoaded(game.quiz_id);
+  if (!quiz || !quiz.questions || !quiz.questions.length) return;
+  const total = quiz.questions.length;
+  const current = resolveLiveGameQuestion(game) - 1;
+  const index = current >= 0 && current < total ? current : 0;
+  const question = quiz.questions[index];
+  if (question) {
+    setLivePreview({
+      quizId: quiz.id,
+      questionId: question.id,
+      source: 'saved',
+      title: `${quiz.title} · ${game.join_code || 'Codi'}`,
+    });
+  }
+}
+
+function buildLiveQuestionLibrary(quizzes = state.live.quizzes) {
+  if (!Array.isArray(quizzes)) return [];
+  return quizzes.flatMap((quiz) => {
+    const questionList = Array.isArray(quiz.questions) ? quiz.questions : [];
+    return questionList.map((question, index) => ({
+      quizId: quiz.id,
+      quizTitle: quiz.title,
+      question,
+      index,
+    }));
+  });
+}
+
+function renderLiveLibrary() {
+  ensureLiveDrafts();
+  const container = elements.liveLibraryList;
+  const emptyState = elements.liveLibraryEmpty;
+  if (!container || !emptyState) return;
+  const library = Array.isArray(state.live.questionLibrary) ? state.live.questionLibrary : [];
+  container.innerHTML = '';
+  if (!library.length) {
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  emptyState.classList.add('hidden');
+  library.slice(0, 24).forEach((item) => {
+    if (!item || !item.question) return;
+    const card = document.createElement('article');
+    card.className = 'portal-live-library__item';
+    card.dataset.quizId = item.quizId;
+    card.dataset.questionId = item.question.id;
+
+    const header = document.createElement('header');
+    const title = document.createElement('h4');
+    title.textContent = item.question.prompt;
+    header.appendChild(title);
+    const quizLabel = document.createElement('span');
+    quizLabel.className = 'portal-live-chip';
+    quizLabel.textContent = item.quizTitle || 'Quiz guardat';
+    header.appendChild(quizLabel);
+    card.appendChild(header);
+
+    const meta = document.createElement('p');
+    meta.className = 'portal-live-library__meta';
+    const answer = item.question.correctOption || '—';
+    const time = Number.isFinite(item.question.timeLimit) ? `${item.question.timeLimit}s` : '—';
+    meta.textContent = `Pregunta ${item.index + 1} · Resposta ${answer} · ${time}`;
+    card.appendChild(meta);
+
+    const actions = document.createElement('div');
+    actions.className = 'portal-live-library__actions';
+    const previewButton = document.createElement('button');
+    previewButton.type = 'button';
+    previewButton.className = 'btn-ghost';
+    previewButton.dataset.libraryAction = 'preview';
+    previewButton.textContent = 'Veure prèvia';
+    actions.appendChild(previewButton);
+    const addButton = document.createElement('button');
+    addButton.type = 'button';
+    addButton.className = 'btn-secondary';
+    addButton.dataset.libraryAction = 'add';
+    addButton.textContent = 'Afegeix al quiz';
+    actions.appendChild(addButton);
+    card.appendChild(actions);
+
+    container.appendChild(card);
+  });
+}
+
+function addLibraryQuestionToDraft(questionId, quizId) {
+  ensureLiveDrafts();
+  const library = Array.isArray(state.live.questionLibrary) ? state.live.questionLibrary : [];
+  const item = library.find((entry) => entry.question && entry.question.id === questionId && entry.quizId === quizId);
+  if (!item) return;
+  const question = item.question;
+  const cloned = {
+    id: createLocalId('liveq'),
+    prompt: question.prompt,
+    options: Array.isArray(question.options)
+      ? question.options.map((option) => ({ key: option.key, text: option.text }))
+      : [],
+    correctOption: question.correctOption,
+    timeLimit: question.timeLimit,
+    points: question.points,
+    speedBonus: question.speedBonus,
+  };
+  state.live.quizDraft.questions = [...state.live.quizDraft.questions, cloned];
+  renderLiveQuestions();
+  setPreviewFromQuestion(cloned, { source: 'draft', title: state.live.quizDraft.title });
+  if (elements.liveQuizFeedback) {
+    elements.liveQuizFeedback.textContent = 'S\'ha afegit la pregunta de la biblioteca.';
+    setTimeout(() => {
+      if (elements.liveQuizFeedback && elements.liveQuizFeedback.textContent.includes('biblioteca')) {
+        elements.liveQuizFeedback.textContent = '';
+      }
+    }, 2200);
+  }
+}
+
+function addQuickPollQuestion() {
+  ensureLiveDrafts();
+  const basePoints = Number.isFinite(state.live.quizDraft.defaultPoints) ? state.live.quizDraft.defaultPoints : 100;
+  const baseTime = Number.isFinite(state.live.quizDraft.defaultTimeLimit) ? state.live.quizDraft.defaultTimeLimit : 20;
+  const quickQuestion = {
+    id: createLocalId('liveq'),
+    prompt: 'Votació ràpida (Sí/No)',
+    options: [
+      { key: 'A', text: 'Sí' },
+      { key: 'B', text: 'No' },
+    ],
+    correctOption: 'A',
+    timeLimit: Math.max(10, baseTime),
+    points: basePoints,
+    speedBonus: 0,
+  };
+  state.live.quizDraft.questions = [...state.live.quizDraft.questions, quickQuestion];
+  renderLiveQuestions();
+  setPreviewFromQuestion(quickQuestion, { source: 'draft', title: state.live.quizDraft.title });
+  if (elements.liveQuizFeedback) {
+    elements.liveQuizFeedback.textContent = 'Votació ràpida afegida al quiz.';
+  }
+}
+
+async function enterLivePreviewFullscreen() {
+  const target = elements.livePreviewStage || elements.livePreviewPrompt;
+  if (!target || !target.requestFullscreen) return;
+  try {
+    await target.requestFullscreen();
+  } catch (error) {
+    console.warn('No s\'ha pogut activar la pantalla completa de la prèvia', error);
+  }
+}
+
+function cloneLiveQuestion(question, { fallbackTime = 20, fallbackPoints = 100, fallbackBonus = 0 } = {}) {
+  if (!question) return null;
+  return {
+    id: createLocalId('liveq'),
+    prompt: question.prompt,
+    options: Array.isArray(question.options)
+      ? question.options.map((option) => ({ key: option.key, text: option.text }))
+      : [],
+    correctOption: question.correctOption,
+    timeLimit: Number.isFinite(question.timeLimit) ? question.timeLimit : fallbackTime,
+    points: Number.isFinite(question.points) ? question.points : fallbackPoints,
+    speedBonus: Number.isFinite(question.speedBonus) ? question.speedBonus : fallbackBonus,
+  };
+}
+
+function applyQuizToDraft(quiz, { duplicateTitle = false } = {}) {
+  ensureLiveDrafts();
+  if (!quiz) return;
+  const defaultTime = Number.isFinite(quiz.default_time_limit) ? quiz.default_time_limit : 20;
+  const defaultPoints = Number.isFinite(quiz.default_points) ? quiz.default_points : 100;
+  const defaultBonus = Number.isFinite(quiz.speed_bonus) ? quiz.speed_bonus : 0;
+  const title = duplicateTitle
+    ? `${quiz.title || 'Quiz Live'} (còpia)`
+    : quiz.title || state.live.quizDraft.title || 'Quiz Live';
+  const questions = Array.isArray(quiz.questions)
+    ? quiz.questions.map((question) => cloneLiveQuestion(question, { fallbackTime: defaultTime, fallbackPoints: defaultPoints, fallbackBonus: defaultBonus }))
+    : [];
+  state.live.quizDraft = {
+    classId: quiz.class_id || '',
+    title,
+    defaultTimeLimit: defaultTime,
+    defaultPoints: defaultPoints,
+    speedBonus: defaultBonus,
+    questions,
+  };
+  state.live.questionDraft = createLiveQuestionDraft();
+  syncLiveQuizFormInputs();
+  renderLiveQuestions();
+  if (questions[0]) {
+    setPreviewFromQuestion(questions[0], { quizId: quiz.id, source: 'draft', title });
+  }
+}
+
+async function duplicateLiveQuiz(quizId) {
+  ensureLiveDrafts();
+  if (!quizId) return;
+  const quiz = (await ensureLiveQuizLoaded(quizId)) || state.live.quizzes.find((item) => item.id === quizId);
+  if (!quiz) return;
+  applyQuizToDraft(quiz, { duplicateTitle: true });
+  if (elements.liveQuizFeedback) {
+    elements.liveQuizFeedback.textContent = 'Còpia del quiz carregada a l\'esborrany.';
+  }
+  switchTab('live');
 }
 
 function setNestedState(path, value) {
@@ -691,6 +1039,7 @@ function syncLiveQuizFormInputs() {
   renderLiveQuestionDraft();
   renderLiveQuestions();
   renderLiveQuizSelectors();
+  renderLivePreview();
 }
 
 function renderLiveQuestionDraft() {
@@ -748,6 +1097,7 @@ function resetLiveQuizDraft({ preserveClass = true } = {}) {
     questions: [],
   };
   state.live.questionDraft = createLiveQuestionDraft();
+  setLivePreview({ source: 'draft', quizId: '', questionId: '', title: state.live.quizDraft.title });
   syncLiveQuizFormInputs();
   renderLiveQuestions();
 }
@@ -808,6 +1158,12 @@ function renderLiveQuestions() {
 
     const actions = document.createElement('div');
     actions.className = 'portal-live-question-actions';
+    const previewButton = document.createElement('button');
+    previewButton.type = 'button';
+    previewButton.className = 'btn-secondary';
+    previewButton.dataset.previewQuestionId = question.id;
+    previewButton.textContent = 'Previsualitza';
+    actions.appendChild(previewButton);
     const removeButton = document.createElement('button');
     removeButton.type = 'button';
     removeButton.className = 'btn-ghost';
@@ -818,6 +1174,7 @@ function renderLiveQuestions() {
 
     list.appendChild(item);
   });
+  renderLivePreview();
 }
 
 function renderLiveQuizSelectors() {
@@ -923,6 +1280,22 @@ function renderLiveQuizzes() {
     useButton.dataset.quizAction = 'focus';
     useButton.textContent = 'Utilitza al Live';
     controls.appendChild(useButton);
+
+    const previewButton = document.createElement('button');
+    previewButton.type = 'button';
+    previewButton.className = 'btn-secondary';
+    previewButton.dataset.quizId = quiz.id;
+    previewButton.dataset.quizAction = 'preview';
+    previewButton.textContent = 'Previsualitza';
+    controls.appendChild(previewButton);
+
+    const duplicateButton = document.createElement('button');
+    duplicateButton.type = 'button';
+    duplicateButton.className = 'btn-ghost';
+    duplicateButton.dataset.quizId = quiz.id;
+    duplicateButton.dataset.quizAction = 'duplicate';
+    duplicateButton.textContent = 'Duplica';
+    controls.appendChild(duplicateButton);
 
     const deleteButton = document.createElement('button');
     deleteButton.type = 'button';
@@ -1298,6 +1671,14 @@ function renderLiveGames() {
     const actions = document.createElement('div');
     actions.className = 'portal-live-game-actions';
 
+    const projectButton = document.createElement('button');
+    projectButton.type = 'button';
+    projectButton.className = 'btn-secondary';
+    projectButton.dataset.gameId = game.id;
+    projectButton.dataset.gameAction = 'project';
+    projectButton.textContent = 'Pantalla gran';
+    actions.appendChild(projectButton);
+
     if (game.status === 'waiting') {
       const startButton = document.createElement('button');
       startButton.type = 'button';
@@ -1433,6 +1814,7 @@ function handleLiveQuestionAdd() {
     elements.liveQuestionError.textContent = '';
     elements.liveQuestionError.classList.add('hidden');
   }
+  setPreviewFromQuestion(question, { source: 'draft', title: state.live.quizDraft.title });
   resetLiveQuestionForm();
   renderLiveQuestions();
 }
@@ -1441,6 +1823,14 @@ function handleLiveQuestionRemove(questionId) {
   ensureLiveDrafts();
   if (!questionId) return;
   state.live.quizDraft.questions = state.live.quizDraft.questions.filter((question) => question.id !== questionId);
+  if (state.live.preview && state.live.preview.questionId === questionId) {
+    const nextQuestion = state.live.quizDraft.questions[0];
+    if (nextQuestion) {
+      setPreviewFromQuestion(nextQuestion, { source: 'draft', title: state.live.quizDraft.title });
+    } else {
+      setLivePreview({ source: 'draft', quizId: '', questionId: '', title: state.live.quizDraft.title });
+    }
+  }
   renderLiveQuestions();
 }
 
@@ -3073,6 +3463,9 @@ async function loadLiveQuizzes() {
   }
   renderLiveQuizzes();
   renderLiveQuizSelectors();
+  state.live.questionLibrary = buildLiveQuestionLibrary(state.live.quizzes);
+  renderLiveLibrary();
+  renderLivePreview();
   syncLiveGameForm();
 }
 
@@ -3129,6 +3522,8 @@ function renderAll() {
   renderResults();
   renderLiveQuizzes();
   renderLiveGames();
+  renderLiveLibrary();
+  renderLivePreview();
 }
 
 async function createLiveQuiz() {
@@ -3265,6 +3660,7 @@ function focusLiveQuiz(quizId) {
   }
   syncLiveQuizFormInputs();
   syncLiveGameForm();
+  setPreviewFromQuiz(quiz.id);
 }
 
 async function createLiveGame() {
@@ -3676,13 +4072,50 @@ function setupEventListeners() {
   });
   if (elements.liveQuestionsList) {
     elements.liveQuestionsList.addEventListener('click', (event) => {
-      const target = event.target instanceof Element ? event.target.closest('[data-remove-question-id]') : null;
-      if (!target) return;
-      const questionId = target.getAttribute('data-remove-question-id');
-      if (questionId) {
-        handleLiveQuestionRemove(questionId);
+      const button = event.target instanceof Element ? event.target.closest('button') : null;
+      if (!button) return;
+      const removeId = button.getAttribute('data-remove-question-id');
+      const previewId = button.getAttribute('data-preview-question-id');
+      if (removeId) {
+        handleLiveQuestionRemove(removeId);
+      } else if (previewId) {
+        const question = state.live.quizDraft.questions.find((item) => item.id === previewId);
+        setPreviewFromQuestion(question, { source: 'draft', title: state.live.quizDraft.title });
       }
     });
+  }
+  if (elements.liveLibraryList) {
+    elements.liveLibraryList.addEventListener('click', (event) => {
+      const button = event.target instanceof Element ? event.target.closest('button[data-library-action]') : null;
+      if (!button) return;
+      const action = button.getAttribute('data-library-action');
+      const card = button.closest('[data-quiz-id][data-question-id]');
+      const quizId = card ? card.getAttribute('data-quiz-id') : '';
+      const questionId = card ? card.getAttribute('data-question-id') : '';
+      if (!quizId || !questionId) return;
+      if (action === 'preview') {
+        const libraryItem = (state.live.questionLibrary || []).find(
+          (item) => item.quizId === quizId && item.question && item.question.id === questionId
+        );
+        if (libraryItem) {
+          setPreviewFromQuestion(libraryItem.question, { quizId, source: 'library', title: libraryItem.quizTitle });
+        }
+      } else if (action === 'add') {
+        addLibraryQuestionToDraft(questionId, quizId);
+      }
+    });
+  }
+  if (elements.livePreviewPrev) {
+    elements.livePreviewPrev.addEventListener('click', () => cycleLivePreview(-1));
+  }
+  if (elements.livePreviewNext) {
+    elements.livePreviewNext.addEventListener('click', () => cycleLivePreview(1));
+  }
+  if (elements.livePreviewFullscreen) {
+    elements.livePreviewFullscreen.addEventListener('click', () => enterLivePreviewFullscreen());
+  }
+  if (elements.liveQuickPoll) {
+    elements.liveQuickPoll.addEventListener('click', addQuickPollQuestion);
   }
   if (elements.liveRefresh) {
     elements.liveRefresh.addEventListener('click', async () => {
@@ -3733,6 +4166,11 @@ function setupEventListeners() {
       } else if (action === 'focus') {
         focusLiveQuiz(quizId);
         switchTab('live');
+      } else if (action === 'preview') {
+        setPreviewFromQuiz(quizId);
+        switchTab('live');
+      } else if (action === 'duplicate') {
+        duplicateLiveQuiz(quizId);
       }
     });
   }
@@ -3755,6 +4193,8 @@ function setupEventListeners() {
         await pauseLiveGame(game);
       } else if (action === 'next') {
         await advanceLiveGameQuestion(game);
+      } else if (action === 'project') {
+        await setPreviewFromGame(game);
       } else if (action === 'complete' || action === 'close') {
         await completeLiveGame(game);
       } else if (action === 'cancel' || action === 'archive') {

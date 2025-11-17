@@ -364,6 +364,38 @@
             <ol id="liveQuestionsList" class="portal-live-question-list"></ol>
             <div id="liveQuestionsEmptyState" class="portal-empty">No s'ha afegit cap pregunta manual.</div>
           </div>
+          <div class="portal-live-preview-grid">
+            <section class="portal-live-preview" aria-live="polite">
+              <div class="portal-live-preview__header">
+                <div>
+                  <p class="portal-live-chip">Pantalla gran</p>
+                  <h3>Prèvia de la pròxima pregunta</h3>
+                  <p id="livePreviewHint" class="portal-muted">Selecciona o crea una pregunta per veure-la al projector.</p>
+                </div>
+                <div class="portal-actions portal-live-preview__actions">
+                  <button id="livePreviewPrev" class="btn-ghost" type="button">Anterior</button>
+                  <button id="livePreviewNext" class="btn-secondary" type="button">Següent</button>
+                  <button id="livePreviewFullscreen" class="btn-primary" type="button">Pantalla completa</button>
+                </div>
+              </div>
+              <article class="portal-live-preview__stage" id="livePreviewStage">
+                <p id="livePreviewTitle" class="portal-live-preview__title">Cap pregunta seleccionada</p>
+                <p id="livePreviewPrompt" class="portal-live-preview__prompt"></p>
+                <ul id="livePreviewOptions" class="portal-live-preview__options"></ul>
+                <p id="livePreviewMeta" class="portal-live-preview__meta portal-muted"></p>
+              </article>
+            </section>
+            <section class="portal-live-library">
+              <header class="portal-live-library__header">
+                <p class="portal-live-chip">Recursos ràpids</p>
+                <h3>Biblioteca de preguntes</h3>
+                <p class="portal-muted">Recupera preguntes d'altres quizzes i reusa-les sense tornar-les a picar.</p>
+              </header>
+              <button id="liveQuickPoll" class="btn-secondary portal-live-library__quick" type="button">+ Votació ràpida</button>
+              <div id="liveLibraryList" class="portal-live-library__list"></div>
+              <div id="liveLibraryEmptyState" class="portal-empty hidden">No hi ha preguntes guardades encara.</div>
+            </section>
+          </div>
         </fieldset>
         <div id="liveQuizFeedback" class="portal-muted" role="status" aria-live="polite"></div>
         <div class="portal-actions">
