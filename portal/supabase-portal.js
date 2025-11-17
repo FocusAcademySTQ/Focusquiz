@@ -506,6 +506,20 @@ function updateAuthUI() {
 }
 
 function switchTab(tab) {
+  const loggedIn = Boolean(state.session && state.profile);
+  if (!loggedIn) {
+    state.activeTab = 'classes';
+    elements.tabButtons.forEach((button) => {
+      button.classList.remove('portal-tab--active');
+      button.setAttribute('aria-selected', 'false');
+    });
+    elements.tabPanels.forEach((panel) => {
+      panel.classList.add('hidden');
+      panel.setAttribute('hidden', 'true');
+    });
+    return;
+  }
+
   state.activeTab = tab;
   elements.tabButtons.forEach((button) => {
     const isActive = button.dataset.tab === tab;
