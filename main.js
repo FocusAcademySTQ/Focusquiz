@@ -1750,11 +1750,19 @@ function renderWhiteboard(){
       <div class="whiteboard__top">
         <div>
           <h3 class="title" style="margin:0">Pissarra</h3>
-          <p class="subtitle" style="margin:2px 0 0">Dibuixa els teus càlculs amb el ratolí.</p>
+          <p class="subtitle" style="margin:2px 0 6px">Dibuixa els teus càlculs amb el ratolí.</p>
+          <div class="whiteboard__pages" aria-label="Fulles de la pissarra">
+            <button class="btn-ghost" data-page-action="prev" title="Fulla anterior">◀</button>
+            <select class="whiteboard__page-select" data-page-select aria-label="Canvia de fulla"></select>
+            <button class="btn-ghost" data-page-action="next" title="Fulla següent">▶</button>
+            <button class="btn-secondary" data-page-action="new" title="Afegeix una nova fulla">+ Nova fulla</button>
+          </div>
         </div>
         <div class="whiteboard__actions" aria-label="Eines de la pissarra">
           <button class="btn-ghost is-active" data-tool="pen" title="Mode llapis">✏️</button>
           <button class="btn-ghost" data-tool="erase" title="Mode goma">🧽</button>
+          <button class="btn-ghost" data-action="undo" title="Desfés el darrer traç" aria-label="Desfés" disabled>↩️</button>
+          <button class="btn-ghost" data-action="redo" title="Refés el traç desfet" aria-label="Refés" disabled>↪️</button>
           <button class="btn-secondary" data-action="clear" title="Neteja la pissarra">Neteja</button>
           <button class="btn-ghost" data-action="download" title="Descarrega en PNG">Descarrega</button>
         </div>
@@ -1763,15 +1771,20 @@ function renderWhiteboard(){
       <div class="whiteboard__toolbar" aria-label="Configuració de traç">
         <div class="color-dots" role="radiogroup" aria-label="Tria un color">
           <button class="color-dot is-active" data-color="#111827" style="--color: #111827" aria-label="Negre"></button>
-          <button class="color-dot" data-color="#2563eb" style="--color: #2563eb" aria-label="Blau"></button>
-          <button class="color-dot" data-color="#0ea5e9" style="--color: #0ea5e9" aria-label="Cian"></button>
-          <button class="color-dot" data-color="#16a34a" style="--color: #16a34a" aria-label="Verd"></button>
+          <button class="color-dot" data-color="#ef4444" style="--color: #ef4444" aria-label="Vermell"></button>
           <button class="color-dot" data-color="#eab308" style="--color: #eab308" aria-label="Groc"></button>
+          <button class="color-dot" data-color="#2563eb" style="--color: #2563eb" aria-label="Blau"></button>
+          <button class="color-dot" data-color="#16a34a" style="--color: #16a34a" aria-label="Verd"></button>
         </div>
         <label class="subtitle" style="display:flex; align-items:center; gap:6px">
           Gruix
           <input type="range" min="2" max="10" step="1" value="3" class="whiteboard__range" aria-label="Gruix del traç">
         </label>
+        <label class="subtitle" style="display:flex; align-items:center; gap:6px">
+          Gruix goma
+          <input type="range" min="6" max="24" step="1" value="10" class="whiteboard__eraser-range" aria-label="Gruix de la goma">
+        </label>
+        <button class="btn-ghost" data-action="grid" title="Mostra o amaga la quadricula">Quadricula</button>
       </div>
 
       <div class="whiteboard__canvas" aria-label="Àrea per dibuixar">
@@ -1788,9 +1801,53 @@ function renderWhiteboard(){
   const state = {
     color: '#111827',
     size: 3,
-    tool: 'pen'
+    eraserSize: 10,
+    tool: 'pen',
+    pageIndex: 0,
+    grid: true
   };
   let isDrawing = false;
+  const pages = [createPage()];
+
+  function currentPage(){
+    return pages[state.pageIndex];
+  }
+
+  function createPage(){
+    return { history: [], redo: [], cached: null };
+  }
+
+  function updatePageSelect(){
+    const select = container.querySelector('[data-page-select]');
+    if(!select) return;
+    const currentValue = String(state.pageIndex);
+    select.innerHTML = pages.map((_, idx) => `<option value="${idx}">Fulla ${idx + 1}</option>`).join('');
+    select.value = currentValue;
+  }
+
+  function updatePageButtons(){
+    const prev = container.querySelector('[data-page-action="prev"]');
+    const next = container.querySelector('[data-page-action="next"]');
+    if (prev) prev.disabled = state.pageIndex === 0;
+    if (next) next.disabled = state.pageIndex >= pages.length - 1;
+  }
+
+  function switchPage(nextIndex){
+    if (nextIndex === state.pageIndex || nextIndex < 0 || nextIndex >= pages.length) return;
+    storeCurrentPageImage();
+    state.pageIndex = nextIndex;
+    loadPage();
+  }
+
+  function addPage(){
+    storeCurrentPageImage();
+    pages.push(createPage());
+    state.pageIndex = pages.length - 1;
+    resetCanvas();
+    pushHistory();
+    storeCurrentPageImage();
+    loadPage();
+  }
 
   function setTool(tool){
     state.tool = tool;
@@ -1812,9 +1869,39 @@ function renderWhiteboard(){
     state.size = size;
   }
 
+  function setEraserSize(size){
+    state.eraserSize = size;
+  }
+
   function resetCanvas(){
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0,0,canvas.width, canvas.height);
+  }
+
+  function snapshot(){
+    return ctx.getImageData(0, 0, canvas.width, canvas.height);
+  }
+
+  function syncHistoryButtons(){
+    const undoBtn = container.querySelector('[data-action="undo"]');
+    const redoBtn = container.querySelector('[data-action="redo"]');
+    const page = currentPage();
+    if (undoBtn) undoBtn.disabled = page.history.length === 0;
+    if (redoBtn) redoBtn.disabled = page.redo.length === 0;
+    updatePageButtons();
+  }
+
+  function pushHistory(){
+    const page = currentPage();
+    page.history.push(snapshot());
+    if (page.history.length > 25) page.history.shift();
+    page.redo.length = 0;
+    syncHistoryButtons();
+  }
+
+  function storeCurrentPageImage(){
+    const page = currentPage();
+    page.cached = snapshot();
   }
 
   function getPos(evt){
@@ -1829,6 +1916,7 @@ function renderWhiteboard(){
 
   function startDraw(evt){
     evt.preventDefault();
+    pushHistory();
     isDrawing = true;
     ctx.beginPath();
     const {x, y} = getPos(evt);
@@ -1841,7 +1929,7 @@ function renderWhiteboard(){
     const {x, y} = getPos(evt);
     ctx.globalCompositeOperation = state.tool === 'erase' ? 'destination-out' : 'source-over';
     ctx.strokeStyle = state.color;
-    ctx.lineWidth = state.size;
+    ctx.lineWidth = state.tool === 'erase' ? state.eraserSize : state.size;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineTo(x, y);
@@ -1852,6 +1940,54 @@ function renderWhiteboard(){
     if(!isDrawing) return;
     isDrawing = false;
     ctx.closePath();
+    storeCurrentPageImage();
+  }
+
+  function undo(){
+    const page = currentPage();
+    if (!page.history.length) return;
+    page.redo.push(snapshot());
+    const img = page.history.pop();
+    ctx.putImageData(img, 0, 0);
+    storeCurrentPageImage();
+    syncHistoryButtons();
+  }
+
+  function redoLast(){
+    const page = currentPage();
+    if (!page.redo.length) return;
+    page.history.push(snapshot());
+    const img = page.redo.pop();
+    ctx.putImageData(img, 0, 0);
+    storeCurrentPageImage();
+    syncHistoryButtons();
+  }
+
+  function loadPage(){
+    const page = currentPage();
+    resetCanvas();
+    if (page.cached) {
+      ctx.putImageData(page.cached, 0, 0);
+    } else if (page.history.length) {
+      ctx.putImageData(page.history[page.history.length - 1], 0, 0);
+    } else {
+      pushHistory();
+    }
+    updatePageSelect();
+    updatePageButtons();
+    syncHistoryButtons();
+  }
+
+  function applyGridState(){
+    const canvasWrap = container.querySelector('.whiteboard__canvas');
+    if (canvasWrap) canvasWrap.classList.toggle('is-gridless', !state.grid);
+    const gridBtn = container.querySelector('[data-action="grid"]');
+    if (gridBtn) gridBtn.classList.toggle('is-active', state.grid);
+  }
+
+  function toggleGrid(){
+    state.grid = !state.grid;
+    applyGridState();
   }
 
   container.querySelectorAll('[data-tool]').forEach(btn => {
@@ -1862,10 +1998,19 @@ function renderWhiteboard(){
   });
   const range = container.querySelector('.whiteboard__range');
   range?.addEventListener('input', (e)=> setSize(parseInt(e.target.value,10) || 3));
+  const eraserRange = container.querySelector('.whiteboard__eraser-range');
+  eraserRange?.addEventListener('input', (e)=> setEraserSize(parseInt(e.target.value,10) || 10));
 
   container.querySelector('[data-action="clear"]')?.addEventListener('click', ()=>{
+    pushHistory();
     resetCanvas();
+    storeCurrentPageImage();
   });
+
+  container.querySelector('[data-action="undo"]')?.addEventListener('click', undo);
+  container.querySelector('[data-action="redo"]')?.addEventListener('click', redoLast);
+
+  container.querySelector('[data-action="grid"]')?.addEventListener('click', toggleGrid);
 
   container.querySelector('[data-action="download"]')?.addEventListener('click', ()=>{
     const url = canvas.toDataURL('image/png');
@@ -1883,7 +2028,19 @@ function renderWhiteboard(){
   canvas.addEventListener('touchmove', draw, { passive:false });
   canvas.addEventListener('touchend', stopDraw);
 
+  container.querySelector('[data-page-action="prev"]')?.addEventListener('click', ()=> switchPage(state.pageIndex - 1));
+  container.querySelector('[data-page-action="next"]')?.addEventListener('click', ()=> switchPage(state.pageIndex + 1));
+  container.querySelector('[data-page-action="new"]')?.addEventListener('click', addPage);
+  container.querySelector('[data-page-select]')?.addEventListener('change', (e)=> {
+    const value = parseInt(e.target.value, 10);
+    if (Number.isFinite(value)) switchPage(value);
+  });
+
   resetCanvas();
+  pushHistory();
+  storeCurrentPageImage();
+  applyGridState();
+  loadPage();
 }
 
 function renderStatsLegend(q){
