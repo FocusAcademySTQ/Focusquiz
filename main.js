@@ -1751,12 +1751,6 @@ function renderWhiteboard(){
         <div>
           <h3 class="title" style="margin:0">Pissarra</h3>
           <p class="subtitle" style="margin:2px 0 6px">Dibuixa els teus càlculs amb el ratolí.</p>
-          <div class="whiteboard__pages" aria-label="Fulles de la pissarra">
-            <button class="btn-ghost" data-page-action="prev" title="Fulla anterior">◀</button>
-            <select class="whiteboard__page-select" data-page-select aria-label="Canvia de fulla"></select>
-            <button class="btn-ghost" data-page-action="next" title="Fulla següent">▶</button>
-            <button class="btn-secondary" data-page-action="new" title="Afegeix una nova fulla">+ Nova fulla</button>
-          </div>
         </div>
         <div class="whiteboard__actions" aria-label="Eines de la pissarra">
           <button class="btn-ghost is-active" data-tool="pen" title="Mode llapis">✏️</button>
@@ -1764,7 +1758,6 @@ function renderWhiteboard(){
           <button class="btn-ghost" data-action="undo" title="Desfés el darrer traç" aria-label="Desfés" disabled>↩️</button>
           <button class="btn-ghost" data-action="redo" title="Refés el traç desfet" aria-label="Refés" disabled>↪️</button>
           <button class="btn-secondary" data-action="clear" title="Neteja la pissarra">Neteja</button>
-          <button class="btn-ghost" data-action="download" title="Descarrega en PNG">Descarrega</button>
         </div>
       </div>
 
@@ -1789,6 +1782,12 @@ function renderWhiteboard(){
 
       <div class="whiteboard__canvas" aria-label="Àrea per dibuixar">
         <canvas id="scratchCanvas" width="340" height="360" role="img" aria-label="Pissarra per fer operacions"></canvas>
+      </div>
+      <div class="whiteboard__pages" aria-label="Fulles de la pissarra">
+        <button class="btn-ghost" data-page-action="prev" title="Fulla anterior">◀</button>
+        <select class="whiteboard__page-select" data-page-select aria-label="Canvia de fulla"></select>
+        <button class="btn-ghost" data-page-action="next" title="Fulla següent">▶</button>
+        <button class="btn-secondary" data-page-action="new" title="Afegeix una nova fulla">+ Nova fulla</button>
       </div>
       <p class="subtitle" style="margin:8px 0 0">Traça amb el ratolí o amb el dit en pantalles tàctils.</p>
     </div>
@@ -1874,8 +1873,7 @@ function renderWhiteboard(){
   }
 
   function resetCanvas(){
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.clearRect(0,0,canvas.width, canvas.height);
   }
 
   function snapshot(){
@@ -2011,14 +2009,6 @@ function renderWhiteboard(){
   container.querySelector('[data-action="redo"]')?.addEventListener('click', redoLast);
 
   container.querySelector('[data-action="grid"]')?.addEventListener('click', toggleGrid);
-
-  container.querySelector('[data-action="download"]')?.addEventListener('click', ()=>{
-    const url = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'pissarra.png';
-    link.click();
-  });
 
   canvas.addEventListener('pointerdown', startDraw);
   canvas.addEventListener('pointermove', draw);
