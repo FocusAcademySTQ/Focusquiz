@@ -1233,6 +1233,22 @@ a.btn-secondary{
   flex: 1;
 }
 
+.whiteboard{display:flex; flex-direction:column; gap:10px}
+.whiteboard__top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px}
+.whiteboard__actions{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end}
+.whiteboard__toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--hair); border-radius:12px; background:#f8fafc}
+.whiteboard__canvas{border:1px solid var(--hair); border-radius:14px; overflow:hidden; background:
+  linear-gradient(90deg, rgba(15,23,42,.05) 1px, transparent 1px),
+  linear-gradient(180deg, rgba(15,23,42,.05) 1px, transparent 1px),
+  #ffffff;
+background-size:24px 24px; padding:10px}
+.whiteboard canvas{width:100%; height:auto; border-radius:10px; display:block}
+.color-dots{display:flex; gap:8px; align-items:center}
+.color-dot{width:26px; height:26px; border-radius:50%; border:2px solid transparent; background:var(--color); box-shadow:0 4px 10px rgba(15,23,42,.15); cursor:pointer}
+.color-dot.is-active{outline:3px solid rgba(79,70,229,.35); border-color:#fff}
+.whiteboard .btn-ghost.is-active{background:#e0e7ff; color:#1e3a8a; border-color:#c7d2fe}
+.whiteboard__range{width:140px}
+
 /* ===== Results (taula) ===== */
 table{width:100%; border-collapse:collapse}
 th, td{padding:10px 12px; border-bottom:1px solid var(--hair); text-align:left}
