@@ -1713,7 +1713,7 @@ function renderQuestion(){
     }
 
   } else {
-    // 🔹 Matemàtiques → teclat numèric a la dreta
+    // 🔹 Matemàtiques → pissarra de treball a la dreta
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
     if(session.module === 'coord'){
@@ -1736,33 +1736,154 @@ function renderQuestion(){
       $('#answer').style.display = 'block';
       $('#answer').setAttribute('inputmode','decimal');
       toggleRightCol(true);
-      renderKeypad();
+      renderWhiteboard();
     }
   }
 }
 
-function renderKeypad(){
-  $('#keypad').innerHTML = `
-    <h3 class="title" style="margin-top:0">Teclat numèric</h3>
-    <div class="board">
-      <button onclick="typeKey('7')">7</button>
-      <button onclick="typeKey('8')">8</button>
-      <button onclick="typeKey('9')">9</button>
-      <button onclick="typeKey('4')">4</button>
-      <button onclick="typeKey('5')">5</button>
-      <button onclick="typeKey('6')">6</button>
-      <button onclick="typeKey('1')">1</button>
-      <button onclick="typeKey('2')">2</button>
-      <button onclick="typeKey('3')">3</button>
-      <button onclick="typeKey('0')">0</button>
-      <button onclick="typeKey('-')">±</button>
-      <button onclick="typeKey('del')">⌫</button>
-    </div>
-    <div style="margin-top:10px; display:flex; gap:10px; align-items:center">
-      <span class="kbd">↵</span> <span class="subtitle">comprova</span>
-      <span class="kbd">→</span> <span class="subtitle">omet</span>
+function renderWhiteboard(){
+  const container = $('#keypad');
+  if(!container) return;
+
+  container.innerHTML = `
+    <div class="whiteboard">
+      <div class="whiteboard__top">
+        <div>
+          <h3 class="title" style="margin:0">Pissarra</h3>
+          <p class="subtitle" style="margin:2px 0 0">Dibuixa els teus càlculs amb el ratolí.</p>
+        </div>
+        <div class="whiteboard__actions" aria-label="Eines de la pissarra">
+          <button class="btn-ghost is-active" data-tool="pen" title="Mode llapis">✏️</button>
+          <button class="btn-ghost" data-tool="erase" title="Mode goma">🧽</button>
+          <button class="btn-secondary" data-action="clear" title="Neteja la pissarra">Neteja</button>
+          <button class="btn-ghost" data-action="download" title="Descarrega en PNG">Descarrega</button>
+        </div>
+      </div>
+
+      <div class="whiteboard__toolbar" aria-label="Configuració de traç">
+        <div class="color-dots" role="radiogroup" aria-label="Tria un color">
+          <button class="color-dot is-active" data-color="#111827" style="--color: #111827" aria-label="Negre"></button>
+          <button class="color-dot" data-color="#2563eb" style="--color: #2563eb" aria-label="Blau"></button>
+          <button class="color-dot" data-color="#0ea5e9" style="--color: #0ea5e9" aria-label="Cian"></button>
+          <button class="color-dot" data-color="#16a34a" style="--color: #16a34a" aria-label="Verd"></button>
+          <button class="color-dot" data-color="#eab308" style="--color: #eab308" aria-label="Groc"></button>
+        </div>
+        <label class="subtitle" style="display:flex; align-items:center; gap:6px">
+          Gruix
+          <input type="range" min="2" max="10" step="1" value="3" class="whiteboard__range" aria-label="Gruix del traç">
+        </label>
+      </div>
+
+      <div class="whiteboard__canvas" aria-label="Àrea per dibuixar">
+        <canvas id="scratchCanvas" width="340" height="360" role="img" aria-label="Pissarra per fer operacions"></canvas>
+      </div>
+      <p class="subtitle" style="margin:8px 0 0">Traça amb el ratolí o amb el dit en pantalles tàctils.</p>
     </div>
   `;
+
+  const canvas = container.querySelector('#scratchCanvas');
+  const ctx = canvas?.getContext('2d');
+  if(!canvas || !ctx) return;
+
+  const state = {
+    color: '#111827',
+    size: 3,
+    tool: 'pen'
+  };
+  let isDrawing = false;
+
+  function setTool(tool){
+    state.tool = tool;
+    container.querySelectorAll('[data-tool]').forEach(btn => {
+      btn.classList.toggle('is-active', btn.dataset.tool === tool);
+    });
+  }
+
+  function setColor(color){
+    state.color = color;
+    state.tool = 'pen';
+    container.querySelectorAll('.color-dot').forEach(btn => {
+      btn.classList.toggle('is-active', btn.dataset.color === color);
+    });
+    setTool('pen');
+  }
+
+  function setSize(size){
+    state.size = size;
+  }
+
+  function resetCanvas(){
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+  }
+
+  function getPos(evt){
+    const rect = canvas.getBoundingClientRect();
+    const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+    const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+    return {
+      x: (clientX - rect.left) * (canvas.width / rect.width),
+      y: (clientY - rect.top) * (canvas.height / rect.height)
+    };
+  }
+
+  function startDraw(evt){
+    evt.preventDefault();
+    isDrawing = true;
+    ctx.beginPath();
+    const {x, y} = getPos(evt);
+    ctx.moveTo(x, y);
+    draw(evt);
+  }
+
+  function draw(evt){
+    if(!isDrawing) return;
+    const {x, y} = getPos(evt);
+    ctx.globalCompositeOperation = state.tool === 'erase' ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = state.color;
+    ctx.lineWidth = state.size;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  }
+
+  function stopDraw(){
+    if(!isDrawing) return;
+    isDrawing = false;
+    ctx.closePath();
+  }
+
+  container.querySelectorAll('[data-tool]').forEach(btn => {
+    btn.addEventListener('click', ()=> setTool(btn.dataset.tool));
+  });
+  container.querySelectorAll('[data-color]').forEach(btn => {
+    btn.addEventListener('click', ()=> setColor(btn.dataset.color));
+  });
+  const range = container.querySelector('.whiteboard__range');
+  range?.addEventListener('input', (e)=> setSize(parseInt(e.target.value,10) || 3));
+
+  container.querySelector('[data-action="clear"]')?.addEventListener('click', ()=>{
+    resetCanvas();
+  });
+
+  container.querySelector('[data-action="download"]')?.addEventListener('click', ()=>{
+    const url = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'pissarra.png';
+    link.click();
+  });
+
+  canvas.addEventListener('pointerdown', startDraw);
+  canvas.addEventListener('pointermove', draw);
+  canvas.addEventListener('pointerup', stopDraw);
+  canvas.addEventListener('pointerleave', stopDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive:false });
+  canvas.addEventListener('touchmove', draw, { passive:false });
+  canvas.addEventListener('touchend', stopDraw);
+
+  resetCanvas();
 }
 
 function renderStatsLegend(q){
