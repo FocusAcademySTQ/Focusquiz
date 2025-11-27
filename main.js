@@ -78,10 +78,6 @@ function openAsiaMap(){
   openMapOverlay("Mapa interactiu dels països d'Àsia", 'geo-asia-map.html');
 }
 
-function openOceaniaMap(){
-  openMapOverlay("Mapa interactiu dels països d'Oceania", 'geo-oceania-map.html');
-}
-
 const $ = (q) => document.querySelector(q);
 const $$ = (q) => Array.from(document.querySelectorAll(q));
 const rng = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
@@ -331,7 +327,7 @@ window.addModules = function(mods){
 };
 
 // Si altres scripts han registrat mòduls abans que addModules existís, afegeix-los ara.
-['_PENDING_MATH_MODULES_', '_PENDING_CAT_MODULES_', '_PENDING_GEO_MODULES_', '_PENDING_CHEM_MODULES_']
+['_PENDING_MATH_MODULES_', '_PENDING_CAT_MODULES_', '_PENDING_ESP_MODULES_', '_PENDING_GEO_MODULES_', '_PENDING_CHEM_MODULES_']
   .forEach((key)=>{
     const pending = window[key];
     if(Array.isArray(pending)){
@@ -394,6 +390,7 @@ function buildHome(){
   // Seccions
   renderSection('Mòduls de matemàtiques','math');
   renderSection('Mòduls de llengua catalana','cat');
+  renderSection('Mòduls de llengua castellana','esp');
   renderSection('Mòduls de ciències (en manteniment, no utilitzar)','sci');
   renderSection('Mòduls de llengua anglesa','ang');
   renderSection('Mòduls de geografia','geo');
@@ -835,13 +832,6 @@ function openConfig(moduleId){
       <div class="controls">
         <a class="btn-secondary" href="geo-asia-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
       </div>`;
-  } else if(pendingModule.id === 'geo-oceania') {
-    wrap.innerHTML = `
-      <div class="section-title">Recurs interactiu</div>
-      <p class="subtitle">Situa els països d'Oceania sobre el mapa i relaciona'ls amb les seves illes i regions.</p>
-      <div class="controls">
-        <a class="btn-secondary" href="geo-oceania-map.html" target="_blank" rel="noopener">Obre el mapa interactiu →</a>
-      </div>`;
   } else {
     wrap.innerHTML = `<div class="section-title">Opcions específiques</div>
       <p class="subtitle">Aquest mòdul no té opcions específiques addicionals (de moment).</p>`;
@@ -1015,12 +1005,6 @@ function startFromConfig(meta){
     }
     if (pendingModule?.id === 'geo-asia') {
       openAsiaMap();
-      pendingUrlQuizConfig = null;
-      pendingUrlQuizOverrides = null;
-      return;
-    }
-    if (pendingModule?.id === 'geo-oceania') {
-      openOceaniaMap();
       pendingUrlQuizConfig = null;
       pendingUrlQuizOverrides = null;
       return;
@@ -1656,7 +1640,7 @@ function renderQuestion(){
   };
   toggleRightCol(true);
 
-  if (mod?.category === 'cat') {
+  if (mod?.category === 'cat' || mod?.category === 'esp') {
     // 🔹 Català → sense teclat numèric; amaguem la columna si no cal
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
