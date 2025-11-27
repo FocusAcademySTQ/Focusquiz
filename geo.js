@@ -2131,114 +2131,6 @@ const ASIA_GROUP_LABELS = {
     illes: 'les grans illes asiàtiques'
   };
 
-  const OCEANIA_COUNTRIES = [
-    {
-      name: 'Austràlia',
-      capital: 'Canberra',
-      flag: '🇦🇺',
-      difficulty: 1,
-      coastal: true,
-      landlocked: false,
-      clues: [
-        "És el país més gran d'Oceania i alberga la Gran Barrera de Corall.",
-        'La capital és Canberra, tot i que Sydney i Melbourne són les ciutats més poblades.'
-      ],
-      neighbors: ['Papua Nova Guinea'],
-      groups: ['australasia']
-    },
-    {
-      name: 'Nova Zelanda',
-      capital: 'Wellington',
-      flag: '🇳🇿',
-      difficulty: 2,
-      coastal: true,
-      landlocked: false,
-      clues: [
-        'Està formada per dues illes principals amb volcans i fiords espectaculars.',
-        'Els maoris anomenen el país Aotearoa, “terra del núvol blanc llarg”.'
-      ],
-      neighbors: ['Austràlia'],
-      groups: ['australasia', 'polinesia']
-    },
-    {
-      name: 'Papua Nova Guinea',
-      capital: 'Port Moresby',
-      flag: '🇵🇬',
-      difficulty: 3,
-      coastal: true,
-      landlocked: false,
-      clues: [
-        'Comparteix l\'illa de Nova Guinea amb Indonèsia.',
-        'Acull centenars de llengües i una biodiversitat extraordinària.'
-      ],
-      neighbors: ['Indonèsia', 'Austràlia'],
-      groups: ['melanesia']
-    },
-    {
-      name: 'Fiji',
-      capital: 'Suva',
-      flag: '🇫🇯',
-      difficulty: 3,
-      coastal: true,
-      landlocked: false,
-      clues: [
-        'Arxipèlag melanesi popular per les platges i els esculls de corall.',
-        'La canya de sucre i el turisme són motors clau de la seva economia.'
-      ],
-      neighbors: ['Tonga', 'Samoa'],
-      groups: ['melanesia']
-    },
-    {
-      name: 'Samoa',
-      capital: 'Apia',
-      flag: '🇼🇸',
-      difficulty: 3,
-      coastal: true,
-      landlocked: false,
-      clues: [
-        'Nació polinèsia amb tradicions com la fa\'a Samoa i festivals de foc.',
-        'Comparteix amb Tonga i Fiji la regió central del Pacífic sud.'
-      ],
-      neighbors: ['Fiji', 'Tonga'],
-      groups: ['polinesia']
-    },
-    {
-      name: 'Tonga',
-      capital: 'Nuku\'alofa',
-      flag: '🇹🇴',
-      difficulty: 3,
-      coastal: true,
-      landlocked: false,
-      clues: [
-        'És una monarquia polinèsia formada per més de 170 illes.',
-        'Les illes Ha\'apai i Vava\'u són conegudes per l\'avistament de balenes.'
-      ],
-      neighbors: ['Fiji', 'Samoa'],
-      groups: ['polinesia']
-    },
-    {
-      name: 'Kiribati',
-      capital: 'Tarawa Sud',
-      flag: '🇰🇮',
-      difficulty: 4,
-      coastal: true,
-      landlocked: false,
-      clues: [
-        'Estat insular que s\'escampa sobre tres fusos horaris al Pacífic central.',
-        'És especialment vulnerable a l\'augment del nivell del mar.'
-      ],
-      neighbors: [],
-      groups: ['micronesia']
-    }
-  ];
-
-  const OCEANIA_GROUP_LABELS = {
-    australasia: 'Australàsia',
-    melanesia: 'Melanèsia',
-    polinesia: 'Polinèsia',
-    micronesia: 'Micronèsia'
-  };
-
   function formatOptionList(items = []) {
     if (!items.length) return '';
     if (items.length === 1) return items[0];
@@ -2538,19 +2430,6 @@ const ASIA_GROUP_LABELS = {
       region: { preposition: "d'Àsia", gentilic: 'asiàtic', levelLabel: 'Mode lliure' },
       countries: ASIA_COUNTRIES,
       groupLabels: ASIA_GROUP_LABELS,
-      configOptions: {
-        extraModes: [
-          { value: 'map', label: 'Mapa interactiu' }
-        ]
-      }
-    }),
-    createGeoModule({
-      id: 'geo-oceania',
-      name: "Països d'Oceania",
-      desc: 'Explora Australàsia, Melanèsia, Micronèsia i Polinèsia amb preguntes variades.',
-      region: { preposition: "d'Oceania", gentilic: 'oceànic', levelLabel: 'Mode lliure' },
-      countries: OCEANIA_COUNTRIES,
-      groupLabels: OCEANIA_GROUP_LABELS,
       configOptions: {
         extraModes: [
           { value: 'map', label: 'Mapa interactiu' }
