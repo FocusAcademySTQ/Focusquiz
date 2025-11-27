@@ -331,7 +331,7 @@ window.addModules = function(mods){
 };
 
 // Si altres scripts han registrat mòduls abans que addModules existís, afegeix-los ara.
-['_PENDING_MATH_MODULES_', '_PENDING_CAT_MODULES_', '_PENDING_GEO_MODULES_', '_PENDING_CHEM_MODULES_']
+['_PENDING_MATH_MODULES_', '_PENDING_CAT_MODULES_', '_PENDING_ESP_MODULES_', '_PENDING_GEO_MODULES_', '_PENDING_CHEM_MODULES_']
   .forEach((key)=>{
     const pending = window[key];
     if(Array.isArray(pending)){
@@ -394,6 +394,7 @@ function buildHome(){
   // Seccions
   renderSection('Mòduls de matemàtiques','math');
   renderSection('Mòduls de llengua catalana','cat');
+  renderSection('Mòduls de llengua castellana','esp');
   renderSection('Mòduls de ciències (en manteniment, no utilitzar)','sci');
   renderSection('Mòduls de llengua anglesa','ang');
   renderSection('Mòduls de geografia','geo');
