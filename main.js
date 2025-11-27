@@ -1657,7 +1657,7 @@ function renderQuestion(){
   };
   toggleRightCol(true);
 
-  if (mod?.category === 'cat') {
+  if (mod?.category === 'cat' || mod?.category === 'esp') {
     // 🔹 Català → sense teclat numèric; amaguem la columna si no cal
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
