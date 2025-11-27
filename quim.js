@@ -431,6 +431,92 @@ function genMap(){
     return { type:'chem-class', text:`A quin grup pertany <b>${el.name}</b>?`, options, answer };
   }
 
+  // —————————————— 6) EQUACIONS I TIPUS DE REACCIONS ——————————————
+  const BALANCE_EXERCISES = [
+    {
+      unbalanced: 'H₂ + O₂ → H₂O',
+      answer: '2H₂ + O₂ → 2H₂O',
+      options: ['2H₂ + O₂ → 2H₂O', 'H₂ + O₂ → H₂O', 'H₂ + 2O₂ → H₂O₂', '4H₂ + O₂ → 4H₂O']
+    },
+    {
+      unbalanced: 'Fe + O₂ → Fe₂O₃',
+      answer: '4Fe + 3O₂ → 2Fe₂O₃',
+      options: ['2Fe + O₂ → Fe₂O₃', '4Fe + 3O₂ → 2Fe₂O₃', 'Fe + O₂ → FeO', '3Fe + 2O₂ → Fe₃O₄']
+    },
+    {
+      unbalanced: 'CaCO₃ → CaO + CO₂',
+      answer: 'CaCO₃ → CaO + CO₂',
+      options: ['CaCO₃ → CaO + CO₂', '2CaCO₃ → 2CaO + CO₂', 'CaCO₃ → Ca + CO₂', 'CaCO₃ → CaO + 2CO₂']
+    },
+    {
+      unbalanced: 'Al + Cl₂ → AlCl₃',
+      answer: '2Al + 3Cl₂ → 2AlCl₃',
+      options: ['Al + Cl₂ → AlCl₃', '2Al + 3Cl₂ → 2AlCl₃', '2Al + Cl₂ → 2AlCl', '2Al + 2Cl₂ → 2AlCl₂']
+    },
+    {
+      unbalanced: 'CH₄ + O₂ → CO₂ + H₂O',
+      answer: 'CH₄ + 2O₂ → CO₂ + 2H₂O',
+      options: ['CH₄ + O₂ → CO₂ + H₂O', 'CH₄ + 2O₂ → CO₂ + 2H₂O', '2CH₄ + O₂ → 2CO₂ + H₂O', 'CH₄ + 3O₂ → CO₂ + 3H₂O']
+    },
+    {
+      unbalanced: 'Zn + HCl → ZnCl₂ + H₂',
+      answer: 'Zn + 2HCl → ZnCl₂ + H₂',
+      options: ['Zn + HCl → ZnCl₂ + H₂', 'Zn + 2HCl → ZnCl₂ + H₂', '2Zn + HCl → 2ZnCl₂ + H₂', 'Zn + 2HCl → ZnCl + H₂']
+    }
+  ];
+  function genBalance(){
+    const q = pick(BALANCE_EXERCISES);
+    return { type:'chem-rxn-balance', text:`Equilibra l’equació: <b>${q.unbalanced}</b>`, options: shuffle(q.options), answer: q.answer };
+  }
+
+  const REACTION_TYPES = [
+    { eq:'2H₂ + O₂ → 2H₂O', type:'Síntesi (combinació)' },
+    { eq:'CaCO₃ → CaO + CO₂', type:'Descomposició' },
+    { eq:'Zn + 2HCl → ZnCl₂ + H₂', type:'Desplaçament simple' },
+    { eq:'AgNO₃ + NaCl → AgCl + NaNO₃', type:'Desplaçament doble' },
+    { eq:'CH₄ + 2O₂ → CO₂ + 2H₂O', type:'Combustió' },
+    { eq:'HCl + NaOH → NaCl + H₂O', type:'Neutralització àcid-base' }
+  ];
+  const REACTION_TYPE_OPTIONS = Array.from(new Set(REACTION_TYPES.map((r)=>r.type)));
+  function genReactionType(){
+    const r = pick(REACTION_TYPES);
+    const options = shuffle([r.type, ...shuffle(REACTION_TYPE_OPTIONS.filter((t)=>t!==r.type)).slice(0,3)]);
+    return { type:'chem-rxn-type', text:`Quin tipus de reacció és <b>${r.eq}</b>?`, options, answer: r.type };
+  }
+
+  function genReactions(level, opts={}){
+    const sub = opts.sub || 'balance';
+    if(sub==='type') return genReactionType();
+    return genBalance();
+  }
+
+  const reactionsConfig = {
+    render: ()=>{
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="section-title">Modes d'equacions i reaccions</div>
+        <div class="controls">
+          <div class="group" role="group" aria-label="Mode de treball">
+            <label class="toggle">
+              <input class="check" type="radio" name="rxn-sub" value="balance" checked>
+              Equilibrar equacions
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="rxn-sub" value="type">
+              Tipus de reacció
+            </label>
+          </div>
+        </div>
+        <div class="subtitle">Consell: fes servir les equacions equilibrades com a pista per deduir el tipus de reacció.</div>
+      `;
+      return div;
+    },
+    collect: ()=>{
+      const sub = document.querySelector('input[name="rxn-sub"]:checked')?.value || 'balance';
+      return { sub };
+    }
+  };
+
   // —————————————— GENERADOR PRINCIPAL ——————————————
   function genChem(level, opts={}){
     const sub = opts.sub || 'speed'; // speed | compounds | map | classify
@@ -748,7 +834,7 @@ window.__chemPick = function(sym){
 
 
   // ========================
-  // REGISTRE DELS DOS MÒDULS
+  // REGISTRE DELS MÒDULS
   // ========================
   const CHEM_MODULES = [{
     id:'chem',
@@ -768,6 +854,15 @@ window.__chemPick = function(sym){
     gen: genCompoundsExtra,
     category:'sci',
     config: compoundsConfig
+  },{
+    id:'chem-reactions',
+    name:'Equacions i reaccions',
+    desc:'Equilibrat bàsic i classificació de reaccions inorgàniques.',
+     usesLevels: false,
+     levelLabel: 'Mode lliure',
+    gen: genReactions,
+    category:'sci',
+    config: reactionsConfig
   }];
 
   if (typeof window.addModules === 'function') {
