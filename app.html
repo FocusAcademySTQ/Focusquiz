@@ -105,6 +105,131 @@
           </div>
           <span class="learning-pill">Entrar →</span>
         </a>
+
+        <section class="panel card study-calendar" aria-labelledby="studyCalendarTitle">
+          <div class="study-calendar__header">
+            <div>
+              <p class="portal-section-title">Calendari d'estudi</p>
+              <h2 id="studyCalendarTitle">Apunta tasques, exàmens i recordatoris</h2>
+              <p class="subtitle">Un espai perquè l'alumnat pugui organitzar-se i afegir una descripció clara de cada esdeveniment.</p>
+            </div>
+            <div class="study-calendar__actions">
+              <button class="pill" type="button">+ Afegir</button>
+              <button class="btn-ghost" type="button">Avui</button>
+            </div>
+          </div>
+
+          <div class="study-calendar__layout">
+            <div class="study-calendar__board">
+              <div class="study-calendar__month">
+                <button class="btn-ghost" type="button" aria-label="Mes anterior">←</button>
+                <div class="study-calendar__month-title">
+                  <span>Setembre 2024</span>
+                  <strong>Vista mensual</strong>
+                </div>
+                <button class="btn-ghost" type="button" aria-label="Mes següent">→</button>
+              </div>
+
+              <div class="study-calendar__legend">
+                <span class="study-calendar__pill is-homework">Deures</span>
+                <span class="study-calendar__pill is-exam">Examen</span>
+                <span class="study-calendar__pill is-reminder">Recordatori</span>
+              </div>
+
+              <div class="study-calendar__weekdays">
+                <span>Dl</span>
+                <span>Dt</span>
+                <span>Dc</span>
+                <span>Dj</span>
+                <span>Dv</span>
+                <span>Ds</span>
+                <span>Dg</span>
+              </div>
+
+              <div class="study-calendar__grid">
+                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">26</span></div>
+                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">27</span></div>
+                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">28</span></div>
+                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">29</span></div>
+                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">30</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">1</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">2</span></div>
+
+                <div class="study-calendar__cell"><span class="study-calendar__date">3</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">4</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">5</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">6</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">7</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">8</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">9</span></div>
+
+                <div class="study-calendar__cell">
+                  <span class="study-calendar__date">10</span>
+                  <span class="study-calendar__event is-homework">Llengua · Comentari</span>
+                </div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">11</span></div>
+                <div class="study-calendar__cell">
+                  <span class="study-calendar__date">12</span>
+                  <span class="study-calendar__event is-reminder">Planificar setmana</span>
+                </div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">13</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">14</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">15</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">16</span></div>
+
+                <div class="study-calendar__cell"><span class="study-calendar__date">17</span></div>
+                <div class="study-calendar__cell">
+                  <span class="study-calendar__date">18</span>
+                  <span class="study-calendar__event is-exam">Examen de mates</span>
+                </div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">19</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">20</span></div>
+                <div class="study-calendar__cell">
+                  <span class="study-calendar__date">21</span>
+                  <span class="study-calendar__event is-homework">Projecte de ciències</span>
+                </div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">22</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">23</span></div>
+
+                <div class="study-calendar__cell"><span class="study-calendar__date">24</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">25</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">26</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">27</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">28</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">29</span></div>
+                <div class="study-calendar__cell"><span class="study-calendar__date">30</span></div>
+              </div>
+            </div>
+
+            <aside class="study-calendar__details">
+              <div class="study-calendar__details-header">
+                <div>
+                  <p class="portal-section-title">Fitxa de l'esdeveniment</p>
+                  <h3>Examen de mates</h3>
+                </div>
+                <span class="study-calendar__badge">Dc 18 · 17:00</span>
+              </div>
+              <div class="study-calendar__details-card">
+                <label class="study-calendar__label">
+                  <span>Què tens?</span>
+                  <input class="input" type="text" value="Examen de fraccions" />
+                </label>
+                <label class="study-calendar__label">
+                  <span>Assignatura</span>
+                  <input class="input" type="text" value="Matemàtiques" />
+                </label>
+                <label class="study-calendar__label">
+                  <span>Descripció</span>
+                  <textarea class="input" rows="5">Repassar suma i resta de fraccions, portar calculadora i full d'apunts.</textarea>
+                </label>
+              </div>
+              <div class="study-calendar__details-actions">
+                <button class="btn-primary" type="button">Desa</button>
+                <button class="btn-secondary" type="button">Neteja</button>
+              </div>
+            </aside>
+          </div>
+        </section>
         
         
         <section class="panel card home-live-cta home-class-cta" aria-labelledby="homeClassTitle">
