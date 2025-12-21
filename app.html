@@ -332,6 +332,7 @@
               const cells = Array.from(calendarSection.querySelectorAll('.study-calendar__cell[data-date]'));
               let selectedDate = null;
               let eventsByDate = {};
+              let editingIndex = null;
 
               try {
                 eventsByDate = JSON.parse(localStorage.getItem(storageKey)) || {};
@@ -364,9 +365,11 @@
               };
 
               const renderCells = () => {
+                const today = new Date().toISOString().slice(0, 10);
                 cells.forEach(cell => {
                   const date = cell.dataset.date;
                   const container = cell.querySelector('.study-calendar__events');
+                  cell.classList.toggle('is-today', date === today);
                   if (!container) return;
                   container.innerHTML = '';
                   const items = eventsByDate[date] || [];
@@ -382,6 +385,12 @@
                     more.textContent = `+${items.length - 2}`;
                     container.appendChild(more);
                   }
+                  if (items.length > 0) {
+                    const count = document.createElement('span');
+                    count.className = 'study-calendar__count';
+                    count.textContent = items.length;
+                    container.appendChild(count);
+                  }
                 });
               };
 
@@ -390,6 +399,8 @@
                 list.innerHTML = '';
                 if (items.length === 0) {
                   emptyState.classList.remove('hidden');
+                  editingIndex = null;
+                  addButton.textContent = 'Afegir';
                   return;
                 }
                 emptyState.classList.add('hidden');
@@ -401,7 +412,10 @@
                       <p class="study-calendar__list-title">${item.title}</p>
                       <p class="study-calendar__list-meta">${typeLabels[item.type] || 'Apunt'} · ${item.description || 'Sense descripció'}</p>
                     </div>
-                    <button class="btn-ghost" type="button" data-remove-index="${index}">Elimina</button>
+                    <div class="study-calendar__list-actions">
+                      <button class="btn-ghost" type="button" data-edit-index="${index}">Edita</button>
+                      <button class="btn-ghost" type="button" data-remove-index="${index}">Elimina</button>
+                    </div>
                   `;
                   list.appendChild(li);
                 });
@@ -418,7 +432,13 @@
                   type: typeInput.value
                 };
                 eventsByDate[selectedDate] = eventsByDate[selectedDate] || [];
-                eventsByDate[selectedDate].push(entry);
+                if (editingIndex !== null) {
+                  eventsByDate[selectedDate][editingIndex] = entry;
+                  editingIndex = null;
+                  addButton.textContent = 'Afegir';
+                } else {
+                  eventsByDate[selectedDate].push(entry);
+                }
                 persist();
                 renderCells();
                 renderDetails();
@@ -431,6 +451,8 @@
                 titleInput.value = '';
                 descInput.value = '';
                 typeInput.value = 'homework';
+                editingIndex = null;
+                addButton.textContent = 'Afegir';
               };
 
               cells.forEach(cell => {
@@ -442,10 +464,23 @@
               list.addEventListener('click', (event) => {
                 const target = event.target;
                 if (!(target instanceof HTMLElement)) return;
-                const index = target.dataset.removeIndex;
-                if (index === undefined) return;
+                if (target.dataset.editIndex !== undefined) {
+                  const index = Number(target.dataset.editIndex);
+                  const items = eventsByDate[selectedDate] || [];
+                  const current = items[index];
+                  if (!current) return;
+                  editingIndex = index;
+                  titleInput.value = current.title;
+                  descInput.value = current.description || '';
+                  typeInput.value = current.type || 'homework';
+                  addButton.textContent = 'Desa canvis';
+                  titleInput.focus();
+                  return;
+                }
+                const removeIndex = target.dataset.removeIndex;
+                if (removeIndex === undefined) return;
                 const items = eventsByDate[selectedDate] || [];
-                items.splice(Number(index), 1);
+                items.splice(Number(removeIndex), 1);
                 if (items.length === 0) {
                   delete eventsByDate[selectedDate];
                 }

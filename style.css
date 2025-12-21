@@ -2260,6 +2260,11 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   transform: translateY(-1px);
 }
 
+.study-calendar__cell.is-today {
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 0 2px rgba(167, 243, 208, 0.6);
+}
+
 .study-calendar__cell:focus-visible {
   outline: none;
   border-color: rgba(59, 130, 246, 0.6);
@@ -2306,6 +2311,16 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   font-size: 0.7rem;
   font-weight: 700;
   color: var(--muted);
+}
+
+.study-calendar__count {
+  align-self: flex-start;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(15, 23, 42, 0.08);
+  color: #0f172a;
 }
 
 .study-calendar__details {
@@ -2381,6 +2396,12 @@ body.study-mode :focus-visible{ outline: none; box-shadow: var(--focus) !importa
   border-radius: 12px;
   border: 1px solid rgba(148, 163, 184, 0.3);
   background: rgba(248, 250, 252, 0.85);
+}
+
+.study-calendar__list-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
 .study-calendar__list-title {
