@@ -114,8 +114,8 @@
               <p class="subtitle">Un espai perquè l'alumnat pugui organitzar-se i afegir una descripció clara de cada esdeveniment.</p>
             </div>
             <div class="study-calendar__actions">
-              <button class="pill" type="button">+ Afegir</button>
-              <button class="btn-ghost" type="button">Avui</button>
+              <button class="pill" id="studyCalendarAddShortcut" type="button">+ Afegir</button>
+              <button class="btn-ghost" id="studyCalendarToday" type="button">Avui</button>
             </div>
           </div>
 
@@ -124,7 +124,7 @@
               <div class="study-calendar__month">
                 <button class="btn-ghost" type="button" aria-label="Mes anterior">←</button>
                 <div class="study-calendar__month-title">
-                  <span>Setembre 2024</span>
+                  <span data-calendar-month>Setembre 2024</span>
                   <strong>Vista mensual</strong>
                 </div>
                 <button class="btn-ghost" type="button" aria-label="Mes següent">→</button>
@@ -147,85 +147,82 @@
               </div>
 
               <div class="study-calendar__grid">
-                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">26</span></div>
-                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">27</span></div>
-                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">28</span></div>
-                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">29</span></div>
-                <div class="study-calendar__cell is-outside"><span class="study-calendar__date">30</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">1</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">2</span></div>
+                <button class="study-calendar__cell is-outside" type="button" data-date="2024-08-26"><span class="study-calendar__date">26</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell is-outside" type="button" data-date="2024-08-27"><span class="study-calendar__date">27</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell is-outside" type="button" data-date="2024-08-28"><span class="study-calendar__date">28</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell is-outside" type="button" data-date="2024-08-29"><span class="study-calendar__date">29</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell is-outside" type="button" data-date="2024-08-30"><span class="study-calendar__date">30</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-01" data-in-month="true"><span class="study-calendar__date">1</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-02" data-in-month="true"><span class="study-calendar__date">2</span><span class="study-calendar__events"></span></button>
 
-                <div class="study-calendar__cell"><span class="study-calendar__date">3</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">4</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">5</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">6</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">7</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">8</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">9</span></div>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-03" data-in-month="true"><span class="study-calendar__date">3</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-04" data-in-month="true"><span class="study-calendar__date">4</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-05" data-in-month="true"><span class="study-calendar__date">5</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-06" data-in-month="true"><span class="study-calendar__date">6</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-07" data-in-month="true"><span class="study-calendar__date">7</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-08" data-in-month="true"><span class="study-calendar__date">8</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-09" data-in-month="true"><span class="study-calendar__date">9</span><span class="study-calendar__events"></span></button>
 
-                <div class="study-calendar__cell">
-                  <span class="study-calendar__date">10</span>
-                  <span class="study-calendar__event is-homework">Llengua · Comentari</span>
-                </div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">11</span></div>
-                <div class="study-calendar__cell">
-                  <span class="study-calendar__date">12</span>
-                  <span class="study-calendar__event is-reminder">Planificar setmana</span>
-                </div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">13</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">14</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">15</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">16</span></div>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-10" data-in-month="true"><span class="study-calendar__date">10</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-11" data-in-month="true"><span class="study-calendar__date">11</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-12" data-in-month="true"><span class="study-calendar__date">12</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-13" data-in-month="true"><span class="study-calendar__date">13</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-14" data-in-month="true"><span class="study-calendar__date">14</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-15" data-in-month="true"><span class="study-calendar__date">15</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-16" data-in-month="true"><span class="study-calendar__date">16</span><span class="study-calendar__events"></span></button>
 
-                <div class="study-calendar__cell"><span class="study-calendar__date">17</span></div>
-                <div class="study-calendar__cell">
-                  <span class="study-calendar__date">18</span>
-                  <span class="study-calendar__event is-exam">Examen de mates</span>
-                </div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">19</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">20</span></div>
-                <div class="study-calendar__cell">
-                  <span class="study-calendar__date">21</span>
-                  <span class="study-calendar__event is-homework">Projecte de ciències</span>
-                </div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">22</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">23</span></div>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-17" data-in-month="true"><span class="study-calendar__date">17</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-18" data-in-month="true"><span class="study-calendar__date">18</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-19" data-in-month="true"><span class="study-calendar__date">19</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-20" data-in-month="true"><span class="study-calendar__date">20</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-21" data-in-month="true"><span class="study-calendar__date">21</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-22" data-in-month="true"><span class="study-calendar__date">22</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-23" data-in-month="true"><span class="study-calendar__date">23</span><span class="study-calendar__events"></span></button>
 
-                <div class="study-calendar__cell"><span class="study-calendar__date">24</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">25</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">26</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">27</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">28</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">29</span></div>
-                <div class="study-calendar__cell"><span class="study-calendar__date">30</span></div>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-24" data-in-month="true"><span class="study-calendar__date">24</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-25" data-in-month="true"><span class="study-calendar__date">25</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-26" data-in-month="true"><span class="study-calendar__date">26</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-27" data-in-month="true"><span class="study-calendar__date">27</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-28" data-in-month="true"><span class="study-calendar__date">28</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-29" data-in-month="true"><span class="study-calendar__date">29</span><span class="study-calendar__events"></span></button>
+                <button class="study-calendar__cell" type="button" data-date="2024-09-30" data-in-month="true"><span class="study-calendar__date">30</span><span class="study-calendar__events"></span></button>
               </div>
             </div>
 
             <aside class="study-calendar__details">
               <div class="study-calendar__details-header">
                 <div>
-                  <p class="portal-section-title">Fitxa de l'esdeveniment</p>
-                  <h3>Examen de mates</h3>
+                  <p class="portal-section-title">Fitxa del dia</p>
+                  <h3 id="studyCalendarSelectedDate">Selecciona un dia</h3>
                 </div>
-                <span class="study-calendar__badge">Dc 18 · 17:00</span>
+                <span class="study-calendar__badge" id="studyCalendarSelectedBadge">--</span>
               </div>
               <div class="study-calendar__details-card">
                 <label class="study-calendar__label">
                   <span>Què tens?</span>
-                  <input class="input" type="text" value="Examen de fraccions" />
+                  <input class="input" id="studyCalendarTitleInput" type="text" placeholder="Examen, treball, recordatori..." />
                 </label>
                 <label class="study-calendar__label">
-                  <span>Assignatura</span>
-                  <input class="input" type="text" value="Matemàtiques" />
+                  <span>Tipus</span>
+                  <select class="input" id="studyCalendarTypeInput">
+                    <option value="homework">Deures</option>
+                    <option value="exam">Examen</option>
+                    <option value="reminder">Recordatori</option>
+                  </select>
                 </label>
                 <label class="study-calendar__label">
                   <span>Descripció</span>
-                  <textarea class="input" rows="5">Repassar suma i resta de fraccions, portar calculadora i full d'apunts.</textarea>
+                  <textarea class="input" id="studyCalendarDescriptionInput" rows="5" placeholder="Detalla què cal preparar, material, passos..."></textarea>
                 </label>
+                <div class="study-calendar__details-actions">
+                  <button class="btn-primary" id="studyCalendarAddButton" type="button">Afegir</button>
+                  <button class="btn-secondary" id="studyCalendarClearButton" type="button">Neteja</button>
+                </div>
               </div>
-              <div class="study-calendar__details-actions">
-                <button class="btn-primary" type="button">Desa</button>
-                <button class="btn-secondary" type="button">Neteja</button>
+              <div class="study-calendar__list">
+                <h4>Esdeveniments del dia</h4>
+                <p id="studyCalendarEmpty" class="study-calendar__empty">Encara no hi ha res programat per aquest dia.</p>
+                <ul id="studyCalendarList" class="study-calendar__list-items"></ul>
               </div>
             </aside>
           </div>
@@ -318,6 +315,162 @@
               });
             }
 
+            const calendarSection = document.querySelector('.study-calendar');
+            if (calendarSection) {
+              const storageKey = 'focusquiz.studyCalendar';
+              const addShortcut = document.getElementById('studyCalendarAddShortcut');
+              const todayButton = document.getElementById('studyCalendarToday');
+              const titleInput = document.getElementById('studyCalendarTitleInput');
+              const typeInput = document.getElementById('studyCalendarTypeInput');
+              const descInput = document.getElementById('studyCalendarDescriptionInput');
+              const addButton = document.getElementById('studyCalendarAddButton');
+              const clearButton = document.getElementById('studyCalendarClearButton');
+              const selectedDateLabel = document.getElementById('studyCalendarSelectedDate');
+              const selectedBadge = document.getElementById('studyCalendarSelectedBadge');
+              const list = document.getElementById('studyCalendarList');
+              const emptyState = document.getElementById('studyCalendarEmpty');
+              const cells = Array.from(calendarSection.querySelectorAll('.study-calendar__cell[data-date]'));
+              let selectedDate = null;
+              let eventsByDate = {};
+
+              try {
+                eventsByDate = JSON.parse(localStorage.getItem(storageKey)) || {};
+              } catch (error) {
+                eventsByDate = {};
+              }
+
+              const typeLabels = {
+                homework: 'Deures',
+                exam: 'Examen',
+                reminder: 'Recordatori'
+              };
+
+              const formatDate = (value) => {
+                const parsed = new Date(value);
+                if (Number.isNaN(parsed.getTime())) return value;
+                return parsed.toLocaleDateString('ca-ES', { weekday: 'short', day: 'numeric', month: 'long' });
+              };
+
+              const setSelectedDate = (value) => {
+                selectedDate = value;
+                cells.forEach(cell => cell.classList.toggle('is-selected', cell.dataset.date === value));
+                if (selectedDateLabel) selectedDateLabel.textContent = formatDate(value);
+                if (selectedBadge) selectedBadge.textContent = value || '--';
+                renderDetails();
+              };
+
+              const persist = () => {
+                localStorage.setItem(storageKey, JSON.stringify(eventsByDate));
+              };
+
+              const renderCells = () => {
+                cells.forEach(cell => {
+                  const date = cell.dataset.date;
+                  const container = cell.querySelector('.study-calendar__events');
+                  if (!container) return;
+                  container.innerHTML = '';
+                  const items = eventsByDate[date] || [];
+                  items.slice(0, 2).forEach(item => {
+                    const badge = document.createElement('span');
+                    badge.className = `study-calendar__event is-${item.type}`;
+                    badge.textContent = item.title;
+                    container.appendChild(badge);
+                  });
+                  if (items.length > 2) {
+                    const more = document.createElement('span');
+                    more.className = 'study-calendar__more';
+                    more.textContent = `+${items.length - 2}`;
+                    container.appendChild(more);
+                  }
+                });
+              };
+
+              const renderDetails = () => {
+                const items = eventsByDate[selectedDate] || [];
+                list.innerHTML = '';
+                if (items.length === 0) {
+                  emptyState.classList.remove('hidden');
+                  return;
+                }
+                emptyState.classList.add('hidden');
+                items.forEach((item, index) => {
+                  const li = document.createElement('li');
+                  li.className = 'study-calendar__list-item';
+                  li.innerHTML = `
+                    <div>
+                      <p class="study-calendar__list-title">${item.title}</p>
+                      <p class="study-calendar__list-meta">${typeLabels[item.type] || 'Apunt'} · ${item.description || 'Sense descripció'}</p>
+                    </div>
+                    <button class="btn-ghost" type="button" data-remove-index="${index}">Elimina</button>
+                  `;
+                  list.appendChild(li);
+                });
+              };
+
+              const addEvent = () => {
+                if (!selectedDate || !titleInput.value.trim()) {
+                  titleInput.focus();
+                  return;
+                }
+                const entry = {
+                  title: titleInput.value.trim(),
+                  description: descInput.value.trim(),
+                  type: typeInput.value
+                };
+                eventsByDate[selectedDate] = eventsByDate[selectedDate] || [];
+                eventsByDate[selectedDate].push(entry);
+                persist();
+                renderCells();
+                renderDetails();
+                titleInput.value = '';
+                descInput.value = '';
+                titleInput.focus();
+              };
+
+              const clearForm = () => {
+                titleInput.value = '';
+                descInput.value = '';
+                typeInput.value = 'homework';
+              };
+
+              cells.forEach(cell => {
+                cell.addEventListener('click', () => {
+                  setSelectedDate(cell.dataset.date);
+                });
+              });
+
+              list.addEventListener('click', (event) => {
+                const target = event.target;
+                if (!(target instanceof HTMLElement)) return;
+                const index = target.dataset.removeIndex;
+                if (index === undefined) return;
+                const items = eventsByDate[selectedDate] || [];
+                items.splice(Number(index), 1);
+                if (items.length === 0) {
+                  delete eventsByDate[selectedDate];
+                }
+                persist();
+                renderCells();
+                renderDetails();
+              });
+
+              addButton.addEventListener('click', addEvent);
+              addShortcut.addEventListener('click', addEvent);
+              clearButton.addEventListener('click', clearForm);
+              todayButton.addEventListener('click', () => {
+                const today = new Date();
+                const formatted = today.toISOString().slice(0, 10);
+                const todayCell = cells.find(cell => cell.dataset.date === formatted);
+                if (todayCell) {
+                  setSelectedDate(formatted);
+                  todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              });
+
+              const defaultCell = cells.find(cell => cell.dataset.inMonth === 'true') || cells[0];
+              if (defaultCell) setSelectedDate(defaultCell.dataset.date);
+              renderCells();
+            }
           });
         </script>
       </div>
