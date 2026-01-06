@@ -1,11 +1,11 @@
 :root {
-  --portal-card-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(236, 247, 255, 0.78));
-  --portal-card-border: rgba(148, 163, 184, 0.3);
-  --portal-card-shadow: 0 34px 90px -48px rgba(30, 64, 175, 0.45);
-  --portal-card-highlight: rgba(125, 211, 252, 0.48);
-  --portal-grid-line: rgba(148, 163, 184, 0.16);
-  --portal-surface: rgba(248, 250, 252, 0.65);
-  --portal-blur: 22px;
+  --portal-card-bg: linear-gradient(150deg, #f9fbff, #dfe7ff);
+  --portal-card-border: #b6c2d8;
+  --portal-card-shadow: 0 32px 70px -42px rgba(15, 23, 42, 0.48);
+  --portal-card-highlight: rgba(59, 130, 246, 0.18);
+  --portal-grid-line: rgba(100, 116, 139, 0.32);
+  --portal-surface: #e8eefc;
+  --portal-blur: 18px;
 }
 
 .portal-main {
@@ -15,9 +15,9 @@
   padding: clamp(22px, 3vw, 38px) 0 92px;
   isolation: isolate;
   background:
-    radial-gradient(1200px 520px at 12% -14%, rgba(148, 197, 255, 0.22), transparent 60%),
-    radial-gradient(1000px 680px at 95% -12%, rgba(168, 241, 220, 0.2), transparent 58%),
-    linear-gradient(180deg, rgba(247, 249, 255, 0.95), rgba(236, 248, 255, 0.72));
+    radial-gradient(1100px 520px at 12% -14%, rgba(96, 165, 250, 0.28), transparent 62%),
+    radial-gradient(960px 640px at 92% -12%, rgba(14, 165, 233, 0.2), transparent 60%),
+    linear-gradient(180deg, #e4ebfa, #f6f8fd 55%, #e5ebfb 100%);
 }
 
 .portal-main::before,
@@ -33,14 +33,14 @@
   inset: -140px auto auto 18%;
   width: clamp(320px, 46vw, 560px);
   height: clamp(320px, 44vw, 520px);
-  background: radial-gradient(circle at center, rgba(125, 211, 252, 0.5), transparent 68%);
+  background: radial-gradient(circle at center, rgba(96, 165, 250, 0.35), transparent 68%);
 }
 
 .portal-main::after {
   inset: auto -160px -220px auto;
   width: clamp(280px, 38vw, 520px);
   height: clamp(280px, 40vw, 520px);
-  background: radial-gradient(circle at center, rgba(196, 181, 253, 0.38), transparent 70%);
+  background: radial-gradient(circle at center, rgba(125, 211, 252, 0.3), transparent 72%);
 }
 
 .portal-main .hidden,
@@ -81,14 +81,14 @@
 
 .portal-main .panel.card::before {
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(148, 163, 255, 0.16) 42%, transparent 78%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(99, 102, 241, 0.32) 42%, transparent 78%),
     radial-gradient(circle at 24% -12%, var(--portal-surface), transparent 70%);
-  opacity: 0.9;
+  opacity: 0.98;
 }
 
 .portal-main .panel.card::after {
-  background: radial-gradient(380px 220px at 85% 110%, var(--portal-card-highlight), transparent 82%);
-  opacity: 0.75;
+  background: radial-gradient(420px 240px at 85% 110%, var(--portal-card-highlight), transparent 78%);
+  opacity: 0.9;
 }
 
 .portal-main .panel.card > * {
@@ -117,23 +117,23 @@
   position: relative;
   padding: 1.4rem 1.6rem;
   border-radius: 22px;
-  border: 1px solid rgba(148, 163, 255, 0.32);
-  background: linear-gradient(145deg, rgba(59, 130, 246, 0.08), rgba(219, 234, 254, 0.7));
-  box-shadow: 0 20px 60px -42px rgba(30, 64, 175, 0.45);
+  border: 1px solid rgba(99, 102, 241, 0.48);
+  background: linear-gradient(145deg, rgba(59, 130, 246, 0.16), rgba(219, 234, 254, 0.86));
+  box-shadow: 0 24px 66px -42px rgba(30, 64, 175, 0.55);
   display: grid;
   gap: 1rem;
 }
 
 .portal-live-form__card--setup {
-  border-color: rgba(129, 140, 248, 0.38);
-  background: linear-gradient(150deg, rgba(129, 140, 248, 0.14), rgba(224, 231, 255, 0.78));
-  box-shadow: 0 22px 64px -46px rgba(99, 102, 241, 0.42);
+  border-color: rgba(99, 102, 241, 0.55);
+  background: linear-gradient(150deg, rgba(99, 102, 241, 0.2), rgba(224, 231, 255, 0.92));
+  box-shadow: 0 26px 70px -44px rgba(79, 70, 229, 0.52);
 }
 
 .portal-live-form__card--timing {
-  border-color: rgba(14, 165, 233, 0.35);
-  background: linear-gradient(150deg, rgba(34, 197, 94, 0.08), rgba(204, 251, 241, 0.72));
-  box-shadow: 0 24px 64px -46px rgba(13, 148, 136, 0.35);
+  border-color: rgba(16, 185, 129, 0.46);
+  background: linear-gradient(150deg, rgba(34, 197, 94, 0.16), rgba(204, 251, 241, 0.9));
+  box-shadow: 0 26px 70px -44px rgba(13, 148, 136, 0.45);
 }
 
 .portal-live-chip {
@@ -148,13 +148,13 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  background: rgba(59, 130, 246, 0.14);
-  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.2);
+  color: #1e3a8a;
 }
 
 .portal-live-form__card--timing .portal-live-chip {
-  background: rgba(16, 185, 129, 0.16);
-  color: #047857;
+  background: rgba(16, 185, 129, 0.22);
+  color: #065f46;
 }
 
 .portal-live-builder {
@@ -539,9 +539,9 @@
   inset: -20% -10% auto auto;
   width: clamp(260px, 36vw, 420px);
   height: clamp(260px, 36vw, 420px);
-  background: radial-gradient(circle at center, rgba(165, 180, 252, 0.35), transparent 68%);
+  background: radial-gradient(circle at center, rgba(129, 140, 248, 0.42), transparent 68%);
   filter: blur(2px);
-  opacity: 0.7;
+  opacity: 0.82;
 }
 
 .portal-hero-body {
@@ -561,7 +561,7 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   font-weight: 700;
-  color: rgba(59, 130, 246, 0.78);
+  color: #1e3a8a;
 }
 
 .portal-hero-kicker::before {
@@ -582,7 +582,7 @@
   margin: 0;
   max-width: 640px;
   font-size: 1.02rem;
-  color: rgba(15, 23, 42, 0.85);
+  color: #0f172a;
 }
 
 .portal-hero-highlights {
@@ -599,9 +599,9 @@
   gap: 0.6rem;
   padding: 0.5rem 0.85rem;
   border-radius: 999px;
-  background: rgba(241, 245, 255, 0.72);
-  border: 1px solid rgba(148, 163, 184, 0.26);
-  color: rgba(15, 23, 42, 0.75);
+  background: #d5ddff;
+  border: 1px solid #a5b4fc;
+  color: #0b1224;
   font-weight: 600;
   box-shadow: 0 14px 32px -28px rgba(30, 64, 175, 0.6);
 }
@@ -609,7 +609,7 @@
 .portal-hero-highlights li::before {
   content: '✦';
   font-size: 0.9rem;
-  color: rgba(99, 102, 241, 0.9);
+  color: #312e81;
 }
 
 .portal-hero-graphic {
@@ -639,8 +639,8 @@
   width: clamp(200px, 30vw, 320px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(125, 211, 252, 0.9), rgba(59, 130, 246, 0.45) 55%, rgba(15, 118, 110, 0.2) 72%, transparent 82%);
-  box-shadow: 0 40px 90px -38px rgba(59, 130, 246, 0.6);
+  background: radial-gradient(circle at 30% 30%, rgba(125, 211, 252, 0.95), rgba(59, 130, 246, 0.65) 55%, rgba(15, 118, 110, 0.32) 72%, transparent 82%);
+  box-shadow: 0 44px 100px -34px rgba(59, 130, 246, 0.72);
   animation: portal-orb-pulse 14s ease-in-out infinite;
 }
 
@@ -707,7 +707,7 @@
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(59, 130, 246, 0.75);
+  color: #1e40af;
   margin-bottom: 0.4rem;
 }
 
@@ -738,9 +738,9 @@
 .portal-main select,
 .portal-main textarea {
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(244, 247, 255, 0.82));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   padding: 0.72rem 0.9rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
