@@ -232,6 +232,10 @@ body{
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 .brand .logo {
   background: var(--primary, #7aa2ff);
@@ -243,6 +247,8 @@ body{
 .brand h1 {
   font-size: 1rem;
   margin: 0;
+  color: inherit;
+  text-decoration: none;
 }
 
 /* Pastel pill links */
@@ -458,6 +464,16 @@ body{
   align-items: center;
   gap: 0.4rem;
   border: 1px solid #e2e8f0;
+}
+.user-controls button.user-chip {
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+  font: inherit;
+  cursor: pointer;
+}
+.user-chip-helper {
+  color: #64748b;
+  font-weight: 600;
 }
 .user-chip.is-empty {
   color: #64748b;
@@ -926,6 +942,11 @@ button:hover{transform: translateY(-1px)}
   border:1px solid rgba(148,163,184,0.3);
   box-shadow:none;
   color:var(--ink);
+}
+.nav-btn.nav-btn-ghost{
+  background: transparent;
+  border-style: dashed;
+  color: var(--muted);
 }
 .nav-btn .icon{font-size:1.05rem; line-height:1;}
 .nav-btn:hover{background:#fff; transform:translateY(-1px);}
