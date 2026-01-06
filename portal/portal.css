@@ -1,11 +1,11 @@
 :root {
-  --portal-card-bg: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(236, 247, 255, 0.78));
-  --portal-card-border: rgba(148, 163, 184, 0.3);
-  --portal-card-shadow: 0 34px 90px -48px rgba(30, 64, 175, 0.45);
-  --portal-card-highlight: rgba(125, 211, 252, 0.48);
-  --portal-grid-line: rgba(148, 163, 184, 0.16);
-  --portal-surface: rgba(248, 250, 252, 0.65);
-  --portal-blur: 22px;
+  --portal-card-bg: #eaf0ff;
+  --portal-card-border: #b6c2d8;
+  --portal-card-shadow: 0 32px 70px -42px rgba(15, 23, 42, 0.48);
+  --portal-card-highlight: rgba(59, 130, 246, 0.18);
+  --portal-grid-line: rgba(100, 116, 139, 0.32);
+  --portal-surface: #e8eefc;
+  --portal-blur: 18px;
 }
 
 .portal-main {
@@ -14,33 +14,12 @@
   gap: clamp(26px, 4vw, 48px);
   padding: clamp(22px, 3vw, 38px) 0 92px;
   isolation: isolate;
-  background:
-    radial-gradient(1200px 520px at 12% -14%, rgba(148, 197, 255, 0.22), transparent 60%),
-    radial-gradient(1000px 680px at 95% -12%, rgba(168, 241, 220, 0.2), transparent 58%),
-    linear-gradient(180deg, rgba(247, 249, 255, 0.95), rgba(236, 248, 255, 0.72));
+  background: #e8eefc;
 }
 
 .portal-main::before,
 .portal-main::after {
-  content: '';
-  position: absolute;
-  z-index: -1;
-  filter: blur(6px);
-  opacity: 0.55;
-}
-
-.portal-main::before {
-  inset: -140px auto auto 18%;
-  width: clamp(320px, 46vw, 560px);
-  height: clamp(320px, 44vw, 520px);
-  background: radial-gradient(circle at center, rgba(125, 211, 252, 0.5), transparent 68%);
-}
-
-.portal-main::after {
-  inset: auto -160px -220px auto;
-  width: clamp(280px, 38vw, 520px);
-  height: clamp(280px, 40vw, 520px);
-  background: radial-gradient(circle at center, rgba(196, 181, 253, 0.38), transparent 70%);
+  content: none;
 }
 
 .portal-main .hidden,
@@ -80,15 +59,13 @@
 }
 
 .portal-main .panel.card::before {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(148, 163, 255, 0.16) 42%, transparent 78%),
-    radial-gradient(circle at 24% -12%, var(--portal-surface), transparent 70%);
-  opacity: 0.9;
+  background: #f5f8ff;
+  opacity: 1;
 }
 
 .portal-main .panel.card::after {
-  background: radial-gradient(380px 220px at 85% 110%, var(--portal-card-highlight), transparent 82%);
-  opacity: 0.75;
+  background: none;
+  opacity: 0;
 }
 
 .portal-main .panel.card > * {
@@ -117,23 +94,23 @@
   position: relative;
   padding: 1.4rem 1.6rem;
   border-radius: 22px;
-  border: 1px solid rgba(148, 163, 255, 0.32);
-  background: linear-gradient(145deg, rgba(59, 130, 246, 0.08), rgba(219, 234, 254, 0.7));
-  box-shadow: 0 20px 60px -42px rgba(30, 64, 175, 0.45);
+  border: 1px solid rgba(99, 102, 241, 0.48);
+  background: #e3ecff;
+  box-shadow: 0 24px 66px -42px rgba(30, 64, 175, 0.55);
   display: grid;
   gap: 1rem;
 }
 
 .portal-live-form__card--setup {
-  border-color: rgba(129, 140, 248, 0.38);
-  background: linear-gradient(150deg, rgba(129, 140, 248, 0.14), rgba(224, 231, 255, 0.78));
-  box-shadow: 0 22px 64px -46px rgba(99, 102, 241, 0.42);
+  border-color: rgba(99, 102, 241, 0.55);
+  background: #e6e9ff;
+  box-shadow: 0 26px 70px -44px rgba(79, 70, 229, 0.52);
 }
 
 .portal-live-form__card--timing {
-  border-color: rgba(14, 165, 233, 0.35);
-  background: linear-gradient(150deg, rgba(34, 197, 94, 0.08), rgba(204, 251, 241, 0.72));
-  box-shadow: 0 24px 64px -46px rgba(13, 148, 136, 0.35);
+  border-color: rgba(16, 185, 129, 0.46);
+  background: #e5f7ef;
+  box-shadow: 0 26px 70px -44px rgba(13, 148, 136, 0.45);
 }
 
 .portal-live-chip {
@@ -148,13 +125,13 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  background: rgba(59, 130, 246, 0.14);
-  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.2);
+  color: #1e3a8a;
 }
 
 .portal-live-form__card--timing .portal-live-chip {
-  background: rgba(16, 185, 129, 0.16);
-  color: #047857;
+  background: rgba(16, 185, 129, 0.22);
+  color: #065f46;
 }
 
 .portal-live-builder {
@@ -162,9 +139,7 @@
   padding: 1.75rem;
   border-radius: 24px;
   border: 1px solid rgba(14, 165, 233, 0.22);
-  background:
-    linear-gradient(145deg, rgba(14, 165, 233, 0.08), rgba(224, 242, 254, 0.78)),
-    rgba(255, 255, 255, 0.9);
+  background: #f0f7fd;
   display: grid;
   gap: 1.25rem;
   box-shadow: 0 28px 80px -52px rgba(14, 116, 144, 0.35);
@@ -217,8 +192,7 @@
   overflow: hidden;
   border-radius: 20px;
   border: 1px solid rgba(99, 102, 241, 0.32);
-  background:
-    linear-gradient(160deg, rgba(79, 70, 229, 0.08), rgba(219, 234, 254, 0.92));
+  background: #eef2ff;
   padding: 1.1rem 1.25rem;
   display: grid;
   gap: 0.85rem;
@@ -226,14 +200,7 @@
 }
 
 .portal-live-question::before {
-  content: '';
-  position: absolute;
-  inset: -40% auto auto -35%;
-  width: 180px;
-  height: 180px;
-  background: radial-gradient(circle at center, rgba(129, 140, 248, 0.36), transparent 72%);
-  opacity: 0.75;
-  pointer-events: none;
+  content: none;
 }
 
 .portal-live-question > * {
@@ -304,9 +271,7 @@
 .portal-live-preview {
   border: 1px solid rgba(37, 99, 235, 0.25);
   border-radius: 20px;
-  background:
-    linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(219, 234, 254, 0.9)),
-    #fff;
+  background: #f5f9ff;
   padding: 1.25rem 1.4rem;
   box-shadow: 0 28px 80px -52px rgba(30, 64, 175, 0.35);
   display: grid;
@@ -328,9 +293,7 @@
 .portal-live-preview__stage {
   border-radius: 18px;
   padding: 1.2rem 1.4rem;
-  background: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.12), transparent 35%),
-    radial-gradient(circle at 70% 0%, rgba(99, 102, 241, 0.12), transparent 30%),
-    rgba(255, 255, 255, 0.86);
+  background: #ffffff;
   border: 1px solid rgba(148, 163, 255, 0.35);
   min-height: 220px;
   display: grid;
@@ -401,9 +364,7 @@
   padding: 1.2rem 1.3rem;
   display: grid;
   gap: 0.8rem;
-  background:
-    linear-gradient(145deg, rgba(16, 185, 129, 0.06), rgba(220, 252, 231, 0.9)),
-    #fff;
+  background: #f4fbf7;
 }
 
 .portal-live-library__header h3 {
@@ -534,14 +495,7 @@
 }
 
 .portal-hero::before {
-  content: '';
-  position: absolute;
-  inset: -20% -10% auto auto;
-  width: clamp(260px, 36vw, 420px);
-  height: clamp(260px, 36vw, 420px);
-  background: radial-gradient(circle at center, rgba(165, 180, 252, 0.35), transparent 68%);
-  filter: blur(2px);
-  opacity: 0.7;
+  content: none;
 }
 
 .portal-hero-body {
@@ -561,7 +515,7 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   font-weight: 700;
-  color: rgba(59, 130, 246, 0.78);
+  color: #1e3a8a;
 }
 
 .portal-hero-kicker::before {
@@ -582,7 +536,7 @@
   margin: 0;
   max-width: 640px;
   font-size: 1.02rem;
-  color: rgba(15, 23, 42, 0.85);
+  color: #0f172a;
 }
 
 .portal-hero-highlights {
@@ -599,9 +553,9 @@
   gap: 0.6rem;
   padding: 0.5rem 0.85rem;
   border-radius: 999px;
-  background: rgba(241, 245, 255, 0.72);
-  border: 1px solid rgba(148, 163, 184, 0.26);
-  color: rgba(15, 23, 42, 0.75);
+  background: #d5ddff;
+  border: 1px solid #a5b4fc;
+  color: #0b1224;
   font-weight: 600;
   box-shadow: 0 14px 32px -28px rgba(30, 64, 175, 0.6);
 }
@@ -609,7 +563,7 @@
 .portal-hero-highlights li::before {
   content: '✦';
   font-size: 0.9rem;
-  color: rgba(99, 102, 241, 0.9);
+  color: #312e81;
 }
 
 .portal-hero-graphic {
@@ -625,11 +579,8 @@
   position: absolute;
   inset: 18% 8%;
   border-radius: 28px;
-  background-image:
-    linear-gradient(90deg, var(--portal-grid-line) 1px, transparent 1px),
-    linear-gradient(0deg, var(--portal-grid-line) 1px, transparent 1px);
-  background-size: 36px 36px;
-  opacity: 0.45;
+  background: rgba(148, 163, 184, 0.12);
+  opacity: 0.6;
   z-index: 1;
 }
 
@@ -639,18 +590,13 @@
   width: clamp(200px, 30vw, 320px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(125, 211, 252, 0.9), rgba(59, 130, 246, 0.45) 55%, rgba(15, 118, 110, 0.2) 72%, transparent 82%);
-  box-shadow: 0 40px 90px -38px rgba(59, 130, 246, 0.6);
+  background: #60a5fa;
+  box-shadow: 0 44px 100px -34px rgba(59, 130, 246, 0.72);
   animation: portal-orb-pulse 14s ease-in-out infinite;
 }
 
 .portal-hero-orb::after {
-  content: '';
-  position: absolute;
-  inset: 22% 18% 18% 22%;
-  border-radius: inherit;
-  background: radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.65), transparent 68%);
-  opacity: 0.65;
+  content: none;
 }
 
 .portal-hero-orb--secondary {
@@ -658,7 +604,7 @@
   z-index: 0;
   width: clamp(140px, 22vw, 220px);
   inset: auto 12% -12% auto;
-  background: radial-gradient(circle at 40% 40%, rgba(148, 163, 255, 0.8), rgba(59, 130, 246, 0.4) 60%, transparent 85%);
+  background: #4f46e5;
   opacity: 0.75;
   filter: blur(1px);
   animation-duration: 18s;
@@ -685,7 +631,7 @@
   border-radius: 18px;
   padding: 14px 18px;
   border: 1px solid rgba(248, 113, 113, 0.38);
-  background: linear-gradient(135deg, rgba(254, 226, 226, 0.9), rgba(255, 255, 255, 0.75));
+  background: #feecec;
   color: #b91c1c;
   font-weight: 600;
   box-shadow: 0 26px 52px -38px rgba(248, 113, 113, 0.45);
@@ -707,7 +653,7 @@
   font-size: 0.82rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: rgba(59, 130, 246, 0.75);
+  color: #1e40af;
   margin-bottom: 0.4rem;
 }
 
@@ -738,9 +684,9 @@
 .portal-main select,
 .portal-main textarea {
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(244, 247, 255, 0.82));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   padding: 0.72rem 0.9rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
@@ -779,7 +725,7 @@
 
 .portal-main .btn-secondary {
   border: 1px solid rgba(148, 163, 184, 0.4);
-  background: linear-gradient(135deg, rgba(248, 250, 252, 0.9), rgba(226, 232, 240, 0.82));
+  background: #f6f8ff;
   color: rgba(30, 41, 59, 0.88);
   box-shadow: 0 18px 42px -32px rgba(148, 163, 184, 0.55);
 }
@@ -902,7 +848,7 @@
 
 .portal-module-card.is-selected {
   border-color: rgba(94, 234, 212, 0.7);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(16, 185, 129, 0.18));
+  background: #e6f2ff;
   box-shadow: 0 28px 46px -32px rgba(13, 148, 136, 0.7);
 }
 
@@ -982,10 +928,7 @@
   padding: clamp(18px, 2.4vw, 26px);
   border-radius: 26px;
   border: 1px solid rgba(217, 70, 239, 0.18);
-  background:
-    radial-gradient(460px 280px at 4% 0%, rgba(244, 114, 182, 0.2), transparent 74%),
-    radial-gradient(520px 320px at 110% 120%, rgba(192, 132, 252, 0.2), transparent 76%),
-    linear-gradient(135deg, rgba(253, 242, 248, 0.88), rgba(237, 233, 254, 0.7));
+  background: #f6f8ff;
   box-shadow: 0 36px 96px -54px rgba(217, 70, 239, 0.32);
 }
 
@@ -1150,7 +1093,7 @@
   border-radius: 999px;
   padding: 0.55rem 1rem;
   border: 1px solid rgba(148, 163, 184, 0.35);
-  background: linear-gradient(120deg, rgba(226, 232, 240, 0.55), rgba(226, 232, 240, 0.25));
+  background: #f6f8ff;
   color: var(--ink);
   font-size: 0.9rem;
   box-shadow: 0 10px 24px -20px rgba(15, 23, 42, 0.45);
@@ -1386,7 +1329,7 @@
   border-radius: 18px;
   padding: 14px 18px;
   border: 1px solid rgba(34, 197, 94, 0.42);
-  background: linear-gradient(135deg, rgba(220, 252, 231, 0.92), rgba(209, 250, 229, 0.72));
+  background: #f6f8ff;
   color: #047857;
   font-weight: 600;
   box-shadow: 0 26px 52px -36px rgba(34, 197, 94, 0.45);
@@ -1397,7 +1340,7 @@
   border-radius: 18px;
   padding: 14px 18px;
   border: 1px solid rgba(248, 113, 113, 0.42);
-  background: linear-gradient(135deg, rgba(254, 226, 226, 0.92), rgba(255, 241, 241, 0.72));
+  background: #f6f8ff;
   color: #7f1d1d;
   font-weight: 600;
   box-shadow: 0 26px 52px -36px rgba(248, 113, 113, 0.45);
@@ -1434,7 +1377,7 @@
   gap: 0.75rem;
   padding: 1rem 1.4rem;
   border-radius: 26px;
-  background: linear-gradient(135deg, rgba(248, 250, 252, 0.72), rgba(235, 245, 255, 0.82));
+  background: #f6f8ff;
   border: 1px solid rgba(148, 163, 184, 0.22);
   box-shadow: 0 32px 68px -46px rgba(30, 64, 175, 0.55);
   margin-top: clamp(20px, 2.8vw, 32px);
@@ -1447,7 +1390,7 @@
   inset: -80% -20% auto auto;
   width: clamp(180px, 24vw, 280px);
   height: clamp(180px, 24vw, 280px);
-  background: radial-gradient(circle at center, rgba(125, 211, 252, 0.28), transparent 70%);
+  background: #f6f8ff;
   opacity: 0.7;
 }
 
@@ -1473,7 +1416,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.28), rgba(125, 211, 252, 0.4));
+  background: #f6f8ff;
   opacity: 0;
   transition: opacity 0.18s ease;
   z-index: -1;
@@ -1517,32 +1460,23 @@
   border: 1px solid rgba(148, 163, 184, 0.16);
   box-shadow: 0 40px 120px -84px rgba(30, 64, 175, 0.45);
   isolation: isolate;
-  background: linear-gradient(135deg, rgba(248, 250, 252, 0.75), rgba(236, 244, 255, 0.55));
+  background: #f6f8ff;
 }
 
 #classesPanel {
-  background:
-    radial-gradient(520px 320px at 0% 8%, rgba(59, 130, 246, 0.26), transparent 70%),
-    radial-gradient(480px 260px at 105% 110%, rgba(129, 140, 248, 0.22), transparent 74%),
-    linear-gradient(135deg, rgba(241, 245, 255, 0.72), rgba(248, 250, 252, 0.5));
+  background: #f6f8ff;
   border-color: rgba(59, 130, 246, 0.2);
   box-shadow: 0 50px 124px -78px rgba(59, 130, 246, 0.35);
 }
 
 #assignmentsPanel {
-  background:
-    radial-gradient(520px 320px at 6% 12%, rgba(244, 114, 182, 0.24), transparent 74%),
-    radial-gradient(520px 280px at 100% 108%, rgba(192, 132, 252, 0.22), transparent 72%),
-    linear-gradient(135deg, rgba(253, 242, 248, 0.75), rgba(237, 233, 254, 0.52));
+  background: #f6f8ff;
   border-color: rgba(236, 72, 153, 0.22);
   box-shadow: 0 52px 128px -76px rgba(217, 70, 239, 0.3);
 }
 
 #resultsPanel {
-  background:
-    radial-gradient(520px 320px at 0% 14%, rgba(16, 185, 129, 0.26), transparent 74%),
-    radial-gradient(560px 280px at 100% 100%, rgba(14, 165, 233, 0.18), transparent 72%),
-    linear-gradient(135deg, rgba(236, 253, 245, 0.75), rgba(240, 253, 250, 0.5));
+  background: #f6f8ff;
   border-color: rgba(45, 212, 191, 0.24);
   box-shadow: 0 52px 128px -76px rgba(13, 148, 136, 0.28);
 }
@@ -1575,7 +1509,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(129, 140, 248, 0.32), rgba(56, 189, 248, 0.32));
+  background: #f6f8ff;
   opacity: 0;
   transition: opacity 0.18s ease;
   z-index: -1;
@@ -1742,7 +1676,7 @@
 }
 
 .portal-group-chip.is-active {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.38), rgba(161, 197, 255, 0.42));
+  background: #f6f8ff;
   color: #0f172a;
   box-shadow: 0 16px 32px -24px rgba(59, 130, 246, 0.6);
 }
@@ -1773,7 +1707,7 @@
 .portal-feed-item {
   border-radius: 20px;
   border: 1px solid rgba(148, 163, 184, 0.28);
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(241, 245, 255, 0.85));
+  background: #f6f8ff;
   padding: 1rem 1.15rem;
   display: grid;
   gap: 0.45rem;
@@ -1904,7 +1838,7 @@
   height: 32px;
   margin-bottom: 0.35rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(14, 165, 233, 0.2));
+  background: #f6f8ff;
   color: rgba(37, 99, 235, 0.95);
   font-size: 0.8rem;
   font-weight: 700;
@@ -1936,10 +1870,7 @@
   position: relative;
   overflow: hidden;
   padding: clamp(20px, 2.6vw, 28px);
-  background:
-    radial-gradient(240px 180px at 12% 20%, rgba(59, 130, 246, 0.26), transparent 70%),
-    radial-gradient(260px 200px at 82% -10%, rgba(16, 185, 129, 0.22), transparent 70%),
-    rgba(255, 255, 255, 0.9);
+  background: #ffffff;
   border: 1px solid rgba(148, 163, 184, 0.26);
   border-radius: 24px;
   box-shadow: 0 28px 56px -38px rgba(15, 23, 42, 0.55);
@@ -1951,7 +1882,7 @@
   inset: auto auto -60px 60%;
   width: 160px;
   height: 160px;
-  background: radial-gradient(circle at center, rgba(129, 212, 250, 0.45), transparent 70%);
+  background: #f6f8ff;
   opacity: 0.55;
 }
 
@@ -2023,7 +1954,7 @@
   padding: 0.75rem 1.35rem;
   border-radius: 999px;
   font-weight: 800;
-  background: linear-gradient(120deg, rgba(14, 165, 233, 0.86), rgba(129, 140, 248, 0.92));
+  background: #f6f8ff;
   color: white;
   text-decoration: none;
   box-shadow: 0 22px 40px -24px rgba(37, 99, 235, 0.55);
@@ -2104,10 +2035,7 @@
   padding: clamp(16px, 2vw, 24px);
   border-radius: 26px;
   border: 1px solid rgba(96, 165, 250, 0.22);
-  background:
-    radial-gradient(420px 240px at 0% 0%, rgba(125, 211, 252, 0.22), transparent 74%),
-    radial-gradient(420px 220px at 100% 120%, rgba(129, 140, 248, 0.2), transparent 76%),
-    linear-gradient(135deg, rgba(241, 245, 255, 0.82), rgba(248, 250, 252, 0.68));
+  background: #f6f8ff;
   box-shadow: 0 32px 88px -60px rgba(59, 130, 246, 0.32);
 }
 
@@ -2115,10 +2043,7 @@
   padding: clamp(16px, 2vw, 24px);
   border-radius: 26px;
   border: 1px solid rgba(236, 72, 153, 0.22);
-  background:
-    radial-gradient(420px 240px at 6% -6%, rgba(251, 207, 232, 0.26), transparent 76%),
-    radial-gradient(420px 240px at 110% 120%, rgba(221, 214, 254, 0.24), transparent 78%),
-    linear-gradient(135deg, rgba(253, 242, 248, 0.82), rgba(237, 233, 254, 0.68));
+  background: #f6f8ff;
   box-shadow: 0 32px 88px -60px rgba(217, 70, 239, 0.3);
 }
 
@@ -2170,10 +2095,7 @@
 
 .portal-class-card {
   border: 1px solid rgba(96, 165, 250, 0.32);
-  background:
-    radial-gradient(420px 220px at 8% -10%, rgba(56, 189, 248, 0.28), transparent 70%),
-    radial-gradient(420px 240px at 108% 120%, rgba(129, 140, 248, 0.22), transparent 74%),
-    rgba(255, 255, 255, 0.92);
+  background: #ffffff;
   box-shadow: 0 32px 68px -36px rgba(59, 130, 246, 0.4);
 }
 
@@ -2182,7 +2104,7 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 6px;
-  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  background: #f6f8ff;
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
@@ -2190,10 +2112,7 @@
 
 .portal-assignment-card {
   border: 1px solid rgba(236, 72, 153, 0.26);
-  background:
-    radial-gradient(480px 260px at 6% -8%, rgba(244, 114, 182, 0.26), transparent 74%),
-    radial-gradient(460px 280px at 110% 120%, rgba(192, 132, 252, 0.22), transparent 76%),
-    rgba(255, 255, 255, 0.92);
+  background: #ffffff;
   box-shadow: 0 32px 72px -36px rgba(217, 70, 239, 0.34);
 }
 
@@ -2202,7 +2121,7 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 6px;
-  background: linear-gradient(90deg, #f472b6, #c084fc, #facc15);
+  background: #f6f8ff;
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
@@ -2210,10 +2129,7 @@
 
 .portal-result-card {
   border: 1px solid rgba(45, 212, 191, 0.28);
-  background:
-    radial-gradient(500px 280px at 6% 0%, rgba(45, 212, 191, 0.26), transparent 74%),
-    radial-gradient(480px 260px at 100% 120%, rgba(56, 189, 248, 0.22), transparent 75%),
-    rgba(255, 255, 255, 0.94);
+  background: #ffffff;
   box-shadow: 0 32px 72px -34px rgba(13, 148, 136, 0.32);
 }
 
@@ -2222,7 +2138,7 @@
   position: absolute;
   inset: 0 0 auto 0;
   height: 6px;
-  background: linear-gradient(90deg, #2dd4bf, #34d399, #38bdf8);
+  background: #f6f8ff;
   opacity: 0.95;
   pointer-events: none;
   z-index: 2;
@@ -2358,10 +2274,7 @@
   padding: clamp(16px, 2.4vw, 24px);
   border-radius: 24px;
   border: 1px solid rgba(45, 212, 191, 0.28);
-  background:
-    radial-gradient(420px 240px at 0% 0%, rgba(45, 212, 191, 0.22), transparent 70%),
-    radial-gradient(420px 220px at 100% 120%, rgba(59, 130, 246, 0.18), transparent 74%),
-    linear-gradient(135deg, rgba(236, 253, 245, 0.88), rgba(219, 234, 254, 0.68));
+  background: #f6f8ff;
   box-shadow: 0 32px 86px -52px rgba(14, 165, 233, 0.32);
 }
 
@@ -2373,10 +2286,7 @@
   padding: 1rem clamp(0.75rem, 2vw, 1.25rem) clamp(1rem, 2.2vw, 1.4rem);
   border-radius: 24px;
   border: 1px solid rgba(45, 212, 191, 0.26);
-  background:
-    radial-gradient(520px 280px at 10% 6%, rgba(45, 212, 191, 0.22), transparent 72%),
-    radial-gradient(520px 320px at 96% -12%, rgba(56, 189, 248, 0.2), transparent 68%),
-    linear-gradient(135deg, rgba(236, 253, 245, 0.9), rgba(219, 234, 254, 0.76));
+  background: #f6f8ff;
   box-shadow: 0 32px 88px -48px rgba(14, 165, 233, 0.32);
 }
 
@@ -2427,8 +2337,7 @@
   border-radius: 18px;
   position: relative;
   border: 1px solid rgba(148, 163, 184, 0.24);
-  background:
-    linear-gradient(180deg, rgba(248, 250, 252, 0.94), rgba(255, 255, 255, 0.88));
+  background: #f8fafc;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
@@ -2637,7 +2546,7 @@
   justify-content: center;
   padding: 0.75rem 1.5rem;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(45, 212, 191, 0.28));
+  background: #f6f8ff;
   color: #0f766e;
   box-shadow: 0 18px 42px -28px rgba(13, 148, 136, 0.42);
   font-size: clamp(2.25rem, 4vw, 3rem);
@@ -2738,7 +2647,7 @@
   position: absolute;
   inset: 0 auto 0 0;
   width: 100%;
-  background: linear-gradient(90deg, #22c55e, #0ea5e9);
+  background: #f6f8ff;
   transform-origin: left center;
   transform: scaleX(0);
   transition: transform 0.2s ease;
