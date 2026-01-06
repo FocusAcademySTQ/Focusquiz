@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FocusQuiz · Flashcards d'estudi</title>
+  <title>FocusQuiz · Recursos</title>
   <meta
     name="description"
-    content="Escull una temàtica i juga amb les flashcards de preguntes i respostes sobre història del segle XX."
+    content="Consulta teoria i flashcards agrupades per assignatura en una sola biblioteca d'estudi."
   />
   <link rel="stylesheet" href="style.css" />
   <style>
@@ -829,10 +829,10 @@
 <body>
   <header class="topbar">
     <div class="wrap row header-bar">
-      <div class="brand">
+      <button class="brand brand-home" type="button" onclick="window.location.href='app.html'" aria-label="Tornar a l'inici">
         <div class="logo">FQ</div>
         <h1>Focus Academy</h1>
-      </div>
+      </button>
       <nav class="flashcards-nav" aria-label="Navegació">
         <a class="pill" href="app.html">← Torna a l'inici</a>
         <a class="pill" href="https://focuscat.onrender.com/" target="_blank" rel="noopener">Focus Exams</a>
@@ -842,11 +842,38 @@
 
   <main class="wrap">
     <section class="flashcards-hero">
-      <p class="section-kicker">🃏 Flashcards</p>
-      <h1>Flashcards d'estudi personalitzades</h1>
-      <p>Escull l'assignatura i després el bloc temàtic per practicar preguntes i respostes amb efecte de gir. Marca el teu
-        progrés i reprèn quan vulguis.</p>
+      <p class="section-kicker">📚 Recursos</p>
+      <h1>Recursos: teoria i flashcards</h1>
+      <p>Accedeix a la teoria essencial i practica amb flashcards agrupades per assignatures des d'una sola biblioteca.</p>
+      <div class="flashcards-nav" aria-label="Accés ràpid a seccions de recursos">
+        <a class="pill" href="#theory-library">Teoria</a>
+        <a class="pill" href="#subjects-menu">Flashcards per assignatura</a>
+      </div>
       <p id="active-user-banner" class="active-user-banner" role="status" aria-live="polite">Sessió actual: ...</p>
+    </section>
+
+    <section id="theory-library" class="topics-section subjects-section" aria-labelledby="theory-title">
+      <header>
+        <p class="section-kicker">📖 Teoria</p>
+        <h2 id="theory-title">Consulta la teoria per assignatura</h2>
+        <p class="subtitle">Accés ràpid a resums i exemples perquè puguis repassar abans de practicar.</p>
+      </header>
+      <ul class="topics-grid library-grid" aria-label="Teoria disponible">
+        <li>
+          <a class="topic-card" href="teoria.html">
+            <div class="topic-meta">Matemàtiques</div>
+            <h3>Formularis i exemples breus</h3>
+            <p class="topic-summary">Repassa fórmules i demostracions clau per preparar les activitats.</p>
+          </a>
+        </li>
+        <li>
+          <a class="topic-card" href="teoriacatala.html">
+            <div class="topic-meta">Català</div>
+            <h3>Gramàtica i ortografia</h3>
+            <p class="topic-summary">Regles essencials amb exemples curts per consultar ràpidament.</p>
+          </a>
+        </li>
+      </ul>
     </section>
 
     <section id="subjects-menu" class="topics-section subjects-section" aria-labelledby="subjects-title">

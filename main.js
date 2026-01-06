@@ -360,6 +360,14 @@ function showView(name){
   if(name==='results') renderResults();
 }
 
+function scrollToSection(id){
+  showView('home');
+  const target = document.getElementById(id);
+  if (!target) return;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  target.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+}
+
 function buildHome(){
   const grid = $('#moduleGrid');
   grid.innerHTML = '';
@@ -3057,6 +3065,10 @@ function init(){
     const label = chip.querySelector('.label');
     if (label) label.textContent = current || 'Sessió no iniciada';
     chip.classList.toggle('is-empty', !current);
+    if (!chip.dataset.resultsBound) {
+      chip.addEventListener('click', () => showView('results'));
+      chip.dataset.resultsBound = 'true';
+    }
   }
 
   if (typeof showRecommendation === 'function') {
