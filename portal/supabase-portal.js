@@ -34,6 +34,19 @@ const state = {
   submissions: [],
   activeSubmissionId: null,
   focusedResultAssignmentId: null,
+  classroom: {
+    selectedClassId: '',
+    pools: new Map(),
+    lastPick: '',
+    timer: {
+      durationSeconds: 300,
+      remainingSeconds: 300,
+      running: false,
+      endsAt: null,
+      handle: null,
+    },
+    notes: '',
+  },
   assignmentDraft: {
     moduleId: '',
     options: {},
@@ -121,6 +134,20 @@ const elements = {
   refreshResults: document.getElementById('refreshResults'),
   resultsClassFilter: document.getElementById('resultsClassFilter'),
   resultsAssignmentFilter: document.getElementById('resultsAssignmentFilter'),
+  classroomClassSelect: document.getElementById('classroomClassSelect'),
+  classroomPickButton: document.getElementById('classroomPickStudent'),
+  classroomPickResult: document.getElementById('classroomPickResult'),
+  classroomPickHistory: document.getElementById('classroomPickHistory'),
+  classroomResetPicks: document.getElementById('classroomResetPicks'),
+  classroomTimerMinutes: document.getElementById('classroomTimerMinutes'),
+  classroomTimerToggle: document.getElementById('classroomTimerToggle'),
+  classroomTimerReset: document.getElementById('classroomTimerReset'),
+  classroomTimerDisplay: document.getElementById('classroomTimerDisplay'),
+  classroomTimerStatus: document.getElementById('classroomTimerStatus'),
+  classroomTimerProgress: document.getElementById('classroomTimerProgress'),
+  classroomNotes: document.getElementById('classroomNotes'),
+  classroomNotesStatus: document.getElementById('classroomNotesStatus'),
+  classroomNotesSave: document.getElementById('classroomNotesSave'),
   liveQuizForm: document.getElementById('liveQuizForm'),
   liveQuizClass: document.getElementById('liveQuizClass'),
   liveQuizTitle: document.getElementById('liveQuizTitle'),
@@ -174,6 +201,7 @@ const elements = {
 
 let previewChannel = null;
 const liveScorePromises = new Map();
+let notesSaveTimeout = null;
 
 ensureLiveDrafts();
 
@@ -946,6 +974,7 @@ function renderClassOptions() {
     { node: elements.assignmentClassSelect, stateAccessor: null },
     { node: elements.liveQuizClass, stateAccessor: 'live.quizDraft.classId' },
     { node: elements.liveGameClass, stateAccessor: 'live.gameDraft.classId' },
+    { node: elements.classroomClassSelect, stateAccessor: 'classroom.selectedClassId' },
   ];
 
   const options = state.classes.map((cls) => ({
@@ -1011,6 +1040,270 @@ function renderModuleOptions() {
     setCurrentModule('', { preserveQuestions: false });
   }
 
+}
+
+function getClassById(classId) {
+  if (!classId) return null;
+  return state.classes.find((cls) => cls.id === classId) || null;
+}
+
+function ensureClassroomSelection() {
+  if (!Array.isArray(state.classes) || state.classes.length === 0) {
+    state.classroom.selectedClassId = '';
+    return;
+  }
+  if (!state.classroom.selectedClassId) {
+    state.classroom.selectedClassId = state.classes[0].id;
+    return;
+  }
+  const exists = state.classes.some((cls) => cls.id === state.classroom.selectedClassId);
+  if (!exists) {
+    state.classroom.selectedClassId = state.classes[0].id;
+  }
+}
+
+function getClassroomPool(classId) {
+  const cls = getClassById(classId);
+  const roster = cls && Array.isArray(cls.students) ? cls.students : [];
+  const signature = roster.join('||');
+  const existing = state.classroom.pools.get(classId);
+  if (!existing || existing.signature !== signature) {
+    state.classroom.pools.set(classId, {
+      remaining: [...roster],
+      history: [],
+      signature,
+    });
+  }
+  return state.classroom.pools.get(classId);
+}
+
+function resetClassroomPool(classId) {
+  if (!classId) return;
+  const cls = getClassById(classId);
+  const roster = cls && Array.isArray(cls.students) ? cls.students : [];
+  state.classroom.pools.set(classId, {
+    remaining: [...roster],
+    history: [],
+    signature: roster.join('||'),
+  });
+  state.classroom.lastPick = '';
+}
+
+function pickRandomStudent() {
+  const classId = state.classroom.selectedClassId;
+  const pool = getClassroomPool(classId || '');
+  const roster = pool ? pool.remaining : [];
+  if (!classId || !pool || !Array.isArray(roster) || roster.length === 0) {
+    state.classroom.lastPick = classId ? 'Cap alumne pendent' : 'Afegeix alumnes a la classe';
+    renderClassroomRandom();
+    return;
+  }
+  const index = Math.floor(Math.random() * roster.length);
+  const [selected] = roster.splice(index, 1);
+  pool.history.unshift(selected);
+  state.classroom.lastPick = selected;
+  renderClassroomRandom();
+}
+
+function renderClassroomRandom() {
+  ensureClassroomSelection();
+  const select = elements.classroomClassSelect;
+  const pool = getClassroomPool(state.classroom.selectedClassId || '');
+  const remaining = pool && Array.isArray(pool.remaining) ? pool.remaining.length : 0;
+  const history = pool && Array.isArray(pool.history) ? pool.history : [];
+
+  if (select) {
+    select.value = state.classroom.selectedClassId || '';
+  }
+  if (elements.classroomPickResult) {
+    elements.classroomPickResult.textContent = state.classroom.lastPick || "Fes clic per triar un alumne a l'atzar";
+  }
+  if (elements.classroomPickHistory) {
+    elements.classroomPickHistory.innerHTML = '';
+    if (history.length === 0) {
+      const chip = document.createElement('span');
+      chip.className = 'portal-chip portal-chip--muted';
+      chip.textContent = 'Encara no hi ha torns assignats';
+      elements.classroomPickHistory.appendChild(chip);
+    } else {
+      history.slice(0, 12).forEach((name) => {
+        const chip = document.createElement('span');
+        chip.className = 'portal-chip';
+        chip.textContent = name;
+        elements.classroomPickHistory.appendChild(chip);
+      });
+    }
+    if (remaining > 0) {
+      const chip = document.createElement('span');
+      chip.className = 'portal-chip portal-chip--muted';
+      chip.textContent = `${remaining} pendent(s)`;
+      elements.classroomPickHistory.appendChild(chip);
+    }
+  }
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function formatSeconds(totalSeconds) {
+  if (!Number.isFinite(totalSeconds)) return '00:00';
+  const seconds = Math.max(0, Math.round(totalSeconds));
+  const mins = Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, '0');
+  const secs = (seconds % 60).toString().padStart(2, '0');
+  return `${mins}:${secs}`;
+}
+
+function clearClassroomTimerHandle() {
+  if (state.classroom.timer.handle) {
+    clearInterval(state.classroom.timer.handle);
+    state.classroom.timer.handle = null;
+  }
+}
+
+function syncTimerDurationFromInput({ updateRemaining = false } = {}) {
+  const minutes = elements.classroomTimerMinutes
+    ? clamp(Number.parseInt(elements.classroomTimerMinutes.value, 10) || 0, 1, 120)
+    : 5;
+  const durationSeconds = minutes * 60;
+  state.classroom.timer.durationSeconds = durationSeconds;
+  if (updateRemaining || !state.classroom.timer.running) {
+    state.classroom.timer.remainingSeconds = durationSeconds;
+  }
+  renderClassroomTimer();
+}
+
+function renderClassroomTimer() {
+  const timer = state.classroom.timer;
+  if (elements.classroomTimerMinutes && !elements.classroomTimerMinutes.matches(':focus')) {
+    elements.classroomTimerMinutes.value = Math.max(1, Math.round((timer.durationSeconds || 60) / 60));
+  }
+  if (elements.classroomTimerDisplay) {
+    elements.classroomTimerDisplay.textContent = formatSeconds(timer.remainingSeconds);
+  }
+  if (elements.classroomTimerToggle) {
+    elements.classroomTimerToggle.textContent = timer.running ? 'Pausa' : timer.remainingSeconds <= 0 ? 'Reinicia' : 'Inicia';
+  }
+  if (elements.classroomTimerStatus) {
+    elements.classroomTimerStatus.textContent = timer.running
+      ? 'Compte enrere en marxa'
+      : timer.remainingSeconds <= 0
+        ? 'Temps completat'
+        : 'Preparat';
+  }
+  if (elements.classroomTimerProgress) {
+    const total = timer.durationSeconds || 1;
+    const ratio = clamp(timer.remainingSeconds / total, 0, 1);
+    elements.classroomTimerProgress.style.transform = `scaleX(${ratio})`;
+  }
+}
+
+function tickClassroomTimer() {
+  const timer = state.classroom.timer;
+  if (!timer.running || !timer.endsAt) return;
+  const remainingMs = Math.max(0, timer.endsAt - Date.now());
+  timer.remainingSeconds = Math.round(remainingMs / 1000);
+  if (timer.remainingSeconds <= 0) {
+    timer.running = false;
+    timer.endsAt = null;
+    clearClassroomTimerHandle();
+  }
+  renderClassroomTimer();
+}
+
+function startClassroomTimer() {
+  const timer = state.classroom.timer;
+  if (timer.running) return;
+  if (timer.remainingSeconds <= 0) {
+    timer.remainingSeconds = timer.durationSeconds || 60;
+  }
+  timer.running = true;
+  timer.endsAt = Date.now() + timer.remainingSeconds * 1000;
+  clearClassroomTimerHandle();
+  timer.handle = setInterval(tickClassroomTimer, 500);
+  renderClassroomTimer();
+}
+
+function pauseClassroomTimer() {
+  const timer = state.classroom.timer;
+  timer.running = false;
+  timer.endsAt = null;
+  clearClassroomTimerHandle();
+  renderClassroomTimer();
+}
+
+function resetClassroomTimer() {
+  const timer = state.classroom.timer;
+  timer.running = false;
+  timer.endsAt = null;
+  clearClassroomTimerHandle();
+  syncTimerDurationFromInput({ updateRemaining: true });
+}
+
+function loadClassroomNotes() {
+  const classId = state.classroom.selectedClassId;
+  const storageKey = classId ? `fq_classroom_notes_${classId}` : null;
+  if (!storageKey) {
+    state.classroom.notes = '';
+    return;
+  }
+  try {
+    state.classroom.notes = localStorage.getItem(storageKey) || '';
+  } catch (error) {
+    console.warn('No s\'han pogut llegir les notes locals', error);
+    state.classroom.notes = '';
+  }
+}
+
+function saveClassroomNotes() {
+  const classId = state.classroom.selectedClassId;
+  const storageKey = classId ? `fq_classroom_notes_${classId}` : null;
+  if (!storageKey) return;
+  try {
+    localStorage.setItem(storageKey, state.classroom.notes || '');
+    if (elements.classroomNotesStatus) {
+      elements.classroomNotesStatus.textContent = 'Notes desades localment';
+    }
+  } catch (error) {
+    console.warn('No s\'han pogut desar les notes locals', error);
+    if (elements.classroomNotesStatus) {
+      elements.classroomNotesStatus.textContent = 'No s\'ha pogut desar (consulta permisos del navegador)';
+    }
+  }
+}
+
+function renderClassroomNotes() {
+  if (elements.classroomNotes) {
+    elements.classroomNotes.value = state.classroom.notes || '';
+    elements.classroomNotes.disabled = !state.classroom.selectedClassId;
+  }
+  if (elements.classroomNotesStatus) {
+    elements.classroomNotesStatus.textContent = state.classroom.selectedClassId
+      ? 'Es desen al navegador per a aquesta classe'
+      : 'Crea una classe per activar les notes';
+  }
+}
+
+function handleClassroomNotesInput() {
+  if (!elements.classroomNotes) return;
+  state.classroom.notes = elements.classroomNotes.value;
+  if (notesSaveTimeout) {
+    clearTimeout(notesSaveTimeout);
+  }
+  notesSaveTimeout = setTimeout(() => {
+    saveClassroomNotes();
+    notesSaveTimeout = null;
+  }, 600);
+}
+
+function renderClassroomTools() {
+  ensureClassroomSelection();
+  loadClassroomNotes();
+  renderClassroomRandom();
+  renderClassroomTimer();
+  renderClassroomNotes();
 }
 
 function syncLiveQuizFormInputs() {
@@ -3520,6 +3813,7 @@ function renderAll() {
   renderAssignments();
   buildResultsFilters();
   renderResults();
+  renderClassroomTools();
   renderLiveQuizzes();
   renderLiveGames();
   renderLiveLibrary();
@@ -4020,6 +4314,49 @@ function setupEventListeners() {
   }
   if (elements.resultsAssignmentFilter) {
     elements.resultsAssignmentFilter.addEventListener('change', renderResults);
+  }
+  if (elements.classroomClassSelect) {
+    elements.classroomClassSelect.addEventListener('change', () => {
+      state.classroom.selectedClassId = elements.classroomClassSelect.value || '';
+      resetClassroomPool(state.classroom.selectedClassId);
+      loadClassroomNotes();
+      renderClassroomTools();
+    });
+  }
+  if (elements.classroomPickButton) {
+    elements.classroomPickButton.addEventListener('click', pickRandomStudent);
+  }
+  if (elements.classroomResetPicks) {
+    elements.classroomResetPicks.addEventListener('click', () => {
+      resetClassroomPool(state.classroom.selectedClassId);
+      renderClassroomRandom();
+    });
+  }
+  if (elements.classroomTimerMinutes) {
+    const handler = () => syncTimerDurationFromInput({ updateRemaining: !state.classroom.timer.running });
+    elements.classroomTimerMinutes.addEventListener('input', handler);
+    elements.classroomTimerMinutes.addEventListener('change', handler);
+  }
+  if (elements.classroomTimerToggle) {
+    elements.classroomTimerToggle.addEventListener('click', () => {
+      if (state.classroom.timer.running) {
+        pauseClassroomTimer();
+      } else {
+        startClassroomTimer();
+      }
+    });
+  }
+  if (elements.classroomTimerReset) {
+    elements.classroomTimerReset.addEventListener('click', resetClassroomTimer);
+  }
+  if (elements.classroomNotes) {
+    elements.classroomNotes.addEventListener('input', handleClassroomNotesInput);
+  }
+  if (elements.classroomNotesSave) {
+    elements.classroomNotesSave.addEventListener('click', () => {
+      state.classroom.notes = elements.classroomNotes ? elements.classroomNotes.value : state.classroom.notes;
+      saveClassroomNotes();
+    });
   }
   window.addEventListener('message', handlePreviewMessage);
   window.addEventListener('storage', handlePreviewStorageMessage);
