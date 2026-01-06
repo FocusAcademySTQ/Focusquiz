@@ -2661,6 +2661,93 @@
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
+.classroom-random-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  align-items: end;
+}
+
+.classroom-random-actions {
+  display: grid;
+  gap: 0.5rem;
+  align-content: center;
+}
+
+.classroom-pick-result {
+  margin: 0;
+  font-size: 1rem;
+  color: #0f172a;
+  min-height: 1.5em;
+}
+
+.classroom-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.classroom-history .portal-chip,
+.classroom-history .portal-chip--muted {
+  cursor: default;
+}
+
+.classroom-timer-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: center;
+}
+
+.classroom-timer-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.classroom-timer-display {
+  min-width: 160px;
+}
+
+.classroom-timer-time {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.classroom-timer-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.classroom-timer-bar {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.25);
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.classroom-timer-bar span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: linear-gradient(90deg, #22c55e, #0ea5e9);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.classroom-notes {
+  margin-top: 0.5rem;
+}
+
 .portal-actions {
   display: flex;
   flex-wrap: wrap;

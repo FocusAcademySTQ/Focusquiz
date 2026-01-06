@@ -105,9 +105,92 @@
     <div id="portalTabs" class="portal-tabs hidden" data-portal-tablist role="tablist" aria-label="Eines del professorat">
       <button id="tab-classes" class="portal-tab" type="button" data-tab="classes" role="tab" aria-controls="classesPanel" aria-selected="false">Classes</button>
       <button id="tab-assignments" class="portal-tab" type="button" data-tab="assignments" role="tab" aria-controls="assignmentsPanel" aria-selected="false">Assignacions</button>
+      <button id="tab-classroom" class="portal-tab" type="button" data-tab="classroom" role="tab" aria-controls="classroomPanel" aria-selected="false">Gestió d'aula</button>
       <button id="tab-live" class="portal-tab" type="button" data-tab="live" role="tab" aria-controls="livePanel" aria-selected="false">Live</button>
       <button id="tab-results" class="portal-tab" type="button" data-tab="results" role="tab" aria-controls="resultsPanel" aria-selected="false">Resultats</button>
     </div>
+
+    <section id="classroomPanel" class="portal-tabpanel hidden" data-tab-panel="classroom" role="tabpanel" aria-labelledby="tab-classroom">
+      <section class="panel card">
+        <div class="portal-section-header">
+          <div>
+            <p class="portal-section-title">Participació equilibrada</p>
+            <h2>Selector aleatori d'alumnes</h2>
+            <p class="portal-muted">Recorre tota la llista sense repetir fins a reiniciar la ronda.</p>
+          </div>
+          <div class="portal-actions">
+            <button id="classroomResetPicks" class="btn-ghost" type="button">Reinicia ronda</button>
+          </div>
+        </div>
+
+        <div class="classroom-random-grid">
+          <label>
+            <span class="portal-field-label">Classe</span>
+            <select id="classroomClassSelect" class="input"></select>
+          </label>
+          <div class="classroom-random-actions">
+            <button id="classroomPickStudent" class="btn-primary" type="button">Tria un alumne</button>
+            <p id="classroomPickResult" class="classroom-pick-result portal-muted" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div id="classroomPickHistory" class="classroom-history"></div>
+      </section>
+
+      <section class="panel card">
+        <div class="portal-section-header">
+          <div>
+            <p class="portal-section-title">Control del temps</p>
+            <h2>Temporitzador de classe</h2>
+            <p class="portal-muted">Marca els minuts d'una activitat, pausa quan calgui i reinicia fàcilment.</p>
+          </div>
+          <div class="portal-actions">
+            <button id="classroomTimerReset" class="btn-ghost" type="button">Reinicia</button>
+          </div>
+        </div>
+
+        <div class="classroom-timer-grid">
+          <label>
+            <span class="portal-field-label">Minuts</span>
+            <input id="classroomTimerMinutes" class="input" type="number" min="1" max="120" value="5" />
+          </label>
+          <div class="classroom-timer-controls">
+            <div class="classroom-timer-display" aria-live="polite">
+              <p id="classroomTimerDisplay" class="classroom-timer-time">05:00</p>
+              <p id="classroomTimerStatus" class="portal-muted" style="margin:0">Preparat</p>
+            </div>
+            <div class="classroom-timer-buttons">
+              <button id="classroomTimerToggle" class="btn-primary" type="button">Inicia</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="classroom-timer-bar" aria-hidden="true">
+          <span id="classroomTimerProgress"></span>
+        </div>
+      </section>
+
+      <section class="panel card">
+        <div class="portal-section-header">
+          <div>
+            <p class="portal-section-title">Seguiment ràpid</p>
+            <h2>Notes de classe</h2>
+            <p class="portal-muted">Anota incidències, encàrrecs o idees sense sortir del gestor.</p>
+          </div>
+          <div class="portal-actions">
+            <button id="classroomNotesSave" class="btn-secondary" type="button">Desa</button>
+          </div>
+        </div>
+
+        <div class="portal-form portal-form--stack">
+          <label>
+            <span class="portal-field-label">Notes ràpides</span>
+            <textarea id="classroomNotes" class="input" rows="5" placeholder="Puntua la participació, recordatoris, acord amb alumnat..."></textarea>
+            <span id="classroomNotesStatus" class="portal-muted" role="status" aria-live="polite"></span>
+          </label>
+        </div>
+      </section>
+    </section>
 
     <section id="classesPanel" class="portal-tabpanel hidden" data-tab-panel="classes" role="tabpanel" aria-labelledby="tab-classes">
       <section class="panel card">

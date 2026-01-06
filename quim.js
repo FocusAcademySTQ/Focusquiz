@@ -144,47 +144,47 @@
   // —————————————— 3) CONSTRUIR COMPOSTOS (MCQ) ——————————————
   const COMPOUNDS = [
      // Òxids bàsics
-  { syms:['Fe','O'],  name:'Òxid de ferro(III) (Fe₂O₃)' },
-  { syms:['Cu','O'],  name:'Òxid de coure(II) (CuO)' },
-  { syms:['Ca','O'],  name:'Òxid de calci (CaO)' },
-  { syms:['Mg','O'],  name:'Òxid de magnesi (MgO)' },
-  { syms:['Al','O'],  name:'Òxid d’alumini (Al₂O₃)' },
+  { syms:['Fe','O'],  name:'Òxid de ferro(III)' },
+  { syms:['Cu','O'],  name:'Òxid de coure(II)' },
+  { syms:['Ca','O'],  name:'Òxid de calci' },
+  { syms:['Mg','O'],  name:'Òxid de magnesi' },
+  { syms:['Al','O'],  name:'Òxid d’alumini' },
 
   // Òxids no metàl·lics
-  { syms:['C','O'],   name:'Diòxid de carboni (CO₂)' },
-  { syms:['N','O'],   name:'Diòxid de nitrogen (NO₂)' },
-  { syms:['S','O'],   name:'Triòxid de sofre (SO₃)' },
-  { syms:['P','O'],   name:'Pentòxid de difòsfor (P₂O₅)' },
+  { syms:['C','O'],   name:'Diòxid de carboni' },
+  { syms:['N','O'],   name:'Diòxid de nitrogen' },
+  { syms:['S','O'],   name:'Triòxid de sofre' },
+  { syms:['P','O'],   name:'Pentòxid de difòsfor' },
 
   // Hidràcids
-  { syms:['H','Cl'],  name:'Àcid clorhídric (HCl)' },
-  { syms:['H','S'],   name:'Àcid sulfhídric (H₂S)' },
-  { syms:['H','Br'],  name:'Àcid bromhídric (HBr)' },
-  { syms:['H','I'],   name:'Àcid iodhídric (HI)' },
-  { syms:['H','F'],   name:'Àcid fluorhídric (HF)' },
+  { syms:['H','Cl'],  name:'Àcid clorhídric' },
+  { syms:['H','S'],   name:'Àcid sulfhídric' },
+  { syms:['H','Br'],  name:'Àcid bromhídric' },
+  { syms:['H','I'],   name:'Àcid iodhídric' },
+  { syms:['H','F'],   name:'Àcid fluorhídric' },
 
   // Oxiàcids
-  { syms:['H','N','O'], name:'Àcid nítric (HNO₃)' },
-  { syms:['H','S','O'], name:'Àcid sulfúric (H₂SO₄)' },
-  { syms:['H','C','O'], name:'Àcid carbònic (H₂CO₃)' },
-  { syms:['H','P','O'], name:'Àcid fosfòric (H₃PO₄)' },
+  { syms:['H','N','O'], name:'Àcid nítric' },
+  { syms:['H','S','O'], name:'Àcid sulfúric' },
+  { syms:['H','C','O'], name:'Àcid carbònic' },
+  { syms:['H','P','O'], name:'Àcid fosfòric' },
 
   // Hidròxids
-  { syms:['Na','O','H'], name:'Hidròxid de sodi (NaOH)' },
-  { syms:['K','O','H'],  name:'Hidròxid de potassi (KOH)' },
-  { syms:['Ca','O','H'], name:'Hidròxid de calci (Ca(OH)₂)' },
-  { syms:['Fe','O','H'], name:'Hidròxid de ferro(III) (Fe(OH)₃)' },
-  { syms:['Al','O','H'], name:'Hidròxid d’alumini (Al(OH)₃)' },
+  { syms:['Na','O','H'], name:'Hidròxid de sodi' },
+  { syms:['K','O','H'],  name:'Hidròxid de potassi' },
+  { syms:['Ca','O','H'], name:'Hidròxid de calci' },
+  { syms:['Fe','O','H'], name:'Hidròxid de ferro(III)' },
+  { syms:['Al','O','H'], name:'Hidròxid d’alumini' },
 
   // Sals neutres
-  { syms:['Na','Cl'], name:'Clorur de sodi (NaCl)' },
-  { syms:['K','Br'],  name:'Bromur de potassi (KBr)' },
-  { syms:['Ca','Cl'], name:'Clorur de calci (CaCl₂)' },
-  { syms:['Na','NO₃'], name:'Nitrat de sodi (NaNO₃)' },
-  { syms:['K','NO₃'],  name:'Nitrat de potassi (KNO₃)' },
-  { syms:['Ca','CO₃'], name:'Carbonat de calci (CaCO₃)' },
-  { syms:['Na₂SO₄'], name:'Sulfat de sodi (Na₂SO₄)' },
-  { syms:['Cu','SO₄'], name:'Sulfat de coure(II) (CuSO₄)' },
+  { syms:['Na','Cl'], name:'Clorur de sodi' },
+  { syms:['K','Br'],  name:'Bromur de potassi' },
+  { syms:['Ca','Cl'], name:'Clorur de calci' },
+  { syms:['Na','NO₃'], name:'Nitrat de sodi' },
+  { syms:['K','NO₃'],  name:'Nitrat de potassi' },
+  { syms:['Ca','CO₃'], name:'Carbonat de calci' },
+  { syms:['Na₂SO₄'], name:'Sulfat de sodi' },
+  { syms:['Cu','SO₄'], name:'Sulfat de coure(II)' },
 
   // Compostos moleculars senzills
   { syms:['H','O'],   name:'Aigua (H₂O)' },
@@ -194,18 +194,18 @@
   { syms:['CO'],      name:'Monòxid de carboni (CO)' },
 
   // Altres compostos interessants
-  { syms:['Na','HCO₃'], name:'Bicarbonat de sodi (NaHCO₃)' },
-  { syms:['Ca','SO₄'],  name:'Sulfat de calci (CaSO₄)' },
-  { syms:['Fe₂S₃'], name:'Sulfur de ferro(III) (Fe₂S₃)' },
-  { syms:['Ag','NO₃'],  name:'Nitrat de plata (AgNO₃)' },
-  { syms:['ZnCl₂'],  name:'Clorur de zinc (ZnCl₂)' },
-  { syms:['Na₂CO₃'], name:'Carbonat de sodi (Na₂CO₃)' },
-  { syms:['KMnO₄'], name:'Permanganat de potassi (KMnO₄)' },
-  { syms:['NH₄Cl'], name:"Clorur d'amoni (NH₄Cl)" },
-  { syms:['CuSO₄·5H₂O'], name:'Sulfat de coure(II) pentahidrat (CuSO₄·5H₂O)' },
-  { syms:['Ca₃(PO₄)₂'], name:'Fosfat de calci (Ca₃(PO₄)₂)' },
-  { syms:['CH₃COOH'], name:'Àcid acètic (CH₃COOH)' },
-  { syms:['C₆H₁₂O₆'], name:'Glucosa (C₆H₁₂O₆)' }
+  { syms:['Na','HCO₃'], name:'Bicarbonat de sodi' },
+  { syms:['Ca','SO₄'],  name:'Sulfat de calci' },
+  { syms:['Fe₂S₃'], name:'Sulfur de ferro(III)' },
+  { syms:['Ag','NO₃'],  name:'Nitrat de plata' },
+  { syms:['ZnCl₂'],  name:'Clorur de zinc' },
+  { syms:['Na₂CO₃'], name:'Carbonat de sodi' },
+  { syms:['KMnO₄'], name:'Permanganat de potassi' },
+  { syms:['NH₄Cl'], name:"Clorur d'amoni" },
+  { syms:['CuSO₄·5H₂O'], name:'Sulfat de coure(II) pentahidrat' },
+  { syms:['Ca₃(PO₄)₂'], name:'Fosfat de calci' },
+  { syms:['CH₃COOH'], name:'Àcid acètic' },
+  { syms:['C₆H₁₂O₆'], name:'Glucosa' }
 ];
   function genCompounds(){
     const c = pick(COMPOUNDS);
