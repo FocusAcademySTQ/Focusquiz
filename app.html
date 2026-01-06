@@ -40,40 +40,26 @@
     <div class="wrap row header-bar">
 
       <!-- 🔹 Marca -->
-      <div class="brand">
+      <button class="brand brand-home" type="button" onclick="showView('home')" aria-label="Tornar a l'inici">
         <div class="logo">FQ</div>
         <h1>Focus Academy</h1>
-      </div>
+      </button>
 
       <!-- 🔹 Navegació principal -->
       <nav class="main-nav" aria-label="Navegació principal">
-        <button class="pill nav-btn" data-view="home" type="button" onclick="showView('home')">🏠 Inici</button>
-        <button class="pill nav-btn" data-view="results" type="button" onclick="showView('results')">📊 Resultats</button>
-        <button class="pill nav-btn" data-view="about" type="button" onclick="showView('about')">ℹ️ Qui som?</button>
-        <div class="nav-dropdown" data-dropdown>
-          <button
-            class="pill nav-btn nav-dropdown-toggle"
-            type="button"
-            id="theoryDropdownToggle"
-            aria-haspopup="true"
-            aria-expanded="false"
-            aria-controls="theoryDropdownMenu"
-          >
-            📘 Teoria
-          </button>
-          <div class="dropdown-menu" id="theoryDropdownMenu" role="menu" aria-labelledby="theoryDropdownToggle">
-            <a class="dropdown-item" href="teoria.html" role="menuitem">🔢- Matemàtiques</a>
-            <a class="dropdown-item" href="teoriacatala.html" role="menuitem">📚 - Català</a>
-          </div>
-        </div>
-        <a class="pill" href="/portal/supabase-portal.html" title="Gestor Supabase">Accés professorat</a>
+        <button class="pill nav-btn" type="button" onclick="scrollToSection('tutorSection')">Tutor</button>
+        <button class="pill nav-btn" type="button" onclick="scrollToSection('calendarSection')">Calendari</button>
+        <a class="pill nav-btn" href="class.html">Aula</a>
+        <a class="pill nav-btn" href="play/index.html">Live</a>
+        <a class="pill nav-btn nav-btn-ghost" href="/portal/supabase-portal.html">Accés professorat</a>
       </nav>
 
       <!-- 🔹 Usuari actiu -->
       <div class="user-controls">
-        <span id="activeUser" class="chip user-chip" aria-live="polite">
+        <button id="activeUser" class="chip user-chip" type="button" aria-live="polite">
           👤 <span class="label">Sessió no iniciada</span>
-        </span>
+          <span class="user-chip-helper">(fes clic per veure resultats)</span>
+        </button>
         <button id="switchUserBtn" class="pill small" type="button">Canvia</button>
         <button id="logoutBtn" class="pill small" type="button">Surt</button>
       </div>
@@ -91,12 +77,12 @@
         <div id="moduleGrid"></div>
 
         <!-- 🧠 Consell del tutor -->
-        <div id="recommendation" class="panel card tutor-card">
+        <div id="tutorSection" class="panel card tutor-card">
           <h3 class="title tutor-title">Consell del teu tutor virtual 🤖</h3>
           <div id="recommendationText" class="subtitle">Carregant recomanació...</div>
         </div>
 
-        <section class="panel card study-calendar" aria-labelledby="studyCalendarTitle">
+        <section id="calendarSection" class="panel card study-calendar" aria-labelledby="studyCalendarTitle">
           <div class="study-calendar__header">
             <div>
               <p class="portal-section-title">Calendari d'estudi</p>
@@ -178,12 +164,12 @@
           </div>
         </section>
 
-        <a class="learning-card" href="flashcards.html">
+        <a class="learning-card" href="recursos.html">
           <div class="learning-icon" aria-hidden="true">🃏</div>
           <div class="learning-body">
-            <p class="learning-kicker">Nova pràctica</p>
-            <h3 class="learning-title">Flashcards d'estudi</h3>
-            <p class="learning-copy">Accedeix al menú complet de targetes amb repetició espaiada, notes i estadístiques.</p>
+            <p class="learning-kicker">Nova secció</p>
+            <h3 class="learning-title">Recursos</h3>
+            <p class="learning-copy">Consulta teoria i flashcards agrupades per assignatura en un sol lloc.</p>
           </div>
           <span class="learning-pill">Entrar →</span>
         </a>
@@ -248,6 +234,41 @@
           document.addEventListener('DOMContentLoaded', () => {
             // 🔹 Mostra recomanació del tutor
             showRecommendation('#recommendationText');
+
+            const dropdown = document.querySelector('[data-nav-dropdown]');
+            if (dropdown) {
+              const summary = dropdown.querySelector('summary');
+              const closeDropdown = () => {
+                dropdown.open = false;
+                if (summary) summary.focus();
+              };
+
+              dropdown.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && dropdown.open) {
+                  event.preventDefault();
+                  closeDropdown();
+                }
+              });
+
+              document.addEventListener('click', (event) => {
+                if (!dropdown.contains(event.target)) dropdown.open = false;
+              });
+
+              if (summary) {
+                summary.addEventListener('keydown', (event) => {
+                  if (event.key === ' ' || event.key === 'Enter') {
+                    event.preventDefault();
+                    dropdown.open = !dropdown.open;
+                  }
+                });
+              }
+
+              dropdown.addEventListener('toggle', () => {
+                if (summary) summary.setAttribute('aria-expanded', dropdown.open ? 'true' : 'false');
+              });
+
+              if (summary) summary.setAttribute('aria-expanded', dropdown.open ? 'true' : 'false');
+            }
 
             // 🔹 Mostra l'usuari actiu (si n'hi ha)
             const current = localStorage.getItem('lastStudent');
