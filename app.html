@@ -297,7 +297,9 @@
 
             const calendarSection = document.querySelector('.study-calendar');
             if (calendarSection) {
-              const storageKey = 'focusquiz.studyCalendar';
+              const storagePrefix = 'focusquiz.studyCalendar';
+              const getStorageKey = () => `${storagePrefix}.${localStorage.getItem('lastStudent') || 'default'}`;
+              let storageKey = getStorageKey();
               const addShortcut = document.getElementById('studyCalendarAddShortcut');
               const todayButton = document.getElementById('studyCalendarToday');
               const prevButton = document.getElementById('studyCalendarPrev');
@@ -320,11 +322,15 @@
               let currentMonth = new Date();
               currentMonth.setDate(1);
 
-              try {
-                eventsByDate = JSON.parse(localStorage.getItem(storageKey)) || {};
-              } catch (error) {
-                eventsByDate = {};
-              }
+              const loadEvents = () => {
+                try {
+                  eventsByDate = JSON.parse(localStorage.getItem(storageKey)) || {};
+                } catch (error) {
+                  eventsByDate = {};
+                }
+              };
+
+              loadEvents();
 
               const typeLabels = {
                 homework: 'Deures',
@@ -364,6 +370,13 @@
 
               const persist = () => {
                 localStorage.setItem(storageKey, JSON.stringify(eventsByDate));
+              };
+
+              const syncWithActiveUser = () => {
+                storageKey = getStorageKey();
+                loadEvents();
+                renderCells();
+                renderDetails();
               };
 
               const renderMonthGrid = () => {
@@ -547,6 +560,9 @@
                 currentMonth.setMonth(currentMonth.getMonth() + 1);
                 renderMonthGrid();
               });
+
+              document.addEventListener('focusquiz:user-login', syncWithActiveUser);
+              document.addEventListener('focusquiz:user-logout', syncWithActiveUser);
 
               renderMonthGrid();
             }
