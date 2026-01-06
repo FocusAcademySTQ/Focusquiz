@@ -399,7 +399,7 @@ function buildHome(){
   renderSection('Mòduls de matemàtiques','math');
   renderSection('Mòduls de llengua catalana','cat');
   renderSection('Mòduls de llengua castellana','esp');
-  renderSection('Mòduls de ciències (en manteniment, no utilitzar)','sci');
+  renderSection('Mòduls de ciències','sci');
   renderSection('Mòduls de llengua anglesa','ang');
   renderSection('Mòduls de geografia','geo');
   renderSection('Mòduls de repàs','rep');
