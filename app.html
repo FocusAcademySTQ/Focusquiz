@@ -50,23 +50,35 @@
         <button class="pill nav-btn" data-view="home" type="button" onclick="showView('home')">🏠 Inici</button>
         <button class="pill nav-btn" data-view="results" type="button" onclick="showView('results')">📊 Resultats</button>
         <button class="pill nav-btn" data-view="about" type="button" onclick="showView('about')">ℹ️ Qui som?</button>
-        <div class="nav-dropdown" data-dropdown>
-          <button
-            class="pill nav-btn nav-dropdown-toggle"
-            type="button"
-            id="theoryDropdownToggle"
-            aria-haspopup="true"
-            aria-expanded="false"
-            aria-controls="theoryDropdownMenu"
-          >
-            📘 Teoria
-          </button>
-          <div class="dropdown-menu" id="theoryDropdownMenu" role="menu" aria-labelledby="theoryDropdownToggle">
-            <a class="dropdown-item" href="teoria.html" role="menuitem">🔢- Matemàtiques</a>
-            <a class="dropdown-item" href="teoriacatala.html" role="menuitem">📚 - Català</a>
+        <details class="nav-dropdown" data-nav-dropdown>
+          <summary class="pill nav-btn nav-dropdown-toggle" aria-haspopup="true" aria-expanded="false">
+            📚 Recursos
+          </summary>
+          <div class="dropdown-panel" role="menu" aria-label="Altres enllaços">
+            <div class="dropdown-section">
+              <p class="dropdown-section-title">Teoria</p>
+              <a class="dropdown-link" href="teoria.html" role="menuitem">
+                <span class="dropdown-link-title">Matemàtiques</span>
+                <span class="dropdown-link-subtitle">Formularis clars per repassar i practicar.</span>
+              </a>
+              <a class="dropdown-link" href="teoriacatala.html" role="menuitem">
+                <span class="dropdown-link-title">Català</span>
+                <span class="dropdown-link-subtitle">Gramàtica i ortografia amb exemples breus.</span>
+              </a>
+            </div>
+            <div class="dropdown-section">
+              <p class="dropdown-section-title">Recursos</p>
+              <a class="dropdown-link" href="flashcards.html" role="menuitem">
+                <span class="dropdown-link-title">Flashcards</span>
+                <span class="dropdown-link-subtitle">Targetes d'estudi amb repetició espaiada.</span>
+              </a>
+              <a class="dropdown-link" href="/portal/supabase-portal.html" role="menuitem">
+                <span class="dropdown-link-title">Accés professorat</span>
+                <span class="dropdown-link-subtitle">Gestor Supabase per crear i revisar exàmens.</span>
+              </a>
+            </div>
           </div>
-        </div>
-        <a class="pill" href="/portal/supabase-portal.html" title="Gestor Supabase">Accés professorat</a>
+        </details>
       </nav>
 
       <!-- 🔹 Usuari actiu -->
@@ -248,6 +260,41 @@
           document.addEventListener('DOMContentLoaded', () => {
             // 🔹 Mostra recomanació del tutor
             showRecommendation('#recommendationText');
+
+            const dropdown = document.querySelector('[data-nav-dropdown]');
+            if (dropdown) {
+              const summary = dropdown.querySelector('summary');
+              const closeDropdown = () => {
+                dropdown.open = false;
+                if (summary) summary.focus();
+              };
+
+              dropdown.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && dropdown.open) {
+                  event.preventDefault();
+                  closeDropdown();
+                }
+              });
+
+              document.addEventListener('click', (event) => {
+                if (!dropdown.contains(event.target)) dropdown.open = false;
+              });
+
+              if (summary) {
+                summary.addEventListener('keydown', (event) => {
+                  if (event.key === ' ' || event.key === 'Enter') {
+                    event.preventDefault();
+                    dropdown.open = !dropdown.open;
+                  }
+                });
+              }
+
+              dropdown.addEventListener('toggle', () => {
+                if (summary) summary.setAttribute('aria-expanded', dropdown.open ? 'true' : 'false');
+              });
+
+              if (summary) summary.setAttribute('aria-expanded', dropdown.open ? 'true' : 'false');
+            }
 
             // 🔹 Mostra l'usuari actiu (si n'hi ha)
             const current = localStorage.getItem('lastStudent');
