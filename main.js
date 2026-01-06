@@ -361,6 +361,7 @@ function showView(name){
 }
 
 function scrollToSection(id){
+  showView('home');
   const target = document.getElementById(id);
   if (!target) return;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

@@ -49,8 +49,8 @@
       <nav class="main-nav" aria-label="Navegació principal">
         <button class="pill nav-btn" type="button" onclick="scrollToSection('tutorSection')">Tutor</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('calendarSection')">Calendari</button>
-        <button class="pill nav-btn" type="button" onclick="scrollToSection('section class')">Aula</button>
-       <button class="pill nav-btn" type="button" onclick="scrollToSection('section class')">Live</button>
+        <button class="pill nav-btn" type="button" onclick="scrollToSection('classSection')">Aula</button>
+        <button class="pill nav-btn" type="button" onclick="scrollToSection('liveSection')">Live</button>
         <a class="pill nav-btn nav-btn-ghost" href="/portal/supabase-portal.html">Accés professorat</a>
       </nav>
 
@@ -58,6 +58,7 @@
       <div class="user-controls">
         <button id="activeUser" class="chip user-chip" type="button" aria-live="polite">
           👤 <span class="label">Sessió no iniciada</span>
+          <span class="user-chip-helper">(fes clic per veure resultats)</span>
         </button>
         <button id="switchUserBtn" class="pill small" type="button">Canvia</button>
         <button id="logoutBtn" class="pill small" type="button">Surt</button>
@@ -174,7 +175,7 @@
         </a>
 
 
-        <section class="panel card home-live-cta home-class-cta" aria-labelledby="homeClassTitle">
+        <section id="classSection" class="panel card home-live-cta home-class-cta" aria-labelledby="homeClassTitle">
           <div class="home-live-cta__body">
             <p class="portal-section-title">Aula FocusQuiz</p>
             <h2 id="homeClassTitle">Has rebut un codi de prova?</h2>
@@ -203,7 +204,7 @@
           <div class="home-live-cta__art home-class-cta__art" aria-hidden="true"></div>
         </section>
 
-        <section class="panel card home-live-cta" aria-labelledby="homeLiveTitle">
+        <section id="liveSection" class="panel card home-live-cta" aria-labelledby="homeLiveTitle">
           <div class="home-live-cta__body">
             <p class="portal-section-title">Partides Live</p>
             <h2 id="homeLiveTitle">Tens un codi FocusQuiz?</h2>
