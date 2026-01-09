@@ -24,6 +24,171 @@ function closeModalAndGoHome(){
   }
 }
 
+const tutorChatState = {
+  messages: [],
+  apiKey: '',
+  apiBase: 'https://api.deepseek.com',
+  model: 'deepseek-chat'
+};
+
+const TUTOR_SYSTEM_PROMPT = `Ets un tutor virtual de Focus Academy. Dona explicacions clares, pas a pas, i fes preguntes per detectar dubtes. Respon en català quan sigui possible.`;
+
+function openTutorChat(){
+  tutorChatState.apiKey = localStorage.getItem('focus-tutor-api-key') || '';
+  tutorChatState.apiBase = localStorage.getItem('focus-tutor-api-base') || 'https://api.deepseek.com';
+  tutorChatState.model = localStorage.getItem('focus-tutor-model') || 'deepseek-chat';
+
+  const html = `
+    <section class="tutor-chat" aria-labelledby="tutorChatTitle">
+      <header class="tutor-chat__header">
+        <h3 class="title" id="tutorChatTitle">Tutor virtual · Xat amb IA</h3>
+        <p class="tutor-chat__lead">Pregunta dubtes de classe, demana exemples o fes repàs. La clau s'emmagatzema només en aquest dispositiu.</p>
+      </header>
+      <div class="tutor-chat__config">
+        <label class="tutor-chat__field">
+          <span>Clau API DeepSeek</span>
+          <input id="tutorChatApiKey" type="password" placeholder="Introdueix la teva clau" autocomplete="off" />
+        </label>
+        <label class="tutor-chat__field">
+          <span>Model</span>
+          <input id="tutorChatModel" type="text" placeholder="deepseek-chat" />
+        </label>
+        <label class="tutor-chat__field">
+          <span>Endpoint API</span>
+          <input id="tutorChatApiBase" type="text" placeholder="https://api.deepseek.com" />
+        </label>
+      </div>
+      <div class="tutor-chat__messages" id="tutorChatMessages" aria-live="polite"></div>
+      <form class="tutor-chat__composer" id="tutorChatForm">
+        <textarea id="tutorChatInput" placeholder="Escriu el teu dubte..."></textarea>
+        <div class="tutor-chat__actions">
+          <button class="btn-ghost" type="button" id="tutorChatClear">Neteja conversa</button>
+          <button class="btn-primary" type="submit">Enviar</button>
+        </div>
+        <p class="tutor-chat__hint">Consell: evita compartir dades personals. La clau API queda guardada localment.</p>
+      </form>
+    </section>
+  `;
+
+  showModal(html, { innerClass: 'modal-inner--balanced modal-inner--floating' });
+
+  const apiKeyInput = $('#tutorChatApiKey');
+  const modelInput = $('#tutorChatModel');
+  const apiBaseInput = $('#tutorChatApiBase');
+  const messagesEl = $('#tutorChatMessages');
+  const form = $('#tutorChatForm');
+  const clearBtn = $('#tutorChatClear');
+  const inputEl = $('#tutorChatInput');
+
+  if (!apiKeyInput || !modelInput || !apiBaseInput || !messagesEl || !form || !clearBtn || !inputEl) return;
+
+  apiKeyInput.value = tutorChatState.apiKey;
+  modelInput.value = tutorChatState.model;
+  apiBaseInput.value = tutorChatState.apiBase;
+
+  renderTutorChatMessages(messagesEl);
+  if (!tutorChatState.messages.length) {
+    appendTutorChatMessage(messagesEl, { role: 'system', content: 'Hola! Sóc el teu tutor virtual. En què et puc ajudar avui?' });
+  }
+
+  const persistConfig = () => {
+    tutorChatState.apiKey = apiKeyInput.value.trim();
+    tutorChatState.model = modelInput.value.trim() || 'deepseek-chat';
+    tutorChatState.apiBase = apiBaseInput.value.trim() || 'https://api.deepseek.com';
+    localStorage.setItem('focus-tutor-api-key', tutorChatState.apiKey);
+    localStorage.setItem('focus-tutor-model', tutorChatState.model);
+    localStorage.setItem('focus-tutor-api-base', tutorChatState.apiBase);
+  };
+
+  apiKeyInput.addEventListener('input', persistConfig);
+  modelInput.addEventListener('input', persistConfig);
+  apiBaseInput.addEventListener('input', persistConfig);
+
+  clearBtn.addEventListener('click', () => {
+    tutorChatState.messages = [];
+    messagesEl.innerHTML = '';
+    appendTutorChatMessage(messagesEl, { role: 'system', content: 'Conversa reiniciada. Explica què vols repassar.' });
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const content = inputEl.value.trim();
+    if (!content) return;
+
+    persistConfig();
+
+    appendTutorChatMessage(messagesEl, { role: 'user', content });
+    tutorChatState.messages.push({ role: 'user', content });
+    inputEl.value = '';
+
+    if (!tutorChatState.apiKey) {
+      appendTutorChatMessage(messagesEl, { role: 'assistant', content: 'Introdueix la clau API per connectar amb DeepSeek.' });
+      return;
+    }
+
+    const loadingEl = appendTutorChatMessage(messagesEl, { role: 'system', content: 'El tutor està pensant...' });
+
+    try {
+      const reply = await fetchTutorChatResponse();
+      loadingEl?.remove();
+      appendTutorChatMessage(messagesEl, { role: 'assistant', content: reply });
+      tutorChatState.messages.push({ role: 'assistant', content: reply });
+    } catch (err) {
+      loadingEl?.remove();
+      appendTutorChatMessage(messagesEl, { role: 'assistant', content: 'No hem pogut contactar amb el servei. Revisa la clau i l\'endpoint.' });
+      console.error('No s\'ha pogut obtenir resposta del tutor.', err);
+    }
+  });
+}
+
+function renderTutorChatMessages(messagesEl){
+  messagesEl.innerHTML = '';
+  tutorChatState.messages.forEach((message) => appendTutorChatMessage(messagesEl, message));
+}
+
+function appendTutorChatMessage(messagesEl, message){
+  const div = document.createElement('div');
+  const roleClass = message.role === 'user'
+    ? 'tutor-chat__message--user'
+    : message.role === 'assistant'
+      ? 'tutor-chat__message--assistant'
+      : 'tutor-chat__message--system';
+  div.className = `tutor-chat__message ${roleClass}`;
+  div.textContent = message.content;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+  return div;
+}
+
+async function fetchTutorChatResponse(){
+  const apiBase = tutorChatState.apiBase.replace(/\/$/, '');
+  const payload = {
+    model: tutorChatState.model,
+    messages: [
+      { role: 'system', content: TUTOR_SYSTEM_PROMPT },
+      ...tutorChatState.messages
+    ],
+    temperature: 0.4
+  };
+
+  const response = await fetch(`${apiBase}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${tutorChatState.apiKey}`
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`DeepSeek error ${response.status}: ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data?.choices?.[0]?.message?.content?.trim() || 'No he rebut cap resposta. Prova de reformular la pregunta.';
+}
+
 function openMapOverlay(title, src){
   const existing = document.querySelector('.map-overlay');
   if (existing) existing.remove();
@@ -3125,4 +3290,3 @@ document.addEventListener('focusquiz:user-logout', () => {
   showView('home');
   ensureUser();
 });
-
