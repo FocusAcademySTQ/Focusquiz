@@ -27,7 +27,7 @@ function closeModalAndGoHome(){
 const tutorChatState = {
   messages: [],
   apiKey: '',
-  apiBase: 'https://api.deepseek.com',
+  apiBase: 'https://api.deepseek.com/v1',
   model: 'deepseek-chat'
 };
 
@@ -35,7 +35,7 @@ const TUTOR_SYSTEM_PROMPT = `Ets un tutor virtual de Focus Academy. Dona explica
 
 function openTutorChat(){
   tutorChatState.apiKey = localStorage.getItem('focus-tutor-api-key') || '';
-  tutorChatState.apiBase = localStorage.getItem('focus-tutor-api-base') || 'https://api.deepseek.com';
+  tutorChatState.apiBase = localStorage.getItem('focus-tutor-api-base') || 'https://api.deepseek.com/v1';
   tutorChatState.model = localStorage.getItem('focus-tutor-model') || 'deepseek-chat';
 
   const html = `
@@ -55,7 +55,7 @@ function openTutorChat(){
         </label>
         <label class="tutor-chat__field">
           <span>Endpoint API</span>
-          <input id="tutorChatApiBase" type="text" placeholder="https://api.deepseek.com" />
+          <input id="tutorChatApiBase" type="text" placeholder="https://api.deepseek.com/v1" />
         </label>
       </div>
       <div class="tutor-chat__messages" id="tutorChatMessages" aria-live="polite"></div>
@@ -94,7 +94,7 @@ function openTutorChat(){
   const persistConfig = () => {
     tutorChatState.apiKey = apiKeyInput.value.trim();
     tutorChatState.model = modelInput.value.trim() || 'deepseek-chat';
-    tutorChatState.apiBase = apiBaseInput.value.trim() || 'https://api.deepseek.com';
+    tutorChatState.apiBase = normalizeTutorChatBase(apiBaseInput.value.trim() || 'https://api.deepseek.com/v1');
     localStorage.setItem('focus-tutor-api-key', tutorChatState.apiKey);
     localStorage.setItem('focus-tutor-model', tutorChatState.model);
     localStorage.setItem('focus-tutor-api-base', tutorChatState.apiBase);
@@ -161,7 +161,7 @@ function appendTutorChatMessage(messagesEl, message){
 }
 
 async function fetchTutorChatResponse(){
-  const apiBase = tutorChatState.apiBase.replace(/\/$/, '');
+  const apiBase = normalizeTutorChatBase(tutorChatState.apiBase);
   const payload = {
     model: tutorChatState.model,
     messages: [
@@ -187,6 +187,13 @@ async function fetchTutorChatResponse(){
 
   const data = await response.json();
   return data?.choices?.[0]?.message?.content?.trim() || 'No he rebut cap resposta. Prova de reformular la pregunta.';
+}
+
+function normalizeTutorChatBase(value){
+  const trimmed = value.trim().replace(/\/$/, '');
+  if (!trimmed) return 'https://api.deepseek.com/v1';
+  if (trimmed.endsWith('/v1')) return trimmed;
+  return `${trimmed}/v1`;
 }
 
 function openMapOverlay(title, src){
