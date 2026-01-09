@@ -555,6 +555,23 @@ main{padding: 28px 0 60px}
 .tutor-list{margin:0; padding-left:20px; display:grid; gap:6px; color:var(--muted)}
 .tutor-link{color:var(--primary-strong); font-weight:600; text-decoration:none}
 .tutor-link:hover{text-decoration:underline}
+.tutor-actions{margin-top:12px; display:flex; justify-content:flex-end}
+
+.tutor-chat{display:flex; flex-direction:column; gap:16px}
+.tutor-chat__header{display:flex; flex-direction:column; gap:6px}
+.tutor-chat__lead{margin:0; color:var(--muted)}
+.tutor-chat__config{display:grid; gap:8px; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr))}
+.tutor-chat__field{display:flex; flex-direction:column; gap:6px; font-weight:600}
+.tutor-chat__field input{border:1px solid rgba(148,163,184,0.45); border-radius:12px; padding:10px 12px; font-family:inherit}
+.tutor-chat__messages{display:flex; flex-direction:column; gap:12px; padding:14px; border-radius:16px; background:rgba(248,250,252,0.9); border:1px solid rgba(148,163,184,0.25); min-height:220px; max-height:320px; overflow:auto}
+.tutor-chat__message{padding:10px 12px; border-radius:14px; max-width:85%; line-height:1.4}
+.tutor-chat__message--user{align-self:flex-end; background:color-mix(in srgb, var(--primary) 18%, #ffffff 82%)}
+.tutor-chat__message--assistant{align-self:flex-start; background:rgba(255,255,255,0.85); border:1px solid rgba(148,163,184,0.25)}
+.tutor-chat__message--system{align-self:center; text-align:center; background:rgba(15,23,42,0.08); color:var(--ink); font-weight:600}
+.tutor-chat__composer{display:flex; flex-direction:column; gap:10px}
+.tutor-chat__composer textarea{border:1px solid rgba(148,163,184,0.45); border-radius:16px; padding:12px; min-height:90px; font-family:inherit; font-size:1rem}
+.tutor-chat__actions{display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap}
+.tutor-chat__hint{font-size:0.9rem; color:var(--muted)}
 
 .learning-card{
   margin-top:1.2rem;
