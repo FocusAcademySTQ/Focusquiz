@@ -24,9 +24,10 @@ function closeModalAndGoHome(){
   }
 }
 
+const DEEPSEEK_API_KEY = 'sk-7ee355e06a7946d8b5e3bd2ed8e95cf4';
+
 const tutorChatState = {
   messages: [],
-  apiKey: '',
   apiBase: 'https://api.deepseek.com/v1',
   model: 'deepseek-chat'
 };
@@ -34,21 +35,16 @@ const tutorChatState = {
 const TUTOR_SYSTEM_PROMPT = `Ets un tutor virtual de Focus Academy. Dona explicacions clares, pas a pas, i fes preguntes per detectar dubtes. Respon en català quan sigui possible.`;
 
 function openTutorChat(){
-  tutorChatState.apiKey = localStorage.getItem('focus-tutor-api-key') || '';
-  tutorChatState.apiBase = localStorage.getItem('focus-tutor-api-base') || 'https://api.deepseek.com/v1';
-  tutorChatState.model = localStorage.getItem('focus-tutor-model') || 'deepseek-chat';
+  tutorChatState.apiBase = 'https://api.deepseek.com/v1';
+  tutorChatState.model = 'deepseek-chat';
 
   const html = `
     <section class="tutor-chat" aria-labelledby="tutorChatTitle">
       <header class="tutor-chat__header">
         <h3 class="title" id="tutorChatTitle">Tutor virtual · Xat amb IA</h3>
-        <p class="tutor-chat__lead">Pregunta dubtes de classe, demana exemples o fes repàs. La clau s'emmagatzema només en aquest dispositiu.</p>
+        <p class="tutor-chat__lead">Pregunta dubtes de classe, demana exemples o fes repàs. La clau de DeepSeek està integrada a la plataforma.</p>
       </header>
       <div class="tutor-chat__config">
-        <label class="tutor-chat__field">
-          <span>Clau API DeepSeek</span>
-          <input id="tutorChatApiKey" type="password" placeholder="Introdueix la teva clau" autocomplete="off" />
-        </label>
         <label class="tutor-chat__field">
           <span>Model</span>
           <input id="tutorChatModel" type="text" placeholder="deepseek-chat" />
@@ -65,14 +61,13 @@ function openTutorChat(){
           <button class="btn-ghost" type="button" id="tutorChatClear">Neteja conversa</button>
           <button class="btn-primary" type="submit">Enviar</button>
         </div>
-        <p class="tutor-chat__hint">Consell: evita compartir dades personals. La clau API queda guardada localment.</p>
+        <p class="tutor-chat__hint">Consell: evita compartir dades personals.</p>
       </form>
     </section>
   `;
 
   showModal(html, { innerClass: 'modal-inner--balanced modal-inner--floating' });
 
-  const apiKeyInput = $('#tutorChatApiKey');
   const modelInput = $('#tutorChatModel');
   const apiBaseInput = $('#tutorChatApiBase');
   const messagesEl = $('#tutorChatMessages');
@@ -80,9 +75,8 @@ function openTutorChat(){
   const clearBtn = $('#tutorChatClear');
   const inputEl = $('#tutorChatInput');
 
-  if (!apiKeyInput || !modelInput || !apiBaseInput || !messagesEl || !form || !clearBtn || !inputEl) return;
+  if (!modelInput || !apiBaseInput || !messagesEl || !form || !clearBtn || !inputEl) return;
 
-  apiKeyInput.value = tutorChatState.apiKey;
   modelInput.value = tutorChatState.model;
   apiBaseInput.value = tutorChatState.apiBase;
 
@@ -92,15 +86,10 @@ function openTutorChat(){
   }
 
   const persistConfig = () => {
-    tutorChatState.apiKey = apiKeyInput.value.trim();
     tutorChatState.model = modelInput.value.trim() || 'deepseek-chat';
     tutorChatState.apiBase = normalizeTutorChatBase(apiBaseInput.value.trim() || 'https://api.deepseek.com/v1');
-    localStorage.setItem('focus-tutor-api-key', tutorChatState.apiKey);
-    localStorage.setItem('focus-tutor-model', tutorChatState.model);
-    localStorage.setItem('focus-tutor-api-base', tutorChatState.apiBase);
   };
 
-  apiKeyInput.addEventListener('input', persistConfig);
   modelInput.addEventListener('input', persistConfig);
   apiBaseInput.addEventListener('input', persistConfig);
 
@@ -121,8 +110,8 @@ function openTutorChat(){
     tutorChatState.messages.push({ role: 'user', content });
     inputEl.value = '';
 
-    if (!tutorChatState.apiKey) {
-      appendTutorChatMessage(messagesEl, { role: 'assistant', content: 'Introdueix la clau API per connectar amb DeepSeek.' });
+    if (!DEEPSEEK_API_KEY) {
+      appendTutorChatMessage(messagesEl, { role: 'assistant', content: 'Falta configurar la clau API de DeepSeek a la plataforma.' });
       return;
     }
 
@@ -175,7 +164,7 @@ async function fetchTutorChatResponse(){
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${tutorChatState.apiKey}`
+      Authorization: `Bearer ${DEEPSEEK_API_KEY}`
     },
     body: JSON.stringify(payload)
   });
