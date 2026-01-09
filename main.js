@@ -3125,4 +3125,3 @@ document.addEventListener('focusquiz:user-logout', () => {
   showView('home');
   ensureUser();
 });
-
