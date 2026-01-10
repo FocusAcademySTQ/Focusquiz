@@ -540,7 +540,10 @@ function buildHome(){
     const section = document.createElement('div');
     section.innerHTML = `<div class="section-title">${title}</div>`;
     const subgrid = document.createElement('div');
-    subgrid.className = 'grid' + (cat==='math' ? ' grid--math' : '');
+    subgrid.className = 'grid'
+      + (cat==='math' ? ' grid--math' : '')
+      + (cat==='sci' ? ' grid--sci' : '')
+      + (cat==='geo' ? ' grid--geo' : '');
     mods.forEach(m=>{
       const el = document.createElement('div');
       el.className='option';
