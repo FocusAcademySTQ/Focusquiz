@@ -2333,6 +2333,16 @@ function normalizeChemFormula(str) {
     .toUpperCase();
 }
 
+function normalizeSimpleText(str){
+  if(!str) return '';
+  return String(str).toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-z0-9\s]/g,'')
+    .replace(/\s+/g,' ')
+    .trim();
+}
+
 
 function checkAnswer(){
   if(!session || session.done){ flashFeedback('Prova finalitzada. Torna a Inici.'); return }
@@ -2477,6 +2487,12 @@ function checkAnswer(){
       const num = parseFloat(raw.replace(',', '.'));
       ok = Number.isFinite(num) && equalsTol(num, q.meta.numeric, 1e-6);
     }
+  }
+
+  else if(q.meta?.normalize === 'simple-text'){
+    const userAnswer = normalizeSimpleText(raw);
+    const correctAnswer = normalizeSimpleText(q.answer);
+    ok = userAnswer === correctAnswer;
   }
 
   // General
