@@ -1136,29 +1136,67 @@ window.__chemPick = function(sym){
   ];
 
   const WHY_BOND_QUESTIONS = [
-    { prompt:'Per què s’uneixen els àtoms?', answer:'Per assolir una configuració més estable (octet/duet).' },
-    { prompt:'Què passa amb l’energia quan es forma un enllaç?', answer:'S’allibera energia i el sistema es fa més estable.' },
-    { prompt:'Què busquen els àtoms en compartir o transferir electrons?', answer:'Completar la capa de valència.' },
-    { prompt:'Quan es forma un enllaç iònic?', answer:'Quan hi ha transferència d’electrons entre metall i no metall.' }
-  ];
+  { prompt:'Per què s’uneixen els àtoms?', answer:'Per assolir una configuració electrònica més estable.' },
+  { prompt:'Què passa amb l’energia quan es forma un enllaç químic?', answer:'S’allibera energia i el sistema disminueix la seva energia.' },
+  { prompt:'Què busquen els àtoms en compartir o transferir electrons?', answer:'Completar la capa de valència.' },
+  { prompt:'Quan es forma un enllaç iònic?', answer:'Quan hi ha transferència d’electrons entre un metall i un no metall.' },
+  { prompt:'Per què els gasos nobles no solen formar enllaços?', answer:'Perquè ja tenen la capa de valència completa.' },
+  { prompt:'Quina relació hi ha entre estabilitat i energia?', answer:'Com més baixa és l’energia del sistema, més estable és.' },
+  { prompt:'Què és la capa de valència?', answer:'És l’última capa electrònica d’un àtom.' },
+  { prompt:'Què és la regla de l’octet?', answer:'La tendència dels àtoms a tenir vuit electrons a la capa de valència.' },
+  { prompt:'Què passa quan un àtom perd electrons?', answer:'Es converteix en un catió amb càrrega positiva.' },
+  { prompt:'Què passa quan un àtom guanya electrons?', answer:'Es converteix en un anió amb càrrega negativa.' },
+  { prompt:'Quina força manté units els ions en un enllaç iònic?', answer:'L’atracció electrostàtica entre càrregues oposades.' },
+  { prompt:'Per què els enllaços iònics formen xarxes cristal·lines?', answer:'Perquè els ions s’ordenen per maximitzar les atraccions i minimitzar les repulsions.' },
+  { prompt:'Quan es forma un enllaç covalent?', answer:'Quan dos no metalls comparteixen electrons.' },
+  { prompt:'Per què es comparteixen electrons en un enllaç covalent?', answer:'Perquè cap dels àtoms pot perdre o guanyar electrons fàcilment.' },
+  { prompt:'Què és una molècula?', answer:'Una agrupació d’àtoms units per enllaços covalents.' },
+  { prompt:'Què és un enllaç covalent simple?', answer:'Un enllaç on es comparteix una parella d’electrons.' },
+  { prompt:'Què és l’electronegativitat?', answer:'La capacitat d’un àtom per atraure electrons.' },
+  { prompt:'Com influeix l’electronegativitat en el tipus d’enllaç?', answer:'Com més gran és la diferència, més iònic és l’enllaç.' },
+  { prompt:'Què és un enllaç covalent polar?', answer:'Un enllaç on els electrons es comparteixen de manera desigual.' },
+  { prompt:'Per què l’aigua és una molècula polar?', answer:'Per la diferència d’electronegativitat entre l’oxigen i l’hidrogen.' }
+];
 
   const BOND_EXAMPLES = [
-    { formula:'NaCl', type:'Iònic' },
-    { formula:'MgO', type:'Iònic' },
-    { formula:'CaCl₂', type:'Iònic' },
-    { formula:'KBr', type:'Iònic' },
-    { formula:'H₂O', type:'Covalent' },
-    { formula:'CO₂', type:'Covalent' },
-    { formula:'NH₃', type:'Covalent' },
-    { formula:'CH₄', type:'Covalent' }
-  ];
+  // Enllaç iònic (metall + no metall)
+  { formula:'NaCl', type:'Iònic' },
+  { formula:'MgO', type:'Iònic' },
+  { formula:'CaCl₂', type:'Iònic' },
+  { formula:'KBr', type:'Iònic' },
+  { formula:'LiF', type:'Iònic' },
+  { formula:'Na₂O', type:'Iònic' },
+  { formula:'Al₂O₃', type:'Iònic' },
+  { formula:'CaO', type:'Iònic' },
+  { formula:'Na₂S', type:'Iònic' },
+  { formula:'MgCl₂', type:'Iònic' },
+  // Enllaç covalent (no metall + no metall)
+  { formula:'H₂O', type:'Covalent' },
+  { formula:'CO₂', type:'Covalent' },
+  { formula:'NH₃', type:'Covalent' },
+  { formula:'CH₄', type:'Covalent' },
+  { formula:'O₂', type:'Covalent' },
+  { formula:'N₂', type:'Covalent' },
+  { formula:'HCl', type:'Covalent' },
+  { formula:'SO₂', type:'Covalent' },
+  { formula:'SO₃', type:'Covalent' },
+  { formula:'NO₂', type:'Covalent' }
+];
 
   const BONDING_PROPERTIES = [
-    { prop:'Estat a temperatura ambient', ionic:'Sòlid cristal·lí', covalent:'Gas o líquid (alguns sòlids)' },
-    { prop:'Solubilitat en aigua', ionic:'Alta (es dissocien)', covalent:'Baixa, excepte alguns' },
-    { prop:'Punt de fusió/ebullició', ionic:'Alt', covalent:'Baix o moderat' },
-    { prop:'Conductivitat elèctrica', ionic:'Condueixen en dissolució o en fusió', covalent:'No condueixen (generalment)' }
-  ];
+  { prop:'Estat a temperatura ambient', ionic:'Sòlid cristal·lí', covalent:'Gas o líquid (alguns sòlids)' },
+  { prop:'Solubilitat en aigua', ionic:'Alta (es dissocien en ions)', covalent:'Baixa, excepte alguns compostos polars' },
+  { prop:'Punt de fusió i ebullició', ionic:'Alt', covalent:'Baix o moderat' },
+  { prop:'Conductivitat elèctrica', ionic:'Condueixen en dissolució o en estat fos', covalent:'No condueixen (en general)' },
+  { prop:'Força de l’enllaç', ionic:'Atracció electrostàtica forta', covalent:'Compartició d’electrons' },
+  { prop:'Estructura', ionic:'Xarxa tridimensional d’ions', covalent:'Molècules independents' },
+  { prop:'Duresa', ionic:'Durs però fràgils', covalent:'Tous (excepte alguns sòlids)' },
+  { prop:'Volatilitat', ionic:'Baixa', covalent:'Alta en molts casos' },
+  { prop:'Forma de les partícules', ionic:'Ions positius i negatius ordenats', covalent:'Molècules amb forma definida' },
+  { prop:'Polaritat', ionic:'Càrregues completes', covalent:'Pot ser polar o apolar' },
+  { prop:'Resposta a la calor', ionic:'Resisteixen temperatures elevades', covalent:'Es descomponen o evaporen abans' },
+  { prop:'Exemples típics', ionic:'Sals (NaCl, CaCl₂)', covalent:'Aigua, CO₂, gasos' }
+];
 
   function genAtomParts(){
     const mode = Math.random();
