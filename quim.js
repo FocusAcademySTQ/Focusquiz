@@ -1105,6 +1105,207 @@ window.__chemPick = function(sym){
   }
 };
 
+  // ========================
+  // MÒDUL 3: L’àtom i l’enllaç químic
+  // ========================
+  const ATOM_PARTS = [
+    { part:'protó', charge:'+1' },
+    { part:'neutró', charge:'0' },
+    { part:'electró', charge:'-1' }
+  ];
+
+  const ATOM_NUMBERS = [
+    { sym:'H', name:'Hidrogen', Z:1, A:1 },
+    { sym:'C', name:'Carboni', Z:6, A:12 },
+    { sym:'N', name:'Nitrogen', Z:7, A:14 },
+    { sym:'O', name:'Oxigen', Z:8, A:16 },
+    { sym:'Na', name:'Sodi', Z:11, A:23 },
+    { sym:'Mg', name:'Magnesi', Z:12, A:24 },
+    { sym:'Cl', name:'Clor', Z:17, A:35 },
+    { sym:'K', name:'Potassi', Z:19, A:39 },
+    { sym:'Ca', name:'Calci', Z:20, A:40 }
+  ];
+
+  const ISOTOPE_PAIRS = [
+    { a:{ sym:'C', Z:6, A:12 }, b:{ sym:'C', Z:6, A:14 }, isotopes:true },
+    { a:{ sym:'Cl', Z:17, A:35 }, b:{ sym:'Cl', Z:17, A:37 }, isotopes:true },
+    { a:{ sym:'O', Z:8, A:16 }, b:{ sym:'O', Z:8, A:18 }, isotopes:true },
+    { a:{ sym:'C', Z:6, A:14 }, b:{ sym:'N', Z:7, A:14 }, isotopes:false },
+    { a:{ sym:'Na', Z:11, A:23 }, b:{ sym:'Mg', Z:12, A:24 }, isotopes:false },
+    { a:{ sym:'K', Z:19, A:39 }, b:{ sym:'Ca', Z:20, A:40 }, isotopes:false }
+  ];
+
+  const WHY_BOND_QUESTIONS = [
+    { prompt:'Per què s’uneixen els àtoms?', answer:'Per assolir una configuració més estable (octet/duet).' },
+    { prompt:'Què passa amb l’energia quan es forma un enllaç?', answer:'S’allibera energia i el sistema es fa més estable.' },
+    { prompt:'Què busquen els àtoms en compartir o transferir electrons?', answer:'Completar la capa de valència.' },
+    { prompt:'Quan es forma un enllaç iònic?', answer:'Quan hi ha transferència d’electrons entre metall i no metall.' }
+  ];
+
+  const BOND_EXAMPLES = [
+    { formula:'NaCl', type:'Iònic' },
+    { formula:'MgO', type:'Iònic' },
+    { formula:'CaCl₂', type:'Iònic' },
+    { formula:'KBr', type:'Iònic' },
+    { formula:'H₂O', type:'Covalent' },
+    { formula:'CO₂', type:'Covalent' },
+    { formula:'NH₃', type:'Covalent' },
+    { formula:'CH₄', type:'Covalent' }
+  ];
+
+  const BONDING_PROPERTIES = [
+    { prop:'Estat a temperatura ambient', ionic:'Sòlid cristal·lí', covalent:'Gas o líquid (alguns sòlids)' },
+    { prop:'Solubilitat en aigua', ionic:'Alta (es dissocien)', covalent:'Baixa, excepte alguns' },
+    { prop:'Punt de fusió/ebullició', ionic:'Alt', covalent:'Baix o moderat' },
+    { prop:'Conductivitat elèctrica', ionic:'Condueixen en dissolució o en fusió', covalent:'No condueixen (generalment)' }
+  ];
+
+  function genAtomParts(){
+    const mode = Math.random();
+    if(mode < 0.5){
+      const part = pick(ATOM_PARTS);
+      const options = shuffle([part.charge, ...shuffle(ATOM_PARTS.filter((p)=>p!==part).map((p)=>p.charge))]);
+      return { type:'chem-atom-part', text:`Quina càrrega té el <b>${part.part}</b>?`, options, answer: part.charge };
+    }
+    const charge = pick(ATOM_PARTS);
+    const options = shuffle([charge.part, ...shuffle(ATOM_PARTS.filter((p)=>p!==charge).map((p)=>p.part))]);
+    return { type:'chem-atom-part', text:`Quina part de l’àtom té càrrega <b>${charge.charge}</b>?`, options, answer: charge.part };
+  }
+
+  function genAtomicNumbers(){
+    const atom = pick(ATOM_NUMBERS);
+    const modes = ['Z','A','p','n','e'];
+    const mode = pick(modes);
+    const values = ATOM_NUMBERS.map((a)=>{
+      if(mode==='Z' || mode==='p' || mode==='e') return a.Z;
+      if(mode==='A') return a.A;
+      return a.A - a.Z;
+    });
+    const uniqueValues = Array.from(new Set(values));
+    const correct = (mode==='Z' || mode==='p' || mode==='e') ? atom.Z : (mode==='A' ? atom.A : atom.A - atom.Z);
+    const distractors = shuffle(uniqueValues.filter((v)=>v!==correct)).slice(0,3);
+    const options = shuffle([correct, ...distractors]);
+    const label = mode==='Z'
+      ? 'el nombre atòmic (Z)'
+      : mode==='A'
+        ? 'el nombre màssic (A)'
+        : mode==='p'
+          ? 'el nombre de protons'
+          : mode==='e'
+            ? 'el nombre d’electrons (àtom neutre)'
+            : 'el nombre de neutrons';
+    return { type:'chem-atom-number', text:`Quin és ${label} de <b>${atom.name} (${atom.sym})</b>?`, options, answer: correct };
+  }
+
+  function formatIsotopeAtom(a){
+    return `${a.sym}-${a.A}`;
+  }
+
+  function genIsotopes(){
+    const pair = pick(ISOTOPE_PAIRS);
+    const mode = Math.random();
+    if(mode < 0.5){
+      const answer = pair.isotopes ? 'Vertader' : 'Fals';
+      return {
+        type:'chem-isotope-tf',
+        text:`${formatIsotopeAtom(pair.a)} i ${formatIsotopeAtom(pair.b)} són isòtops.`,
+        options:['Vertader','Fals'],
+        answer
+      };
+    }
+    const compareZ = Math.random() < 0.5;
+    const statement = compareZ
+      ? `Comparant ${formatIsotopeAtom(pair.a)} i ${formatIsotopeAtom(pair.b)}, tenen el mateix nombre atòmic (Z).`
+      : `Comparant ${formatIsotopeAtom(pair.a)} i ${formatIsotopeAtom(pair.b)}, tenen el mateix nombre màssic (A).`;
+    const same = compareZ ? pair.a.Z === pair.b.Z : pair.a.A === pair.b.A;
+    return {
+      type:'chem-isotope-compare',
+      text: statement,
+      options:['Vertader','Fals'],
+      answer: same ? 'Vertader' : 'Fals'
+    };
+  }
+
+  function genWhyBond(){
+    const q = pick(WHY_BOND_QUESTIONS);
+    const otherAnswers = WHY_BOND_QUESTIONS.filter((x)=>x!==q).map((x)=>x.answer);
+    const options = shuffle([q.answer, ...shuffle(otherAnswers).slice(0,3)]);
+    return { type:'chem-why-bond', text:q.prompt, options, answer:q.answer };
+  }
+
+  function genBondClassification(type){
+    const items = BOND_EXAMPLES.filter((x)=>x.type===type);
+    const chosen = pick(items);
+    const options = ['Iònic','Covalent'];
+    return { type:`chem-bond-${type.toLowerCase()}`, text:`Quin tipus d’enllaç és <b>${chosen.formula}</b>?`, options, answer: chosen.type };
+  }
+
+  function genBondCompare(){
+    const p = pick(BONDING_PROPERTIES);
+    const correct = `Iònic: ${p.ionic} · Covalent: ${p.covalent}`;
+    const others = BONDING_PROPERTIES.filter((x)=>x!==p).map((x)=>`Iònic: ${x.ionic} · Covalent: ${x.covalent}`);
+    const options = shuffle([correct, ...shuffle(others).slice(0,3)]);
+    return { type:'chem-bond-compare', text:`Completa la taula per a <b>${p.prop}</b>:`, options, answer: correct };
+  }
+
+  function genAtomBonding(level, opts={}){
+    const sub = opts.sub || 'atom';
+    if(sub==='numbers') return genAtomicNumbers();
+    if(sub==='isotopes') return genIsotopes();
+    if(sub==='whyBond') return genWhyBond();
+    if(sub==='ionic') return genBondClassification('Iònic');
+    if(sub==='covalent') return genBondClassification('Covalent');
+    if(sub==='compare') return genBondCompare();
+    return genAtomParts();
+  }
+
+  const atomBondingConfig = {
+    render: ()=>{
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="section-title">L’àtom i l’enllaç químic</div>
+        <div class="controls">
+          <div class="group" role="group" aria-label="Submode">
+            <label class="toggle">
+              <input class="check" type="radio" name="bond-sub" value="atom" checked>
+              Parts de l’àtom
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="bond-sub" value="numbers">
+              Nombre atòmic i màssic
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="bond-sub" value="isotopes">
+              Isòtops (V/F)
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="bond-sub" value="whyBond">
+              Per què s’uneixen?
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="bond-sub" value="ionic">
+              Enllaç iònic
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="bond-sub" value="covalent">
+              Enllaç covalent
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="bond-sub" value="compare">
+              Comparació iònic/covalent
+            </label>
+          </div>
+        </div>
+        <div class="subtitle">Consell: combina la classificació de substàncies amb el repàs de propietats per consolidar el tema.</div>
+      `;
+      return div;
+    },
+    collect: ()=>{
+      const sub = document.querySelector('input[name="bond-sub"]:checked')?.value || 'atom';
+      return { sub };
+    }
+  };
+
 
   // ========================
   // REGISTRE DELS MÒDULS
@@ -1136,6 +1337,15 @@ window.__chemPick = function(sym){
     gen: genCompoundsExtra,
     category:'sci',
     config: compoundsConfig
+  },{
+    id:'chem-atom-bond',
+    name:'L’àtom i l’enllaç químic',
+    desc:'Parts de l’àtom, nombres Z/A, isòtops, enllaç químic i comparació de propietats.',
+     usesLevels: false,
+     levelLabel: 'Mode lliure',
+    gen: genAtomBonding,
+    category:'sci',
+    config: atomBondingConfig
   },{
     id:'chem-reactions',
     name:'Equacions i reaccions',
