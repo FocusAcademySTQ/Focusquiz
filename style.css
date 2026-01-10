@@ -791,8 +791,18 @@ main{padding: 28px 0 60px}
 .grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px}
 @media (max-width: 560px){ .grid{grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));} }
 .grid.grid--math{grid-template-columns: repeat(3, minmax(220px, 1fr));}
-@media (max-width: 900px){ .grid.grid--math{grid-template-columns: repeat(2, minmax(200px, 1fr));} }
-@media (max-width: 560px){ .grid.grid--math{grid-template-columns: 1fr;} }
+.grid.grid--sci,
+.grid.grid--geo{grid-template-columns: repeat(3, minmax(220px, 1fr));}
+@media (max-width: 900px){
+  .grid.grid--math,
+  .grid.grid--sci,
+  .grid.grid--geo{grid-template-columns: repeat(2, minmax(200px, 1fr));}
+}
+@media (max-width: 560px){
+  .grid.grid--math,
+  .grid.grid--sci,
+  .grid.grid--geo{grid-template-columns: 1fr;}
+}
 
 /* Targetes mòduls amb accents pastel alterns */
 .option{
