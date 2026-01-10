@@ -517,6 +517,279 @@ function genMap(){
     }
   };
 
+  // —————————————— MATÈRIA I CANVIS ——————————————
+  const MATTER_OBJECTS = [
+    { name:'aigua', isMatter:true },
+    { name:'aire', isMatter:true },
+    { name:'fusta', isMatter:true },
+    { name:'ferro', isMatter:true },
+    { name:'sorra', isMatter:true },
+    { name:'llum', isMatter:false },
+    { name:'so', isMatter:false },
+    { name:'calor', isMatter:false },
+    { name:'ombra', isMatter:false },
+    { name:'electricitat', isMatter:false },
+    { name:'temps', isMatter:false }
+  ];
+  const MATTER_YES = MATTER_OBJECTS.filter((m)=>m.isMatter);
+  const MATTER_NO = MATTER_OBJECTS.filter((m)=>!m.isMatter);
+
+  function genMatterMCQ(){
+    const askMatter = Math.random() < 0.5;
+    const correctPool = askMatter ? MATTER_YES : MATTER_NO;
+    const wrongPool = askMatter ? MATTER_NO : MATTER_YES;
+    const correct = pick(correctPool).name;
+    const options = shuffle([correct, ...shuffle(wrongPool.map((m)=>m.name)).slice(0,3)]);
+    const label = askMatter ? "és matèria" : "NO és matèria";
+    return { type:'chem-matter', text:`Quin d'aquests ${label}?`, options, answer: correct };
+  }
+
+  function genMatterTF(){
+    const m = pick(MATTER_OBJECTS);
+    const answer = m.isMatter ? 'Vertader' : 'Fals';
+    return { type:'chem-matter-tf', text:`<b>${m.name}</b> és matèria.`, options:['Vertader','Fals'], answer };
+  }
+
+  function genMatterBasics(){
+    return Math.random() < 0.5 ? genMatterMCQ() : genMatterTF();
+  }
+
+  const PROPERTIES_TABLE = [
+    { prop:'massa', def:'quantitat de matèria d’un cos' },
+    { prop:'volum', def:'espai que ocupa un cos' },
+    { prop:'densitat', def:'massa per unitat de volum' },
+    { prop:'duresa', def:'resistència a ser ratllat o deformar-se' },
+    { prop:'conductivitat elèctrica', def:'capacitat de conduir electricitat' }
+  ];
+  const DENSITY_EXERCISES = [
+    { mass:12, volume:3 },
+    { mass:20, volume:4 },
+    { mass:15, volume:5 },
+    { mass:27, volume:9 },
+    { mass:18, volume:6 },
+    { mass:24, volume:8 }
+  ];
+
+  function genPropertyDef(){
+    const p = pick(PROPERTIES_TABLE);
+    const options = shuffle([p.def, ...shuffle(PROPERTIES_TABLE.filter((x)=>x!==p).map((x)=>x.def)).slice(0,3)]);
+    return { type:'chem-prop', text:`Quina definició correspon a <b>${p.prop}</b>?`, options, answer: p.def };
+  }
+
+  function genPropertyName(){
+    const p = pick(PROPERTIES_TABLE);
+    const options = shuffle([p.prop, ...shuffle(PROPERTIES_TABLE.filter((x)=>x!==p).map((x)=>x.prop)).slice(0,3)]);
+    return { type:'chem-prop-name', text:`Quina propietat descriu: <b>${p.def}</b>?`, options, answer: p.prop };
+  }
+
+  function genDensity(){
+    const d = pick(DENSITY_EXERCISES);
+    const density = d.mass / d.volume;
+    return {
+      type:'chem-density',
+      text:`Calcula la densitat si una mostra té massa <b>${d.mass} g</b> i volum <b>${d.volume} cm³</b>. (ρ = m/V)`,
+      answer: density
+    };
+  }
+
+  function genProperties(){
+    const roll = Math.random();
+    if(roll < 0.4) return genPropertyDef();
+    if(roll < 0.8) return genPropertyName();
+    return genDensity();
+  }
+
+  const STATE_EXAMPLES = [
+    { example:'gel', state:'Sòlid' },
+    { example:'sal', state:'Sòlid' },
+    { example:'aigua', state:'Líquid' },
+    { example:'oli', state:'Líquid' },
+    { example:'vapor d’aigua', state:'Gas' },
+    { example:'oxigen', state:'Gas' }
+  ];
+  const STATE_FEATURES = [
+    { state:'Sòlid', feature:'Té forma i volum definits.' },
+    { state:'Líquid', feature:'Té volum definit i forma variable.' },
+    { state:'Gas', feature:'No té forma ni volum definits i s’expandeix.' }
+  ];
+
+  function genStatesExample(){
+    const s = pick(STATE_EXAMPLES);
+    const options = shuffle(['Sòlid','Líquid','Gas']);
+    return { type:'chem-state', text:`En quin estat es troba <b>${s.example}</b>?`, options, answer: s.state };
+  }
+
+  function genStatesFeature(){
+    const s = pick(STATE_FEATURES);
+    const options = shuffle([s.feature, ...shuffle(STATE_FEATURES.filter((x)=>x!==s).map((x)=>x.feature))]);
+    return { type:'chem-state-feature', text:`Quina característica és pròpia de l’estat <b>${s.state}</b>?`, options, answer: s.feature };
+  }
+
+  function genStates(){
+    return Math.random() < 0.6 ? genStatesExample() : genStatesFeature();
+  }
+
+  const STATE_CHANGES = [
+    { change:'fusió', def:'pas de sòlid a líquid' },
+    { change:'solidificació', def:'pas de líquid a sòlid' },
+    { change:'evaporació', def:'pas de líquid a gas' },
+    { change:'condensació', def:'pas de gas a líquid' },
+    { change:'sublimació', def:'pas de sòlid a gas sense passar per líquid' },
+    { change:'deposició', def:'pas de gas a sòlid sense passar per líquid' }
+  ];
+  const STATE_CHANGE_SITUATIONS = [
+    { situation:'El gel es fon al sol.', change:'fusió' },
+    { situation:'La roba s’asseca a l’aire.', change:'evaporació' },
+    { situation:'El metall fos es refreda i es torna sòlid.', change:'solidificació' },
+    { situation:'La boira es forma quan el vapor es refreda.', change:'condensació' },
+    { situation:'El gel sec passa directament a gas.', change:'sublimació' },
+    { situation:'Apareix gebrada en una nit molt freda.', change:'deposició' }
+  ];
+
+  function genStateChangeDef(){
+    const c = pick(STATE_CHANGES);
+    const options = shuffle([c.change, ...shuffle(STATE_CHANGES.filter((x)=>x!==c).map((x)=>x.change)).slice(0,3)]);
+    return { type:'chem-state-change', text:`Com s’anomena el <b>${c.def}</b>?`, options, answer: c.change };
+  }
+
+  function genStateChangeSituation(){
+    const s = pick(STATE_CHANGE_SITUATIONS);
+    const options = shuffle([s.change, ...shuffle(STATE_CHANGES.filter((x)=>x.change!==s.change).map((x)=>x.change)).slice(0,3)]);
+    return { type:'chem-state-change-sit', text:`${s.situation} Quin canvi d’estat és?`, options, answer: s.change };
+  }
+
+  function genStateChanges(){
+    return Math.random() < 0.5 ? genStateChangeDef() : genStateChangeSituation();
+  }
+
+  const PHYS_CHEM_EXAMPLES = [
+    { desc:'Trencar un got de vidre', type:'Físic' },
+    { desc:'Congelar l’aigua', type:'Físic' },
+    { desc:'Dissoldre sucre en aigua', type:'Físic' },
+    { desc:'Rovellar un clau de ferro', type:'Químic' },
+    { desc:'Crema de fusta', type:'Químic' },
+    { desc:'Coure un ou', type:'Químic' }
+  ];
+  const PHYS_CHEM_TF = [
+    {
+      statement:'Dissoldre sal en aigua és un canvi químic.',
+      correct:false,
+      reasonTrue:'es formen substàncies noves',
+      reasonFalse:'no es formen substàncies noves'
+    },
+    {
+      statement:'La combustió d’una espelma és un canvi químic.',
+      correct:true,
+      reasonTrue:'es formen substàncies noves',
+      reasonFalse:'no es formen substàncies noves'
+    },
+    {
+      statement:'Tallar paper és un canvi físic.',
+      correct:true,
+      reasonTrue:'no es formen substàncies noves',
+      reasonFalse:'es formen substàncies noves'
+    }
+  ];
+  const PHYS_CHEM_JUSTIFY = [
+    {
+      prompt:'Justifica breument per què <b>la combustió de la fusta</b> és un canvi químic.',
+      answer:'es formen substàncies noves'
+    },
+    {
+      prompt:'Justifica breument per què <b>fondre gel</b> és un canvi físic.',
+      answer:'no es formen substàncies noves'
+    }
+  ];
+
+  function genPhysChemClassify(){
+    const e = pick(PHYS_CHEM_EXAMPLES);
+    return {
+      type:'chem-phys-chem',
+      text:`Quin tipus de canvi és: <b>${e.desc}</b>?`,
+      options:['Físic','Químic'],
+      answer: e.type
+    };
+  }
+
+  function genPhysChemTF(){
+    const s = pick(PHYS_CHEM_TF);
+    const trueOption = `Vertader: ${s.reasonTrue}.`;
+    const falseOption = `Fals: ${s.reasonFalse}.`;
+    const answer = s.correct ? trueOption : falseOption;
+    return {
+      type:'chem-phys-tf',
+      text:`${s.statement} Tria V/F i la justificació correcta.`,
+      options: shuffle([trueOption, falseOption]),
+      answer
+    };
+  }
+
+  function genPhysChemJustify(){
+    const j = pick(PHYS_CHEM_JUSTIFY);
+    return {
+      type:'chem-phys-justify',
+      text: j.prompt,
+      answer: j.answer,
+      input:'text',
+      meta:{ normalize:'simple-text' }
+    };
+  }
+
+  function genPhysChem(){
+    const roll = Math.random();
+    if(roll < 0.45) return genPhysChemClassify();
+    if(roll < 0.75) return genPhysChemTF();
+    return genPhysChemJustify();
+  }
+
+  function genMatterChanges(level, opts={}){
+    const sub = opts.sub || 'matter';
+    if(sub==='properties') return genProperties();
+    if(sub==='states') return genStates();
+    if(sub==='stateChanges') return genStateChanges();
+    if(sub==='physChem') return genPhysChem();
+    return genMatterBasics();
+  }
+
+  const matterChangesConfig = {
+    render: ()=>{
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <div class="section-title">La matèria i els seus canvis</div>
+        <div class="controls">
+          <div class="group" role="group" aria-label="Submode">
+            <label class="toggle">
+              <input class="check" type="radio" name="matter-sub" value="matter" checked>
+              Què és la matèria?
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="matter-sub" value="properties">
+              Propietats i densitat
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="matter-sub" value="states">
+              Estats de la matèria
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="matter-sub" value="stateChanges">
+              Canvis d’estat
+            </label>
+            <label class="toggle">
+              <input class="check" type="radio" name="matter-sub" value="physChem">
+              Canvis físics i químics
+            </label>
+          </div>
+        </div>
+        <div class="subtitle">Consell: combina classificacions ràpides amb justificacions curtes per consolidar conceptes.</div>
+      `;
+      return div;
+    },
+    collect: ()=>{
+      const sub = document.querySelector('input[name="matter-sub"]:checked')?.value || 'matter';
+      return { sub };
+    }
+  };
+
   // —————————————— GENERADOR PRINCIPAL ——————————————
   function genChem(level, opts={}){
     const sub = opts.sub || 'speed'; // speed | compounds | map | classify
@@ -846,6 +1119,15 @@ window.__chemPick = function(sym){
     category:'sci',
     config: chemConfig
   },{
+    id:'chem-matter',
+    name:'La matèria i els seus canvis',
+    desc:'Matèria i no-matèria, propietats i densitat, estats, canvis d’estat i canvis físics/químics.',
+     usesLevels: false,
+     levelLabel: 'Mode lliure',
+    gen: genMatterChanges,
+    category:'sci',
+    config: matterChangesConfig
+  },{
     id:'chem-compounds',
     name:'Fórmules i compostos',
     desc:'Valències, fórmules inorgàniques i compostos moleculars amb teclat químic.',
@@ -925,4 +1207,3 @@ document.head.appendChild(style);
 
 
 })();
-
