@@ -4159,7 +4159,7 @@ async function handleSignup(event) {
   const email = formData.get('signup_email');
   const password = formData.get('signup_password');
   const fullName = formData.get('full_name');
-  const { error } = await client.auth.signUp({
+  const { data, error } = await client.auth.signUp({
     email,
     password,
     options: {
@@ -4172,9 +4172,15 @@ async function handleSignup(event) {
     showError(elements.signupError, error.message);
     return;
   }
-  elements.signupSuccess.textContent = 'Compte creat! Revisa la safata d\'entrada per confirmar el correu.';
+  const needsConfirmation = !(data && data.session);
+  elements.signupSuccess.textContent = needsConfirmation
+    ? 'Compte creat! Revisa la safata d\'entrada (i l\'spam) per confirmar el correu. Si no reps cap email, comprova que a Supabase hi hagi configurat un proveïdor SMTP i que l\'usuari aparegui a Authentication → Users. El perfil docent es crea en iniciar sessió.'
+    : 'Compte creat i sessió iniciada! El perfil docent es crearà automàticament en continuar.';
   elements.signupSuccess.classList.remove('hidden');
   elements.signupForm.reset();
+  if (!needsConfirmation) {
+    await refreshData();
+  }
 }
 
 async function handleLogout() {
