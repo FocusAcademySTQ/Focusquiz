@@ -476,6 +476,10 @@ const fmtTime = (sec)=>{
 /* ===================== APP STATE ===================== */
 
 const MODULES = [];
+// API global de consulta perquè altres vistes (p.ex. Reptes) puguin reutilitzar els mòduls registrats
+window.getRegisteredModules = function(){
+  return MODULES.slice();
+};
 // Registre de mòduls externs (p.ex. llengua) i refresc de la Home
 window.addModules = function(mods){
   if(!Array.isArray(mods)) return;
