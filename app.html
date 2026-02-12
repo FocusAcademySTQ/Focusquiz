@@ -33,6 +33,8 @@
     .ttm-team-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
     .ttm-team-inputs label { display: grid; gap: .35rem; font-weight: 600; }
     .ttm-team-inputs input { border: 1px solid #cbd7f6; border-radius: 10px; padding: .6rem .7rem; }
+    .ttm-module-field { display: grid; gap: .35rem; margin-bottom: .65rem; font-weight: 600; }
+    .ttm-module-field select { border: 1px solid #cbd7f6; border-radius: 10px; padding: .55rem .65rem; background: #fff; }
     .ttm-actions { margin-top: .9rem; display: flex; justify-content: space-between; gap: .5rem; }
     .ttm-error { min-height: 1.2rem; color: #b42318; margin-top: .4rem; }
 
@@ -257,14 +259,20 @@
                 <h3 id="ttmSetupTitle" class="ttm-title">Configuració del tira-corda matemàtic</h3>
 
                 <div class="ttm-step is-active" data-step="1">
-                  <p><strong>Selecciona operacions</strong></p>
+                  <label class="ttm-module-field">
+                    Mòdul del repte
+                    <select id="ttmModuleSelect">
+                      <option value="arith">Aritmètica</option>
+                    </select>
+                  </label>
+                  <p><strong>Selecciona operacions (només Aritmètica)</strong></p>
                   <div class="ttm-grid4">
                     <button type="button" class="ttm-op is-active" data-op="add">+</button>
                     <button type="button" class="ttm-op is-active" data-op="sub">−</button>
                     <button type="button" class="ttm-op is-active" data-op="mul">×</button>
                     <button type="button" class="ttm-op is-active" data-op="div">÷</button>
                   </div>
-                  <p class="subtitle">Activa almenys una operació.</p>
+                  <p class="subtitle">Tria el mòdul. Si no és Aritmètica, les operacions es desactiven i el joc genera preguntes del mòdul.</p>
                 </div>
 
                 <div class="ttm-step" data-step="2">
@@ -999,6 +1007,8 @@
         step: 1,
         operations: new Set(['add', 'sub', 'mul', 'div']),
         difficulty: 'easy',
+        moduleId: 'arith',
+        moduleMeta: null,
         running: false,
         timeLeft: DURATION,
         ropePos: 0,
@@ -1017,6 +1027,7 @@
         nextStep: document.getElementById('ttmNextStep'),
         setupError: document.getElementById('ttmSetupError'),
         opButtons: Array.from(root.querySelectorAll('[data-op]')),
+        moduleSelect: document.getElementById('ttmModuleSelect'),
         levelButtons: Array.from(root.querySelectorAll('[data-level]')),
         blueNameInput: document.getElementById('ttmBlueNameInput'),
         redNameInput: document.getElementById('ttmRedNameInput'),
@@ -1042,29 +1053,95 @@
       const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
       const formatTime = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
 
-      function createQuestion() {
-        const ops = Array.from(state.operations);
-        const op = ops[randomInt(0, ops.length - 1)];
-        const ranges = {
-          easy: { add: [1, 20], sub: [1, 20], mul: [1, 10], div: [1, 10] },
-          medium: { add: [10, 80], sub: [10, 80], mul: [4, 16], div: [2, 16] },
-          hard: { add: [50, 250], sub: [50, 250], mul: [8, 24], div: [4, 24] }
-        };
-        const [min, max] = ranges[state.difficulty][op];
-        let a = randomInt(min, max);
-        let b = randomInt(min, max);
+      function getRegisteredModules() {
+        if (typeof window.getRegisteredModules !== 'function') return [];
+        const list = window.getRegisteredModules();
+        return Array.isArray(list) ? list : [];
+      }
 
-        if (op === 'add') return { text: `${a} + ${b} = ?`, answer: a + b };
-        if (op === 'sub') {
-          if (b > a) [a, b] = [b, a];
-          return { text: `${a} − ${b} = ?`, answer: a - b };
+      function isIntegerLike(value) {
+        if (typeof value === 'number') return Number.isFinite(value) && Number.isInteger(value) && value >= 0;
+        if (typeof value !== 'string') return false;
+        return /^\d+$/.test(value.trim());
+      }
+
+      // Omple el selector de mòduls per orientar la partida a contingut curricular
+      function populateModuleOptions() {
+        const mods = getRegisteredModules().filter((m) => m && m.id && m.name && typeof m.gen === 'function' && m.category === 'math');
+        if (!els.moduleSelect) return;
+        els.moduleSelect.innerHTML = mods.length
+          ? mods.map((m) => `<option value="${m.id}">${m.name}</option>`).join('')
+          : '<option value="arith">Aritmètica</option>';
+
+        if (!mods.some((m) => m.id === state.moduleId)) {
+          state.moduleId = mods[0]?.id || 'arith';
         }
-        if (op === 'mul') return { text: `${a} × ${b} = ?`, answer: a * b };
+        els.moduleSelect.value = state.moduleId;
+        state.moduleMeta = mods.find((m) => m.id === state.moduleId) || null;
+        toggleOperationButtons();
+      }
 
-        const divisor = Math.max(1, b);
-        const result = randomInt(min, max);
-        const dividend = divisor * result;
-        return { text: `${dividend} ÷ ${divisor} = ?`, answer: result };
+      function toggleOperationButtons() {
+        const arithMode = state.moduleId === 'arith';
+        els.opButtons.forEach((btn) => {
+          btn.disabled = !arithMode;
+          btn.style.opacity = arithMode ? '1' : '.5';
+          btn.style.pointerEvents = arithMode ? 'auto' : 'none';
+        });
+      }
+
+      function createQuestion() {
+        // Mode Aritmètica: respecta la selecció d'operacions del modal
+        if (state.moduleId === 'arith') {
+          const ops = Array.from(state.operations);
+          const op = ops[randomInt(0, ops.length - 1)];
+          const ranges = {
+            easy: { add: [1, 20], sub: [1, 20], mul: [1, 10], div: [1, 10] },
+            medium: { add: [10, 80], sub: [10, 80], mul: [4, 16], div: [2, 16] },
+            hard: { add: [50, 250], sub: [50, 250], mul: [8, 24], div: [4, 24] }
+          };
+          const [min, max] = ranges[state.difficulty][op];
+          let a = randomInt(min, max);
+          let b = randomInt(min, max);
+
+          if (op === 'add') return { text: `${a} + ${b} = ?`, answer: a + b };
+          if (op === 'sub') {
+            if (b > a) [a, b] = [b, a];
+            return { text: `${a} − ${b} = ?`, answer: a - b };
+          }
+          if (op === 'mul') return { text: `${a} × ${b} = ?`, answer: a * b };
+
+          const divisor = Math.max(1, b);
+          const result = randomInt(min, max);
+          const dividend = divisor * result;
+          return { text: `${dividend} ÷ ${divisor} = ?`, answer: result };
+        }
+
+        // Mode per mòdul: intenta generar preguntes amb resposta numèrica enter positiu
+        const mods = getRegisteredModules();
+        const mod = mods.find((m) => m.id === state.moduleId && typeof m.gen === 'function') || state.moduleMeta;
+        if (!mod || typeof mod.gen !== 'function') {
+          state.moduleId = 'arith';
+          state.moduleMeta = null;
+          toggleOperationButtons();
+          return createQuestion();
+        }
+
+        const level = state.difficulty === 'easy' ? 1 : (state.difficulty === 'medium' ? 2 : 3);
+        for (let attempt = 0; attempt < 40; attempt += 1) {
+          const q = mod.gen(level, {});
+          if (!q || typeof q.text !== 'string') continue;
+          if (isIntegerLike(q.answer)) {
+            return { text: q.text, answer: Number(q.answer) };
+          }
+        }
+
+        // Fallback robust: si el mòdul no dona respostes compatibles, tornem a aritmètica
+        state.moduleId = 'arith';
+        if (els.moduleSelect) els.moduleSelect.value = 'arith';
+        state.moduleMeta = mods.find((m) => m.id === 'arith') || null;
+        toggleOperationButtons();
+        return createQuestion();
       }
 
       function updateStepUi() {
@@ -1199,6 +1276,7 @@
 
       // Controls de configuració
       els.opButtons.forEach(btn => btn.addEventListener('click', () => {
+        if (state.moduleId !== 'arith') return;
         const op = btn.dataset.op;
         if (state.operations.has(op) && state.operations.size === 1) return;
         if (state.operations.has(op)) {
@@ -1209,6 +1287,14 @@
           btn.classList.add('is-active');
         }
       }));
+
+      if (els.moduleSelect) {
+        els.moduleSelect.addEventListener('change', () => {
+          state.moduleId = els.moduleSelect.value || 'arith';
+          state.moduleMeta = getRegisteredModules().find((m) => m.id === state.moduleId) || null;
+          toggleOperationButtons();
+        });
+      }
 
       els.levelButtons.forEach(btn => btn.addEventListener('click', () => {
         state.difficulty = btn.dataset.level;
@@ -1253,6 +1339,12 @@
       });
 
       els.keypads.forEach(kp => buildKeypad(kp.dataset.keypad, kp));
+      populateModuleOptions();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', populateModuleOptions, { once: true });
+      } else {
+        setTimeout(populateModuleOptions, 50);
+      }
       updateStepUi();
       updateHud();
       updateRope();
