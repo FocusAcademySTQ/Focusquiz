@@ -518,7 +518,7 @@ const isAssignedSession = () => Boolean(session && session.assignmentId);
 /* ===================== VIEWS ===================== */
 
 function showView(name){
-  ['home','config','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
+  ['home','challenges','config','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
   $$('.nav-btn[data-view]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.view === name);
   });
