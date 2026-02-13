@@ -830,6 +830,296 @@
   });
   </script>
 
+
+  <script>
+    // ===== Lògica del repte: Tira-corda matemàtic =====
+    (() => {
+      const root = document.getElementById('ttmGame');
+      if (!root) return;
+
+      const DURATION = 120;
+      const LIMIT = 10;
+
+      const state = {
+        step: 1,
+        running: false,
+        timeLeft: DURATION,
+        ropePos: 0,
+        timerId: null,
+        pointsToWin: 10,
+        questionsPerPoint: 2,
+        moduleId: 'arith',
+        moduleMeta: null,
+        moduleCfg: null,
+        currentQuestion: null,
+        teams: {
+          blue: { name: 'Equip blau', score: 0, input: '', rawCorrect: 0 },
+          red: { name: 'Equip vermell', score: 0, input: '', rawCorrect: 0 }
+        }
+      };
+
+      const els = {
+        modal: document.getElementById('ttmModal'),
+        steps: Array.from(root.querySelectorAll('.ttm-step')),
+        stepLabel: document.getElementById('ttmStepLabel'),
+        prevStep: document.getElementById('ttmPrevStep'),
+        nextStep: document.getElementById('ttmNextStep'),
+        setupError: document.getElementById('ttmSetupError'),
+        moduleSelect: document.getElementById('ttmModuleSelect'),
+        moduleSummary: document.getElementById('ttmModuleConfigSummary'),
+        openModuleConfig: document.getElementById('ttmOpenModuleConfig'),
+        pointsToWin: document.getElementById('ttmPointsToWin'),
+        questionsPerPoint: document.getElementById('ttmQuestionsPerPoint'),
+        blueNameInput: document.getElementById('ttmBlueNameInput'),
+        redNameInput: document.getElementById('ttmRedNameInput'),
+        blueName: document.getElementById('ttmBlueName'),
+        redName: document.getElementById('ttmRedName'),
+        bluePanelTitle: document.getElementById('ttmBluePanelTitle'),
+        redPanelTitle: document.getElementById('ttmRedPanelTitle'),
+        blueScore: document.getElementById('ttmBlueScore'),
+        redScore: document.getElementById('ttmRedScore'),
+        timer: document.getElementById('ttmTimer'),
+        flag: document.getElementById('ttmFlag'),
+        questionBlue: document.getElementById('ttmQuestionBlue'),
+        questionRed: document.getElementById('ttmQuestionRed'),
+        feedbackBlue: document.getElementById('ttmFeedbackBlue'),
+        feedbackRed: document.getElementById('ttmFeedbackRed'),
+        inputBlue: document.getElementById('ttmInputBlue'),
+        inputRed: document.getElementById('ttmInputRed'),
+        keypads: Array.from(root.querySelectorAll('.ttm-keypad')),
+        result: document.getElementById('ttmResult'),
+        winnerTitle: document.getElementById('ttmWinnerTitle'),
+        winnerStats: document.getElementById('ttmWinnerStats'),
+        restartBtn: document.getElementById('ttmRestartBtn')
+      };
+
+      const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+      const getMods = () => (typeof window.getRegisteredModules === 'function' ? window.getRegisteredModules() : []);
+      const intLike = (v) => (typeof v === 'number' ? Number.isInteger(v) && Number.isFinite(v) : /^-?\d+$/.test(String(v || '').trim()));
+
+      function updateStepUi(){
+        els.stepLabel.textContent = `Pas ${state.step} de 3`;
+        els.steps.forEach((step) => step.classList.toggle('is-active', Number(step.dataset.step) === state.step));
+        els.prevStep.disabled = state.step === 1;
+        els.nextStep.textContent = state.step === 3 ? 'Començar joc' : 'Següent';
+      }
+
+      function updateHud(){
+        els.blueName.textContent = `${state.teams.blue.name} · ${state.teams.blue.rawCorrect}✔`;
+        els.redName.textContent = `${state.teams.red.name} · ${state.teams.red.rawCorrect}✔`;
+        els.bluePanelTitle.textContent = state.teams.blue.name;
+        els.redPanelTitle.textContent = state.teams.red.name;
+        els.blueScore.textContent = String(state.teams.blue.score);
+        els.redScore.textContent = String(state.teams.red.score);
+        els.inputBlue.textContent = state.teams.blue.input || '0';
+        els.inputRed.textContent = state.teams.red.input || '0';
+        els.timer.textContent = fmt(state.timeLeft);
+      }
+
+      function updateRope(){
+        const pct = 50 + (state.ropePos / LIMIT) * 45;
+        els.flag.style.left = `${Math.max(5, Math.min(95, pct))}%`;
+      }
+
+      function populateModules(){
+        const mods = getMods().filter((m) => m && m.id && m.name && typeof m.gen === 'function');
+        els.moduleSelect.innerHTML = mods.map((m) => `<option value="${m.id}">${m.name}</option>`).join('') || '<option value="arith">Aritmètica</option>';
+        if (!mods.some((m) => m.id === state.moduleId)) state.moduleId = mods[0]?.id || 'arith';
+        els.moduleSelect.value = state.moduleId;
+        state.moduleMeta = mods.find((m) => m.id === state.moduleId) || null;
+      }
+
+      function setQuestion(question) {
+        state.currentQuestion = question;
+        const text = question?.text || 'No s'ha pogut generar una pregunta.';
+        els.questionBlue.textContent = text;
+        els.questionRed.textContent = text;
+      }
+
+      function generateQuestion(){
+        const mod = getMods().find((m) => m.id === state.moduleId && typeof m.gen === 'function') || state.moduleMeta;
+        if (!mod) return { text: 'No hi ha mòdul disponible.', answer: 0 };
+        const cfg = state.moduleCfg || { level: 1, options: {} };
+        const level = Number(cfg.level || 1);
+        const options = cfg.options || {};
+
+        for (let i=0;i<60;i++) {
+          const q = mod.gen(level, options);
+          if (!q || typeof q.text !== 'string') continue;
+          if (intLike(q.answer)) return { text: q.text, answer: Number(q.answer) };
+        }
+        return { text: 'No s'han trobat preguntes numèriques amb aquesta configuració. Ajusta el mòdul.', answer: 0 };
+      }
+
+      function setFeedback(teamKey, text, ok){
+        const el = teamKey === 'blue' ? els.feedbackBlue : els.feedbackRed;
+        el.textContent = text;
+        el.style.color = ok ? '#1d7a35' : '#b42318';
+      }
+
+      function endGame(){
+        if (!state.running) return;
+        state.running = false;
+        clearInterval(state.timerId);
+        const blue = state.teams.blue;
+        const red = state.teams.red;
+        let winner = null;
+        if (blue.score > red.score) winner = blue;
+        else if (red.score > blue.score) winner = red;
+        const used = DURATION - state.timeLeft;
+        els.winnerTitle.textContent = winner ? `🏆 Guanya ${winner.name}!` : '🤝 Empat!';
+        els.winnerStats.textContent = `Blau ${blue.score} · Vermell ${red.score} · Temps ${fmt(used)}`;
+        els.result.hidden = false;
+      }
+
+      function handleAnswer(teamKey){
+        if (!state.running || !state.currentQuestion) return;
+        const team = state.teams[teamKey];
+        const val = Number(team.input || '');
+        const ok = Number.isFinite(val) && val === state.currentQuestion.answer;
+
+        if (ok) {
+          team.rawCorrect += 1;
+          setFeedback(teamKey, `Correcte! ${team.rawCorrect}/${state.questionsPerPoint} per punt.`, true);
+          if (team.rawCorrect % state.questionsPerPoint === 0) {
+            team.score += 1;
+            state.ropePos += teamKey === 'blue' ? -1 : 1;
+          }
+        } else {
+          setFeedback(teamKey, `Incorrecte. Resposta correcta: ${state.currentQuestion.answer}`, false);
+          state.ropePos += teamKey === 'blue' ? 0.35 : -0.35;
+        }
+
+        team.input = '';
+        updateHud();
+        updateRope();
+        if (team.score >= state.pointsToWin || Math.abs(state.ropePos) >= LIMIT) return endGame();
+        setQuestion(generateQuestion());
+      }
+
+      function startGame(){
+        state.running = true;
+        state.timeLeft = DURATION;
+        state.ropePos = 0;
+        state.teams.blue.score = state.teams.red.score = 0;
+        state.teams.blue.rawCorrect = state.teams.red.rawCorrect = 0;
+        state.teams.blue.input = state.teams.red.input = '';
+        setFeedback('blue', 'Preparat/ada!', true);
+        setFeedback('red', 'Preparat/ada!', true);
+        setQuestion(generateQuestion());
+        updateHud();
+        updateRope();
+        els.modal.hidden = true;
+        els.result.hidden = true;
+        clearInterval(state.timerId);
+        state.timerId = setInterval(() => {
+          state.timeLeft -= 1;
+          els.timer.textContent = fmt(Math.max(0, state.timeLeft));
+          if (state.timeLeft <= 0) endGame();
+        }, 1000);
+      }
+
+      function buildKeypad(team, container){
+        ['7','8','9','4','5','6','1','2','3','0'].forEach((n) => {
+          const b=document.createElement('button');
+          b.type='button'; b.className='ttm-key'; b.textContent=n;
+          b.addEventListener('click',()=>{ if(!state.running) return; state.teams[team].input = `${state.teams[team].input}${n}`.slice(0,8); updateHud(); });
+          container.appendChild(b);
+        });
+        const c=document.createElement('button'); c.type='button'; c.className='ttm-key ttm-key--clear'; c.textContent='Esborrar';
+        c.addEventListener('click',()=>{ state.teams[team].input=''; updateHud(); });
+        const s=document.createElement('button'); s.type='button'; s.className='ttm-key ttm-key--send'; s.textContent='Enviar';
+        s.addEventListener('click',()=>handleAnswer(team));
+        container.appendChild(c); container.appendChild(s);
+      }
+
+      function openModuleConfig(){
+        if (typeof window.openConfig !== 'function' || typeof window.collectConfigValues !== 'function') {
+          els.setupError.textContent = 'No s'ha pogut obrir la configuració del mòdul.';
+          return;
+        }
+        window.openConfig(state.moduleId);
+        const controls = document.querySelector('#view-config .controls');
+        if (!controls) return;
+        let btn = document.getElementById('ttmSaveModuleCfg');
+        if (!btn) {
+          btn = document.createElement('button');
+          btn.id = 'ttmSaveModuleCfg';
+          btn.className = 'pill';
+          btn.type = 'button';
+          btn.textContent = 'Desa per Reptes';
+          btn.addEventListener('click', () => {
+            const cfg = window.collectConfigValues();
+            if (!cfg) return;
+            state.moduleCfg = cfg;
+            els.moduleSummary.textContent = `Configurat: ${state.moduleMeta?.name || state.moduleId} · nivell ${cfg.level} · ${cfg.count} preguntes.`;
+            if (typeof window.showView === 'function') window.showView('challenges');
+          });
+          controls.appendChild(btn);
+        }
+      }
+
+      els.moduleSelect.addEventListener('change', () => {
+        state.moduleId = els.moduleSelect.value || 'arith';
+        state.moduleMeta = getMods().find((m) => m.id === state.moduleId) || null;
+        state.moduleCfg = null;
+        els.moduleSummary.textContent = 'Has canviat de mòdul. Torna a configurar-lo per Reptes.';
+      });
+
+      els.openModuleConfig.addEventListener('click', openModuleConfig);
+
+      els.prevStep.addEventListener('click', () => {
+        state.step = Math.max(1, state.step - 1);
+        els.setupError.textContent = '';
+        updateStepUi();
+      });
+
+      els.nextStep.addEventListener('click', () => {
+        els.setupError.textContent = '';
+        if (state.step === 2 && !state.moduleCfg) {
+          els.setupError.textContent = 'Configura el mòdul amb el botó "Configura mòdul" abans de continuar.';
+          return;
+        }
+        if (state.step < 3) {
+          if (state.step === 2) {
+            state.pointsToWin = Math.max(1, Math.min(50, Number(els.pointsToWin.value || 10)));
+            state.questionsPerPoint = Math.max(1, Math.min(20, Number(els.questionsPerPoint.value || 2)));
+          }
+          state.step += 1;
+          updateStepUi();
+          return;
+        }
+        const blue = (els.blueNameInput.value || '').trim() || 'Equip blau';
+        const red = (els.redNameInput.value || '').trim() || 'Equip vermell';
+        if (blue.toLowerCase() === red.toLowerCase()) {
+          els.setupError.textContent = 'Els equips han de tenir noms diferents.';
+          return;
+        }
+        state.teams.blue.name = blue;
+        state.teams.red.name = red;
+        startGame();
+      });
+
+      els.restartBtn.addEventListener('click', () => {
+        clearInterval(state.timerId);
+        state.running = false;
+        state.step = 1;
+        els.modal.hidden = false;
+        els.result.hidden = true;
+        updateStepUi();
+        updateHud();
+        updateRope();
+      });
+
+      els.keypads.forEach((kp) => buildKeypad(kp.dataset.keypad, kp));
+      populateModules();
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', populateModules, { once: true });
+      updateStepUi();
+      updateHud();
+      updateRope();
+    })();
+  </script>
+
   <!-- 🔹 Lògica principal i generadors de matemàtiques -->
   <script type="module" src="supabase/student-sync.js"></script>
   <script src="main.js" defer></script>
