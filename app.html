@@ -6,6 +6,81 @@
   <title>Focus Academy · Espai de repàs</title>
   <meta name="description" content="Pràctiques de matemàtiques per a estudiants. Single-file, sense dependències." />
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* ===== Reptes: Tira-corda matemàtic ===== */
+    .challenge-section { margin-top: 1rem; }
+    .challenge-wrap { border: 1px solid #d7dff5; border-radius: 18px; padding: 1rem; background: #fff; position: relative; overflow: hidden; }
+    .challenge-header { display: grid; gap: .4rem; margin-bottom: .9rem; }
+    .challenge-header h2 { margin: 0; }
+    .challenge-menu { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+    .challenge-chip { border: 1px solid #c8d3f6; background: #eef3ff; color: #24449a; border-radius: 999px; padding: .45rem .8rem; font-weight: 700; }
+    .challenge-chip[disabled] { opacity: .55; }
+
+    .ttm-modal { position: absolute; inset: 0; background: rgba(10, 16, 35, .72); display: grid; place-items: center; z-index: 10; }
+    .ttm-modal[hidden] { display: none; }
+    .ttm-card { width: min(700px, calc(100% - 2rem)); background: #fff; border-radius: 16px; padding: 1rem; box-shadow: 0 20px 40px rgba(16, 23, 46, .28); }
+    .ttm-step { display: none; margin-top: .8rem; }
+    .ttm-step.is-active { display: block; }
+    .ttm-title { margin: 0; }
+    .ttm-step-label { margin: 0 0 .2rem; color: #4863d9; font-weight: 700; font-size: .9rem; }
+    .ttm-grid4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .5rem; }
+    .ttm-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .5rem; }
+    .ttm-op, .ttm-level { border: 1px solid #c6d1f0; background: #f6f9ff; border-radius: 10px; padding: .65rem; font-weight: 700; cursor: pointer; transition: .2s ease; }
+    .ttm-op:hover, .ttm-level:hover { transform: translateY(-1px); }
+    .ttm-op.is-active { background: #e7eeff; border-color: #5472e4; color: #2e48ad; }
+    .ttm-level.is-selected { background: #ffeecf; border-color: #f4b23f; }
+    .ttm-team-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .ttm-team-inputs label { display: grid; gap: .35rem; font-weight: 600; }
+    .ttm-team-inputs input { border: 1px solid #cbd7f6; border-radius: 10px; padding: .6rem .7rem; }
+    .ttm-module-field { display: grid; gap: .35rem; margin-bottom: .65rem; font-weight: 600; }
+    .ttm-module-field select { border: 1px solid #cbd7f6; border-radius: 10px; padding: .55rem .65rem; background: #fff; }
+    .ttm-actions { margin-top: .9rem; display: flex; justify-content: space-between; gap: .5rem; }
+    .ttm-error { min-height: 1.2rem; color: #b42318; margin-top: .4rem; }
+
+    .ttm-hud { display: grid; grid-template-columns: 1fr auto 1fr; gap: .6rem; align-items: center; margin-bottom: .8rem; }
+    .ttm-score { display: flex; justify-content: space-between; align-items: center; border-radius: 11px; padding: .6rem .75rem; background: #f2f4f8; }
+    .ttm-score--blue { border: 1px solid #9fc1ff; color: #174b9d; }
+    .ttm-score--red { border: 1px solid #ffb4bc; color: #9e1f34; }
+    .ttm-timer { font-weight: 800; letter-spacing: .05em; border-radius: 999px; background: #111827; color: #fff; padding: .45rem .8rem; }
+
+    .ttm-rope-zone { margin-bottom: .8rem; }
+    .ttm-track { position: relative; height: 44px; border-radius: 999px; background: linear-gradient(90deg, rgba(36,94,187,.11) 0%, #fff 50%, rgba(206,39,62,.11) 100%); border: 1px solid #d6def3; overflow: hidden; }
+    .ttm-center { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; transform: translateX(-50%); background: #7f8db0; }
+    .ttm-rope { position: absolute; left: 5%; right: 5%; top: 50%; height: 10px; transform: translateY(-50%); border-radius: 999px; background: repeating-linear-gradient(90deg, #8c5b2c 0 12px, #b27b45 12px 24px); }
+    .ttm-flag { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; transform: translate(-50%, -50%); border-radius: 50%; background: #f0f4ff; border: 3px solid #4a63d1; transition: left .26s cubic-bezier(.22,.61,.36,1); }
+    .ttm-labels { display: flex; justify-content: space-between; margin-top: .25rem; font-size: .83rem; }
+    .ttm-labels .b { color: #1f5aba; font-weight: 700; }
+    .ttm-labels .r { color: #bf2842; font-weight: 700; }
+    .ttm-puller { position:absolute; top:50%; transform: translateY(-50%); font-size:1.4rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,.15)); }
+    .ttm-puller--blue { left: .5rem; }
+    .ttm-puller--red { right: .5rem; }
+
+    .ttm-teams { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .ttm-team { border: 1px solid #d9e1f8; border-radius: 14px; padding: .8rem; background: #fbfdff; }
+    .ttm-team--blue { box-shadow: inset 0 0 0 1px rgba(66,126,224,.12); }
+    .ttm-team--red { box-shadow: inset 0 0 0 1px rgba(217,69,94,.14); }
+    .ttm-question { font-size: 1.2rem; font-weight: 800; margin: .4rem 0; min-height: 1.5em; }
+    .ttm-input { border: 1px dashed #b8c7ee; border-radius: 10px; background: #f3f7ff; padding: .5rem .6rem; font-family: ui-monospace, monospace; font-size: 1.1rem; margin-bottom: .5rem; min-height: 2rem; }
+    .ttm-keypad { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .35rem; }
+    .ttm-key { border: 1px solid #c5d3f6; background: #fff; border-radius: 10px; padding: .5rem; font-weight: 700; cursor: pointer; transition: .18s ease; }
+    .ttm-key:hover { transform: translateY(-1px); background: #eef4ff; }
+    .ttm-key--clear { background: #ffe4e7; border-color: #ffc1ca; color: #8c1f32; }
+    .ttm-key--send { grid-column: span 2; background: #2150ca; border-color: #2150ca; color: #fff; }
+
+    .ttm-result { position: absolute; inset: 0; z-index: 12; display: grid; place-items: center; background: rgba(8, 12, 25, .72); }
+    .ttm-result[hidden] { display: none; }
+    .ttm-result-card { width: min(520px, calc(100% - 2rem)); background: #fff; border-radius: 16px; padding: 1rem; text-align: center; }
+
+    @media (max-width: 960px) {
+      .ttm-grid4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .ttm-grid3 { grid-template-columns: 1fr; }
+      .ttm-team-inputs, .ttm-teams { grid-template-columns: 1fr; }
+      .ttm-hud { grid-template-columns: 1fr; }
+      .ttm-timer { justify-self: start; }
+    }
+  </style>
+
 </head>
   <!-- LOGIN LOCAL (overlay) -->
 <div id="loginOverlay" class="login-overlay" hidden>
@@ -49,6 +124,7 @@
       <nav class="main-nav" aria-label="Navegació principal">
         <button class="pill nav-btn" type="button" onclick="scrollToSection('tutorSection')">Tutor</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('calendarSection')">Calendari</button>
+        <button class="pill nav-btn" type="button" onclick="showView('challenges')">Reptes</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('classSection')">Aula</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('liveSection')">Live</button>
         <a class="pill nav-btn nav-btn-ghost" href="/portal/supabase-portal.html">Accés professorat</a>
@@ -165,15 +241,16 @@
           </div>
         </section>
 
-        <a class="learning-card" href="recursos.html">
-          <div class="learning-icon" aria-hidden="true">🃏</div>
-          <div class="learning-body">
-            <p class="learning-kicker">Nova secció</p>
-            <h3 class="learning-title">Recursos</h3>
-            <p class="learning-copy">Consulta teoria i flashcards agrupades per assignatura en un sol lloc.</p>
+        <section id="challengesEntrySection" class="panel card challenge-entry" aria-labelledby="challengesEntryTitle">
+          <div>
+            <p class="portal-section-title">Reptes</p>
+            <h2 id="challengesEntryTitle">Vols jugar als reptes Focus?</h2>
+            <p class="subtitle">Entra a la zona de jocs i tria el repte disponible. Ara mateix: <strong>Tira-corda matemàtic</strong>.</p>
           </div>
-          <span class="learning-pill">Entrar →</span>
-        </a>
+          <div class="challenge-entry__actions">
+            <button class="pill" type="button" onclick="showView('challenges')">Entrar a Reptes →</button>
+          </div>
+        </section>
 
 
         <section id="classSection" class="panel card home-live-cta home-class-cta" aria-labelledby="homeClassTitle">
@@ -572,6 +649,128 @@
         </script>
       </div>
     </section>
+
+    <!-- REPTES -->
+    <section id="view-challenges" class="hidden">
+      <div class="panel card">
+        <div class="row" style="align-items:center; margin-bottom:.8rem">
+          <div>
+            <h2 class="title" style="margin:0">Reptes</h2>
+            <p class="subtitle">Tria un joc i configura la partida per mòdul.</p>
+          </div>
+          <div class="controls">
+            <button class="btn-secondary" type="button" onclick="showView('home')">← Torna</button>
+          </div>
+        </div>
+<section id="challengesSection" class="panel card challenge-section" aria-labelledby="challengesTitle">
+          <div class="challenge-header">
+            <p class="portal-section-title">Reptes</p>
+            <h2 id="challengesTitle">Jocs per competir en equip</h2>
+            <p class="subtitle">Configura primer el mòdul (amb la mateixa pantalla que els mòduls principals) i després juga al tira-corda.</p>
+          </div>
+
+          <div class="challenge-menu" aria-label="Menú de reptes">
+            <button class="challenge-chip" type="button" data-challenge="tug" aria-current="true">🪢 Tira-corda matemàtic</button>
+            <button class="challenge-chip" type="button" disabled>🧩 Properament</button>
+          </div>
+
+          <div class="challenge-wrap" id="ttmGame" data-challenge-panel="tug">
+            <div class="ttm-modal" id="ttmModal" role="dialog" aria-modal="true" aria-labelledby="ttmSetupTitle">
+              <div class="ttm-card">
+                <p class="ttm-step-label" id="ttmStepLabel">Pas 1 de 3</p>
+                <h3 id="ttmSetupTitle" class="ttm-title">Configuració del tira-corda matemàtic</h3>
+
+                <div class="ttm-step is-active" data-step="1">
+                  <label class="ttm-module-field">
+                    Mòdul del repte
+                    <select id="ttmModuleSelect"><option value="arith">Aritmètica</option></select>
+                  </label>
+                  <p class="subtitle">Aquest mòdul serà el mateix que jugaries en una sessió normal.</p>
+                </div>
+
+                <div class="ttm-step" data-step="2">
+                  <p><strong>Paràmetres de partida</strong></p>
+                  <div class="controls" style="gap:.6rem; flex-wrap:wrap">
+                    <label class="ttm-mini-field">Punts per guanyar
+                      <input id="ttmPointsToWin" type="number" min="1" max="50" value="10" />
+                    </label>
+                    <label class="ttm-mini-field">Preguntes per punt
+                      <input id="ttmQuestionsPerPoint" type="number" min="1" max="20" value="2" />
+                    </label>
+                  </div>
+                  <div class="ttm-module-config" id="ttmModuleConfigBox">
+                    <strong>Configuració del mòdul (igual que l'editor normal)</strong>
+                    <p id="ttmModuleConfigSummary" class="subtitle" style="margin:.35rem 0">Encara no has configurat el mòdul per Reptes.</p>
+                    <div class="controls">
+                      <button class="btn-secondary" type="button" id="ttmOpenModuleConfig">Configura mòdul</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ttm-step" data-step="3">
+                  <p><strong>Nom dels equips</strong></p>
+                  <div class="ttm-team-inputs">
+                    <label>Equip 1 (blau)<input id="ttmBlueNameInput" type="text" maxlength="20" placeholder="Ex: Dracs blaus" /></label>
+                    <label>Equip 2 (vermell)<input id="ttmRedNameInput" type="text" maxlength="20" placeholder="Ex: Flames roges" /></label>
+                  </div>
+                </div>
+
+                <p id="ttmSetupError" class="ttm-error" aria-live="polite"></p>
+                <div class="ttm-actions">
+                  <button class="btn-ghost" type="button" id="ttmPrevStep">Anterior</button>
+                  <button class="pill" type="button" id="ttmNextStep">Següent</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ttm-hud">
+              <div class="ttm-score ttm-score--blue"><strong id="ttmBlueName">Equip blau</strong><span>🏁 <span id="ttmBlueScore">0</span></span></div>
+              <div class="ttm-timer" id="ttmTimer">02:00</div>
+              <div class="ttm-score ttm-score--red"><strong id="ttmRedName">Equip vermell</strong><span>🏁 <span id="ttmRedScore">0</span></span></div>
+            </div>
+
+            <div class="ttm-rope-zone" aria-label="Corda del tira-corda">
+              <div class="ttm-track">
+                <div class="ttm-puller ttm-puller--blue">🧍‍♂️</div>
+                <div class="ttm-center"></div>
+                <div class="ttm-rope"></div>
+                <div class="ttm-flag" id="ttmFlag"></div>
+                <div class="ttm-puller ttm-puller--red">🧍‍♀️</div>
+              </div>
+              <div class="ttm-labels"><span class="b">Camp blau</span><span class="r">Camp vermell</span></div>
+            </div>
+
+            <div class="ttm-teams">
+              <section class="ttm-team ttm-team--blue" data-team="blue">
+                <h3 id="ttmBluePanelTitle">Equip blau</h3>
+                <p class="ttm-question" id="ttmQuestionBlue">Esperant inici...</p>
+                <p class="subtitle" id="ttmFeedbackBlue" aria-live="polite">—</p>
+                <div class="ttm-input" id="ttmInputBlue">0</div>
+                <div class="ttm-keypad" data-keypad="blue"></div>
+              </section>
+
+              <section class="ttm-team ttm-team--red" data-team="red">
+                <h3 id="ttmRedPanelTitle">Equip vermell</h3>
+                <p class="ttm-question" id="ttmQuestionRed">Esperant inici...</p>
+                <p class="subtitle" id="ttmFeedbackRed" aria-live="polite">—</p>
+                <div class="ttm-input" id="ttmInputRed">0</div>
+                <div class="ttm-keypad" data-keypad="red"></div>
+              </section>
+            </div>
+
+            <div class="ttm-result" id="ttmResult" hidden>
+              <div class="ttm-result-card">
+                <p class="portal-section-title">Partida finalitzada</p>
+                <h3 id="ttmWinnerTitle">Guanya l'equip blau!</h3>
+                <p id="ttmWinnerStats"></p>
+                <button class="pill" type="button" id="ttmRestartBtn">Tornar a jugar</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
     <!-- CONFIG -->
     <section id="view-config" class="hidden">
       <div class="panel card">
@@ -820,6 +1019,296 @@
 
     refreshUsers();
   });
+  </script>
+
+
+  <script>
+    // ===== Lògica del repte: Tira-corda matemàtic =====
+    (() => {
+      const root = document.getElementById('ttmGame');
+      if (!root) return;
+
+      const DURATION = 120;
+      const LIMIT = 10;
+
+      const state = {
+        step: 1,
+        running: false,
+        timeLeft: DURATION,
+        ropePos: 0,
+        timerId: null,
+        pointsToWin: 10,
+        questionsPerPoint: 2,
+        moduleId: 'arith',
+        moduleMeta: null,
+        moduleCfg: null,
+        currentQuestion: null,
+        teams: {
+          blue: { name: 'Equip blau', score: 0, input: '', rawCorrect: 0 },
+          red: { name: 'Equip vermell', score: 0, input: '', rawCorrect: 0 }
+        }
+      };
+
+      const els = {
+        modal: document.getElementById('ttmModal'),
+        steps: Array.from(root.querySelectorAll('.ttm-step')),
+        stepLabel: document.getElementById('ttmStepLabel'),
+        prevStep: document.getElementById('ttmPrevStep'),
+        nextStep: document.getElementById('ttmNextStep'),
+        setupError: document.getElementById('ttmSetupError'),
+        moduleSelect: document.getElementById('ttmModuleSelect'),
+        moduleSummary: document.getElementById('ttmModuleConfigSummary'),
+        openModuleConfig: document.getElementById('ttmOpenModuleConfig'),
+        pointsToWin: document.getElementById('ttmPointsToWin'),
+        questionsPerPoint: document.getElementById('ttmQuestionsPerPoint'),
+        blueNameInput: document.getElementById('ttmBlueNameInput'),
+        redNameInput: document.getElementById('ttmRedNameInput'),
+        blueName: document.getElementById('ttmBlueName'),
+        redName: document.getElementById('ttmRedName'),
+        bluePanelTitle: document.getElementById('ttmBluePanelTitle'),
+        redPanelTitle: document.getElementById('ttmRedPanelTitle'),
+        blueScore: document.getElementById('ttmBlueScore'),
+        redScore: document.getElementById('ttmRedScore'),
+        timer: document.getElementById('ttmTimer'),
+        flag: document.getElementById('ttmFlag'),
+        questionBlue: document.getElementById('ttmQuestionBlue'),
+        questionRed: document.getElementById('ttmQuestionRed'),
+        feedbackBlue: document.getElementById('ttmFeedbackBlue'),
+        feedbackRed: document.getElementById('ttmFeedbackRed'),
+        inputBlue: document.getElementById('ttmInputBlue'),
+        inputRed: document.getElementById('ttmInputRed'),
+        keypads: Array.from(root.querySelectorAll('.ttm-keypad')),
+        result: document.getElementById('ttmResult'),
+        winnerTitle: document.getElementById('ttmWinnerTitle'),
+        winnerStats: document.getElementById('ttmWinnerStats'),
+        restartBtn: document.getElementById('ttmRestartBtn')
+      };
+
+      const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+      const getMods = () => (typeof window.getRegisteredModules === 'function' ? window.getRegisteredModules() : []);
+      const intLike = (v) => (typeof v === 'number' ? Number.isInteger(v) && Number.isFinite(v) : /^-?\d+$/.test(String(v || '').trim()));
+
+      function updateStepUi(){
+        els.stepLabel.textContent = `Pas ${state.step} de 3`;
+        els.steps.forEach((step) => step.classList.toggle('is-active', Number(step.dataset.step) === state.step));
+        els.prevStep.disabled = state.step === 1;
+        els.nextStep.textContent = state.step === 3 ? 'Començar joc' : 'Següent';
+      }
+
+      function updateHud(){
+        els.blueName.textContent = `${state.teams.blue.name} · ${state.teams.blue.rawCorrect}✔`;
+        els.redName.textContent = `${state.teams.red.name} · ${state.teams.red.rawCorrect}✔`;
+        els.bluePanelTitle.textContent = state.teams.blue.name;
+        els.redPanelTitle.textContent = state.teams.red.name;
+        els.blueScore.textContent = String(state.teams.blue.score);
+        els.redScore.textContent = String(state.teams.red.score);
+        els.inputBlue.textContent = state.teams.blue.input || '0';
+        els.inputRed.textContent = state.teams.red.input || '0';
+        els.timer.textContent = fmt(state.timeLeft);
+      }
+
+      function updateRope(){
+        const pct = 50 + (state.ropePos / LIMIT) * 45;
+        els.flag.style.left = `${Math.max(5, Math.min(95, pct))}%`;
+      }
+
+      function populateModules(){
+        const mods = getMods().filter((m) => m && m.id && m.name && typeof m.gen === 'function');
+        els.moduleSelect.innerHTML = mods.map((m) => `<option value="${m.id}">${m.name}</option>`).join('') || '<option value="arith">Aritmètica</option>';
+        if (!mods.some((m) => m.id === state.moduleId)) state.moduleId = mods[0]?.id || 'arith';
+        els.moduleSelect.value = state.moduleId;
+        state.moduleMeta = mods.find((m) => m.id === state.moduleId) || null;
+      }
+
+      function setQuestion(question) {
+        state.currentQuestion = question;
+        const text = question?.text || 'No s'ha pogut generar una pregunta.';
+        els.questionBlue.textContent = text;
+        els.questionRed.textContent = text;
+      }
+
+      function generateQuestion(){
+        const mod = getMods().find((m) => m.id === state.moduleId && typeof m.gen === 'function') || state.moduleMeta;
+        if (!mod) return { text: 'No hi ha mòdul disponible.', answer: 0 };
+        const cfg = state.moduleCfg || { level: 1, options: {} };
+        const level = Number(cfg.level || 1);
+        const options = cfg.options || {};
+
+        for (let i=0;i<60;i++) {
+          const q = mod.gen(level, options);
+          if (!q || typeof q.text !== 'string') continue;
+          if (intLike(q.answer)) return { text: q.text, answer: Number(q.answer) };
+        }
+        return { text: 'No s'han trobat preguntes numèriques amb aquesta configuració. Ajusta el mòdul.', answer: 0 };
+      }
+
+      function setFeedback(teamKey, text, ok){
+        const el = teamKey === 'blue' ? els.feedbackBlue : els.feedbackRed;
+        el.textContent = text;
+        el.style.color = ok ? '#1d7a35' : '#b42318';
+      }
+
+      function endGame(){
+        if (!state.running) return;
+        state.running = false;
+        clearInterval(state.timerId);
+        const blue = state.teams.blue;
+        const red = state.teams.red;
+        let winner = null;
+        if (blue.score > red.score) winner = blue;
+        else if (red.score > blue.score) winner = red;
+        const used = DURATION - state.timeLeft;
+        els.winnerTitle.textContent = winner ? `🏆 Guanya ${winner.name}!` : '🤝 Empat!';
+        els.winnerStats.textContent = `Blau ${blue.score} · Vermell ${red.score} · Temps ${fmt(used)}`;
+        els.result.hidden = false;
+      }
+
+      function handleAnswer(teamKey){
+        if (!state.running || !state.currentQuestion) return;
+        const team = state.teams[teamKey];
+        const val = Number(team.input || '');
+        const ok = Number.isFinite(val) && val === state.currentQuestion.answer;
+
+        if (ok) {
+          team.rawCorrect += 1;
+          setFeedback(teamKey, `Correcte! ${team.rawCorrect}/${state.questionsPerPoint} per punt.`, true);
+          if (team.rawCorrect % state.questionsPerPoint === 0) {
+            team.score += 1;
+            state.ropePos += teamKey === 'blue' ? -1 : 1;
+          }
+        } else {
+          setFeedback(teamKey, `Incorrecte. Resposta correcta: ${state.currentQuestion.answer}`, false);
+          state.ropePos += teamKey === 'blue' ? 0.35 : -0.35;
+        }
+
+        team.input = '';
+        updateHud();
+        updateRope();
+        if (team.score >= state.pointsToWin || Math.abs(state.ropePos) >= LIMIT) return endGame();
+        setQuestion(generateQuestion());
+      }
+
+      function startGame(){
+        state.running = true;
+        state.timeLeft = DURATION;
+        state.ropePos = 0;
+        state.teams.blue.score = state.teams.red.score = 0;
+        state.teams.blue.rawCorrect = state.teams.red.rawCorrect = 0;
+        state.teams.blue.input = state.teams.red.input = '';
+        setFeedback('blue', 'Preparat/ada!', true);
+        setFeedback('red', 'Preparat/ada!', true);
+        setQuestion(generateQuestion());
+        updateHud();
+        updateRope();
+        els.modal.hidden = true;
+        els.result.hidden = true;
+        clearInterval(state.timerId);
+        state.timerId = setInterval(() => {
+          state.timeLeft -= 1;
+          els.timer.textContent = fmt(Math.max(0, state.timeLeft));
+          if (state.timeLeft <= 0) endGame();
+        }, 1000);
+      }
+
+      function buildKeypad(team, container){
+        ['7','8','9','4','5','6','1','2','3','0'].forEach((n) => {
+          const b=document.createElement('button');
+          b.type='button'; b.className='ttm-key'; b.textContent=n;
+          b.addEventListener('click',()=>{ if(!state.running) return; state.teams[team].input = `${state.teams[team].input}${n}`.slice(0,8); updateHud(); });
+          container.appendChild(b);
+        });
+        const c=document.createElement('button'); c.type='button'; c.className='ttm-key ttm-key--clear'; c.textContent='Esborrar';
+        c.addEventListener('click',()=>{ state.teams[team].input=''; updateHud(); });
+        const s=document.createElement('button'); s.type='button'; s.className='ttm-key ttm-key--send'; s.textContent='Enviar';
+        s.addEventListener('click',()=>handleAnswer(team));
+        container.appendChild(c); container.appendChild(s);
+      }
+
+      function openModuleConfig(){
+        if (typeof window.openConfig !== 'function' || typeof window.collectConfigValues !== 'function') {
+          els.setupError.textContent = 'No s'ha pogut obrir la configuració del mòdul.';
+          return;
+        }
+        window.openConfig(state.moduleId);
+        const controls = document.querySelector('#view-config .controls');
+        if (!controls) return;
+        let btn = document.getElementById('ttmSaveModuleCfg');
+        if (!btn) {
+          btn = document.createElement('button');
+          btn.id = 'ttmSaveModuleCfg';
+          btn.className = 'pill';
+          btn.type = 'button';
+          btn.textContent = 'Desa per Reptes';
+          btn.addEventListener('click', () => {
+            const cfg = window.collectConfigValues();
+            if (!cfg) return;
+            state.moduleCfg = cfg;
+            els.moduleSummary.textContent = `Configurat: ${state.moduleMeta?.name || state.moduleId} · nivell ${cfg.level} · ${cfg.count} preguntes.`;
+            if (typeof window.showView === 'function') window.showView('challenges');
+          });
+          controls.appendChild(btn);
+        }
+      }
+
+      els.moduleSelect.addEventListener('change', () => {
+        state.moduleId = els.moduleSelect.value || 'arith';
+        state.moduleMeta = getMods().find((m) => m.id === state.moduleId) || null;
+        state.moduleCfg = null;
+        els.moduleSummary.textContent = 'Has canviat de mòdul. Torna a configurar-lo per Reptes.';
+      });
+
+      els.openModuleConfig.addEventListener('click', openModuleConfig);
+
+      els.prevStep.addEventListener('click', () => {
+        state.step = Math.max(1, state.step - 1);
+        els.setupError.textContent = '';
+        updateStepUi();
+      });
+
+      els.nextStep.addEventListener('click', () => {
+        els.setupError.textContent = '';
+        if (state.step === 2 && !state.moduleCfg) {
+          els.setupError.textContent = 'Configura el mòdul amb el botó "Configura mòdul" abans de continuar.';
+          return;
+        }
+        if (state.step < 3) {
+          if (state.step === 2) {
+            state.pointsToWin = Math.max(1, Math.min(50, Number(els.pointsToWin.value || 10)));
+            state.questionsPerPoint = Math.max(1, Math.min(20, Number(els.questionsPerPoint.value || 2)));
+          }
+          state.step += 1;
+          updateStepUi();
+          return;
+        }
+        const blue = (els.blueNameInput.value || '').trim() || 'Equip blau';
+        const red = (els.redNameInput.value || '').trim() || 'Equip vermell';
+        if (blue.toLowerCase() === red.toLowerCase()) {
+          els.setupError.textContent = 'Els equips han de tenir noms diferents.';
+          return;
+        }
+        state.teams.blue.name = blue;
+        state.teams.red.name = red;
+        startGame();
+      });
+
+      els.restartBtn.addEventListener('click', () => {
+        clearInterval(state.timerId);
+        state.running = false;
+        state.step = 1;
+        els.modal.hidden = false;
+        els.result.hidden = true;
+        updateStepUi();
+        updateHud();
+        updateRope();
+      });
+
+      els.keypads.forEach((kp) => buildKeypad(kp.dataset.keypad, kp));
+      populateModules();
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', populateModules, { once: true });
+      updateStepUi();
+      updateHud();
+      updateRope();
+    })();
   </script>
 
   <!-- 🔹 Lògica principal i generadors de matemàtiques -->
