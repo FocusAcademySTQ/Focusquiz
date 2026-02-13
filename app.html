@@ -67,9 +67,14 @@
     .ttm-team-head--red { background: #d8343a; }
     .ttm-team-points { min-width: 34px; text-align: center; font-weight: 900; border-radius: 999px; background: #fff; color: #0f172a; padding: .1rem .45rem; }
     .ttm-team-body { padding: .7rem; }
-    .ttm-question { font-size: 2.9rem; line-height: 1.1; text-align:center; font-weight: 900; margin: .35rem 0 .55rem; min-height: 1.3em; }
+    .ttm-question { font-size: 2.3rem; line-height: 1.15; text-align:center; font-weight: 900; margin: .35rem 0 .55rem; min-height: 1.3em; }
     .ttm-team--blue .ttm-question { color: #2f84d8; }
     .ttm-team--red .ttm-question { color: #d8343a; }
+    .ttm-question-media { min-height: 130px; max-height: 220px; overflow: auto; margin-bottom: .55rem; padding: .35rem; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; }
+    .ttm-question-media:empty { display: none; }
+    .ttm-question-media svg, .ttm-question-media img { max-width: 100%; height: auto; display:block; margin: 0 auto; }
+    .ttm-question-media .ttm-choice-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:.35rem; }
+    .ttm-question-media .ttm-choice-item { border: 1px solid #d7dce8; border-radius: 8px; padding: .35rem; font-size: .85rem; text-align:left; background:#f8fafc; }
     .ttm-input { border: 2px solid #d6dbe8; border-radius: 12px; background: #ffffff; padding: .4rem .6rem; font-family: ui-monospace, monospace; font-size: 2rem; text-align: center; font-weight: 800; margin-bottom: .6rem; min-height: 2rem; }
     .ttm-keypad { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .35rem; }
     .ttm-key { border: 1px solid #d6dae4; background: #fff; border-radius: 10px; padding: .82rem .3rem; font-weight: 800; font-size: 1.45rem; cursor: pointer; transition: .18s ease; }
@@ -760,6 +765,7 @@
                 </div>
                 <div class="ttm-team-body">
                   <p class="ttm-question" id="ttmQuestionBlue">8 + 8 = ?</p>
+                  <div class="ttm-question-media" id="ttmMediaBlue"></div>
                   <div class="ttm-input" id="ttmInputBlue">0</div>
                   <div class="ttm-keypad" data-keypad="blue"></div>
                 </div>
@@ -792,6 +798,7 @@
                 </div>
                 <div class="ttm-team-body">
                   <p class="ttm-question" id="ttmQuestionRed">7 + 6 = ?</p>
+                  <div class="ttm-question-media" id="ttmMediaRed"></div>
                   <div class="ttm-input" id="ttmInputRed">0</div>
                   <div class="ttm-keypad" data-keypad="red"></div>
                 </div>
@@ -1117,6 +1124,8 @@
         redPullerB: document.getElementById('ttmRedPullerB'),
         questionBlue: document.getElementById('ttmQuestionBlue'),
         questionRed: document.getElementById('ttmQuestionRed'),
+        mediaBlue: document.getElementById('ttmMediaBlue'),
+        mediaRed: document.getElementById('ttmMediaRed'),
         inputBlue: document.getElementById('ttmInputBlue'),
         inputRed: document.getElementById('ttmInputRed'),
         keypads: Array.from(root.querySelectorAll('.ttm-keypad')),
@@ -1135,6 +1144,13 @@
         if (!els.moduleConfigFields) return;
         const id = state.moduleId;
         const box = els.moduleConfigFields;
+        const mod = getRegisteredModules().find((m) => m.id === id) || state.moduleMeta;
+        if (mod?.config && typeof mod.config.render === 'function') {
+          box.innerHTML = '';
+          const rendered = mod.config.render();
+          if (rendered) box.appendChild(rendered);
+          return;
+        }
         if (id === 'arith') {
           box.innerHTML = `
             <label class="toggle"><input class="check" type="checkbox" id="ttm-allow-neg"> Negatius</label>
@@ -1198,6 +1214,14 @@
       function readModuleOptions() {
         const id = state.moduleId;
         const options = {};
+        const mod = getRegisteredModules().find((m) => m.id === id) || state.moduleMeta;
+        if (mod?.config && typeof mod.config.collect === 'function') {
+          const ext = mod.config.collect();
+          if (ext && typeof ext === 'object') {
+            state.moduleOptions = ext;
+            return;
+          }
+        }
         if (id === 'arith') {
           options.ops = [];
           if (state.operations.has('add')) options.ops.push('+');
@@ -1225,7 +1249,7 @@
       }
 
       function populateModuleOptions() {
-        const mods = getRegisteredModules().filter((m) => m && m.id && m.name && typeof m.gen === 'function');
+        const mods = getRegisteredModules().filter((m) => m && m.id && m.name && typeof m.gen === 'function' && ['math','cat','esp'].includes(m.category));
         if (!els.moduleSelect) return;
         els.moduleSelect.innerHTML = mods.length
           ? mods.map((m) => `<option value="${m.id}">${m.name}</option>`).join('')
@@ -1277,7 +1301,17 @@
         for (let attempt = 0; attempt < 40; attempt += 1) {
           const q = mod.gen(level, state.moduleOptions || {});
           if (!q || typeof q.text !== 'string') continue;
-          if (isIntegerLike(q.answer)) return { text: q.text, answer: Number(q.answer) };
+          if (isIntegerLike(q.answer)) return { text: q.text, html: q.html || '', answer: Number(q.answer) };
+          if (Array.isArray(q.options) && q.options.length) {
+            const normalized = q.options.map((opt) => String(opt).trim().toLowerCase());
+            const target = String(q.answer ?? '').trim().toLowerCase();
+            let index = normalized.findIndex((opt) => opt === target);
+            if (index < 0) index = q.options.findIndex((opt) => String(opt).trim() === String(q.answer ?? '').trim());
+            if (index >= 0 && index < 9) {
+              const optionsHtml = `<div class="ttm-choice-grid">${q.options.map((opt, i) => `<div class="ttm-choice-item"><strong>${i + 1}.</strong> ${opt}</div>`).join('')}</div>`;
+              return { text: q.text, html: `${q.html || ''}${optionsHtml}`, answer: index + 1 };
+            }
+          }
         }
 
         state.moduleId = 'arith';
@@ -1329,7 +1363,11 @@
 
       function setQuestion(teamKey) {
         state.teams[teamKey].current = createQuestion();
-        (teamKey === 'blue' ? els.questionBlue : els.questionRed).textContent = state.teams[teamKey].current.text;
+        const questionEl = teamKey === 'blue' ? els.questionBlue : els.questionRed;
+        const mediaEl = teamKey === 'blue' ? els.mediaBlue : els.mediaRed;
+        const current = state.teams[teamKey].current;
+        questionEl.innerHTML = current.text;
+        if (mediaEl) mediaEl.innerHTML = current.html || '';
       }
 
       function endGame() {
