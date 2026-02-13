@@ -52,6 +52,9 @@
     .ttm-labels { display: flex; justify-content: space-between; margin-top: .25rem; font-size: .83rem; }
     .ttm-labels .b { color: #1f5aba; font-weight: 700; }
     .ttm-labels .r { color: #bf2842; font-weight: 700; }
+    .ttm-puller { position:absolute; top:50%; transform: translateY(-50%); font-size:1.4rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,.15)); }
+    .ttm-puller--blue { left: .5rem; }
+    .ttm-puller--red { right: .5rem; }
 
     .ttm-teams { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
     .ttm-team { border: 1px solid #d9e1f8; border-radius: 14px; padding: .8rem; background: #fbfdff; }
@@ -663,17 +666,15 @@
           <div class="challenge-header">
             <p class="portal-section-title">Reptes</p>
             <h2 id="challengesTitle">Jocs per competir en equip</h2>
-            <p class="subtitle">Tria un joc del menú. Primer disponible: <strong>Tira-corda matemàtic</strong>.</p>
+            <p class="subtitle">Configura primer el mòdul (amb la mateixa pantalla que els mòduls principals) i després juga al tira-corda.</p>
           </div>
 
           <div class="challenge-menu" aria-label="Menú de reptes">
             <button class="challenge-chip" type="button" data-challenge="tug" aria-current="true">🪢 Tira-corda matemàtic</button>
             <button class="challenge-chip" type="button" disabled>🧩 Properament</button>
-            <button class="challenge-chip" type="button" disabled>🎯 Properament</button>
           </div>
 
           <div class="challenge-wrap" id="ttmGame" data-challenge-panel="tug">
-            <!-- Modal de configuració inicial (3 passos) -->
             <div class="ttm-modal" id="ttmModal" role="dialog" aria-modal="true" aria-labelledby="ttmSetupTitle">
               <div class="ttm-card">
                 <p class="ttm-step-label" id="ttmStepLabel">Pas 1 de 3</p>
@@ -682,28 +683,14 @@
                 <div class="ttm-step is-active" data-step="1">
                   <label class="ttm-module-field">
                     Mòdul del repte
-                    <select id="ttmModuleSelect">
-                      <option value="arith">Aritmètica</option>
-                    </select>
+                    <select id="ttmModuleSelect"><option value="arith">Aritmètica</option></select>
                   </label>
-                  <p><strong>Selecciona operacions (només Aritmètica)</strong></p>
-                  <div class="ttm-grid4">
-                    <button type="button" class="ttm-op is-active" data-op="add">+</button>
-                    <button type="button" class="ttm-op is-active" data-op="sub">−</button>
-                    <button type="button" class="ttm-op is-active" data-op="mul">×</button>
-                    <button type="button" class="ttm-op is-active" data-op="div">÷</button>
-                  </div>
-                  <p class="subtitle">Tria el mòdul. Si no és Aritmètica, les operacions es desactiven i el joc genera preguntes del mòdul.</p>
+                  <p class="subtitle">Aquest mòdul serà el mateix que jugaries en una sessió normal.</p>
                 </div>
 
                 <div class="ttm-step" data-step="2">
-                  <p><strong>Configuració de partida</strong></p>
-                  <div class="ttm-grid3">
-                    <button type="button" class="ttm-level is-selected" data-level="easy">🟢 Fàcil</button>
-                    <button type="button" class="ttm-level" data-level="medium">🟡 Mitjà</button>
-                    <button type="button" class="ttm-level" data-level="hard">🔴 Difícil</button>
-                  </div>
-                  <div class="controls" style="margin-top:.6rem; gap:.6rem; flex-wrap:wrap">
+                  <p><strong>Paràmetres de partida</strong></p>
+                  <div class="controls" style="gap:.6rem; flex-wrap:wrap">
                     <label class="ttm-mini-field">Punts per guanyar
                       <input id="ttmPointsToWin" type="number" min="1" max="50" value="10" />
                     </label>
@@ -712,20 +699,19 @@
                     </label>
                   </div>
                   <div class="ttm-module-config" id="ttmModuleConfigBox">
-                    <strong>Configuració del mòdul</strong>
-                    <div id="ttmModuleConfigFields" class="controls"></div>
+                    <strong>Configuració del mòdul (igual que l'editor normal)</strong>
+                    <p id="ttmModuleConfigSummary" class="subtitle" style="margin:.35rem 0">Encara no has configurat el mòdul per Reptes.</p>
+                    <div class="controls">
+                      <button class="btn-secondary" type="button" id="ttmOpenModuleConfig">Configura mòdul</button>
+                    </div>
                   </div>
                 </div>
 
                 <div class="ttm-step" data-step="3">
                   <p><strong>Nom dels equips</strong></p>
                   <div class="ttm-team-inputs">
-                    <label>Equip 1 (blau)
-                      <input id="ttmBlueNameInput" type="text" maxlength="20" placeholder="Ex: Dracs blaus" />
-                    </label>
-                    <label>Equip 2 (vermell)
-                      <input id="ttmRedNameInput" type="text" maxlength="20" placeholder="Ex: Flames roges" />
-                    </label>
+                    <label>Equip 1 (blau)<input id="ttmBlueNameInput" type="text" maxlength="20" placeholder="Ex: Dracs blaus" /></label>
+                    <label>Equip 2 (vermell)<input id="ttmRedNameInput" type="text" maxlength="20" placeholder="Ex: Flames roges" /></label>
                   </div>
                 </div>
 
@@ -738,16 +724,18 @@
             </div>
 
             <div class="ttm-hud">
-              <div class="ttm-score ttm-score--blue"><strong id="ttmBlueName">Equip blau</strong><span>✅ <span id="ttmBlueScore">0</span></span></div>
+              <div class="ttm-score ttm-score--blue"><strong id="ttmBlueName">Equip blau</strong><span>🏁 <span id="ttmBlueScore">0</span></span></div>
               <div class="ttm-timer" id="ttmTimer">02:00</div>
-              <div class="ttm-score ttm-score--red"><strong id="ttmRedName">Equip vermell</strong><span>✅ <span id="ttmRedScore">0</span></span></div>
+              <div class="ttm-score ttm-score--red"><strong id="ttmRedName">Equip vermell</strong><span>🏁 <span id="ttmRedScore">0</span></span></div>
             </div>
 
             <div class="ttm-rope-zone" aria-label="Corda del tira-corda">
               <div class="ttm-track">
+                <div class="ttm-puller ttm-puller--blue">🧍‍♂️</div>
                 <div class="ttm-center"></div>
                 <div class="ttm-rope"></div>
                 <div class="ttm-flag" id="ttmFlag"></div>
+                <div class="ttm-puller ttm-puller--red">🧍‍♀️</div>
               </div>
               <div class="ttm-labels"><span class="b">Camp blau</span><span class="r">Camp vermell</span></div>
             </div>
@@ -756,6 +744,7 @@
               <section class="ttm-team ttm-team--blue" data-team="blue">
                 <h3 id="ttmBluePanelTitle">Equip blau</h3>
                 <p class="ttm-question" id="ttmQuestionBlue">Esperant inici...</p>
+                <p class="subtitle" id="ttmFeedbackBlue" aria-live="polite">—</p>
                 <div class="ttm-input" id="ttmInputBlue">0</div>
                 <div class="ttm-keypad" data-keypad="blue"></div>
               </section>
@@ -763,6 +752,7 @@
               <section class="ttm-team ttm-team--red" data-team="red">
                 <h3 id="ttmRedPanelTitle">Equip vermell</h3>
                 <p class="ttm-question" id="ttmQuestionRed">Esperant inici...</p>
+                <p class="subtitle" id="ttmFeedbackRed" aria-live="polite">—</p>
                 <div class="ttm-input" id="ttmInputRed">0</div>
                 <div class="ttm-keypad" data-keypad="red"></div>
               </section>
@@ -1043,34 +1033,32 @@
 
       const state = {
         step: 1,
-        operations: new Set(['add', 'sub', 'mul', 'div']),
-        difficulty: 'easy',
-        moduleId: 'arith',
-        moduleMeta: null,
-        moduleOptions: {},
-        pointsToWin: 10,
-        questionsPerPoint: 2,
         running: false,
         timeLeft: DURATION,
         ropePos: 0,
         timerId: null,
+        pointsToWin: 10,
+        questionsPerPoint: 2,
+        moduleId: 'arith',
+        moduleMeta: null,
+        moduleCfg: null,
+        currentQuestion: null,
         teams: {
-          blue: { name: 'Equip blau', score: 0, input: '', current: null, rawCorrect: 0 },
-          red: { name: 'Equip vermell', score: 0, input: '', current: null, rawCorrect: 0 }
+          blue: { name: 'Equip blau', score: 0, input: '', rawCorrect: 0 },
+          red: { name: 'Equip vermell', score: 0, input: '', rawCorrect: 0 }
         }
       };
 
       const els = {
         modal: document.getElementById('ttmModal'),
-        stepLabel: document.getElementById('ttmStepLabel'),
         steps: Array.from(root.querySelectorAll('.ttm-step')),
+        stepLabel: document.getElementById('ttmStepLabel'),
         prevStep: document.getElementById('ttmPrevStep'),
         nextStep: document.getElementById('ttmNextStep'),
         setupError: document.getElementById('ttmSetupError'),
-        opButtons: Array.from(root.querySelectorAll('[data-op]')),
         moduleSelect: document.getElementById('ttmModuleSelect'),
-        moduleConfigFields: document.getElementById('ttmModuleConfigFields'),
-        levelButtons: Array.from(root.querySelectorAll('[data-level]')),
+        moduleSummary: document.getElementById('ttmModuleConfigSummary'),
+        openModuleConfig: document.getElementById('ttmOpenModuleConfig'),
         pointsToWin: document.getElementById('ttmPointsToWin'),
         questionsPerPoint: document.getElementById('ttmQuestionsPerPoint'),
         blueNameInput: document.getElementById('ttmBlueNameInput'),
@@ -1085,6 +1073,8 @@
         flag: document.getElementById('ttmFlag'),
         questionBlue: document.getElementById('ttmQuestionBlue'),
         questionRed: document.getElementById('ttmQuestionRed'),
+        feedbackBlue: document.getElementById('ttmFeedbackBlue'),
+        feedbackRed: document.getElementById('ttmFeedbackRed'),
         inputBlue: document.getElementById('ttmInputBlue'),
         inputRed: document.getElementById('ttmInputRed'),
         keypads: Array.from(root.querySelectorAll('.ttm-keypad')),
@@ -1094,319 +1084,180 @@
         restartBtn: document.getElementById('ttmRestartBtn')
       };
 
-      const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-      const formatTime = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
-      const getRegisteredModules = () => (typeof window.getRegisteredModules === 'function' ? window.getRegisteredModules() : []);
-      const isIntegerLike = (value) => (typeof value === 'number' ? Number.isFinite(value) && Number.isInteger(value) : /^-?\d+$/.test(String(value || '').trim()));
+      const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+      const getMods = () => (typeof window.getRegisteredModules === 'function' ? window.getRegisteredModules() : []);
+      const intLike = (v) => (typeof v === 'number' ? Number.isInteger(v) && Number.isFinite(v) : /^-?\d+$/.test(String(v || '').trim()));
 
-      function renderModuleConfigFields() {
-        if (!els.moduleConfigFields) return;
-        const id = state.moduleId;
-        const box = els.moduleConfigFields;
-        if (id === 'arith') {
-          box.innerHTML = `
-            <label class="toggle"><input class="check" type="checkbox" id="ttm-allow-neg"> Negatius</label>
-            <label class="toggle"><input class="check" type="checkbox" id="ttm-tri-numbers"> Operar amb 3 números</label>
-          `;
-          return;
-        }
-        if (id === 'frac') {
-          box.innerHTML = `
-            <label class="toggle"><input class="check" type="radio" name="ttm-frac-sub" value="identify" checked> Identificar</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-frac-sub" value="arith"> Aritmètica</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-frac-sub" value="simplify"> Simplificar</label>
-            <label class="toggle"><input class="check" type="checkbox" id="ttm-frac-mixed" checked> Formes variades</label>
-          `;
-          return;
-        }
-        if (id === 'geom') {
-          box.innerHTML = `
-            <label class="toggle"><input class="check" type="radio" name="ttm-geom-scope" value="area" checked> Àrea</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-geom-scope" value="perim"> Perímetre</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-geom-scope" value="both"> Ambdós</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-geom-scope" value="vol"> Volum</label>
-          `;
-          return;
-        }
-        if (id === 'stats') {
-          box.innerHTML = `
-            <label class="toggle"><input class="check" type="radio" name="ttm-stats-sub" value="mmm" checked> Mitjana/mediana/moda</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-stats-sub" value="range"> Rang</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-stats-sub" value="charts"> Gràfics</label>
-          `;
-          return;
-        }
-        if (id === 'units') {
-          box.innerHTML = `
-            <label class="toggle"><input class="check" type="radio" name="ttm-units-sub" value="length" checked> Longitud</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-units-sub" value="mass"> Massa</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-units-sub" value="volume"> Volum</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-units-sub" value="time"> Temps</label>
-          `;
-          return;
-        }
-        if (id === 'coord') {
-          box.innerHTML = `
-            <label class="toggle"><input class="check" type="radio" name="ttm-coord-sub" value="read" checked> Llegir punts</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-coord-sub" value="plot"> Situar punts</label>
-          `;
-          return;
-        }
-        if (id === 'eq') {
-          box.innerHTML = `
-            <label class="toggle"><input class="check" type="radio" name="ttm-eq-degree" value="1" checked> 1r grau</label>
-            <label class="toggle"><input class="check" type="radio" name="ttm-eq-degree" value="2"> 2n grau</label>
-            <label class="toggle"><input class="check" type="checkbox" id="ttm-eq-int" checked> Solució enter</label>
-          `;
-          return;
-        }
-        box.innerHTML = `<span class="subtitle">Aquest mòdul no té opcions específiques addicionals en aquest joc.</span>`;
-      }
-
-      function readModuleOptions() {
-        const id = state.moduleId;
-        const options = {};
-        if (id === 'arith') {
-          options.ops = [];
-          if (state.operations.has('add')) options.ops.push('+');
-          if (state.operations.has('sub')) options.ops.push('-');
-          if (state.operations.has('mul')) options.ops.push('×');
-          if (state.operations.has('div')) options.ops.push('÷');
-          options.allowNeg = !!document.getElementById('ttm-allow-neg')?.checked;
-          options.tri = !!document.getElementById('ttm-tri-numbers')?.checked;
-        } else if (id === 'frac') {
-          options.sub = document.querySelector('input[name="ttm-frac-sub"]:checked')?.value || 'identify';
-          options.mixedGrids = !!document.getElementById('ttm-frac-mixed')?.checked;
-        } else if (id === 'geom') {
-          options.scope = document.querySelector('input[name="ttm-geom-scope"]:checked')?.value || 'area';
-        } else if (id === 'stats') {
-          options.sub = document.querySelector('input[name="ttm-stats-sub"]:checked')?.value || 'mmm';
-        } else if (id === 'units') {
-          options.sub = document.querySelector('input[name="ttm-units-sub"]:checked')?.value || 'length';
-        } else if (id === 'coord') {
-          options.sub = document.querySelector('input[name="ttm-coord-sub"]:checked')?.value || 'read';
-        } else if (id === 'eq') {
-          options.degree = document.querySelector('input[name="ttm-eq-degree"]:checked')?.value || '1';
-          options.forceInt = !!document.getElementById('ttm-eq-int')?.checked;
-        }
-        state.moduleOptions = options;
-      }
-
-      function populateModuleOptions() {
-        const mods = getRegisteredModules().filter((m) => m && m.id && m.name && typeof m.gen === 'function');
-        if (!els.moduleSelect) return;
-        els.moduleSelect.innerHTML = mods.length
-          ? mods.map((m) => `<option value="${m.id}">${m.name}</option>`).join('')
-          : '<option value="arith">Aritmètica</option>';
-        if (!mods.some((m) => m.id === state.moduleId)) state.moduleId = mods[0]?.id || 'arith';
-        els.moduleSelect.value = state.moduleId;
-        state.moduleMeta = mods.find((m) => m.id === state.moduleId) || null;
-        toggleOperationButtons();
-        renderModuleConfigFields();
-      }
-
-      function toggleOperationButtons() {
-        const arithMode = state.moduleId === 'arith';
-        els.opButtons.forEach((btn) => {
-          btn.disabled = !arithMode;
-          btn.style.opacity = arithMode ? '1' : '.45';
-          btn.style.pointerEvents = arithMode ? 'auto' : 'none';
-        });
-      }
-
-      function createQuestion() {
-        const level = state.difficulty === 'easy' ? 1 : (state.difficulty === 'medium' ? 2 : 3);
-        readModuleOptions();
-
-        if (state.moduleId === 'arith') {
-          if (!state.moduleOptions.ops || !state.moduleOptions.ops.length) state.moduleOptions.ops = ['+'];
-          const ranges = { easy: [1, 20], medium: [10, 80], hard: [50, 250] };
-          const [min, max] = ranges[state.difficulty];
-          const opMap = {'+':'add','-':'sub','×':'mul','÷':'div'};
-          const localOps = state.moduleOptions.ops.map(o => opMap[o]).filter(Boolean);
-          const op = localOps[randomInt(0, localOps.length - 1)] || 'add';
-          let a = randomInt(min, max), b = randomInt(min, max);
-          if (op === 'add') return { text: `${a} + ${b} = ?`, answer: a + b };
-          if (op === 'sub') { if (b > a) [a,b]=[b,a]; return { text: `${a} − ${b} = ?`, answer: a - b }; }
-          if (op === 'mul') return { text: `${a} × ${b} = ?`, answer: a * b };
-          const divisor = Math.max(1,b); const result = randomInt(min,max); return { text: `${divisor*result} ÷ ${divisor} = ?`, answer: result };
-        }
-
-        const mods = getRegisteredModules();
-        const mod = mods.find((m) => m.id === state.moduleId && typeof m.gen === 'function') || state.moduleMeta;
-        if (!mod) {
-          state.moduleId = 'arith';
-          if (els.moduleSelect) els.moduleSelect.value = 'arith';
-          state.moduleMeta = mods.find((m) => m.id === 'arith') || null;
-          toggleOperationButtons();
-          return createQuestion();
-        }
-
-        for (let attempt = 0; attempt < 40; attempt += 1) {
-          const q = mod.gen(level, state.moduleOptions || {});
-          if (!q || typeof q.text !== 'string') continue;
-          if (isIntegerLike(q.answer)) return { text: q.text, answer: Number(q.answer) };
-        }
-
-        state.moduleId = 'arith';
-        if (els.moduleSelect) els.moduleSelect.value = 'arith';
-        state.moduleMeta = mods.find((m) => m.id === 'arith') || null;
-        toggleOperationButtons();
-        return createQuestion();
-      }
-
-      function updateStepUi() {
+      function updateStepUi(){
         els.stepLabel.textContent = `Pas ${state.step} de 3`;
-        els.steps.forEach(step => step.classList.toggle('is-active', Number(step.dataset.step) === state.step));
+        els.steps.forEach((step) => step.classList.toggle('is-active', Number(step.dataset.step) === state.step));
         els.prevStep.disabled = state.step === 1;
         els.nextStep.textContent = state.step === 3 ? 'Començar joc' : 'Següent';
       }
 
-      function updateHud() {
+      function updateHud(){
         els.blueName.textContent = `${state.teams.blue.name} · ${state.teams.blue.rawCorrect}✔`;
         els.redName.textContent = `${state.teams.red.name} · ${state.teams.red.rawCorrect}✔`;
         els.bluePanelTitle.textContent = state.teams.blue.name;
         els.redPanelTitle.textContent = state.teams.red.name;
-        els.blueScore.textContent = state.teams.blue.score;
-        els.redScore.textContent = state.teams.red.score;
-        els.timer.textContent = formatTime(state.timeLeft);
+        els.blueScore.textContent = String(state.teams.blue.score);
+        els.redScore.textContent = String(state.teams.red.score);
         els.inputBlue.textContent = state.teams.blue.input || '0';
         els.inputRed.textContent = state.teams.red.input || '0';
+        els.timer.textContent = fmt(state.timeLeft);
       }
 
-      function updateRope() {
+      function updateRope(){
         const pct = 50 + (state.ropePos / LIMIT) * 45;
-        els.flag.style.left = `${Math.min(95, Math.max(5, pct))}%`;
+        els.flag.style.left = `${Math.max(5, Math.min(95, pct))}%`;
       }
 
-      function setQuestion(teamKey) {
-        state.teams[teamKey].current = createQuestion();
-        (teamKey === 'blue' ? els.questionBlue : els.questionRed).textContent = state.teams[teamKey].current.text;
+      function populateModules(){
+        const mods = getMods().filter((m) => m && m.id && m.name && typeof m.gen === 'function');
+        els.moduleSelect.innerHTML = mods.map((m) => `<option value="${m.id}">${m.name}</option>`).join('') || '<option value="arith">Aritmètica</option>';
+        if (!mods.some((m) => m.id === state.moduleId)) state.moduleId = mods[0]?.id || 'arith';
+        els.moduleSelect.value = state.moduleId;
+        state.moduleMeta = mods.find((m) => m.id === state.moduleId) || null;
       }
 
-      function endGame() {
+      function setQuestion(question) {
+        state.currentQuestion = question;
+        const text = question?.text || 'No s'ha pogut generar una pregunta.';
+        els.questionBlue.textContent = text;
+        els.questionRed.textContent = text;
+      }
+
+      function generateQuestion(){
+        const mod = getMods().find((m) => m.id === state.moduleId && typeof m.gen === 'function') || state.moduleMeta;
+        if (!mod) return { text: 'No hi ha mòdul disponible.', answer: 0 };
+        const cfg = state.moduleCfg || { level: 1, options: {} };
+        const level = Number(cfg.level || 1);
+        const options = cfg.options || {};
+
+        for (let i=0;i<60;i++) {
+          const q = mod.gen(level, options);
+          if (!q || typeof q.text !== 'string') continue;
+          if (intLike(q.answer)) return { text: q.text, answer: Number(q.answer) };
+        }
+        return { text: 'No s'han trobat preguntes numèriques amb aquesta configuració. Ajusta el mòdul.', answer: 0 };
+      }
+
+      function setFeedback(teamKey, text, ok){
+        const el = teamKey === 'blue' ? els.feedbackBlue : els.feedbackRed;
+        el.textContent = text;
+        el.style.color = ok ? '#1d7a35' : '#b42318';
+      }
+
+      function endGame(){
         if (!state.running) return;
         state.running = false;
         clearInterval(state.timerId);
         const blue = state.teams.blue;
         const red = state.teams.red;
         let winner = null;
-        if (blue.score >= state.pointsToWin || state.ropePos <= -LIMIT) winner = blue;
-        else if (red.score >= state.pointsToWin || state.ropePos >= LIMIT) winner = red;
-        else if (blue.score > red.score) winner = blue;
+        if (blue.score > red.score) winner = blue;
         else if (red.score > blue.score) winner = red;
-
         const used = DURATION - state.timeLeft;
-        if (winner) {
-          els.winnerTitle.textContent = `🏆 Guanya ${winner.name}!`;
-          els.winnerStats.textContent = `Punts: ${winner.score}/${state.pointsToWin} · Encerts: ${winner.rawCorrect} · Temps: ${formatTime(used)}`;
-        } else {
-          els.winnerTitle.textContent = '🤝 Empat!';
-          els.winnerStats.textContent = `Blau ${blue.score} · Vermell ${red.score} · Temps: ${formatTime(used)}`;
-        }
+        els.winnerTitle.textContent = winner ? `🏆 Guanya ${winner.name}!` : '🤝 Empat!';
+        els.winnerStats.textContent = `Blau ${blue.score} · Vermell ${red.score} · Temps ${fmt(used)}`;
         els.result.hidden = false;
       }
 
-      function handleAnswer(teamKey) {
-        if (!state.running) return;
+      function handleAnswer(teamKey){
+        if (!state.running || !state.currentQuestion) return;
         const team = state.teams[teamKey];
-        const value = Number(team.input || '');
-        const ok = Number.isFinite(value) && value === team.current.answer;
+        const val = Number(team.input || '');
+        const ok = Number.isFinite(val) && val === state.currentQuestion.answer;
 
         if (ok) {
           team.rawCorrect += 1;
+          setFeedback(teamKey, `Correcte! ${team.rawCorrect}/${state.questionsPerPoint} per punt.`, true);
           if (team.rawCorrect % state.questionsPerPoint === 0) {
             team.score += 1;
             state.ropePos += teamKey === 'blue' ? -1 : 1;
           }
         } else {
-          state.ropePos += teamKey === 'blue' ? 0.4 : -0.4;
+          setFeedback(teamKey, `Incorrecte. Resposta correcta: ${state.currentQuestion.answer}`, false);
+          state.ropePos += teamKey === 'blue' ? 0.35 : -0.35;
         }
 
         team.input = '';
-        setQuestion(teamKey);
         updateHud();
         updateRope();
-        if (team.score >= state.pointsToWin || Math.abs(state.ropePos) >= LIMIT) endGame();
+        if (team.score >= state.pointsToWin || Math.abs(state.ropePos) >= LIMIT) return endGame();
+        setQuestion(generateQuestion());
       }
 
-      function startGame() {
+      function startGame(){
         state.running = true;
         state.timeLeft = DURATION;
         state.ropePos = 0;
-        state.teams.blue.score = 0;
-        state.teams.red.score = 0;
-        state.teams.blue.rawCorrect = 0;
-        state.teams.red.rawCorrect = 0;
-        state.teams.blue.input = '';
-        state.teams.red.input = '';
-        setQuestion('blue');
-        setQuestion('red');
+        state.teams.blue.score = state.teams.red.score = 0;
+        state.teams.blue.rawCorrect = state.teams.red.rawCorrect = 0;
+        state.teams.blue.input = state.teams.red.input = '';
+        setFeedback('blue', 'Preparat/ada!', true);
+        setFeedback('red', 'Preparat/ada!', true);
+        setQuestion(generateQuestion());
         updateHud();
         updateRope();
         els.modal.hidden = true;
         els.result.hidden = true;
-
         clearInterval(state.timerId);
         state.timerId = setInterval(() => {
           state.timeLeft -= 1;
-          els.timer.textContent = formatTime(Math.max(0, state.timeLeft));
+          els.timer.textContent = fmt(Math.max(0, state.timeLeft));
           if (state.timeLeft <= 0) endGame();
         }, 1000);
       }
 
-      function buildKeypad(teamKey, container) {
-        ['7','8','9','4','5','6','1','2','3','0'].forEach(n => {
-          const btn = document.createElement('button');
+      function buildKeypad(team, container){
+        ['7','8','9','4','5','6','1','2','3','0'].forEach((n) => {
+          const b=document.createElement('button');
+          b.type='button'; b.className='ttm-key'; b.textContent=n;
+          b.addEventListener('click',()=>{ if(!state.running) return; state.teams[team].input = `${state.teams[team].input}${n}`.slice(0,8); updateHud(); });
+          container.appendChild(b);
+        });
+        const c=document.createElement('button'); c.type='button'; c.className='ttm-key ttm-key--clear'; c.textContent='Esborrar';
+        c.addEventListener('click',()=>{ state.teams[team].input=''; updateHud(); });
+        const s=document.createElement('button'); s.type='button'; s.className='ttm-key ttm-key--send'; s.textContent='Enviar';
+        s.addEventListener('click',()=>handleAnswer(team));
+        container.appendChild(c); container.appendChild(s);
+      }
+
+      function openModuleConfig(){
+        if (typeof window.openConfig !== 'function' || typeof window.collectConfigValues !== 'function') {
+          els.setupError.textContent = 'No s'ha pogut obrir la configuració del mòdul.';
+          return;
+        }
+        window.openConfig(state.moduleId);
+        const controls = document.querySelector('#view-config .controls');
+        if (!controls) return;
+        let btn = document.getElementById('ttmSaveModuleCfg');
+        if (!btn) {
+          btn = document.createElement('button');
+          btn.id = 'ttmSaveModuleCfg';
+          btn.className = 'pill';
           btn.type = 'button';
-          btn.className = 'ttm-key';
-          btn.textContent = n;
+          btn.textContent = 'Desa per Reptes';
           btn.addEventListener('click', () => {
-            if (!state.running) return;
-            const t = state.teams[teamKey];
-            t.input = `${t.input}${n}`.slice(0, 8);
-            updateHud();
+            const cfg = window.collectConfigValues();
+            if (!cfg) return;
+            state.moduleCfg = cfg;
+            els.moduleSummary.textContent = `Configurat: ${state.moduleMeta?.name || state.moduleId} · nivell ${cfg.level} · ${cfg.count} preguntes.`;
+            if (typeof window.showView === 'function') window.showView('challenges');
           });
-          container.appendChild(btn);
-        });
-
-        const clear = document.createElement('button');
-        clear.type = 'button';
-        clear.className = 'ttm-key ttm-key--clear';
-        clear.textContent = 'Esborrar';
-        clear.addEventListener('click', () => { state.teams[teamKey].input = ''; updateHud(); });
-
-        const send = document.createElement('button');
-        send.type = 'button';
-        send.className = 'ttm-key ttm-key--send';
-        send.textContent = 'Enviar';
-        send.addEventListener('click', () => handleAnswer(teamKey));
-
-        container.appendChild(clear);
-        container.appendChild(send);
+          controls.appendChild(btn);
+        }
       }
 
-      els.opButtons.forEach(btn => btn.addEventListener('click', () => {
-        if (state.moduleId !== 'arith') return;
-        const op = btn.dataset.op;
-        if (state.operations.has(op) && state.operations.size === 1) return;
-        if (state.operations.has(op)) { state.operations.delete(op); btn.classList.remove('is-active'); }
-        else { state.operations.add(op); btn.classList.add('is-active'); }
-      }));
+      els.moduleSelect.addEventListener('change', () => {
+        state.moduleId = els.moduleSelect.value || 'arith';
+        state.moduleMeta = getMods().find((m) => m.id === state.moduleId) || null;
+        state.moduleCfg = null;
+        els.moduleSummary.textContent = 'Has canviat de mòdul. Torna a configurar-lo per Reptes.';
+      });
 
-      if (els.moduleSelect) {
-        els.moduleSelect.addEventListener('change', () => {
-          state.moduleId = els.moduleSelect.value || 'arith';
-          state.moduleMeta = getRegisteredModules().find((m) => m.id === state.moduleId) || null;
-          toggleOperationButtons();
-          renderModuleConfigFields();
-        });
-      }
-
-      els.levelButtons.forEach(btn => btn.addEventListener('click', () => {
-        state.difficulty = btn.dataset.level;
-        els.levelButtons.forEach(b => b.classList.toggle('is-selected', b === btn));
-      }));
+      els.openModuleConfig.addEventListener('click', openModuleConfig);
 
       els.prevStep.addEventListener('click', () => {
         state.step = Math.max(1, state.step - 1);
@@ -1416,37 +1267,34 @@
 
       els.nextStep.addEventListener('click', () => {
         els.setupError.textContent = '';
+        if (state.step === 2 && !state.moduleCfg) {
+          els.setupError.textContent = 'Configura el mòdul amb el botó "Configura mòdul" abans de continuar.';
+          return;
+        }
         if (state.step < 3) {
           if (state.step === 2) {
-            state.pointsToWin = Math.max(1, Math.min(50, Number(els.pointsToWin?.value || 10)));
-            state.questionsPerPoint = Math.max(1, Math.min(20, Number(els.questionsPerPoint?.value || 2)));
-            if (els.pointsToWin) els.pointsToWin.value = String(state.pointsToWin);
-            if (els.questionsPerPoint) els.questionsPerPoint.value = String(state.questionsPerPoint);
+            state.pointsToWin = Math.max(1, Math.min(50, Number(els.pointsToWin.value || 10)));
+            state.questionsPerPoint = Math.max(1, Math.min(20, Number(els.questionsPerPoint.value || 2)));
           }
           state.step += 1;
           updateStepUi();
           return;
         }
-
         const blue = (els.blueNameInput.value || '').trim() || 'Equip blau';
         const red = (els.redNameInput.value || '').trim() || 'Equip vermell';
         if (blue.toLowerCase() === red.toLowerCase()) {
           els.setupError.textContent = 'Els equips han de tenir noms diferents.';
           return;
         }
-
         state.teams.blue.name = blue;
         state.teams.red.name = red;
-        readModuleOptions();
         startGame();
       });
 
       els.restartBtn.addEventListener('click', () => {
         clearInterval(state.timerId);
-        state.step = 1;
         state.running = false;
-        state.timeLeft = DURATION;
-        state.ropePos = 0;
+        state.step = 1;
         els.modal.hidden = false;
         els.result.hidden = true;
         updateStepUi();
@@ -1454,10 +1302,9 @@
         updateRope();
       });
 
-      els.keypads.forEach(kp => buildKeypad(kp.dataset.keypad, kp));
-      populateModuleOptions();
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', populateModuleOptions, { once: true });
-      else setTimeout(populateModuleOptions, 50);
+      els.keypads.forEach((kp) => buildKeypad(kp.dataset.keypad, kp));
+      populateModules();
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', populateModules, { once: true });
       updateStepUi();
       updateHud();
       updateRope();
