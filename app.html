@@ -6,6 +6,11 @@
   <title>Focus Academy · Espai de repàs</title>
   <meta name="description" content="Pràctiques de matemàtiques per a estudiants. Single-file, sense dependències." />
   <link rel="stylesheet" href="style.css">
+
+  <style>
+
+  </style>
+
 </head>
   <!-- LOGIN LOCAL (overlay) -->
 <div id="loginOverlay" class="login-overlay" hidden>
@@ -49,6 +54,7 @@
       <nav class="main-nav" aria-label="Navegació principal">
         <button class="pill nav-btn" type="button" onclick="scrollToSection('tutorSection')">Tutor</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('calendarSection')">Calendari</button>
+        <button class="pill nav-btn" type="button" onclick="window.location.href='reptes/index.html'">Reptes</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('classSection')">Aula</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('liveSection')">Live</button>
         <a class="pill nav-btn nav-btn-ghost" href="/portal/supabase-portal.html">Accés professorat</a>
@@ -165,15 +171,16 @@
           </div>
         </section>
 
-        <a class="learning-card" href="recursos.html">
-          <div class="learning-icon" aria-hidden="true">🃏</div>
-          <div class="learning-body">
-            <p class="learning-kicker">Nova secció</p>
-            <h3 class="learning-title">Recursos</h3>
-            <p class="learning-copy">Consulta teoria i flashcards agrupades per assignatura en un sol lloc.</p>
+        <section id="challengesEntrySection" class="panel card challenge-entry" aria-labelledby="challengesEntryTitle">
+          <div>
+            <p class="portal-section-title">Reptes</p>
+            <h2 id="challengesEntryTitle">Vols jugar als reptes Focus?</h2>
+            <p class="subtitle">Entra a la zona de jocs i tria el repte disponible. Ara mateix: <strong>Tira-corda matemàtic</strong>.</p>
           </div>
-          <span class="learning-pill">Entrar →</span>
-        </a>
+          <div class="challenge-entry__actions">
+            <button class="pill" type="button" onclick="window.location.href='reptes/index.html'">Entrar a Reptes →</button>
+          </div>
+        </section>
 
 
         <section id="classSection" class="panel card home-live-cta home-class-cta" aria-labelledby="homeClassTitle">
@@ -572,6 +579,7 @@
         </script>
       </div>
     </section>
+
     <!-- CONFIG -->
     <section id="view-config" class="hidden">
       <div class="panel card">
