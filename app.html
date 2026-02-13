@@ -72,10 +72,12 @@
     .ttm-team--red .ttm-question { color: #d8343a; }
     .ttm-input { border: 2px solid #d6dbe8; border-radius: 12px; background: #ffffff; padding: .4rem .6rem; font-family: ui-monospace, monospace; font-size: 2rem; text-align: center; font-weight: 800; margin-bottom: .6rem; min-height: 2rem; }
     .ttm-keypad { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .35rem; }
-    .ttm-key { border: 1px solid #d6dae4; background: #fff; border-radius: 10px; padding: .82rem .3rem; font-weight: 800; font-size: 1.95rem; cursor: pointer; transition: .18s ease; }
+    .ttm-key { border: 1px solid #d6dae4; background: #fff; border-radius: 10px; padding: .82rem .3rem; font-weight: 800; font-size: 1.45rem; cursor: pointer; transition: .18s ease; }
     .ttm-key:hover { transform: translateY(-1px); background: #eef4ff; }
     .ttm-key--clear { background: #ffe4e7; border-color: #ffc1ca; color: #8c1f32; }
-    .ttm-key--send { grid-column: span 1; background: #267dc9; border-color: #267dc9; color: #fff; font-size: 1.5rem; }
+    .ttm-key--send { grid-column: span 1; background: #267dc9; border-color: #267dc9; color: #fff; font-size: 1rem; }
+    .ttm-key--clear { font-size: 1rem; }
+    .ttm-key, .ttm-input { -webkit-font-smoothing: antialiased; }
 
     .ttm-result { position: absolute; inset: 0; z-index: 12; display: grid; place-items: center; background: rgba(8, 12, 25, .72); }
     .ttm-result[hidden] { display: none; }
@@ -722,14 +724,7 @@
                     <button type="button" class="ttm-level" data-level="medium">🟡 Mitjà</button>
                     <button type="button" class="ttm-level" data-level="hard">🔴 Difícil</button>
                   </div>
-                  <div class="controls" style="margin-top:.6rem; gap:.6rem; flex-wrap:wrap">
-                    <label class="ttm-mini-field">Punts per guanyar
-                      <input id="ttmPointsToWin" type="number" min="1" max="50" value="10" />
-                    </label>
-                    <label class="ttm-mini-field">Preguntes per punt
-                      <input id="ttmQuestionsPerPoint" type="number" min="1" max="20" value="2" />
-                    </label>
-                  </div>
+                  <p class="subtitle" style="margin:.55rem 0 0">Regla nova: guanya l’equip que aconsegueix <strong>4 encerts més</strong> que l’altre.</p>
                   <div class="ttm-module-config" id="ttmModuleConfigBox">
                     <strong>Configuració del mòdul</strong>
                     <div id="ttmModuleConfigFields" class="controls"></div>
@@ -782,10 +777,10 @@
                     <div class="ttm-rope"></div>
                     <div class="ttm-flag" id="ttmFlag"></div>
                   </div>
-                  <div class="ttm-tugger ttm-tugger--left">🧍‍♂️</div>
-                  <div class="ttm-tugger ttm-tugger--left b">🧍‍♂️</div>
-                  <div class="ttm-tugger ttm-tugger--right">🧍‍♂️</div>
-                  <div class="ttm-tugger ttm-tugger--right b">🧍‍♂️</div>
+                  <div class="ttm-tugger ttm-tugger--left" id="ttmBluePullerA">🧍‍♂️</div>
+                  <div class="ttm-tugger ttm-tugger--left b" id="ttmBluePullerB">🧍‍♂️</div>
+                  <div class="ttm-tugger ttm-tugger--right" id="ttmRedPullerA">🧍‍♂️</div>
+                  <div class="ttm-tugger ttm-tugger--right b" id="ttmRedPullerB">🧍‍♂️</div>
                   <p class="ttm-image-hint">Si vols posar una imatge pròpia de l'animació, desa-la a <code>assets/challenges/tug-war.png</code> i substitueix aquests personatges.</p>
                 </div>
               </section>
@@ -1075,6 +1070,7 @@
 
       const DURATION = 120;
       const LIMIT = 10;
+      const LEAD_TO_WIN = 4;
 
       const state = {
         step: 1,
@@ -1083,8 +1079,7 @@
         moduleId: 'arith',
         moduleMeta: null,
         moduleOptions: {},
-        pointsToWin: 10,
-        questionsPerPoint: 2,
+        leadToWin: LEAD_TO_WIN,
         running: false,
         timeLeft: DURATION,
         ropePos: 0,
@@ -1106,8 +1101,6 @@
         moduleSelect: document.getElementById('ttmModuleSelect'),
         moduleConfigFields: document.getElementById('ttmModuleConfigFields'),
         levelButtons: Array.from(root.querySelectorAll('[data-level]')),
-        pointsToWin: document.getElementById('ttmPointsToWin'),
-        questionsPerPoint: document.getElementById('ttmQuestionsPerPoint'),
         blueNameInput: document.getElementById('ttmBlueNameInput'),
         redNameInput: document.getElementById('ttmRedNameInput'),
         blueName: document.getElementById('ttmBlueName'),
@@ -1118,6 +1111,10 @@
         redScore: document.getElementById('ttmRedScore'),
         timer: document.getElementById('ttmTimer'),
         flag: document.getElementById('ttmFlag'),
+        bluePullerA: document.getElementById('ttmBluePullerA'),
+        bluePullerB: document.getElementById('ttmBluePullerB'),
+        redPullerA: document.getElementById('ttmRedPullerA'),
+        redPullerB: document.getElementById('ttmRedPullerB'),
         questionBlue: document.getElementById('ttmQuestionBlue'),
         questionRed: document.getElementById('ttmQuestionRed'),
         inputBlue: document.getElementById('ttmInputBlue'),
@@ -1297,9 +1294,18 @@
         els.nextStep.textContent = state.step === 3 ? 'Començar joc' : 'Següent';
       }
 
+
+      function recalculateDuelState() {
+        const blue = state.teams.blue;
+        const red = state.teams.red;
+        blue.score = Math.max(0, blue.rawCorrect - red.rawCorrect);
+        red.score = Math.max(0, red.rawCorrect - blue.rawCorrect);
+        state.ropePos = Math.max(-LIMIT, Math.min(LIMIT, (red.rawCorrect - blue.rawCorrect) * 2.2));
+      }
+
       function updateHud() {
-        els.blueName.textContent = `${state.teams.blue.name} · ${state.teams.blue.rawCorrect}✔`;
-        els.redName.textContent = `${state.teams.red.name} · ${state.teams.red.rawCorrect}✔`;
+        els.blueName.textContent = `${state.teams.blue.name} · +${state.teams.blue.score}`;
+        els.redName.textContent = `${state.teams.red.name} · +${state.teams.red.score}`;
         els.bluePanelTitle.textContent = state.teams.blue.name;
         els.redPanelTitle.textContent = state.teams.red.name;
         els.blueScore.textContent = state.teams.blue.score;
@@ -1311,7 +1317,14 @@
 
       function updateRope() {
         const pct = 50 + (state.ropePos / LIMIT) * 45;
-        els.flag.style.left = `${Math.min(95, Math.max(5, pct))}%`;
+        const clamped = Math.min(95, Math.max(5, pct));
+        els.flag.style.left = `${clamped}%`;
+        const blueShift = Math.max(-18, Math.min(18, -state.ropePos * 1.7));
+        const redShift = Math.max(-18, Math.min(18, state.ropePos * 1.7));
+        if (els.bluePullerA) els.bluePullerA.style.left = `${6 + blueShift}%`;
+        if (els.bluePullerB) els.bluePullerB.style.left = `${20 + blueShift}%`;
+        if (els.redPullerA) els.redPullerA.style.right = `${20 + redShift}%`;
+        if (els.redPullerB) els.redPullerB.style.right = `${6 + redShift}%`;
       }
 
       function setQuestion(teamKey) {
@@ -1326,15 +1339,15 @@
         const blue = state.teams.blue;
         const red = state.teams.red;
         let winner = null;
-        if (blue.score >= state.pointsToWin || state.ropePos <= -LIMIT) winner = blue;
-        else if (red.score >= state.pointsToWin || state.ropePos >= LIMIT) winner = red;
+        if (blue.score >= state.leadToWin || state.ropePos <= -LIMIT) winner = blue;
+        else if (red.score >= state.leadToWin || state.ropePos >= LIMIT) winner = red;
         else if (blue.score > red.score) winner = blue;
         else if (red.score > blue.score) winner = red;
 
         const used = DURATION - state.timeLeft;
         if (winner) {
           els.winnerTitle.textContent = `🏆 Guanya ${winner.name}!`;
-          els.winnerStats.textContent = `Punts: ${winner.score}/${state.pointsToWin} · Encerts: ${winner.rawCorrect} · Temps: ${formatTime(used)}`;
+          els.winnerStats.textContent = `Avantatge final: +${winner.score} · Encerts blau ${blue.rawCorrect} / vermell ${red.rawCorrect} · Temps: ${formatTime(used)}`;
         } else {
           els.winnerTitle.textContent = '🤝 Empat!';
           els.winnerStats.textContent = `Blau ${blue.score} · Vermell ${red.score} · Temps: ${formatTime(used)}`;
@@ -1348,21 +1361,14 @@
         const value = Number(team.input || '');
         const ok = Number.isFinite(value) && value === team.current.answer;
 
-        if (ok) {
-          team.rawCorrect += 1;
-          if (team.rawCorrect % state.questionsPerPoint === 0) {
-            team.score += 1;
-            state.ropePos += teamKey === 'blue' ? -1 : 1;
-          }
-        } else {
-          state.ropePos += teamKey === 'blue' ? 0.4 : -0.4;
-        }
+        if (ok) team.rawCorrect += 1;
 
+        recalculateDuelState();
         team.input = '';
         setQuestion(teamKey);
         updateHud();
         updateRope();
-        if (team.score >= state.pointsToWin || Math.abs(state.ropePos) >= LIMIT) endGame();
+        if (state.teams.blue.score >= state.leadToWin || state.teams.red.score >= state.leadToWin || Math.abs(state.ropePos) >= LIMIT) endGame();
       }
 
       function startGame() {
@@ -1375,6 +1381,7 @@
         state.teams.red.rawCorrect = 0;
         state.teams.blue.input = '';
         state.teams.red.input = '';
+        recalculateDuelState();
         setQuestion('blue');
         setQuestion('red');
         updateHud();
@@ -1452,12 +1459,6 @@
       els.nextStep.addEventListener('click', () => {
         els.setupError.textContent = '';
         if (state.step < 3) {
-          if (state.step === 2) {
-            state.pointsToWin = Math.max(1, Math.min(50, Number(els.pointsToWin?.value || 10)));
-            state.questionsPerPoint = Math.max(1, Math.min(20, Number(els.questionsPerPoint?.value || 2)));
-            if (els.pointsToWin) els.pointsToWin.value = String(state.pointsToWin);
-            if (els.questionsPerPoint) els.questionsPerPoint.value = String(state.questionsPerPoint);
-          }
           state.step += 1;
           updateStepUi();
           return;
