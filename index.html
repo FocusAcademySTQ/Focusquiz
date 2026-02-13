@@ -8,6 +8,74 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* ===== Jocs matemàtics: estils del tira-corda ===== */
+    .math-games { margin-top: 3rem; padding: 2rem; border-radius: 24px; background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%); border: 1px solid #dce7ff; }
+    .math-games__header { margin-bottom: 1.5rem; }
+    .mg-game { position: relative; border-radius: 20px; padding: 1.25rem; background: #fff; border: 1px solid #d7dff5; overflow: hidden; }
+    .mg-modal { position: absolute; inset: 0; background: rgba(10, 16, 35, .72); display: grid; place-items: center; z-index: 15; }
+    .mg-modal[hidden] { display: none; }
+    .mg-modal__card { width: min(680px, calc(100% - 2rem)); background: #fff; border-radius: 18px; padding: 1.25rem; box-shadow: 0 20px 40px rgba(16, 23, 46, .28); }
+    .mg-step-label { font-size: .85rem; font-weight: 700; color: #4863d9; margin: 0 0 .25rem; }
+    .mg-step { display: none; margin-top: .75rem; }
+    .mg-step.is-active { display: block; }
+    .mg-step-title { margin: 0 0 .65rem; font-weight: 700; }
+    .mg-toggle-grid, .mg-difficulty-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: .5rem; }
+    .mg-toggle, .mg-level { border: 1px solid #c6d1f0; background: #f6f9ff; border-radius: 12px; padding: .75rem; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: transform .18s ease, background .18s ease, border-color .18s ease; }
+    .mg-toggle:hover, .mg-level:hover { transform: translateY(-1px); }
+    .mg-toggle.is-active { background: #e7eeff; border-color: #5472e4; color: #2e48ad; }
+    .mg-level { grid-column: span 1; }
+    .mg-level.is-selected { background: #ffeecf; border-color: #f4b23f; }
+    .mg-team-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .mg-team-inputs label { display: grid; gap: .35rem; font-weight: 600; }
+    .mg-team-inputs input { border: 1px solid #cbd7f6; border-radius: 10px; padding: .65rem .75rem; }
+    .mg-setup-error { min-height: 1.2rem; color: #b42318; font-size: .92rem; margin: .5rem 0 0; }
+    .mg-modal__actions { margin-top: 1rem; display: flex; justify-content: space-between; gap: .75rem; }
+    .mg-btn { border: 0; border-radius: 11px; padding: .7rem 1rem; font-weight: 700; cursor: pointer; transition: transform .2s ease, opacity .2s ease; }
+    .mg-btn:hover { transform: translateY(-1px); }
+    .mg-btn--ghost { background: #eef3ff; color: #2f478f; }
+    .mg-btn--primary { background: #3554d1; color: #fff; }
+
+    .mg-hud { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+    .mg-score { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: .7rem .8rem; border-radius: 12px; background: #f2f4f8; }
+    .mg-score--blue { border: 1px solid #9fc1ff; color: #174b9d; }
+    .mg-score--red { border: 1px solid #ffb4bc; color: #9e1f34; }
+    .mg-timer { font-weight: 800; letter-spacing: .06em; padding: .5rem .9rem; border-radius: 999px; background: #111827; color: #fff; }
+
+    .mg-rope-zone { margin-bottom: 1rem; }
+    .mg-rope-track { position: relative; height: 48px; border-radius: 999px; background: linear-gradient(90deg, rgba(36,94,187,.1) 0%, rgba(255,255,255,1) 50%, rgba(206,39,62,.12) 100%); border: 1px solid #d6def3; overflow: hidden; }
+    .mg-rope-center-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: #7f8db0; transform: translateX(-50%); opacity: .75; }
+    .mg-rope { position: absolute; left: 5%; right: 5%; top: 50%; height: 10px; transform: translateY(-50%); border-radius: 999px; background: repeating-linear-gradient(90deg, #8c5b2c 0 12px, #b27b45 12px 24px); }
+    .mg-flag { position: absolute; top: 50%; left: 50%; width: 22px; height: 22px; border-radius: 50%; background: #f0f4ff; border: 3px solid #4a63d1; transform: translate(-50%, -50%); transition: left .26s cubic-bezier(.22,.61,.36,1); box-shadow: 0 4px 12px rgba(22,40,84,.24); }
+    .mg-rope-labels { display: flex; justify-content: space-between; font-size: .85rem; margin-top: .35rem; }
+    .mg-blue-label { color: #1f5aba; font-weight: 700; }
+    .mg-red-label { color: #bf2842; font-weight: 700; }
+
+    .mg-teams { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+    .mg-team { border-radius: 16px; padding: .9rem; border: 1px solid #d9e1f8; background: #fbfdff; }
+    .mg-team--blue { box-shadow: inset 0 0 0 1px rgba(66,126,224,.12); }
+    .mg-team--red { box-shadow: inset 0 0 0 1px rgba(217,69,94,.14); }
+    .mg-question { font-size: 1.2rem; font-weight: 800; margin: .45rem 0; min-height: 1.5em; }
+    .mg-answer-display { border: 1px dashed #b8c7ee; border-radius: 10px; background: #f3f7ff; padding: .55rem .7rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.15rem; margin-bottom: .55rem; min-height: 2.2rem; }
+    .mg-keypad { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .4rem; }
+    .mg-key { border: 1px solid #c5d3f6; border-radius: 10px; background: #ffffff; padding: .55rem; font-weight: 700; cursor: pointer; transition: transform .18s ease, background .18s ease; }
+    .mg-key:hover { transform: translateY(-1px); background: #eef4ff; }
+    .mg-key--submit { grid-column: span 2; background: #2150ca; border-color: #2150ca; color: #fff; }
+    .mg-key--clear { background: #ffe4e7; border-color: #ffc1ca; color: #8c1f32; }
+
+    .mg-result { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: rgba(8, 12, 25, .72); }
+    .mg-result__card { width: min(520px, calc(100% - 2rem)); background: #fff; border-radius: 16px; padding: 1.2rem; text-align: center; }
+    .mg-result__kicker { margin: 0; color: #4d62c8; font-weight: 700; }
+
+    @media (max-width: 900px) {
+      .mg-team-inputs, .mg-teams { grid-template-columns: 1fr; }
+      .mg-hud { grid-template-columns: 1fr; }
+      .mg-timer { justify-self: start; }
+      .mg-toggle-grid, .mg-difficulty-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    }
+  </style>
+
 </head>
 <body class="landing-body">
   <header class="landing-header">
@@ -54,12 +122,6 @@
           <h3>Pràctica per mòduls</h3>
           <p>Entrena per assignatura amb itineraris adaptables.</p>
           <span class="feature-link">Obrir grid de mòduls →</span>
-        </a>
-        <a class="feature-card" href="recursos.html">
-          <div class="feature-icon">🧠</div>
-          <h3>Recursos</h3>
-          <p>Una biblioteca amb teoria i flashcards agrupades per assignatura.</p>
-          <span class="feature-link">Obrir Recursos →</span>
         </a>
         <a class="feature-card" href="teoria.html">
           <div class="feature-icon">📖</div>
@@ -125,6 +187,113 @@
         <a class="cta-secondary" href="portal/supabase-portal.html">Accés professorat</a>
       </div>
     </section>
+
+
+    <section class="math-games" id="mathGames" aria-labelledby="mathGamesTitle">
+      <header class="math-games__header">
+        <p class="eyebrow">Nou espai lúdic</p>
+        <h2 id="mathGamesTitle">Jocs matemàtics</h2>
+        <p>Primer joc disponible: <strong>Tira-corda matemàtic</strong>, un duel en equip per respondre operacions tan ràpid com pugueu.</p>
+      </header>
+
+      <div class="mg-game" id="mathTugGame">
+        <!-- Modal de configuració inicial en 3 passos -->
+        <div class="mg-modal" id="mgSetupModal" role="dialog" aria-modal="true" aria-labelledby="mgSetupTitle">
+          <div class="mg-modal__card">
+            <p class="mg-step-label" id="mgStepLabel">Pas 1 de 3</p>
+            <h3 id="mgSetupTitle">Configuració del tira-corda matemàtic</h3>
+
+            <div class="mg-step is-active" data-step="1">
+              <p class="mg-step-title">Selecciona operacions</p>
+              <div class="mg-toggle-grid" id="mgOperationToggles">
+                <button type="button" class="mg-toggle is-active" data-op="add">+</button>
+                <button type="button" class="mg-toggle is-active" data-op="sub">−</button>
+                <button type="button" class="mg-toggle is-active" data-op="mul">×</button>
+                <button type="button" class="mg-toggle is-active" data-op="div">÷</button>
+              </div>
+              <p class="mg-step-hint">Activa almenys una operació.</p>
+            </div>
+
+            <div class="mg-step" data-step="2">
+              <p class="mg-step-title">Nivell de dificultat</p>
+              <div class="mg-difficulty-grid" id="mgDifficultyButtons">
+                <button type="button" class="mg-level is-selected" data-level="easy">🟢 Fàcil</button>
+                <button type="button" class="mg-level" data-level="medium">🟡 Mitjà</button>
+                <button type="button" class="mg-level" data-level="hard">🔴 Difícil</button>
+              </div>
+            </div>
+
+            <div class="mg-step" data-step="3">
+              <p class="mg-step-title">Nom dels equips</p>
+              <div class="mg-team-inputs">
+                <label>
+                  Equip 1 (blau)
+                  <input id="mgTeamBlueInput" type="text" maxlength="20" placeholder="Ex: Dracs blaus" />
+                </label>
+                <label>
+                  Equip 2 (vermell)
+                  <input id="mgTeamRedInput" type="text" maxlength="20" placeholder="Ex: Flames roges" />
+                </label>
+              </div>
+            </div>
+
+            <p id="mgSetupError" class="mg-setup-error" aria-live="polite"></p>
+
+            <div class="mg-modal__actions">
+              <button type="button" class="mg-btn mg-btn--ghost" id="mgPrevStep">Anterior</button>
+              <button type="button" class="mg-btn mg-btn--primary" id="mgNextStep">Següent</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mg-hud">
+          <div class="mg-score mg-score--blue"><strong id="mgBlueName">Equip blau</strong><span>✅ <span id="mgBlueScore">0</span></span></div>
+          <div class="mg-timer" id="mgTimer">02:00</div>
+          <div class="mg-score mg-score--red"><strong id="mgRedName">Equip vermell</strong><span>✅ <span id="mgRedScore">0</span></span></div>
+        </div>
+
+        <div class="mg-rope-zone" aria-label="Corda del tira-corda">
+          <div class="mg-rope-track">
+            <div class="mg-rope-center-line"></div>
+            <div class="mg-rope" id="mgRope"></div>
+            <div class="mg-flag" id="mgFlag"></div>
+          </div>
+          <div class="mg-rope-labels">
+            <span class="mg-blue-label">Camp blau</span>
+            <span class="mg-red-label">Camp vermell</span>
+          </div>
+        </div>
+
+        <div class="mg-teams">
+          <!-- Panell equip blau -->
+          <section class="mg-team mg-team--blue" data-team="blue">
+            <h3 id="mgBluePanelTitle">Equip blau</h3>
+            <p class="mg-question" id="mgQuestionBlue">Esperant inici...</p>
+            <div class="mg-answer-display" id="mgInputBlue">0</div>
+            <div class="mg-keypad" data-keypad="blue"></div>
+          </section>
+
+          <!-- Panell equip vermell -->
+          <section class="mg-team mg-team--red" data-team="red">
+            <h3 id="mgRedPanelTitle">Equip vermell</h3>
+            <p class="mg-question" id="mgQuestionRed">Esperant inici...</p>
+            <div class="mg-answer-display" id="mgInputRed">0</div>
+            <div class="mg-keypad" data-keypad="red"></div>
+          </section>
+        </div>
+
+        <!-- Panell final de partida -->
+        <div class="mg-result" id="mgResultPanel" hidden>
+          <div class="mg-result__card">
+            <p class="mg-result__kicker">Partida finalitzada</p>
+            <h3 id="mgWinnerTitle">Guanya l'equip blau!</h3>
+            <p id="mgWinnerStats"></p>
+            <button type="button" class="mg-btn mg-btn--primary" id="mgRestartBtn">Tornar a jugar</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="landing-footer">
@@ -134,5 +303,295 @@
       <a href="portal/supabase-portal.html">Portal docents</a>
     </nav>
   </footer>
+
+  <script>
+    // ===== Lògica principal del joc tira-corda matemàtic =====
+    (() => {
+      const gameDuration = 120; // segons
+      const limit = 10; // límit de desplaçament de la corda
+      const shiftCorrect = 1;
+      const shiftWrong = 0.5;
+
+      const state = {
+        operations: new Set(['add', 'sub', 'mul', 'div']),
+        difficulty: 'easy',
+        step: 1,
+        running: false,
+        timeLeft: gameDuration,
+        timerId: null,
+        ropePos: 0,
+        teams: {
+          blue: { name: 'Equip blau', score: 0, input: '', current: null },
+          red: { name: 'Equip vermell', score: 0, input: '', current: null }
+        }
+      };
+
+      const els = {
+        modal: document.getElementById('mgSetupModal'),
+        steps: Array.from(document.querySelectorAll('.mg-step')),
+        stepLabel: document.getElementById('mgStepLabel'),
+        prevStep: document.getElementById('mgPrevStep'),
+        nextStep: document.getElementById('mgNextStep'),
+        setupError: document.getElementById('mgSetupError'),
+        opButtons: Array.from(document.querySelectorAll('[data-op]')),
+        levelButtons: Array.from(document.querySelectorAll('[data-level]')),
+        blueNameInput: document.getElementById('mgTeamBlueInput'),
+        redNameInput: document.getElementById('mgTeamRedInput'),
+        blueName: document.getElementById('mgBlueName'),
+        redName: document.getElementById('mgRedName'),
+        bluePanelTitle: document.getElementById('mgBluePanelTitle'),
+        redPanelTitle: document.getElementById('mgRedPanelTitle'),
+        blueScore: document.getElementById('mgBlueScore'),
+        redScore: document.getElementById('mgRedScore'),
+        timer: document.getElementById('mgTimer'),
+        ropeFlag: document.getElementById('mgFlag'),
+        questionBlue: document.getElementById('mgQuestionBlue'),
+        questionRed: document.getElementById('mgQuestionRed'),
+        inputBlue: document.getElementById('mgInputBlue'),
+        inputRed: document.getElementById('mgInputRed'),
+        keypads: Array.from(document.querySelectorAll('.mg-keypad')),
+        resultPanel: document.getElementById('mgResultPanel'),
+        winnerTitle: document.getElementById('mgWinnerTitle'),
+        winnerStats: document.getElementById('mgWinnerStats'),
+        restartBtn: document.getElementById('mgRestartBtn')
+      };
+
+      function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      // Genera preguntes en funció de la dificultat i de les operacions seleccionades
+      function createQuestion() {
+        const ops = Array.from(state.operations);
+        const op = ops[randomInt(0, ops.length - 1)];
+        const ranges = {
+          easy: { add: [1, 20], sub: [1, 20], mul: [1, 10], div: [1, 10] },
+          medium: { add: [10, 80], sub: [10, 80], mul: [4, 16], div: [2, 16] },
+          hard: { add: [50, 250], sub: [50, 250], mul: [8, 24], div: [4, 24] }
+        };
+        const [min, max] = ranges[state.difficulty][op];
+        let a = randomInt(min, max);
+        let b = randomInt(min, max);
+
+        if (op === 'add') return { text: `${a} + ${b} = ?`, answer: a + b };
+        if (op === 'sub') {
+          if (b > a) [a, b] = [b, a];
+          return { text: `${a} − ${b} = ?`, answer: a - b };
+        }
+        if (op === 'mul') return { text: `${a} × ${b} = ?`, answer: a * b };
+
+        // Divisió amb resultat enter
+        const divisor = Math.max(1, b);
+        const result = randomInt(min, max);
+        const dividend = divisor * result;
+        return { text: `${dividend} ÷ ${divisor} = ?`, answer: result };
+      }
+
+      function formatTime(total) {
+        const m = String(Math.floor(total / 60)).padStart(2, '0');
+        const s = String(total % 60).padStart(2, '0');
+        return `${m}:${s}`;
+      }
+
+      function updateStepUi() {
+        els.stepLabel.textContent = `Pas ${state.step} de 3`;
+        els.steps.forEach(step => step.classList.toggle('is-active', Number(step.dataset.step) === state.step));
+        els.prevStep.disabled = state.step === 1;
+        els.nextStep.textContent = state.step === 3 ? 'Començar joc' : 'Següent';
+      }
+
+      function updateHud() {
+        els.blueName.textContent = state.teams.blue.name;
+        els.redName.textContent = state.teams.red.name;
+        els.bluePanelTitle.textContent = state.teams.blue.name;
+        els.redPanelTitle.textContent = state.teams.red.name;
+        els.blueScore.textContent = state.teams.blue.score;
+        els.redScore.textContent = state.teams.red.score;
+        els.timer.textContent = formatTime(state.timeLeft);
+        els.inputBlue.textContent = state.teams.blue.input || '0';
+        els.inputRed.textContent = state.teams.red.input || '0';
+      }
+
+      function updateRope() {
+        const pct = 50 + (state.ropePos / limit) * 45;
+        els.ropeFlag.style.left = `${Math.min(95, Math.max(5, pct))}%`;
+      }
+
+      function setQuestion(teamKey) {
+        state.teams[teamKey].current = createQuestion();
+        const el = teamKey === 'blue' ? els.questionBlue : els.questionRed;
+        el.textContent = state.teams[teamKey].current.text;
+      }
+
+      function handleAnswer(teamKey) {
+        if (!state.running) return;
+        const team = state.teams[teamKey];
+        const value = Number(team.input || '');
+        const isCorrect = Number.isFinite(value) && value === team.current.answer;
+
+        if (isCorrect) {
+          team.score += 1;
+          state.ropePos += teamKey === 'blue' ? -shiftCorrect : shiftCorrect;
+        } else {
+          state.ropePos += teamKey === 'blue' ? shiftWrong : -shiftWrong;
+        }
+
+        team.input = '';
+        setQuestion(teamKey);
+        updateHud();
+        updateRope();
+
+        if (Math.abs(state.ropePos) >= limit) endGame();
+      }
+
+      function endGame() {
+        if (!state.running) return;
+        state.running = false;
+        clearInterval(state.timerId);
+
+        const blue = state.teams.blue;
+        const red = state.teams.red;
+        let winner = null;
+
+        if (state.ropePos <= -limit) winner = blue;
+        else if (state.ropePos >= limit) winner = red;
+        else if (blue.score > red.score) winner = blue;
+        else if (red.score > blue.score) winner = red;
+
+        const used = gameDuration - state.timeLeft;
+        if (winner) {
+          els.winnerTitle.textContent = `🏆 Guanya ${winner.name}!`;
+          els.winnerStats.textContent = `Encerts: ${winner.score} · Temps utilitzat: ${formatTime(used)}`;
+        } else {
+          els.winnerTitle.textContent = '🤝 Empat!';
+          els.winnerStats.textContent = `Encerts blau: ${blue.score} · Encerts vermell: ${red.score} · Temps: ${formatTime(used)}`;
+        }
+        els.resultPanel.hidden = false;
+      }
+
+      function startGame() {
+        state.running = true;
+        state.timeLeft = gameDuration;
+        state.ropePos = 0;
+        state.teams.blue.score = 0;
+        state.teams.red.score = 0;
+        state.teams.blue.input = '';
+        state.teams.red.input = '';
+        setQuestion('blue');
+        setQuestion('red');
+        updateHud();
+        updateRope();
+        els.modal.hidden = true;
+        els.resultPanel.hidden = true;
+
+        clearInterval(state.timerId);
+        state.timerId = setInterval(() => {
+          state.timeLeft -= 1;
+          els.timer.textContent = formatTime(Math.max(0, state.timeLeft));
+          if (state.timeLeft <= 0) endGame();
+        }, 1000);
+      }
+
+      function buildKeypad(teamKey, container) {
+        const keys = ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0'];
+        keys.forEach(k => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'mg-key';
+          btn.textContent = k;
+          btn.addEventListener('click', () => {
+            if (!state.running) return;
+            const t = state.teams[teamKey];
+            t.input = `${t.input}${k}`.slice(0, 8);
+            updateHud();
+          });
+          container.appendChild(btn);
+        });
+
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'mg-key mg-key--clear';
+        clearBtn.textContent = 'Esborrar';
+        clearBtn.addEventListener('click', () => {
+          state.teams[teamKey].input = '';
+          updateHud();
+        });
+
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'button';
+        submitBtn.className = 'mg-key mg-key--submit';
+        submitBtn.textContent = 'Enviar';
+        submitBtn.addEventListener('click', () => handleAnswer(teamKey));
+
+        container.appendChild(clearBtn);
+        container.appendChild(submitBtn);
+      }
+
+      // Esdeveniments del modal de configuració
+      els.opButtons.forEach(btn => btn.addEventListener('click', () => {
+        const op = btn.dataset.op;
+        if (state.operations.has(op) && state.operations.size === 1) return;
+        if (state.operations.has(op)) {
+          state.operations.delete(op);
+          btn.classList.remove('is-active');
+        } else {
+          state.operations.add(op);
+          btn.classList.add('is-active');
+        }
+      }));
+
+      els.levelButtons.forEach(btn => btn.addEventListener('click', () => {
+        state.difficulty = btn.dataset.level;
+        els.levelButtons.forEach(b => b.classList.toggle('is-selected', b === btn));
+      }));
+
+      els.prevStep.addEventListener('click', () => {
+        state.step = Math.max(1, state.step - 1);
+        els.setupError.textContent = '';
+        updateStepUi();
+      });
+
+      els.nextStep.addEventListener('click', () => {
+        els.setupError.textContent = '';
+        if (state.step < 3) {
+          state.step += 1;
+          updateStepUi();
+          return;
+        }
+
+        const blue = (els.blueNameInput.value || '').trim() || 'Equip blau';
+        const red = (els.redNameInput.value || '').trim() || 'Equip vermell';
+
+        if (blue.toLowerCase() === red.toLowerCase()) {
+          els.setupError.textContent = 'Els equips han de tenir noms diferents.';
+          return;
+        }
+
+        state.teams.blue.name = blue;
+        state.teams.red.name = red;
+        startGame();
+      });
+
+      els.restartBtn.addEventListener('click', () => {
+        clearInterval(state.timerId);
+        state.step = 1;
+        state.running = false;
+        state.timeLeft = gameDuration;
+        state.ropePos = 0;
+        els.modal.hidden = false;
+        els.resultPanel.hidden = true;
+        updateStepUi();
+        updateHud();
+        updateRope();
+      });
+
+      // Inicialització de teclats virtuals i estat visual
+      els.keypads.forEach(kp => buildKeypad(kp.dataset.keypad, kp));
+      updateStepUi();
+      updateHud();
+      updateRope();
+    })();
+  </script>
+
 </body>
 </html>
