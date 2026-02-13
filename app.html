@@ -931,7 +931,7 @@
 
       function setQuestion(question) {
         state.currentQuestion = question;
-        const text = question?.text || "No s'ha pogut generar una pregunta.";
+        const text = question?.text || 'No s'ha pogut generar una pregunta.';
         els.questionBlue.textContent = text;
         els.questionRed.textContent = text;
       }
@@ -948,7 +948,7 @@
           if (!q || typeof q.text !== 'string') continue;
           if (intLike(q.answer)) return { text: q.text, answer: Number(q.answer) };
         }
-        return { text: "No s'han trobat preguntes numèriques amb aquesta configuració. Ajusta el mòdul.", answer: 0 };
+        return { text: 'No s'han trobat preguntes numèriques amb aquesta configuració. Ajusta el mòdul.', answer: 0 };
       }
 
       function setFeedback(teamKey, text, ok){
@@ -1035,7 +1035,7 @@
 
       function openModuleConfig(){
         if (typeof window.openConfig !== 'function' || typeof window.collectConfigValues !== 'function') {
-          els.setupError.textContent = "No s'ha pogut obrir la configuració del mòdul.";
+          els.setupError.textContent = 'No s'ha pogut obrir la configuració del mòdul.';
           return;
         }
         window.openConfig(state.moduleId);
