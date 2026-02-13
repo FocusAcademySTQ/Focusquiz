@@ -6,126 +6,100 @@
   <title>Focus Reptes · Tira-corda matemàtic</title>
   <link rel="stylesheet" href="../style.css" />
   <style>
-    :root{--blue:#2e86de;--blue2:#1f6ec2;--red:#e03a3e;--red2:#be2328;--bg:#eef2fb;--card:#ffffff;--ink:#1f2a44}
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,system-ui,sans-serif;background:radial-gradient(circle at 20% 0,#f7faff,#eef2fb 45%,#e9eef9);color:var(--ink)}
-    .stars{position:fixed;inset:0;pointer-events:none;opacity:.45;background-image:radial-gradient(#7bb1ff 1.6px,transparent 1.6px);background-size:120px 120px;animation:drift 30s linear infinite}
-    @keyframes drift{from{background-position:0 0}to{background-position:120px 60px}}
-    .wrap{max-width:1300px;margin:0 auto;padding:20px 14px 28px;position:relative;z-index:1}
-    .head{text-align:center;margin-bottom:14px}
-    .head h1{margin:0;color:#2372b6;letter-spacing:.02em;font-size:clamp(1.6rem,3vw,2.9rem)}
-    .head p{margin:.45rem 0;color:#51607f}
-    .toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-    .toolbar .left,.toolbar .right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .input,select{border:1px solid #cfd9f3;border-radius:10px;padding:8px 10px;background:#fff;font:inherit}
-    .btn{border:0;border-radius:10px;padding:9px 14px;font-weight:700;cursor:pointer;background:#2759cf;color:#fff}
-    .btn.ghost{background:#e8eefc;color:#23428c}
-
-    .board{display:grid;grid-template-columns:1fr minmax(360px,1.6fr) 1fr;gap:16px;align-items:start}
-    .team-card{background:var(--card);border-radius:18px;box-shadow:0 14px 24px rgba(31,43,76,.12);overflow:hidden;border:1px solid #d7e0f8}
-    .team-head{padding:12px 14px;color:#fff;font-weight:800;display:flex;justify-content:space-between;align-items:center}
-    .team-blue .team-head{background:linear-gradient(135deg,var(--blue),var(--blue2))}
-    .team-red .team-head{background:linear-gradient(135deg,var(--red),var(--red2))}
-    .team-score{width:36px;height:36px;border-radius:999px;background:#fff;color:#2f69ba;display:grid;place-items:center;font-size:1.35rem}
-    .team-red .team-score{color:#be2a33}
-    .question{padding:16px 14px 10px;min-height:96px;background:#f4f8ff;text-align:center;font-size:clamp(1.12rem,2.2vw,1.55rem);font-weight:800}
-    .team-red .question{background:#fff4f4}
-    .feedback{padding:0 14px 10px;min-height:24px;font-weight:600}
-    .answers{padding:0 12px 12px;display:grid;gap:8px}
-    .opt{border:1px solid #d6dff8;border-radius:12px;background:#fff;padding:10px 11px;font-size:1.06rem;font-weight:700;text-align:left;cursor:pointer;transition:.2s}
-    .opt:hover{transform:translateY(-1px);box-shadow:0 8px 16px rgba(43,82,156,.12)}
-    .kbd{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .k{border:1px solid #c9d7f7;border-radius:10px;background:#fff;padding:10px;font-weight:800;cursor:pointer}
-    .k.send{grid-column:span 2;background:#2a52ca;color:#fff;border-color:#2a52ca}
-
-    .arena{background:#fff;border:1px solid #d8e1fb;border-radius:18px;box-shadow:0 14px 24px rgba(31,43,76,.12);padding:12px}
-    .arena-top{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;background:#f4f7fb;border-radius:12px;padding:10px 12px;font-weight:800}
-    .arena-top .left{color:#256fc1}.arena-top .right{color:#c42b34}.clock{color:#2f7dc7}
-    .pit{position:relative;height:420px;border-radius:14px;margin-top:10px;background:linear-gradient(180deg,#fdfefe,#f4f6fb);overflow:hidden;border:1px solid #e4e9f7}
-    .mid{position:absolute;left:50%;top:0;bottom:0;border-left:2px dashed #818a9f;transform:translateX(-50%)}
-    .rope{position:absolute;left:9%;right:9%;top:56%;height:8px;background:linear-gradient(90deg,#5d3210,#4a2508,#5d3210);border-radius:999px;transform-origin:center;transition:transform .25s ease}
-    .rope.swing{animation:swing .35s ease}
-    @keyframes swing{0%{transform:translateY(0) rotate(0)}30%{transform:translateY(-2px) rotate(-1.1deg)}60%{transform:translateY(1px) rotate(1deg)}100%{transform:translateY(0) rotate(0)}}
-    .flag{position:absolute;top:54%;left:50%;width:18px;height:30px;background:#e3393c;clip-path:polygon(0 0,100% 30%,0 60%);transform:translate(-50%,-50%);transition:left .28s cubic-bezier(.22,.61,.36,1)}
-    .pullers{position:absolute;inset:0}
-    .puller{position:absolute;top:58%;transform:translateY(-50%);font-size:78px;filter:drop-shadow(0 8px 8px rgba(0,0,0,.15));transition:left .28s,right .28s}
-    .puller.blue{left:16%}.puller.red{right:16%}
-    .puller.small{font-size:66px;opacity:.92;top:60%}
-    .puller.blue.small{left:3%}.puller.red.small{right:3%}
-
-    .status{margin-top:10px;text-align:center;color:#4b5a79;font-weight:600}
-
-    @media (max-width:1100px){.board{grid-template-columns:1fr}.pit{height:300px}.puller{font-size:56px}.puller.small{font-size:48px}}
+    body{background:#eef2ff}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .hero{background:#fff;border:1px solid #d8e1ff;border-radius:16px;padding:14px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .field{display:grid;gap:4px}
+    .field select,.field input{padding:8px;border:1px solid #c7d3f4;border-radius:8px}
+    .cfg-box{background:#f7f9ff;border:1px solid #dbe4ff;border-radius:12px;padding:10px;margin-top:10px}
+    .hud{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:12px 0}
+    .score{padding:8px 10px;border-radius:10px;background:#f2f4f8;display:flex;justify-content:space-between}
+    .blue{border:1px solid #a8c6ff;color:#1a4fa7}.red{border:1px solid #ffc2c8;color:#a31f36}
+    .timer{background:#111827;color:#fff;padding:8px 12px;border-radius:999px;font-weight:700}
+    .track{position:relative;height:56px;border:1px solid #d6def3;border-radius:999px;background:linear-gradient(90deg,rgba(36,94,187,.1),#fff,rgba(206,39,62,.1));overflow:hidden}
+    .rope{position:absolute;left:7%;right:7%;top:50%;height:10px;transform:translateY(-50%);border-radius:999px;background:repeating-linear-gradient(90deg,#8c5b2c 0 12px,#b27b45 12px 24px)}
+    .flag{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:22px;height:22px;border:3px solid #4a63d1;border-radius:50%;background:#eef3ff;transition:left .25s}
+    .puller{position:absolute;top:50%;transform:translateY(-50%);font-size:30px}.puller.b{left:8px}.puller.r{right:8px}
+    .teams{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .team{border:1px solid #d8e2fb;background:#fbfdff;border-radius:12px;padding:10px}
+    .q{font-size:1.2rem;font-weight:800;min-height:1.5em}
+    .feedback{min-height:1.2em;font-size:.95rem}
+    .input{padding:8px;border:1px dashed #b8c7ee;border-radius:8px;background:#f3f7ff}
+    .k{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+    .k button{padding:8px;border:1px solid #c6d4f7;border-radius:8px;background:#fff;font-weight:700}
+    .k .send{grid-column:span 2;background:#2a52ca;color:#fff;border-color:#2a52ca}
+    .opts{display:grid;gap:6px;margin-top:6px}
+    .opts button{padding:8px;border:1px solid #c6d4f7;border-radius:8px;background:#fff;text-align:left}
+    @media(max-width:900px){.teams{grid-template-columns:1fr}.hud{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <div class="stars"></div>
   <main class="wrap">
-    <header class="head">
-      <h1>TUG OF WAR: FOCUS REPTES</h1>
-      <p>Resposta correcta estira la corda al teu camp · resposta incorrecta l'acosta al rival.</p>
-    </header>
-
-    <div class="toolbar">
-      <div class="left">
-        <a class="btn ghost" href="../app.html">← Tornar a app</a>
-        <label>Mòdul
-          <select id="moduleSelect"></select>
-        </label>
-        <label>Nivell
-          <select id="level"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
-        </label>
+    <section class="hero">
+      <div class="row" style="justify-content:space-between">
+        <h1 style="margin:0">🪢 Reptes · Tira-corda matemàtic</h1>
+        <a class="btn-secondary" href="../app.html">← Tornar a app</a>
       </div>
-      <div class="right">
-        <label>Equip blau <input id="blueName" class="input" value="Equip blau"></label>
-        <label>Equip vermell <input id="redName" class="input" value="Equip vermell"></label>
-        <button id="startBtn" class="btn">Comença</button>
+
+      <div class="cfg-box">
+        <div class="row">
+          <label class="field">Mòdul
+            <select id="moduleSelect"></select>
+          </label>
+          <label class="field">Punts per guanyar
+            <input id="pointsToWin" type="number" min="1" max="50" value="6" />
+          </label>
+          <label class="field">Preguntes per punt
+            <input id="questionsPerPoint" type="number" min="1" max="20" value="2" />
+          </label>
+          <label class="field">Nivell
+            <select id="level"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+          </label>
+        </div>
+        <div id="moduleConfig" class="cfg-box" style="margin-top:8px"></div>
+        <div class="row" style="margin-top:8px">
+          <label class="field">Equip blau<input id="blueName" value="Equip blau" /></label>
+          <label class="field">Equip vermell<input id="redName" value="Equip vermell" /></label>
+          <button id="startBtn" class="pill">Comença partida</button>
+        </div>
       </div>
-    </div>
 
-    <section id="moduleConfig" class="arena" style="margin-bottom:14px"></section>
+      <div class="hud">
+        <div class="score blue"><strong id="blueLabel">Equip blau</strong><span>🏁 <span id="blueScore">0</span></span></div>
+        <div class="timer" id="timer">02:00</div>
+        <div class="score red"><strong id="redLabel">Equip vermell</strong><span>🏁 <span id="redScore">0</span></span></div>
+      </div>
 
-    <section class="board">
-      <article class="team-card team-blue">
-        <div class="team-head"><span id="blueLabel">Team 1</span><span class="team-score" id="blueScore">0</span></div>
-        <div class="question" id="qBlue">Configura i comença partida…</div>
-        <div class="feedback" id="fBlue">—</div>
-        <div class="answers">
-          <div id="optsBlue"></div>
-          <div class="kbd" id="kpBlue"></div>
-        </div>
-      </article>
+      <div class="track">
+        <div class="puller b">🧍‍♂️</div><div class="puller r">🧍‍♀️</div>
+        <div class="rope"></div><div class="flag" id="flag"></div>
+      </div>
 
-      <article class="arena">
-        <div class="arena-top"><div class="left" id="blueMini">Team 1 · 0/4</div><div class="clock" id="timer">00:00</div><div class="right" style="text-align:right" id="redMini">Team 2 · 0/4</div></div>
-        <div class="pit">
-          <div class="mid"></div>
-          <div class="pullers">
-            <div class="puller blue small">🧍‍♂️</div><div class="puller blue">🧍‍♂️</div>
-            <div class="puller red">🧍‍♀️</div><div class="puller red small">🧍‍♀️</div>
-          </div>
-          <div class="rope" id="rope"></div>
-          <div class="flag" id="flag"></div>
-        </div>
-        <div class="status">Objectiu fix: <strong>1 punt</strong> · Cada <strong>4 respostes correctes</strong> = 1 punt.</div>
-      </article>
-
-      <article class="team-card team-red">
-        <div class="team-head"><span id="redLabel">Team 2</span><span class="team-score" id="redScore">0</span></div>
-        <div class="question" id="qRed">Configura i comença partida…</div>
-        <div class="feedback" id="fRed">—</div>
-        <div class="answers">
-          <div id="optsRed"></div>
-          <div class="kbd" id="kpRed"></div>
-        </div>
-      </article>
+      <div class="teams">
+        <section class="team">
+          <h3 id="blueTitle">Equip blau</h3>
+          <div class="q" id="qBlue">Configura i comença…</div>
+          <div class="feedback" id="fBlue">—</div>
+          <div class="input" id="inBlue">0</div>
+          <div id="optsBlue" class="opts"></div>
+          <div id="kpBlue" class="k"></div>
+        </section>
+        <section class="team">
+          <h3 id="redTitle">Equip vermell</h3>
+          <div class="q" id="qRed">Configura i comença…</div>
+          <div class="feedback" id="fRed">—</div>
+          <div class="input" id="inRed">0</div>
+          <div id="optsRed" class="opts"></div>
+          <div id="kpRed" class="k"></div>
+        </section>
+      </div>
     </section>
   </main>
 
   <script>
-    window._mods=[];
-    window.addModules=(m)=>Array.isArray(m)&&window._mods.push(...m);
-    window.getMods=()=>window._mods.slice();
+    window._mods=[]; window.addModules=(m)=>Array.isArray(m)&&window._mods.push(...m);
+    const getMods=()=>window._mods.slice();
   </script>
   <script src="../math.js"></script>
   <script src="../lang-cat.js"></script>
