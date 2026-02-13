@@ -476,6 +476,10 @@ const fmtTime = (sec)=>{
 /* ===================== APP STATE ===================== */
 
 const MODULES = [];
+// API global de consulta perquè altres vistes (p.ex. Reptes) puguin reutilitzar els mòduls registrats
+window.getRegisteredModules = function(){
+  return MODULES.slice();
+};
 // Registre de mòduls externs (p.ex. llengua) i refresc de la Home
 window.addModules = function(mods){
   if(!Array.isArray(mods)) return;
@@ -514,7 +518,7 @@ const isAssignedSession = () => Boolean(session && session.assignmentId);
 /* ===================== VIEWS ===================== */
 
 function showView(name){
-  ['home','config','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
+  ['home','challenges','config','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
   $$('.nav-btn[data-view]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.view === name);
   });
