@@ -1408,6 +1408,15 @@ Nil"></textarea>
         state.ropePos = Math.max(-LIMIT, Math.min(LIMIT, (red.rawCorrect - blue.rawCorrect) * 2.2));
       }
 
+
+      function recalculateDuelState() {
+        const blue = state.teams.blue;
+        const red = state.teams.red;
+        blue.score = Math.max(0, blue.rawCorrect - red.rawCorrect);
+        red.score = Math.max(0, red.rawCorrect - blue.rawCorrect);
+        state.ropePos = Math.max(-LIMIT, Math.min(LIMIT, (red.rawCorrect - blue.rawCorrect) * 2.2));
+      }
+
       function updateHud() {
         els.blueName.textContent = `${state.teams.blue.name} · +${state.teams.blue.score}`;
         els.redName.textContent = `${state.teams.red.name} · +${state.teams.red.score}`;
