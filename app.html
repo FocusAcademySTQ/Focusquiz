@@ -79,6 +79,7 @@
     .ttm-question-media .ttm-choice-item { border: 1px solid #d7dce8; border-radius: 8px; padding: .35rem; font-size: .85rem; text-align:left; background:#f8fafc; }
     .ttm-input { border: 2px solid #d6dbe8; border-radius: 12px; background: #ffffff; padding: .4rem .6rem; font-family: ui-monospace, monospace; font-size: 2rem; text-align: center; font-weight: 800; margin-bottom: .6rem; min-height: 2rem; }
     .ttm-keypad { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .35rem; }
+    .ttm-keypad.is-choices { grid-template-columns: 1fr; }
     .ttm-key { border: 1px solid #d6dae4; background: #fff; border-radius: 10px; padding: .82rem .3rem; font-weight: 800; font-size: 1.45rem; cursor: pointer; transition: .18s ease; }
     .ttm-key:hover { transform: translateY(-1px); background: #eef4ff; }
     .ttm-key--clear { background: #ffe4e7; border-color: #ffc1ca; color: #8c1f32; }
@@ -87,7 +88,7 @@
     .ttm-key--clear { font-size: 1rem; }
     .ttm-key, .ttm-input { -webkit-font-smoothing: antialiased; }
     .ttm-team.is-text-question .ttm-question { font-size: 1.45rem; line-height: 1.3; }
-    .ttm-choice-btn { border: 1px solid #c9d4e6; background: #eef2f7; border-radius: 20px; padding: .95rem 1.1rem; text-align: left; font-weight: 800; font-size: 1.8rem; color:#0f172a; cursor: pointer; box-shadow: inset 0 -5px 0 var(--choice-accent, #bfd6ff); margin-bottom:.45rem; }
+    .ttm-choice-btn { width: 100%; border: 1px solid #c9d4e6; background: #eef2f7; border-radius: 20px; padding: .95rem 1.1rem; text-align: left; font-weight: 800; font-size: 1.8rem; color:#0f172a; cursor: pointer; box-shadow: inset 0 -5px 0 var(--choice-accent, #bfd6ff); margin-bottom:.45rem; }
     .ttm-choice-btn:hover { filter: brightness(1.02); transform: translateY(-1px); }
     .ttm-choice-btn:nth-child(1) { --choice-accent: #aecdff; }
     .ttm-choice-btn:nth-child(2) { --choice-accent: #a8e8da; }
@@ -1458,6 +1459,7 @@
         const hasChoices = state.moduleId === 'cat-morf' && Array.isArray(current?.rawOptions) && current.rawOptions.length;
 
         if (hasChoices) {
+          container.classList.add('is-choices');
           container.innerHTML = '';
           current.rawOptions.forEach((label, index) => {
             const btn = document.createElement('button');
@@ -1475,6 +1477,7 @@
           return;
         }
 
+        container.classList.remove('is-choices');
         if (inputEl) inputEl.style.display = 'block';
         container.innerHTML = '';
         buildKeypad(teamKey, container);
