@@ -119,6 +119,14 @@
     .ttm-result-card { width: min(520px, calc(100% - 2rem)); background: #fff; border-radius: 16px; padding: 1rem; text-align: center; }
 
     .cap-turn { border:1px solid #d8e4ff; border-radius:10px; background:#f5f8ff; color:#214184; font-weight:700; padding:.45rem .6rem; text-align:center; margin-bottom:.5rem; }
+    .cap-status { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; margin-bottom:.5rem; }
+    .cap-status__team { border:1px solid #d6e0f2; border-radius:10px; background:#f8fbff; padding:.45rem .55rem; display:grid; gap:.25rem; }
+    .cap-status__team strong { font-size:.88rem; }
+    .cap-lock { display:grid; gap:.2rem; }
+    .cap-lock span { font-size:.75rem; color:#475467; font-weight:700; text-transform:uppercase; letter-spacing:.04em; }
+    .cap-lockbar { position:relative; height:7px; border-radius:999px; background:#e3e8f4; overflow:hidden; }
+    .cap-lockbar i { position:absolute; inset:0; width:0%; background:linear-gradient(90deg,#f97316,#ef4444); transition:width .2s ease; }
+    .cap-lock small { font-size:.75rem; color:#334155; font-weight:700; }
     .cap-field { position: relative; min-height: 410px; border-radius: 14px; border:1px solid #dbe4ec; background: linear-gradient(180deg,#4fa766,#3c9053); overflow:hidden; }
     .cap-midline { position:absolute; left:50%; top:0; bottom:0; width:3px; transform:translateX(-50%); background:rgba(255,255,255,.65); }
     .cap-goal { position:absolute; top:34%; width:16px; height:32%; background:rgba(255,255,255,.4); border:2px solid rgba(255,255,255,.8); }
@@ -129,6 +137,11 @@
     .cap-chip--blue { background:#2b86dd; border:2px solid #dbeeff; box-shadow:0 0 0 3px rgba(219,238,255,.45); }
     .cap-chip--red { background:#d83d3d; border:2px solid #ffe0e0; box-shadow:0 0 0 3px rgba(255,224,224,.45); }
     .cap-chip.is-active-shot { box-shadow: 0 0 0 4px #ffe082, 0 0 14px rgba(255,224,130,.75); cursor:grab; }
+    .cap-aim-line { position:absolute; height:3px; border-radius:999px; background:linear-gradient(90deg,rgba(255,255,255,.95),rgba(255,255,255,.2)); transform-origin:left center; pointer-events:none; opacity:0; transition:opacity .12s ease; }
+    .cap-power-ring { position:absolute; width:34px; height:34px; border-radius:50%; border:2px dashed rgba(255,255,255,.9); transform:translate(-50%,-50%) scale(1); pointer-events:none; opacity:0; transition:opacity .12s ease; }
+    .cap-power-ring.is-charged { border-color:#ffe082; box-shadow:0 0 0 4px rgba(255,224,130,.45); }
+    .cap-replay { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+    .cap-replay polyline { fill:none; stroke:#ffe082; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 0 4px rgba(255,224,130,.9)); }
 
 
     @media (max-width: 960px) {
@@ -137,6 +150,7 @@
       .ttm-grid3 { grid-template-columns: 1fr; }
       .ttm-team-inputs, .ttm-layout { grid-template-columns: 1fr; }
       .ttm-hud { grid-template-columns: 1fr; }
+      .cap-status { grid-template-columns: 1fr; }
       .ttm-timer { justify-self: start; }
       .ttm-rope-zone { min-height: 300px; }
     }
@@ -949,7 +963,17 @@ Nil"></textarea></label>
                   <div class="ttm-score ttm-score--red"><strong id="capRedName">Equip vermell</strong><span>Gols</span></div>
                 </div>
                 <div class="cap-turn" id="capTurnHint">Encerta una pregunta per fer un tir.</div>
-                <div class="cap-field" id="capField"><div class="cap-midline"></div><div class="cap-goal cap-goal--left"></div><div class="cap-goal cap-goal--right"></div><div class="cap-ball" id="capBall"></div><div class="cap-chip cap-chip--blue" id="capChipBlue"></div><div class="cap-chip cap-chip--red" id="capChipRed"></div></div>
+                <div class="cap-status" aria-live="polite">
+                  <div class="cap-status__team cap-status__team--blue">
+                    <strong id="capBlueBonus">Tirs extra: 0</strong>
+                    <div class="cap-lock"><span>Bloqueig tir</span><div class="cap-lockbar"><i id="capBlueLockBar"></i></div><small id="capBlueLockText">Actiu</small></div>
+                  </div>
+                  <div class="cap-status__team cap-status__team--red">
+                    <strong id="capRedBonus">Tirs extra: 0</strong>
+                    <div class="cap-lock"><span>Bloqueig tir</span><div class="cap-lockbar"><i id="capRedLockBar"></i></div><small id="capRedLockText">Actiu</small></div>
+                  </div>
+                </div>
+                <div class="cap-field" id="capField"><div class="cap-midline"></div><div class="cap-goal cap-goal--left"></div><div class="cap-goal cap-goal--right"></div><div class="cap-ball" id="capBall"></div><div class="cap-chip cap-chip--blue" id="capChipBlue"></div><div class="cap-chip cap-chip--red" id="capChipRed"></div><div class="cap-aim-line" id="capAimLine"></div><div class="cap-power-ring" id="capPowerRing"></div><svg class="cap-replay" id="capReplay" viewBox="0 0 100 100" preserveAspectRatio="none" hidden><polyline id="capReplayPath" points=""/></svg></div>
               </section>
               <section class="ttm-team ttm-team--red" data-team="red">
                 <div class="ttm-team-head ttm-team-head--red"><h3 id="capRedPanelTitle">Equip vermell</h3><span class="ttm-team-points" id="capRedScore">0</span></div>
@@ -1821,6 +1845,7 @@ Nil"></textarea></label>
       const root = document.getElementById('capGame');
       if (!root) return;
       const DURATION = 120;
+      const SHOT_BLOCK_MS = 6000;
 
       const state = {
         step: 1,
@@ -1837,15 +1862,18 @@ Nil"></textarea></label>
         timerId: null,
         frameId: null,
         drag: null,
+        shotQueue: [],
+        replay: { active: false, timeoutId: null },
         field: {
           w: 0, h: 0,
           ball: { x: 0, y: 0, vx: 0, vy: 0, r: 17 },
           blue: { x: 0, y: 0, vx: 0, vy: 0, r: 17 },
-          red: { x: 0, y: 0, vx: 0, vy: 0, r: 17 }
+          red: { x: 0, y: 0, vx: 0, vy: 0, r: 17 },
+          trail: []
         },
         teams: {
-          blue: { name: 'Equip blau', score: 0, input: '', current: null, rawCorrect: 0 },
-          red: { name: 'Equip vermell', score: 0, input: '', current: null, rawCorrect: 0 }
+          blue: { name: 'Equip blau', score: 0, input: '', current: null, rawCorrect: 0, streak: 0, failStreak: 0, blockedUntil: 0, bonusShots: 0 },
+          red: { name: 'Equip vermell', score: 0, input: '', current: null, rawCorrect: 0, streak: 0, failStreak: 0, blockedUntil: 0, bonusShots: 0 }
         }
       };
 
@@ -1875,10 +1903,20 @@ Nil"></textarea></label>
         redScore: document.getElementById('capRedScore'),
         timer: document.getElementById('capTimer'),
         turnHint: document.getElementById('capTurnHint'),
+        blueBonus: document.getElementById('capBlueBonus'),
+        redBonus: document.getElementById('capRedBonus'),
+        blueLockBar: document.getElementById('capBlueLockBar'),
+        redLockBar: document.getElementById('capRedLockBar'),
+        blueLockText: document.getElementById('capBlueLockText'),
+        redLockText: document.getElementById('capRedLockText'),
         field: document.getElementById('capField'),
         ball: document.getElementById('capBall'),
         chipBlue: document.getElementById('capChipBlue'),
         chipRed: document.getElementById('capChipRed'),
+        aimLine: document.getElementById('capAimLine'),
+        powerRing: document.getElementById('capPowerRing'),
+        replay: document.getElementById('capReplay'),
+        replayPath: document.getElementById('capReplayPath'),
         questionBlue: document.getElementById('capQuestionBlue'),
         questionRed: document.getElementById('capQuestionRed'),
         mediaBlue: document.getElementById('capMediaBlue'),
@@ -1895,7 +1933,9 @@ Nil"></textarea></label>
       const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
       const formatTime = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
       const getRegisteredModules = () => (typeof window.getRegisteredModules === 'function' ? window.getRegisteredModules() : []);
-      const isIntegerLike = (v) => (typeof v === 'number' ? Number.isFinite(v) && Number.isInteger(v) : /^-?\\d+$/.test(String(v || '').trim()));
+      const isIntegerLike = (v) => (typeof v === 'number' ? Number.isFinite(v) && Number.isInteger(v) : /^-?\d+$/.test(String(v || '').trim()));
+      const otherTeam = (teamKey) => (teamKey === 'blue' ? 'red' : 'blue');
+      const isTeamBlocked = (teamKey) => Date.now() < (state.teams[teamKey].blockedUntil || 0);
 
       function updateStepUi() {
         els.stepLabel.textContent = `Pas ${state.step} de 3`;
@@ -2004,6 +2044,20 @@ Nil"></textarea></label>
         renderTeamControls(teamKey);
       }
 
+      function updatePenaltyUi() {
+        ['blue', 'red'].forEach((teamKey) => {
+          const team = state.teams[teamKey];
+          const msLeft = Math.max(0, (team.blockedUntil || 0) - Date.now());
+          const pct = Math.max(0, Math.min(100, (msLeft / SHOT_BLOCK_MS) * 100));
+          const bonusEl = teamKey === 'blue' ? els.blueBonus : els.redBonus;
+          const barEl = teamKey === 'blue' ? els.blueLockBar : els.redLockBar;
+          const textEl = teamKey === 'blue' ? els.blueLockText : els.redLockText;
+          if (bonusEl) bonusEl.textContent = `Tirs extra: ${team.bonusShots}`;
+          if (barEl) barEl.style.width = `${pct}%`;
+          if (textEl) textEl.textContent = msLeft > 0 ? `${(msLeft / 1000).toFixed(1)}s` : 'Actiu';
+        });
+      }
+
       function updateHud() {
         els.blueName.textContent = state.teams.blue.name;
         els.redName.textContent = state.teams.red.name;
@@ -2014,17 +2068,55 @@ Nil"></textarea></label>
         els.inputBlue.textContent = state.teams.blue.input || '0';
         els.inputRed.textContent = state.teams.red.input || '0';
         els.timer.textContent = formatTime(Math.max(0, state.timeLeft));
+        updatePenaltyUi();
+      }
+
+      function queueBonusShots(teamKey, count) {
+        for (let i = 0; i < count; i += 1) state.shotQueue.push(teamKey);
+        state.teams[teamKey].bonusShots += count;
+      }
+
+      function consumeQueuedShotIfPossible() {
+        if (state.shooter || !state.running || state.drag || !state.shotQueue.length) return;
+        for (let i = 0; i < state.shotQueue.length; i += 1) {
+          const teamKey = state.shotQueue[0];
+          if (isTeamBlocked(teamKey)) {
+            state.shotQueue.push(state.shotQueue.shift());
+            continue;
+          }
+          state.shotQueue.shift();
+          state.teams[teamKey].bonusShots = Math.max(0, state.teams[teamKey].bonusShots - 1);
+          state.shooter = teamKey;
+          break;
+        }
+      }
+
+      function getShotMultiplier(teamKey) {
+        const streak = state.teams[teamKey].streak;
+        if (streak >= 3) return 1.2;
+        if (streak >= 2) return 1.1;
+        return 1;
       }
 
       function renderShotState() {
+        consumeQueuedShotIfPossible();
         const canBlue = state.running && state.shooter === 'blue';
         const canRed = state.running && state.shooter === 'red';
         els.chipBlue.classList.toggle('is-active-shot', canBlue);
         els.chipRed.classList.toggle('is-active-shot', canRed);
         if (!state.running) return;
-        if (canBlue) els.turnHint.textContent = `${state.teams.blue.name}: arrossega la xapa blava per xutar.`;
-        else if (canRed) els.turnHint.textContent = `${state.teams.red.name}: arrossega la xapa vermella per xutar.`;
-        else els.turnHint.textContent = 'Encerta una pregunta per fer un tir.';
+        if (canBlue) {
+          const boost = Math.round((getShotMultiplier('blue') - 1) * 100);
+          els.turnHint.textContent = `${state.teams.blue.name}: arrossega la xapa blava per xutar${boost ? ` (+${boost}% potència)` : ''}.`;
+        } else if (canRed) {
+          const boost = Math.round((getShotMultiplier('red') - 1) * 100);
+          els.turnHint.textContent = `${state.teams.red.name}: arrossega la xapa vermella per xutar${boost ? ` (+${boost}% potència)` : ''}.`;
+        } else {
+          const blockedBlue = isTeamBlocked('blue');
+          const blockedRed = isTeamBlocked('red');
+          if (blockedBlue || blockedRed) els.turnHint.textContent = 'Hi ha tir bloquejat: continueu responent preguntes.';
+          else els.turnHint.textContent = 'Encerta una pregunta per fer un tir.';
+        }
       }
 
       function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
@@ -2039,11 +2131,45 @@ Nil"></textarea></label>
         Object.assign(state.field.ball, { x: w / 2, y: h / 2, vx: 0, vy: 0 });
         Object.assign(state.field.blue, { x: w * 0.24, y: h / 2, vx: 0, vy: 0 });
         Object.assign(state.field.red, { x: w * 0.76, y: h / 2, vx: 0, vy: 0 });
+        state.field.trail = [];
         renderField();
       }
       function renderField() {
         const apply = (el, obj) => { if (el) { el.style.left = `${obj.x}px`; el.style.top = `${obj.y}px`; } };
         apply(els.ball, state.field.ball); apply(els.chipBlue, state.field.blue); apply(els.chipRed, state.field.red);
+      }
+
+      function hideAimPreview() {
+        if (els.aimLine) els.aimLine.style.opacity = '0';
+        if (els.powerRing) {
+          els.powerRing.style.opacity = '0';
+          els.powerRing.classList.remove('is-charged');
+        }
+      }
+
+      function updateAimPreview(teamKey, startX, startY, currentX, currentY) {
+        const chip = state.field[teamKey];
+        const dx = startX - currentX;
+        const dy = startY - currentY;
+        const pull = Math.hypot(dx, dy);
+        const maxLen = 120;
+        const lineLen = Math.min(maxLen, pull * 2.2);
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+        if (els.aimLine) {
+          els.aimLine.style.opacity = '1';
+          els.aimLine.style.left = `${chip.x}px`;
+          els.aimLine.style.top = `${chip.y}px`;
+          els.aimLine.style.width = `${lineLen}px`;
+          els.aimLine.style.transform = `translateY(-50%) rotate(${angle}deg)`;
+        }
+        if (els.powerRing) {
+          const charge = Math.min(1.5, 1 + pull / 140);
+          els.powerRing.style.opacity = '1';
+          els.powerRing.style.left = `${chip.x}px`;
+          els.powerRing.style.top = `${chip.y}px`;
+          els.powerRing.style.transform = `translate(-50%,-50%) scale(${charge})`;
+          els.powerRing.classList.toggle('is-charged', getShotMultiplier(teamKey) >= 1.2);
+        }
       }
 
       function bounce(obj) {
@@ -2084,6 +2210,8 @@ Nil"></textarea></label>
         const objs = [state.field.blue, state.field.red, state.field.ball];
         objs.forEach((o) => { o.x += o.vx; o.y += o.vy; o.vx *= 0.985; o.vy *= 0.985; if (Math.abs(o.vx) < 0.02) o.vx = 0; if (Math.abs(o.vy) < 0.02) o.vy = 0; bounce(o); });
         collideChipBall(state.field.blue); collideChipBall(state.field.red);
+        state.field.trail.push({ x: state.field.ball.x, y: state.field.ball.y });
+        if (state.field.trail.length > 180) state.field.trail.shift();
         const scorer = checkGoal();
         renderField();
         if (scorer) endGame(scorer, 'goal');
@@ -2091,6 +2219,8 @@ Nil"></textarea></label>
 
       function tick() {
         stepPhysics();
+        updatePenaltyUi();
+        if (!state.shooter) renderShotState();
         state.frameId = requestAnimationFrame(tick);
       }
 
@@ -2103,15 +2233,28 @@ Nil"></textarea></label>
         if (!expected || !got) return;
         if (expected === got || (isIntegerLike(expected) && isIntegerLike(got) && Number(expected) === Number(got))) {
           t.rawCorrect += 1;
-          state.shooter = teamKey;
+          t.streak += 1;
+          t.failStreak = 0;
+          if (!isTeamBlocked(teamKey)) state.shooter = teamKey;
           setQuestion(teamKey);
           renderShotState();
           updateHud();
           return;
         }
+
+        t.failStreak += 1;
+        t.streak = 0;
         t.input = '';
         setQuestion(teamKey);
+        if (t.failStreak >= 2) {
+          t.failStreak = 0;
+          t.blockedUntil = Date.now() + SHOT_BLOCK_MS;
+          const rival = otherTeam(teamKey);
+          queueBonusShots(rival, 2);
+          els.turnHint.textContent = `${t.name} bloquejat/da 6s. ${state.teams[rival].name} rep 2 tirs extres.`;
+        }
         updateHud();
+        renderShotState();
       }
 
       function pushDigit(teamKey, value) {
@@ -2119,17 +2262,18 @@ Nil"></textarea></label>
         state.teams[teamKey].input += String(value);
         updateHud();
       }
+
       function buildKeypad(teamKey, container) {
         ['7','8','9','4','5','6','1','2','3','0'].forEach((digit) => {
           const b = document.createElement('button'); b.type = 'button'; b.className = 'ttm-key'; b.textContent = digit;
           b.addEventListener('click', () => pushDigit(teamKey, digit)); container.appendChild(b);
         });
-        const minus = document.createElement('button'); minus.type='button'; minus.className='ttm-key ttm-key--minus'; minus.textContent='−';
-        minus.addEventListener('click',()=>{ if(state.moduleId!=='arith' || !state.running) return; const t=state.teams[teamKey]; t.input = t.input.startsWith('-') ? t.input.slice(1) : `-${t.input}`; updateHud(); });
+        const minus = document.createElement('button'); minus.type='button'; minus.className='ttm-key ttm-key--minus'; minus.textContent='−'; minus.addEventListener('click',()=>pushDigit(teamKey,'-'));
         const clear = document.createElement('button'); clear.type='button'; clear.className='ttm-key ttm-key--clear'; clear.textContent='Esborrar'; clear.addEventListener('click',()=>{ state.teams[teamKey].input=''; updateHud(); });
         const send = document.createElement('button'); send.type='button'; send.className='ttm-key ttm-key--send'; send.textContent='Enviar'; send.addEventListener('click',()=>handleAnswer(teamKey));
         container.append(minus, clear, send);
       }
+
       function renderTeamControls(teamKey) {
         const container = root.querySelector(`.ttm-keypad[data-keypad="${teamKey}"]`);
         const inputEl = teamKey === 'blue' ? els.inputBlue : els.inputRed;
@@ -2151,7 +2295,7 @@ Nil"></textarea></label>
 
       function prepareTournament(players, size) {
         const pool = players.slice(0, size);
-        state.tournament = { round: 1, queue: pool, winners: [], pairIndex: 0, awaitingNext: false };
+        state.tournament = { round: 1, queue: pool, winners: [], awaitingNext: false };
       }
       function setupMatchNames() {
         if (state.gameMode !== 'champ' || !state.tournament) return true;
@@ -2165,9 +2309,7 @@ Nil"></textarea></label>
         const t = state.tournament;
         if (!t) return { finished: true, champion: winnerName };
         t.winners.push(winnerName);
-        if (t.queue.length >= 2) {
-          return { finished: false, next: true };
-        }
+        if (t.queue.length >= 2) return { finished: false, next: true };
         if (t.winners.length === 1) return { finished: true, champion: t.winners[0] };
         t.queue = t.winners.slice();
         t.winners = [];
@@ -2177,12 +2319,20 @@ Nil"></textarea></label>
 
       function startGame() {
         clearInterval(state.timerId);
+        clearTimeout(state.replay.timeoutId);
         if (!setupMatchNames()) return;
         state.running = true;
+        state.replay.active = false;
         state.timeLeft = DURATION;
         state.shooter = null;
-        state.teams.blue.score = 0; state.teams.red.score = 0;
-        state.teams.blue.rawCorrect = 0; state.teams.red.rawCorrect = 0;
+        state.drag = null;
+        state.shotQueue = [];
+        ['blue', 'red'].forEach((teamKey) => {
+          const t = state.teams[teamKey];
+          t.score = 0; t.rawCorrect = 0; t.input = ''; t.streak = 0; t.failStreak = 0; t.blockedUntil = 0; t.bonusShots = 0;
+        });
+        if (els.replay) els.replay.hidden = true;
+        hideAimPreview();
         els.modal.hidden = true; els.result.hidden = true;
         setQuestion('blue'); setQuestion('red');
         resetField(); updateHud(); renderShotState();
@@ -2196,9 +2346,33 @@ Nil"></textarea></label>
         }, 1000);
       }
 
-      function endGame(winnerTeam, reason) {
-        if (!state.running) return;
+      function showGoalReplay() {
+        if (!els.replay || !els.replayPath) return;
+        const { w, h, trail } = state.field;
+        if (!trail.length) return;
+        const points = trail.map((p) => `${((p.x / w) * 100).toFixed(2)},${((p.y / h) * 100).toFixed(2)}`).join(' ');
+        els.replayPath.setAttribute('points', points);
+        els.replay.hidden = false;
+      }
+
+      function endGame(winnerTeam, reason, skipReplay = false) {
+        if (!state.running && !skipReplay) return;
+        if (reason === 'goal' && !skipReplay && !state.replay.active) {
+          state.replay.active = true;
+          state.running = false;
+          clearInterval(state.timerId);
+          state.shooter = null;
+          hideAimPreview();
+          showGoalReplay();
+          state.replay.timeoutId = setTimeout(() => {
+            if (els.replay) els.replay.hidden = true;
+            endGame(winnerTeam, reason, true);
+          }, 2400);
+          return;
+        }
+
         state.running = false;
+        state.replay.active = false;
         clearInterval(state.timerId);
         state.shooter = null;
         let winnerName = 'Empat';
@@ -2223,7 +2397,7 @@ Nil"></textarea></label>
           }
         } else {
           els.winnerTitle.textContent = winnerTeam ? `Gol de ${winnerName}!` : 'Temps esgotat';
-          els.winnerStats.textContent = reason === 'goal' ? 'Partida acabada al primer gol.' : 'S ha acabat el temps de joc.';
+          els.winnerStats.textContent = reason === 'goal' ? 'Replay completat · partida acabada al primer gol.' : 'S ha acabat el temps de joc.';
           els.restartBtn.textContent = 'Tornar a jugar';
         }
         els.result.hidden = false;
@@ -2233,8 +2407,9 @@ Nil"></textarea></label>
         chipEl.addEventListener('pointerdown', (ev) => {
           if (!state.running || state.shooter !== teamKey) return;
           const chip = state.field[teamKey];
-          state.drag = { teamKey, startX: ev.clientX, startY: ev.clientY, chipStartX: chip.x, chipStartY: chip.y };
+          state.drag = { teamKey, startX: ev.clientX, startY: ev.clientY, chipStartX: chip.x, chipStartY: chip.y, pointerId: ev.pointerId };
           chipEl.setPointerCapture(ev.pointerId);
+          updateAimPreview(teamKey, ev.clientX, ev.clientY, ev.clientX, ev.clientY);
         });
         chipEl.addEventListener('pointermove', (ev) => {
           if (!state.drag || state.drag.teamKey !== teamKey) return;
@@ -2243,17 +2418,21 @@ Nil"></textarea></label>
           chip.x = clamp(state.drag.chipStartX + dx, chip.r, state.field.w - chip.r);
           chip.y = clamp(state.drag.chipStartY + dy, chip.r, state.field.h - chip.r);
           renderField();
+          updateAimPreview(teamKey, state.drag.startX, state.drag.startY, ev.clientX, ev.clientY);
         });
         chipEl.addEventListener('pointerup', (ev) => {
           if (!state.drag || state.drag.teamKey !== teamKey) return;
           const chip = state.field[teamKey];
-          const dx = ev.clientX - state.drag.startX, dy = ev.clientY - state.drag.startY;
-          chip.vx = clamp((state.drag.startX - ev.clientX) * 0.16, -14, 14);
-          chip.vy = clamp((state.drag.startY - ev.clientY) * 0.16, -14, 14);
+          const multiplier = getShotMultiplier(teamKey);
+          const base = 0.16 * multiplier;
+          chip.vx = clamp((state.drag.startX - ev.clientX) * base, -16, 16);
+          chip.vy = clamp((state.drag.startY - ev.clientY) * base, -16, 16);
+          hideAimPreview();
           state.drag = null;
           state.shooter = null;
           renderShotState();
         });
+        chipEl.addEventListener('pointercancel', () => { state.drag = null; hideAimPreview(); });
       }
 
       els.moduleSelect?.addEventListener('change', () => {
@@ -2284,12 +2463,12 @@ Nil"></textarea></label>
       });
       els.restartBtn.addEventListener('click', () => {
         if (state.gameMode === 'champ' && state.tournament?.awaitingNext) { state.tournament.awaitingNext = false; startGame(); return; }
-        state.running = false; clearInterval(state.timerId); state.step = 1; state.timeLeft = DURATION; state.tournament = null;
-        els.result.hidden = true; els.modal.hidden = false; updateStepUi(); updateHud(); renderShotState(); resetField();
+        state.running = false; clearInterval(state.timerId); clearTimeout(state.replay.timeoutId); state.step = 1; state.timeLeft = DURATION; state.tournament = null;
+        els.result.hidden = true; els.modal.hidden = false; if (els.replay) els.replay.hidden = true; hideAimPreview(); updateStepUi(); updateHud(); renderShotState(); resetField();
       });
       els.exitBtn?.addEventListener('click', () => {
-        state.running = false; clearInterval(state.timerId); state.step = 1; state.timeLeft = DURATION; state.tournament = null;
-        els.result.hidden = true; els.modal.hidden = false; updateStepUi(); updateHud(); renderShotState(); resetField();
+        state.running = false; clearInterval(state.timerId); clearTimeout(state.replay.timeoutId); state.step = 1; state.timeLeft = DURATION; state.tournament = null;
+        els.result.hidden = true; els.modal.hidden = false; if (els.replay) els.replay.hidden = true; hideAimPreview(); updateStepUi(); updateHud(); renderShotState(); resetField();
         if (typeof showView === 'function') showView('home');
       });
 
@@ -2304,6 +2483,7 @@ Nil"></textarea></label>
       updateStepUi(); updateHud(); renderShotState(); resetField();
     })();
   </script>
+
 
   <!-- 🔹 Lògica principal i generadors de matemàtiques -->
   <script type="module" src="supabase/student-sync.js"></script>
