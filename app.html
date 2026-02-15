@@ -11,10 +11,12 @@
     /* ===== Reptes: Joc de la corda ===== */
     .challenge-section { margin-top: 1rem; }
     .challenge-wrap { border: 1px solid #d7dff5; border-radius: 18px; padding: 1rem; background: #fff; position: relative; overflow: hidden; }
+    .challenge-wrap[hidden] { display:none; }
     .challenge-header { display: grid; gap: .4rem; margin-bottom: .9rem; }
     .challenge-header h2 { margin: 0; }
     .challenge-menu { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
-    .challenge-chip { border: 1px solid #c8d3f6; background: #eef3ff; color: #24449a; border-radius: 999px; padding: .45rem .8rem; font-weight: 700; }
+    .challenge-chip { border: 1px solid #c8d3f6; background: #eef3ff; color: #24449a; border-radius: 999px; padding: .45rem .8rem; font-weight: 700; cursor:pointer; }
+    .challenge-chip[aria-current="true"] { background:#dfe9ff; border-color:#5d7ce8; color:#17398f; }
     .challenge-chip[disabled] { opacity: .55; }
 
     .challenges-hero { border:1px solid #d8e0f4; border-radius:18px; background:#f8faff; padding:1rem; margin-bottom:1rem; }
@@ -115,6 +117,19 @@
     .ttm-result { position: absolute; inset: 0; z-index: 12; display: grid; place-items: center; background: rgba(8, 12, 25, .72); }
     .ttm-result[hidden] { display: none; }
     .ttm-result-card { width: min(520px, calc(100% - 2rem)); background: #fff; border-radius: 16px; padding: 1rem; text-align: center; }
+
+    .cap-turn { border:1px solid #d8e4ff; border-radius:10px; background:#f5f8ff; color:#214184; font-weight:700; padding:.45rem .6rem; text-align:center; margin-bottom:.5rem; }
+    .cap-field { position: relative; min-height: 410px; border-radius: 14px; border:1px solid #dbe4ec; background: linear-gradient(180deg,#4fa766,#3c9053); overflow:hidden; }
+    .cap-midline { position:absolute; left:50%; top:0; bottom:0; width:3px; transform:translateX(-50%); background:rgba(255,255,255,.65); }
+    .cap-goal { position:absolute; top:34%; width:16px; height:32%; background:rgba(255,255,255,.4); border:2px solid rgba(255,255,255,.8); }
+    .cap-goal--left { left:0; border-left:none; border-radius:0 10px 10px 0; }
+    .cap-goal--right { right:0; border-right:none; border-radius:10px 0 0 10px; }
+    .cap-ball,.cap-chip { position:absolute; width:34px; height:34px; border-radius:50%; transform:translate(-50%,-50%); will-change: transform; }
+    .cap-ball { background:#fff8e6; border:2px solid #b88d2c; box-shadow: inset 0 0 0 3px #f4d58d; }
+    .cap-chip--blue { background:#2b86dd; border:2px solid #dbeeff; box-shadow:0 0 0 3px rgba(219,238,255,.45); }
+    .cap-chip--red { background:#d83d3d; border:2px solid #ffe0e0; box-shadow:0 0 0 3px rgba(255,224,224,.45); }
+    .cap-chip.is-active-shot { box-shadow: 0 0 0 4px #ffe082, 0 0 14px rgba(255,224,130,.75); cursor:grab; }
+
 
     @media (max-width: 960px) {
       .challenges-cards { grid-template-columns: 1fr; }
@@ -723,15 +738,15 @@
               <h3>Joc de la corda</h3>
               <p>Duel 1 vs 1 o campionat d'eliminatòries.</p>
             </article>
-            <article class="challenge-card is-soon">
-              <span class="icon">⚡</span>
-              <h3>Repte ràpid</h3>
-              <p>Partides curtes de velocitat. Properament.</p>
+            <article class="challenge-card">
+              <span class="icon">⚽</span>
+              <h3>Joc de les xapes</h3>
+              <p>Resposta correcta = tir de xapa fins al primer gol.</p>
             </article>
             <article class="challenge-card is-soon">
               <span class="icon">🏆</span>
               <h3>Torneig classe</h3>
-              <p>Modalitat de classe amb classificació. Properament.</p>
+              <p>Noves modalitats en preparació. Properament.</p>
             </article>
           </div>
         </section>
@@ -739,12 +754,12 @@
           <div class="challenge-header">
             <p class="portal-section-title">Reptes</p>
             <h2 id="challengesTitle">Jocs per competir en equip</h2>
-            <p class="subtitle">Tria un joc del menú. Primer disponible: <strong>Joc de la corda</strong>.</p>
+            <p class="subtitle">Tria un joc del menú. Disponibles: <strong>Joc de la corda</strong> i <strong>Joc de les xapes</strong>.</p>
           </div>
 
           <div class="challenge-menu" aria-label="Menú de reptes">
             <button class="challenge-chip" type="button" data-challenge="tug" aria-current="true">🪢 Joc de la corda</button>
-            <button class="challenge-chip" type="button" disabled>🧩 Properament</button>
+            <button class="challenge-chip" type="button" data-challenge="caps">⚽ Joc de les xapes</button>
             <button class="challenge-chip" type="button" disabled>🎯 Properament</button>
           </div>
 
@@ -877,6 +892,71 @@ Nil"></textarea>
                 <button class="pill" type="button" id="ttmRestartBtn">Tornar a jugar</button>
               </div>
             </div>
+          </div>
+
+
+          <div class="challenge-wrap" id="capGame" data-challenge-panel="caps" hidden>
+            <div class="ttm-modal" id="capModal" role="dialog" aria-modal="true" aria-labelledby="capSetupTitle">
+              <div class="ttm-card">
+                <p class="ttm-step-label" id="capStepLabel">Pas 1 de 3</p>
+                <h3 id="capSetupTitle" class="ttm-title">Configuració del joc de les xapes</h3>
+                <p class="subtitle">Resposta correcta = 1 tir de xapa. La partida acaba al primer gol.</p>
+                <div class="ttm-step is-active" data-step="1">
+                  <label class="ttm-module-field">Mòdul del repte
+                    <select id="capModuleSelect"><option value="arith">Aritmètica</option><option value="cat-morf">Morfologia</option></select>
+                  </label>
+                </div>
+                <div class="ttm-step" data-step="2">
+                  <p><strong>Configuració de partida</strong></p>
+                  <div class="ttm-grid3">
+                    <button type="button" class="ttm-level is-selected" data-level="easy">🟢 Fàcil</button>
+                    <button type="button" class="ttm-level" data-level="medium">🟡 Mitjà</button>
+                    <button type="button" class="ttm-level" data-level="hard">🔴 Difícil</button>
+                  </div>
+                  <div class="ttm-mode-buttons" role="group" aria-label="Mode de joc">
+                    <button type="button" class="ttm-mode-btn is-active" data-mode="duel">1 vs 1</button>
+                    <button type="button" class="ttm-mode-btn" data-mode="champ">Mode campionat</button>
+                  </div>
+                  <label class="ttm-tour-field" id="capBracketField" hidden>Mida del bracket<select id="capBracketSize"><option value="4">4 jugadors/es</option><option value="8">8 jugadors/es</option></select></label>
+                  <div class="ttm-module-config"><div id="capModuleConfigFields" class="controls"></div></div>
+                  <label class="ttm-tour-field" id="capParticipantsField" hidden>Participants del campionat (una línia per jugador/a)<textarea id="capParticipantsInput" placeholder="Anna
+Marc
+Laia
+Nil"></textarea></label>
+                </div>
+                <div class="ttm-step" data-step="3">
+                  <p><strong>Nom dels equips</strong></p>
+                  <div class="ttm-team-inputs">
+                    <label>Equip 1 (blau)<input id="capBlueNameInput" type="text" maxlength="20" placeholder="Ex: Dracs blaus" /></label>
+                    <label>Equip 2 (vermell)<input id="capRedNameInput" type="text" maxlength="20" placeholder="Ex: Flames roges" /></label>
+                  </div>
+                </div>
+                <p id="capSetupError" class="ttm-error" aria-live="polite"></p>
+                <div class="ttm-actions"><button class="btn-ghost" type="button" id="capPrevStep">Anterior</button><button class="pill" type="button" id="capNextStep">Següent</button></div>
+              </div>
+            </div>
+            <div class="ttm-quick-actions"><button class="ttm-exit-btn" type="button" id="capExitBtn">← Pantalla principal</button></div>
+            <h3 class="ttm-titlebar">JOC DE LES XAPES</h3>
+            <div class="ttm-layout">
+              <section class="ttm-team ttm-team--blue" data-team="blue">
+                <div class="ttm-team-head ttm-team-head--blue"><h3 id="capBluePanelTitle">Equip blau</h3><span class="ttm-team-points" id="capBlueScore">0</span></div>
+                <div class="ttm-team-body"><p class="ttm-question" id="capQuestionBlue">8 + 8 = ?</p><div class="ttm-question-media" id="capMediaBlue"></div><div class="ttm-input" id="capInputBlue">0</div><div class="ttm-keypad" data-keypad="blue"></div></div>
+              </section>
+              <section class="ttm-arena">
+                <div class="ttm-hud">
+                  <div class="ttm-score ttm-score--blue"><strong id="capBlueName">Equip blau</strong><span>Gols</span></div>
+                  <div class="ttm-timer" id="capTimer">02:00</div>
+                  <div class="ttm-score ttm-score--red"><strong id="capRedName">Equip vermell</strong><span>Gols</span></div>
+                </div>
+                <div class="cap-turn" id="capTurnHint">Encerta una pregunta per fer un tir.</div>
+                <div class="cap-field" id="capField"><div class="cap-midline"></div><div class="cap-goal cap-goal--left"></div><div class="cap-goal cap-goal--right"></div><div class="cap-ball" id="capBall"></div><div class="cap-chip cap-chip--blue" id="capChipBlue"></div><div class="cap-chip cap-chip--red" id="capChipRed"></div></div>
+              </section>
+              <section class="ttm-team ttm-team--red" data-team="red">
+                <div class="ttm-team-head ttm-team-head--red"><h3 id="capRedPanelTitle">Equip vermell</h3><span class="ttm-team-points" id="capRedScore">0</span></div>
+                <div class="ttm-team-body"><p class="ttm-question" id="capQuestionRed">7 + 6 = ?</p><div class="ttm-question-media" id="capMediaRed"></div><div class="ttm-input" id="capInputRed">0</div><div class="ttm-keypad" data-keypad="red"></div></div>
+              </section>
+            </div>
+            <div class="ttm-result" id="capResult" hidden><div class="ttm-result-card"><p class="portal-section-title">Partida finalitzada</p><h3 id="capWinnerTitle">Gol!</h3><p id="capWinnerStats"></p><button class="pill" type="button" id="capRestartBtn">Tornar a jugar</button></div></div>
           </div>
         </section>
       </div>
@@ -1408,15 +1488,6 @@ Nil"></textarea>
         state.ropePos = Math.max(-LIMIT, Math.min(LIMIT, (red.rawCorrect - blue.rawCorrect) * 2.2));
       }
 
-
-      function recalculateDuelState() {
-        const blue = state.teams.blue;
-        const red = state.teams.red;
-        blue.score = Math.max(0, blue.rawCorrect - red.rawCorrect);
-        red.score = Math.max(0, red.rawCorrect - blue.rawCorrect);
-        state.ropePos = Math.max(-LIMIT, Math.min(LIMIT, (red.rawCorrect - blue.rawCorrect) * 2.2));
-      }
-
       function updateHud() {
         els.blueName.textContent = `${state.teams.blue.name} · +${state.teams.blue.score}`;
         els.redName.textContent = `${state.teams.red.name} · +${state.teams.red.score}`;
@@ -1725,6 +1796,512 @@ Nil"></textarea>
       updateStepUi();
       updateHud();
       updateRope();
+    })();
+  </script>
+
+
+  <script>
+    // ===== Menú de reptes (canvi de joc) =====
+    (() => {
+      const chips = Array.from(document.querySelectorAll('.challenge-chip[data-challenge]'));
+      const panels = Array.from(document.querySelectorAll('[data-challenge-panel]'));
+      if (!chips.length || !panels.length) return;
+      const activate = (id) => {
+        chips.forEach((chip) => chip.setAttribute('aria-current', chip.dataset.challenge === id ? 'true' : 'false'));
+        panels.forEach((panel) => { panel.hidden = panel.dataset.challengePanel !== id; });
+      };
+      chips.forEach((chip) => chip.addEventListener('click', () => activate(chip.dataset.challenge || 'tug')));
+      activate('tug');
+    })();
+  </script>
+
+  <script>
+    // ===== Lògica del repte: Joc de les xapes =====
+    (() => {
+      const root = document.getElementById('capGame');
+      if (!root) return;
+      const DURATION = 120;
+
+      const state = {
+        step: 1,
+        difficulty: 'easy',
+        moduleId: 'arith',
+        moduleMeta: null,
+        moduleOptions: {},
+        gameMode: 'duel',
+        bracketSize: 4,
+        tournament: null,
+        running: false,
+        timeLeft: DURATION,
+        shooter: null,
+        timerId: null,
+        frameId: null,
+        drag: null,
+        field: {
+          w: 0, h: 0,
+          ball: { x: 0, y: 0, vx: 0, vy: 0, r: 17 },
+          blue: { x: 0, y: 0, vx: 0, vy: 0, r: 17 },
+          red: { x: 0, y: 0, vx: 0, vy: 0, r: 17 }
+        },
+        teams: {
+          blue: { name: 'Equip blau', score: 0, input: '', current: null, rawCorrect: 0 },
+          red: { name: 'Equip vermell', score: 0, input: '', current: null, rawCorrect: 0 }
+        }
+      };
+
+      const els = {
+        modal: document.getElementById('capModal'),
+        stepLabel: document.getElementById('capStepLabel'),
+        steps: Array.from(root.querySelectorAll('.ttm-step')),
+        prevStep: document.getElementById('capPrevStep'),
+        nextStep: document.getElementById('capNextStep'),
+        setupError: document.getElementById('capSetupError'),
+        moduleSelect: document.getElementById('capModuleSelect'),
+        moduleConfigFields: document.getElementById('capModuleConfigFields'),
+        levelButtons: Array.from(root.querySelectorAll('[data-level]')),
+        modeButtons: Array.from(root.querySelectorAll('[data-mode]')),
+        bracketField: document.getElementById('capBracketField'),
+        bracketSize: document.getElementById('capBracketSize'),
+        participantsField: document.getElementById('capParticipantsField'),
+        participantsInput: document.getElementById('capParticipantsInput'),
+        teamInputsWrap: root.querySelector('.ttm-team-inputs'),
+        blueNameInput: document.getElementById('capBlueNameInput'),
+        redNameInput: document.getElementById('capRedNameInput'),
+        blueName: document.getElementById('capBlueName'),
+        redName: document.getElementById('capRedName'),
+        bluePanelTitle: document.getElementById('capBluePanelTitle'),
+        redPanelTitle: document.getElementById('capRedPanelTitle'),
+        blueScore: document.getElementById('capBlueScore'),
+        redScore: document.getElementById('capRedScore'),
+        timer: document.getElementById('capTimer'),
+        turnHint: document.getElementById('capTurnHint'),
+        field: document.getElementById('capField'),
+        ball: document.getElementById('capBall'),
+        chipBlue: document.getElementById('capChipBlue'),
+        chipRed: document.getElementById('capChipRed'),
+        questionBlue: document.getElementById('capQuestionBlue'),
+        questionRed: document.getElementById('capQuestionRed'),
+        mediaBlue: document.getElementById('capMediaBlue'),
+        mediaRed: document.getElementById('capMediaRed'),
+        inputBlue: document.getElementById('capInputBlue'),
+        inputRed: document.getElementById('capInputRed'),
+        result: document.getElementById('capResult'),
+        winnerTitle: document.getElementById('capWinnerTitle'),
+        winnerStats: document.getElementById('capWinnerStats'),
+        restartBtn: document.getElementById('capRestartBtn'),
+        exitBtn: document.getElementById('capExitBtn')
+      };
+
+      const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+      const formatTime = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+      const getRegisteredModules = () => (typeof window.getRegisteredModules === 'function' ? window.getRegisteredModules() : []);
+      const isIntegerLike = (v) => (typeof v === 'number' ? Number.isFinite(v) && Number.isInteger(v) : /^-?\\d+$/.test(String(v || '').trim()));
+
+      function updateStepUi() {
+        els.stepLabel.textContent = `Pas ${state.step} de 3`;
+        els.steps.forEach((node) => node.classList.toggle('is-active', Number(node.dataset.step) === state.step));
+        els.prevStep.disabled = state.step === 1;
+        els.nextStep.textContent = state.step === 3 ? 'Comença el joc' : 'Següent';
+        applyGameModeUi();
+      }
+      function applyGameModeUi() {
+        els.modeButtons.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.mode === state.gameMode));
+        const isChamp = state.gameMode === 'champ';
+        if (els.bracketField) els.bracketField.hidden = !isChamp;
+        if (els.participantsField) els.participantsField.hidden = !isChamp;
+        if (els.teamInputsWrap) els.teamInputsWrap.style.display = isChamp ? 'none' : 'grid';
+      }
+
+      function renderModuleConfigFields() {
+        const box = els.moduleConfigFields;
+        if (!box) return;
+        const mod = getRegisteredModules().find((m) => m.id === state.moduleId) || state.moduleMeta;
+        if (state.moduleId === 'arith') {
+          box.innerHTML = `<div class="section-title">Opcions d'aritmètica</div><div class="controls"><div class="group"><label class="toggle"><input class="check" type="checkbox" id="cap-op-plus" checked> Sumes</label><label class="toggle"><input class="check" type="checkbox" id="cap-op-minus" checked> Restes</label><label class="toggle"><input class="check" type="checkbox" id="cap-op-times" checked> Multiplicacions</label><label class="toggle"><input class="check" type="checkbox" id="cap-op-div" checked> Divisions</label></div></div>`;
+          return;
+        }
+        if (mod?.config && typeof mod.config.render === 'function') {
+          box.innerHTML = '';
+          const rendered = mod.config.render();
+          if (rendered) {
+            box.appendChild(rendered);
+            const basicInput = box.querySelector('input[name="cat-morf-sub"][value="basiques"]');
+            if (basicInput) {
+              basicInput.closest('label')?.remove();
+              if (basicInput.checked) box.querySelector('input[name="cat-morf-sub"]')?.setAttribute('checked', 'checked');
+            }
+          }
+          return;
+        }
+        box.innerHTML = '<span class="subtitle">Aquest mòdul no té opcions extra.</span>';
+      }
+
+      function readModuleOptions() {
+        const options = {};
+        if (state.moduleId === 'arith') {
+          options.ops = [];
+          if (document.getElementById('cap-op-plus')?.checked) options.ops.push('+');
+          if (document.getElementById('cap-op-minus')?.checked) options.ops.push('-');
+          if (document.getElementById('cap-op-times')?.checked) options.ops.push('×');
+          if (document.getElementById('cap-op-div')?.checked) options.ops.push('÷');
+          if (!options.ops.length) options.ops.push('+');
+        } else if (state.moduleMeta?.config && typeof state.moduleMeta.config.collect === 'function') {
+          Object.assign(options, state.moduleMeta.config.collect() || {});
+        }
+        state.moduleOptions = options;
+      }
+
+      function populateModuleOptions() {
+        const allowed = new Set(['arith', 'cat-morf']);
+        const mods = getRegisteredModules().filter((m) => allowed.has(m.id));
+        els.moduleSelect.innerHTML = mods.map((m) => `<option value="${m.id}">${m.name || m.id}</option>`).join('') || '<option value="arith">Aritmètica</option>';
+        if (!mods.some((m) => m.id === state.moduleId)) state.moduleId = mods[0]?.id || 'arith';
+        els.moduleSelect.value = state.moduleId;
+        state.moduleMeta = mods.find((m) => m.id === state.moduleId) || null;
+        renderModuleConfigFields();
+      }
+
+      function createArithmeticQuestion() {
+        const cfg = { easy:[0,20], medium:[-30,60], hard:[-80,140] };
+        const [min,max] = cfg[state.difficulty] || cfg.easy;
+        const ops = state.moduleOptions.ops?.length ? state.moduleOptions.ops : ['+'];
+        const op = ops[randomInt(0, ops.length - 1)];
+        const a = randomInt(min, max), b = randomInt(min, max);
+        if (op === '+') return { q: `${a} + ${b} = ?`, a: String(a + b) };
+        if (op === '-') return { q: `${a} − ${b} = ?`, a: String(a - b) };
+        if (op === '×') return { q: `${a} × ${b} = ?`, a: String(a * b) };
+        const d = randomInt(1, 12), res = randomInt(-12, 12), n = d * res;
+        return { q: `${n} ÷ ${d} = ?`, a: String(res) };
+      }
+
+      function createQuestion() {
+        if (state.moduleId === 'arith') return { ...createArithmeticQuestion(), rawOptions: null, html: '' };
+        const mod = state.moduleMeta || getRegisteredModules().find((m) => m.id === state.moduleId);
+        if (mod?.generator) {
+          const q = mod.generator(state.moduleOptions || {}, state.difficulty);
+          if (q?.q != null && q?.a != null) {
+            if (Array.isArray(q.options) && q.options.length) {
+              const idx = q.options.findIndex((op) => String(op).trim().toLowerCase() === String(q.a).trim().toLowerCase());
+              const html = `<div class="ttm-choice-grid">${q.options.map((label, i) => `<div class="ttm-choice-item"><strong>${i + 1}.</strong> ${label}</div>`).join('')}</div>`;
+              return { q: q.q, a: String(idx >= 0 ? idx + 1 : q.a), rawOptions: q.options.slice(), html: q.html || html };
+            }
+            return { q: q.q, a: String(q.a), rawOptions: null, html: q.html || '' };
+          }
+        }
+        return { q: '2 + 2 = ?', a: '4', rawOptions: null, html: '' };
+      }
+
+      function setQuestion(teamKey) {
+        const t = state.teams[teamKey];
+        t.current = createQuestion();
+        t.input = '';
+        const questionEl = teamKey === 'blue' ? els.questionBlue : els.questionRed;
+        const mediaEl = teamKey === 'blue' ? els.mediaBlue : els.mediaRed;
+        const teamPanel = root.querySelector(`.ttm-team[data-team="${teamKey}"]`);
+        if (questionEl) questionEl.textContent = t.current.q;
+        if (mediaEl) mediaEl.innerHTML = t.current.html || '';
+        if (teamPanel) teamPanel.classList.toggle('is-text-question', state.moduleId === 'cat-morf');
+        renderTeamControls(teamKey);
+      }
+
+      function updateHud() {
+        els.blueName.textContent = state.teams.blue.name;
+        els.redName.textContent = state.teams.red.name;
+        els.bluePanelTitle.textContent = state.teams.blue.name;
+        els.redPanelTitle.textContent = state.teams.red.name;
+        els.blueScore.textContent = String(state.teams.blue.score);
+        els.redScore.textContent = String(state.teams.red.score);
+        els.inputBlue.textContent = state.teams.blue.input || '0';
+        els.inputRed.textContent = state.teams.red.input || '0';
+        els.timer.textContent = formatTime(Math.max(0, state.timeLeft));
+      }
+
+      function renderShotState() {
+        const canBlue = state.running && state.shooter === 'blue';
+        const canRed = state.running && state.shooter === 'red';
+        els.chipBlue.classList.toggle('is-active-shot', canBlue);
+        els.chipRed.classList.toggle('is-active-shot', canRed);
+        if (!state.running) return;
+        if (canBlue) els.turnHint.textContent = `${state.teams.blue.name}: arrossega la xapa blava per xutar.`;
+        else if (canRed) els.turnHint.textContent = `${state.teams.red.name}: arrossega la xapa vermella per xutar.`;
+        else els.turnHint.textContent = 'Encerta una pregunta per fer un tir.';
+      }
+
+      function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+      function refreshFieldSize() {
+        const rect = els.field.getBoundingClientRect();
+        state.field.w = Math.max(320, rect.width || 320);
+        state.field.h = Math.max(240, rect.height || 240);
+      }
+      function resetField() {
+        refreshFieldSize();
+        const { w, h } = state.field;
+        Object.assign(state.field.ball, { x: w / 2, y: h / 2, vx: 0, vy: 0 });
+        Object.assign(state.field.blue, { x: w * 0.24, y: h / 2, vx: 0, vy: 0 });
+        Object.assign(state.field.red, { x: w * 0.76, y: h / 2, vx: 0, vy: 0 });
+        renderField();
+      }
+      function renderField() {
+        const apply = (el, obj) => { if (el) { el.style.left = `${obj.x}px`; el.style.top = `${obj.y}px`; } };
+        apply(els.ball, state.field.ball); apply(els.chipBlue, state.field.blue); apply(els.chipRed, state.field.red);
+      }
+
+      function bounce(obj) {
+        const { w, h } = state.field;
+        obj.x = clamp(obj.x, obj.r, w - obj.r);
+        obj.y = clamp(obj.y, obj.r, h - obj.r);
+        if (obj.x <= obj.r || obj.x >= w - obj.r) obj.vx *= -0.75;
+        if (obj.y <= obj.r || obj.y >= h - obj.r) obj.vy *= -0.75;
+      }
+      function collideChipBall(chip) {
+        const ball = state.field.ball;
+        const dx = ball.x - chip.x, dy = ball.y - chip.y;
+        const dist = Math.hypot(dx, dy) || 0.0001;
+        const minDist = ball.r + chip.r;
+        if (dist >= minDist) return;
+        const nx = dx / dist, ny = dy / dist;
+        const overlap = minDist - dist;
+        ball.x += nx * overlap; ball.y += ny * overlap;
+        const rel = (ball.vx - chip.vx) * nx + (ball.vy - chip.vy) * ny;
+        if (rel < 0) {
+          const impulse = -rel * 1.1;
+          ball.vx += nx * impulse; ball.vy += ny * impulse;
+          chip.vx -= nx * impulse * 0.45; chip.vy -= ny * impulse * 0.45;
+        }
+      }
+
+      function checkGoal() {
+        const { ball, h, w } = state.field;
+        const top = h * 0.34, bottom = h * 0.66;
+        if (ball.y < top || ball.y > bottom) return null;
+        if (ball.x - ball.r <= 0) return 'red';
+        if (ball.x + ball.r >= w) return 'blue';
+        return null;
+      }
+
+      function stepPhysics() {
+        if (!state.running) return;
+        const objs = [state.field.blue, state.field.red, state.field.ball];
+        objs.forEach((o) => { o.x += o.vx; o.y += o.vy; o.vx *= 0.985; o.vy *= 0.985; if (Math.abs(o.vx) < 0.02) o.vx = 0; if (Math.abs(o.vy) < 0.02) o.vy = 0; bounce(o); });
+        collideChipBall(state.field.blue); collideChipBall(state.field.red);
+        const scorer = checkGoal();
+        renderField();
+        if (scorer) endGame(scorer, 'goal');
+      }
+
+      function tick() {
+        stepPhysics();
+        state.frameId = requestAnimationFrame(tick);
+      }
+
+      function parseAnswer(v) { return String(v ?? '').replace(/\s+/g, '').replace(',', '.').toLowerCase(); }
+      function handleAnswer(teamKey) {
+        if (!state.running) return;
+        const t = state.teams[teamKey];
+        const expected = parseAnswer(t.current?.a);
+        const got = parseAnswer(t.input);
+        if (!expected || !got) return;
+        if (expected === got || (isIntegerLike(expected) && isIntegerLike(got) && Number(expected) === Number(got))) {
+          t.rawCorrect += 1;
+          state.shooter = teamKey;
+          setQuestion(teamKey);
+          renderShotState();
+          updateHud();
+          return;
+        }
+        t.input = '';
+        setQuestion(teamKey);
+        updateHud();
+      }
+
+      function pushDigit(teamKey, value) {
+        if (!state.running) return;
+        state.teams[teamKey].input += String(value);
+        updateHud();
+      }
+      function buildKeypad(teamKey, container) {
+        ['7','8','9','4','5','6','1','2','3','0'].forEach((digit) => {
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'ttm-key'; b.textContent = digit;
+          b.addEventListener('click', () => pushDigit(teamKey, digit)); container.appendChild(b);
+        });
+        const minus = document.createElement('button'); minus.type='button'; minus.className='ttm-key ttm-key--minus'; minus.textContent='−';
+        minus.addEventListener('click',()=>{ if(state.moduleId!=='arith' || !state.running) return; const t=state.teams[teamKey]; t.input = t.input.startsWith('-') ? t.input.slice(1) : `-${t.input}`; updateHud(); });
+        const clear = document.createElement('button'); clear.type='button'; clear.className='ttm-key ttm-key--clear'; clear.textContent='Esborrar'; clear.addEventListener('click',()=>{ state.teams[teamKey].input=''; updateHud(); });
+        const send = document.createElement('button'); send.type='button'; send.className='ttm-key ttm-key--send'; send.textContent='Enviar'; send.addEventListener('click',()=>handleAnswer(teamKey));
+        container.append(minus, clear, send);
+      }
+      function renderTeamControls(teamKey) {
+        const container = root.querySelector(`.ttm-keypad[data-keypad="${teamKey}"]`);
+        const inputEl = teamKey === 'blue' ? els.inputBlue : els.inputRed;
+        if (!container) return;
+        const current = state.teams[teamKey].current;
+        const hasChoices = state.moduleId === 'cat-morf' && Array.isArray(current?.rawOptions) && current.rawOptions.length;
+        if (hasChoices) {
+          container.classList.add('is-choices'); container.innerHTML = '';
+          current.rawOptions.forEach((label, i) => {
+            const btn = document.createElement('button'); btn.type='button'; btn.className='ttm-choice-btn'; btn.textContent=`${i + 1}. ${label}`;
+            btn.addEventListener('click',()=>{ if(!state.running) return; state.teams[teamKey].input=String(i+1); handleAnswer(teamKey); });
+            container.appendChild(btn);
+          });
+          if (inputEl) inputEl.style.display = 'none';
+          return;
+        }
+        container.classList.remove('is-choices'); container.innerHTML=''; if (inputEl) inputEl.style.display='block'; buildKeypad(teamKey, container);
+      }
+
+      function prepareTournament(players, size) {
+        const pool = players.slice(0, size);
+        state.tournament = { round: 1, queue: pool, winners: [], pairIndex: 0, awaitingNext: false };
+      }
+      function setupMatchNames() {
+        if (state.gameMode !== 'champ' || !state.tournament) return true;
+        const t = state.tournament;
+        if (t.queue.length < 2) return false;
+        state.teams.blue.name = t.queue.shift();
+        state.teams.red.name = t.queue.shift();
+        return true;
+      }
+      function advanceTournament(winnerName) {
+        const t = state.tournament;
+        if (!t) return { finished: true, champion: winnerName };
+        t.winners.push(winnerName);
+        if (t.queue.length >= 2) {
+          return { finished: false, next: true };
+        }
+        if (t.winners.length === 1) return { finished: true, champion: t.winners[0] };
+        t.queue = t.winners.slice();
+        t.winners = [];
+        t.round += 1;
+        return { finished: false, next: true };
+      }
+
+      function startGame() {
+        clearInterval(state.timerId);
+        if (!setupMatchNames()) return;
+        state.running = true;
+        state.timeLeft = DURATION;
+        state.shooter = null;
+        state.teams.blue.score = 0; state.teams.red.score = 0;
+        state.teams.blue.rawCorrect = 0; state.teams.red.rawCorrect = 0;
+        els.modal.hidden = true; els.result.hidden = true;
+        setQuestion('blue'); setQuestion('red');
+        resetField(); updateHud(); renderShotState();
+        state.timerId = setInterval(() => {
+          if (!state.running) return;
+          state.timeLeft -= 1; updateHud();
+          if (state.timeLeft <= 0) {
+            const winner = state.teams.blue.rawCorrect === state.teams.red.rawCorrect ? null : (state.teams.blue.rawCorrect > state.teams.red.rawCorrect ? 'blue' : 'red');
+            endGame(winner, 'time');
+          }
+        }, 1000);
+      }
+
+      function endGame(winnerTeam, reason) {
+        if (!state.running) return;
+        state.running = false;
+        clearInterval(state.timerId);
+        state.shooter = null;
+        let winnerName = 'Empat';
+        if (winnerTeam && state.teams[winnerTeam]) {
+          state.teams[winnerTeam].score = 1;
+          winnerName = state.teams[winnerTeam].name;
+        }
+        updateHud(); renderShotState();
+
+        if (state.gameMode === 'champ' && winnerTeam) {
+          const progress = advanceTournament(winnerName);
+          if (progress.finished) {
+            els.winnerTitle.textContent = `Campió/na: ${progress.champion}`;
+            els.winnerStats.textContent = `Campionat completat en mode eliminatòries.`;
+            els.restartBtn.textContent = 'Nou campionat';
+            state.tournament = null;
+          } else {
+            state.tournament.awaitingNext = true;
+            els.winnerTitle.textContent = `Guanya ${winnerName}`;
+            els.winnerStats.textContent = 'Preparats per a la següent eliminatòria.';
+            els.restartBtn.textContent = 'Següent eliminatòria';
+          }
+        } else {
+          els.winnerTitle.textContent = winnerTeam ? `Gol de ${winnerName}!` : 'Temps esgotat';
+          els.winnerStats.textContent = reason === 'goal' ? 'Partida acabada al primer gol.' : 'S ha acabat el temps de joc.';
+          els.restartBtn.textContent = 'Tornar a jugar';
+        }
+        els.result.hidden = false;
+      }
+
+      function setupChipDrag(teamKey, chipEl) {
+        chipEl.addEventListener('pointerdown', (ev) => {
+          if (!state.running || state.shooter !== teamKey) return;
+          const chip = state.field[teamKey];
+          state.drag = { teamKey, startX: ev.clientX, startY: ev.clientY, chipStartX: chip.x, chipStartY: chip.y };
+          chipEl.setPointerCapture(ev.pointerId);
+        });
+        chipEl.addEventListener('pointermove', (ev) => {
+          if (!state.drag || state.drag.teamKey !== teamKey) return;
+          const chip = state.field[teamKey];
+          const dx = ev.clientX - state.drag.startX, dy = ev.clientY - state.drag.startY;
+          chip.x = clamp(state.drag.chipStartX + dx, chip.r, state.field.w - chip.r);
+          chip.y = clamp(state.drag.chipStartY + dy, chip.r, state.field.h - chip.r);
+          renderField();
+        });
+        chipEl.addEventListener('pointerup', (ev) => {
+          if (!state.drag || state.drag.teamKey !== teamKey) return;
+          const chip = state.field[teamKey];
+          const dx = ev.clientX - state.drag.startX, dy = ev.clientY - state.drag.startY;
+          chip.vx = clamp((state.drag.startX - ev.clientX) * 0.16, -14, 14);
+          chip.vy = clamp((state.drag.startY - ev.clientY) * 0.16, -14, 14);
+          state.drag = null;
+          state.shooter = null;
+          renderShotState();
+        });
+      }
+
+      els.moduleSelect?.addEventListener('change', () => {
+        state.moduleId = els.moduleSelect.value || 'arith';
+        state.moduleMeta = getRegisteredModules().find((m) => m.id === state.moduleId) || null;
+        renderModuleConfigFields();
+      });
+      els.modeButtons.forEach((btn) => btn.addEventListener('click', () => { state.gameMode = btn.dataset.mode === 'champ' ? 'champ' : 'duel'; applyGameModeUi(); }));
+      els.bracketSize?.addEventListener('change', () => { state.bracketSize = Number(els.bracketSize.value || 4) === 8 ? 8 : 4; });
+      els.levelButtons.forEach((btn) => btn.addEventListener('click', () => { state.difficulty = btn.dataset.level; els.levelButtons.forEach((b) => b.classList.toggle('is-selected', b === btn)); }));
+      els.prevStep.addEventListener('click', () => { state.step = Math.max(1, state.step - 1); els.setupError.textContent = ''; updateStepUi(); });
+      els.nextStep.addEventListener('click', () => {
+        els.setupError.textContent = '';
+        if (state.step < 3) { state.step += 1; updateStepUi(); return; }
+        readModuleOptions();
+        if (state.gameMode === 'champ') {
+          const size = Number(els.bracketSize?.value || 4); state.bracketSize = size === 8 ? 8 : 4;
+          const players = (els.participantsInput.value || '').split('\n').map((v) => v.trim()).filter(Boolean);
+          if (players.length < state.bracketSize) { els.setupError.textContent = `Calen ${state.bracketSize} participants per al campionat.`; return; }
+          prepareTournament(players, state.bracketSize);
+          startGame();
+          return;
+        }
+        const blue = (els.blueNameInput.value || '').trim() || 'Equip blau';
+        const red = (els.redNameInput.value || '').trim() || 'Equip vermell';
+        if (blue.toLowerCase() === red.toLowerCase()) { els.setupError.textContent = 'Els equips han de tenir noms diferents.'; return; }
+        state.teams.blue.name = blue; state.teams.red.name = red; state.tournament = null; startGame();
+      });
+      els.restartBtn.addEventListener('click', () => {
+        if (state.gameMode === 'champ' && state.tournament?.awaitingNext) { state.tournament.awaitingNext = false; startGame(); return; }
+        state.running = false; clearInterval(state.timerId); state.step = 1; state.timeLeft = DURATION; state.tournament = null;
+        els.result.hidden = true; els.modal.hidden = false; updateStepUi(); updateHud(); renderShotState(); resetField();
+      });
+      els.exitBtn?.addEventListener('click', () => {
+        state.running = false; clearInterval(state.timerId); state.step = 1; state.timeLeft = DURATION; state.tournament = null;
+        els.result.hidden = true; els.modal.hidden = false; updateStepUi(); updateHud(); renderShotState(); resetField();
+        if (typeof showView === 'function') showView('home');
+      });
+
+      setupChipDrag('blue', els.chipBlue);
+      setupChipDrag('red', els.chipRed);
+      window.addEventListener('resize', resetField);
+
+      populateModuleOptions();
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', populateModuleOptions, { once: true });
+      else setTimeout(populateModuleOptions, 50);
+      state.frameId = requestAnimationFrame(tick);
+      updateStepUi(); updateHud(); renderShotState(); resetField();
     })();
   </script>
 
