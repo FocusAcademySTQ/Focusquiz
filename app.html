@@ -2297,7 +2297,7 @@ Nil"></textarea></label>
           b.addEventListener('click', () => pushDigit(teamKey, digit)); container.appendChild(b);
         });
         const minus = document.createElement('button'); minus.type='button'; minus.className='ttm-key ttm-key--minus'; minus.textContent='−'; minus.addEventListener('click',()=>pushDigit(teamKey,'-'));
-        const clear = document.createElement('button'); clear.type='button'; clear.className='ttm-key ttm-key--clear'; clear.textContent='Esborrar'; clear.addEventListener('click',()=>{ state.teams[teamKey].input=''; updateHud(); });
+        const clear = document.createElement('button'); clear.type='button'; clear.className='ttm-key ttm-key--clear'; clear.textContent='⌫'; clear.addEventListener('click',()=>{ state.teams[teamKey].input=''; updateHud(); });
         const send = document.createElement('button'); send.type='button'; send.className='ttm-key ttm-key--send'; send.textContent='Enviar'; send.addEventListener('click',()=>handleAnswer(teamKey));
         container.append(minus, clear, send);
       }
