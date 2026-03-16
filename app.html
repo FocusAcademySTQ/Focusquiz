@@ -840,6 +840,16 @@ Nil"></textarea>
                       <input id="ttmRedNameInput" type="text" maxlength="20" placeholder="Ex: Flames roges" />
                     </label>
                   </div>
+                  <label class="ttm-module-field" style="margin-top:.75rem; display:block;">
+                    Personatges del tira-corda
+                    <select id="ttmCharacterModeSelect">
+                      <option value="auto">Automàtic (imatges si existeixen)</option>
+                      <option value="emoji">Només emojis</option>
+                      <option value="team">Imatges separades per equip</option>
+                      <option value="shared">Una sola imatge per als dos equips</option>
+                    </select>
+                  </label>
+                  <p class="subtitle" style="margin:.4rem 0 0;">Rutes suportades: <code>assets/challenges/tug-war-blue.png</code>, <code>assets/challenges/tug-war-red.png</code>, <code>assets/challenges/tug-war.png</code>.</p>
                 </div>
 
                 <p id="ttmSetupError" class="ttm-error" aria-live="polite"></p>
@@ -1270,6 +1280,7 @@ Nil"></textarea></label>
         moduleId: 'arith',
         moduleMeta: null,
         moduleOptions: {},
+        characterMode: 'auto',
         gameMode: 'duel',
         bracketSize: 4,
         tournament: null,
@@ -1308,6 +1319,7 @@ Nil"></textarea></label>
         teamInputsWrap: root.querySelector('.ttm-team-inputs'),
         blueNameInput: document.getElementById('ttmBlueNameInput'),
         redNameInput: document.getElementById('ttmRedNameInput'),
+        characterModeSelect: document.getElementById('ttmCharacterModeSelect'),
         blueName: document.getElementById('ttmBlueName'),
         redName: document.getElementById('ttmRedName'),
         bluePanelTitle: document.getElementById('ttmBluePanelTitle'),
@@ -1356,14 +1368,22 @@ Nil"></textarea></label>
         });
       }
 
+      function getSpriteCandidatesForMode(mode = 'auto') {
+        if (mode === 'emoji') return { blue: [], red: [] };
+        if (mode === 'team') return { blue: ['assets/challenges/tug-war-blue.png'], red: ['assets/challenges/tug-war-red.png'] };
+        if (mode === 'shared') return { blue: ['assets/challenges/tug-war.png'], red: ['assets/challenges/tug-war.png'] };
+        return tuggerSpriteCandidates;
+      }
+
       async function initTuggerSprites() {
         const tuggers = [els.bluePullerA, els.bluePullerB, els.redPullerA, els.redPullerB].filter(Boolean);
         if (!tuggers.length) return;
         const hint = root.querySelector('.ttm-image-hint');
+        const spriteCandidates = getSpriteCandidatesForMode(state.characterMode);
 
         const chosen = {
-          blue: await resolveImageSource(tuggerSpriteCandidates.blue),
-          red: await resolveImageSource(tuggerSpriteCandidates.red)
+          blue: await resolveImageSource(spriteCandidates.blue),
+          red: await resolveImageSource(spriteCandidates.red)
         };
 
         let anyImage = false;
@@ -1383,7 +1403,12 @@ Nil"></textarea></label>
           }
         });
 
-        if (hint) hint.hidden = anyImage;
+        if (hint) {
+          hint.hidden = anyImage;
+          if (!anyImage && state.characterMode !== 'emoji') {
+            hint.innerHTML = `No s'ha trobat cap imatge. Posa fitxers a <code>assets/challenges/tug-war-blue.png</code>, <code>assets/challenges/tug-war-red.png</code> o <code>assets/challenges/tug-war.png</code>.`;
+          }
+        }
       }
 
       function renderModuleConfigFields() {
@@ -1786,6 +1811,13 @@ Nil"></textarea></label>
           state.moduleMeta = getRegisteredModules().find((m) => m.id === state.moduleId) || null;
           toggleOperationButtons();
           renderModuleConfigFields();
+        });
+      }
+
+      if (els.characterModeSelect) {
+        els.characterModeSelect.addEventListener('change', () => {
+          state.characterMode = els.characterModeSelect.value || 'auto';
+          initTuggerSprites();
         });
       }
 
