@@ -126,12 +126,12 @@
     .cap-lockbar { position:relative; height:7px; border-radius:999px; background:#e3e8f4; overflow:hidden; }
     .cap-lockbar i { position:absolute; inset:0; width:0%; background:linear-gradient(90deg,#f97316,#ef4444); transition:width .2s ease; }
     .cap-lock small { font-size:.75rem; color:#334155; font-weight:700; }
-    .cap-field { position: relative; min-height: 410px; border-radius: 14px; border:1px solid #dbe4ec; background: linear-gradient(180deg,#4fa766,#3c9053); overflow:hidden; }
+    .cap-field { position: relative; min-height: 410px; border-radius: 14px; border:1px solid #dbe4ec; background: linear-gradient(180deg,#4fa766,#3c9053); overflow:hidden; touch-action:none; overscroll-behavior:contain; }
     .cap-midline { position:absolute; left:50%; top:0; bottom:0; width:3px; transform:translateX(-50%); background:rgba(255,255,255,.65); }
     .cap-goal { position:absolute; top:34%; width:16px; height:32%; background:rgba(255,255,255,.4); border:2px solid rgba(255,255,255,.8); }
     .cap-goal--left { left:0; border-left:none; border-radius:0 10px 10px 0; }
     .cap-goal--right { right:0; border-right:none; border-radius:10px 0 0 10px; }
-    .cap-ball,.cap-chip { position:absolute; width:34px; height:34px; border-radius:50%; transform:translate(-50%,-50%); will-change: transform; }
+    .cap-ball,.cap-chip { position:absolute; width:34px; height:34px; border-radius:50%; transform:translate(-50%,-50%); will-change: transform; touch-action:none; -webkit-user-select:none; user-select:none; }
     .cap-ball { background:#fff8e6; border:2px solid #b88d2c; box-shadow: inset 0 0 0 3px #f4d58d; }
     .cap-chip--blue { background:#2b86dd; border:2px solid #dbeeff; box-shadow:0 0 0 3px rgba(219,238,255,.45); }
     .cap-chip--red { background:#d83d3d; border:2px solid #ffe0e0; box-shadow:0 0 0 3px rgba(255,224,224,.45); }
@@ -2433,6 +2433,7 @@ Nil"></textarea></label>
 
       function setupChipDrag(teamKey, chipEl) {
         chipEl.addEventListener('pointerdown', (ev) => {
+          ev.preventDefault();
           if (!state.running || state.shooter !== teamKey) return;
           const chip = state.field[teamKey];
           state.drag = { teamKey, startX: ev.clientX, startY: ev.clientY, chipStartX: chip.x, chipStartY: chip.y, pointerId: ev.pointerId };
@@ -2441,6 +2442,7 @@ Nil"></textarea></label>
         });
         chipEl.addEventListener('pointermove', (ev) => {
           if (!state.drag || state.drag.teamKey !== teamKey) return;
+          ev.preventDefault();
           const chip = state.field[teamKey];
           const dx = ev.clientX - state.drag.startX, dy = ev.clientY - state.drag.startY;
           chip.x = clamp(state.drag.chipStartX + dx, chip.r, state.field.w - chip.r);
@@ -2450,6 +2452,7 @@ Nil"></textarea></label>
         });
         chipEl.addEventListener('pointerup', (ev) => {
           if (!state.drag || state.drag.teamKey !== teamKey) return;
+          ev.preventDefault();
           const chip = state.field[teamKey];
           const multiplier = getShotMultiplier(teamKey);
           const base = 0.16 * multiplier;
@@ -2460,7 +2463,7 @@ Nil"></textarea></label>
           state.shooter = null;
           renderShotState();
         });
-        chipEl.addEventListener('pointercancel', () => { state.drag = null; hideAimPreview(); });
+        chipEl.addEventListener('pointercancel', (ev) => { ev.preventDefault(); state.drag = null; hideAimPreview(); });
       }
 
       els.moduleSelect?.addEventListener('change', () => {
