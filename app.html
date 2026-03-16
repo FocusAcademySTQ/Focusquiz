@@ -73,12 +73,11 @@
     .ttm-track { position: absolute; left: 9%; right: 9%; top: 50%; height: 8px; transform: translateY(-50%); border-radius: 999px; background: #1f1f21; }
     .ttm-rope { position: absolute; inset: 0; border-radius: 999px; background: linear-gradient(90deg, #101113, #2c2e33); }
     .ttm-flag { position: absolute; top: 50%; left: 50%; width: 14px; height: 36px; transform: translate(-50%, -50%); border-radius: 2px; background: linear-gradient(#d7393d 0 70%, #9d1f22 70%); transition: left .26s cubic-bezier(.22,.61,.36,1); }
-    .ttm-tugger { position: absolute; top: 53%; font-size: clamp(2.2rem, 4vw, 3.5rem); animation: ttmPull 1.1s ease-in-out infinite alternate; user-select: none; }
+    .ttm-tugger { position: absolute; top: 53%; font-size: clamp(2.2rem, 4vw, 3.5rem); line-height: 1; animation: ttmPull 1.1s ease-in-out infinite alternate; user-select: none; }
     .ttm-tugger--left { left: 6%; }
     .ttm-tugger--left.b { left: 20%; animation-delay: .2s; }
     .ttm-tugger--right { right: 20%; animation-delay: .1s; }
     .ttm-tugger--right.b { right: 6%; animation-delay: .3s; }
-    .ttm-image-hint { position: absolute; left: .7rem; right: .7rem; bottom: .5rem; margin: 0; font-size: .74rem; color: #677088; text-align: center; }
 
     .ttm-team { border: 1px solid #d9e1f8; border-radius: 14px; padding: 0; background: #fbfdff; overflow: hidden; box-shadow: 0 10px 20px rgba(15, 23, 42, .06); }
     .ttm-team--blue { box-shadow: inset 0 0 0 1px rgba(66,126,224,.12); }
@@ -127,12 +126,12 @@
     .cap-lockbar { position:relative; height:7px; border-radius:999px; background:#e3e8f4; overflow:hidden; }
     .cap-lockbar i { position:absolute; inset:0; width:0%; background:linear-gradient(90deg,#f97316,#ef4444); transition:width .2s ease; }
     .cap-lock small { font-size:.75rem; color:#334155; font-weight:700; }
-    .cap-field { position: relative; min-height: 410px; border-radius: 14px; border:1px solid #dbe4ec; background: linear-gradient(180deg,#4fa766,#3c9053); overflow:hidden; }
+    .cap-field { position: relative; min-height: 410px; border-radius: 14px; border:1px solid #dbe4ec; background: linear-gradient(180deg,#4fa766,#3c9053); overflow:hidden; touch-action:none; overscroll-behavior:contain; }
     .cap-midline { position:absolute; left:50%; top:0; bottom:0; width:3px; transform:translateX(-50%); background:rgba(255,255,255,.65); }
     .cap-goal { position:absolute; top:34%; width:16px; height:32%; background:rgba(255,255,255,.4); border:2px solid rgba(255,255,255,.8); }
     .cap-goal--left { left:0; border-left:none; border-radius:0 10px 10px 0; }
     .cap-goal--right { right:0; border-right:none; border-radius:10px 0 0 10px; }
-    .cap-ball,.cap-chip { position:absolute; width:34px; height:34px; border-radius:50%; transform:translate(-50%,-50%); will-change: transform; }
+    .cap-ball,.cap-chip { position:absolute; width:34px; height:34px; border-radius:50%; transform:translate(-50%,-50%); will-change: transform; touch-action:none; -webkit-user-select:none; user-select:none; }
     .cap-ball { background:#fff8e6; border:2px solid #b88d2c; box-shadow: inset 0 0 0 3px #f4d58d; }
     .cap-chip--blue { background:#2b86dd; border:2px solid #dbeeff; box-shadow:0 0 0 3px rgba(219,238,255,.45); }
     .cap-chip--red { background:#d83d3d; border:2px solid #ffe0e0; box-shadow:0 0 0 3px rgba(255,224,224,.45); }
@@ -876,11 +875,10 @@ Nil"></textarea>
                     <div class="ttm-rope"></div>
                     <div class="ttm-flag" id="ttmFlag"></div>
                   </div>
-                  <div class="ttm-tugger ttm-tugger--left" id="ttmBluePullerA">🧍‍♂️</div>
-                  <div class="ttm-tugger ttm-tugger--left b" id="ttmBluePullerB">🧍‍♂️</div>
-                  <div class="ttm-tugger ttm-tugger--right" id="ttmRedPullerA">🧍‍♂️</div>
-                  <div class="ttm-tugger ttm-tugger--right b" id="ttmRedPullerB">🧍‍♂️</div>
-                  <p class="ttm-image-hint">Si vols posar una imatge pròpia de l'animació, desa-la a <code>assets/challenges/tug-war.png</code> i substitueix aquests personatges.</p>
+                  <div class="ttm-tugger ttm-tugger--left" id="ttmBluePullerA" aria-hidden="true">🧍‍♂️</div>
+                  <div class="ttm-tugger ttm-tugger--left b" id="ttmBluePullerB" aria-hidden="true">🧍‍♂️</div>
+                  <div class="ttm-tugger ttm-tugger--right" id="ttmRedPullerA" aria-hidden="true">🧍‍♂️</div>
+                  <div class="ttm-tugger ttm-tugger--right b" id="ttmRedPullerB" aria-hidden="true">🧍‍♂️</div>
                 </div>
               </section>
 
@@ -1317,6 +1315,8 @@ Nil"></textarea></label>
       const formatTime = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
       const getRegisteredModules = () => (typeof window.getRegisteredModules === 'function' ? window.getRegisteredModules() : []);
       const isIntegerLike = (value) => (typeof value === 'number' ? Number.isFinite(value) && Number.isInteger(value) : /^-?\d+$/.test(String(value || '').trim()));
+
+
 
       function renderModuleConfigFields() {
         if (!els.moduleConfigFields) return;
@@ -2405,6 +2405,7 @@ Nil"></textarea></label>
 
       function setupChipDrag(teamKey, chipEl) {
         chipEl.addEventListener('pointerdown', (ev) => {
+          ev.preventDefault();
           if (!state.running || state.shooter !== teamKey) return;
           const chip = state.field[teamKey];
           state.drag = { teamKey, startX: ev.clientX, startY: ev.clientY, chipStartX: chip.x, chipStartY: chip.y, pointerId: ev.pointerId };
@@ -2413,6 +2414,7 @@ Nil"></textarea></label>
         });
         chipEl.addEventListener('pointermove', (ev) => {
           if (!state.drag || state.drag.teamKey !== teamKey) return;
+          ev.preventDefault();
           const chip = state.field[teamKey];
           const dx = ev.clientX - state.drag.startX, dy = ev.clientY - state.drag.startY;
           chip.x = clamp(state.drag.chipStartX + dx, chip.r, state.field.w - chip.r);
@@ -2422,6 +2424,7 @@ Nil"></textarea></label>
         });
         chipEl.addEventListener('pointerup', (ev) => {
           if (!state.drag || state.drag.teamKey !== teamKey) return;
+          ev.preventDefault();
           const chip = state.field[teamKey];
           const multiplier = getShotMultiplier(teamKey);
           const base = 0.16 * multiplier;
@@ -2432,7 +2435,7 @@ Nil"></textarea></label>
           state.shooter = null;
           renderShotState();
         });
-        chipEl.addEventListener('pointercancel', () => { state.drag = null; hideAimPreview(); });
+        chipEl.addEventListener('pointercancel', (ev) => { ev.preventDefault(); state.drag = null; hideAimPreview(); });
       }
 
       els.moduleSelect?.addEventListener('change', () => {
