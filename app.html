@@ -925,7 +925,7 @@ Nil"></textarea>
                 <p class="subtitle">Resposta correcta = 1 tir de xapa. La partida acaba al primer gol.</p>
                 <div class="ttm-step is-active" data-step="1">
                   <label class="ttm-module-field">Mòdul del repte
-                    <select id="capModuleSelect"><option value="arith">Aritmètica</option><option value="cat-morf">Morfologia</option></select>
+                    <select id="capModuleSelect"><option value="arith">Aritmètica</option></select>
                   </label>
                 </div>
                 <div class="ttm-step" data-step="2">
@@ -951,6 +951,26 @@ Nil"></textarea></label>
                   <div class="ttm-team-inputs">
                     <label>Equip 1 (blau)<input id="capBlueNameInput" type="text" maxlength="20" placeholder="Ex: Dracs blaus" /></label>
                     <label>Equip 2 (vermell)<input id="capRedNameInput" type="text" maxlength="20" placeholder="Ex: Flames roges" /></label>
+                  </div>
+                  <div class="ttm-team-inputs" style="margin-top:.65rem;">
+                    <label>Color xapa equip 1
+                      <select id="capBlueChipColor">
+                        <option value="blue" selected>Blau</option>
+                        <option value="green">Verd</option>
+                        <option value="purple">Lila</option>
+                        <option value="orange">Taronja</option>
+                        <option value="red">Vermell</option>
+                      </select>
+                    </label>
+                    <label>Color xapa equip 2
+                      <select id="capRedChipColor">
+                        <option value="red" selected>Vermell</option>
+                        <option value="blue">Blau</option>
+                        <option value="green">Verd</option>
+                        <option value="purple">Lila</option>
+                        <option value="orange">Taronja</option>
+                      </select>
+                    </label>
                   </div>
                 </div>
                 <p id="capSetupError" class="ttm-error" aria-live="polite"></p>
@@ -1900,8 +1920,8 @@ Nil"></textarea></label>
           trail: []
         },
         teams: {
-          blue: { name: 'Equip blau', score: 0, input: '', current: null, rawCorrect: 0, streak: 0, failStreak: 0, blockedUntil: 0, bonusShots: 0 },
-          red: { name: 'Equip vermell', score: 0, input: '', current: null, rawCorrect: 0, streak: 0, failStreak: 0, blockedUntil: 0, bonusShots: 0 }
+          blue: { name: 'Equip blau', score: 0, input: '', current: null, rawCorrect: 0, streak: 0, failStreak: 0, blockedUntil: 0, bonusShots: 0, chipColor: 'blue' },
+          red: { name: 'Equip vermell', score: 0, input: '', current: null, rawCorrect: 0, streak: 0, failStreak: 0, blockedUntil: 0, bonusShots: 0, chipColor: 'red' }
         }
       };
 
@@ -1923,6 +1943,8 @@ Nil"></textarea></label>
         teamInputsWrap: root.querySelector('.ttm-team-inputs'),
         blueNameInput: document.getElementById('capBlueNameInput'),
         redNameInput: document.getElementById('capRedNameInput'),
+        blueChipColor: document.getElementById('capBlueChipColor'),
+        redChipColor: document.getElementById('capRedChipColor'),
         blueName: document.getElementById('capBlueName'),
         redName: document.getElementById('capRedName'),
         bluePanelTitle: document.getElementById('capBluePanelTitle'),
@@ -1964,6 +1986,29 @@ Nil"></textarea></label>
       const isIntegerLike = (v) => (typeof v === 'number' ? Number.isFinite(v) && Number.isInteger(v) : /^-?\d+$/.test(String(v || '').trim()));
       const otherTeam = (teamKey) => (teamKey === 'blue' ? 'red' : 'blue');
       const isTeamBlocked = (teamKey) => Date.now() < (state.teams[teamKey].blockedUntil || 0);
+      const CHIP_COLORS = {
+        blue: { label: 'blava', fill: '#2b86dd', border: '#dbeeff', shadow: 'rgba(219,238,255,.45)' },
+        red: { label: 'vermella', fill: '#d83d3d', border: '#ffe0e0', shadow: 'rgba(255,224,224,.45)' },
+        green: { label: 'verda', fill: '#2f9e44', border: '#d9f8df', shadow: 'rgba(184,244,195,.45)' },
+        purple: { label: 'lila', fill: '#7c3aed', border: '#efe3ff', shadow: 'rgba(222,200,255,.45)' },
+        orange: { label: 'taronja', fill: '#f97316', border: '#ffe7d6', shadow: 'rgba(255,205,168,.45)' }
+      };
+      const getChipTheme = (teamKey) => CHIP_COLORS[state.teams[teamKey]?.chipColor] || CHIP_COLORS[teamKey] || CHIP_COLORS.blue;
+
+      function applyChipColors() {
+        const blueTheme = getChipTheme('blue');
+        const redTheme = getChipTheme('red');
+        if (els.chipBlue) {
+          els.chipBlue.style.background = blueTheme.fill;
+          els.chipBlue.style.borderColor = blueTheme.border;
+          els.chipBlue.style.boxShadow = `0 0 0 3px ${blueTheme.shadow}`;
+        }
+        if (els.chipRed) {
+          els.chipRed.style.background = redTheme.fill;
+          els.chipRed.style.borderColor = redTheme.border;
+          els.chipRed.style.boxShadow = `0 0 0 3px ${redTheme.shadow}`;
+        }
+      }
 
       function updateStepUi() {
         els.stepLabel.textContent = `Pas ${state.step} de 3`;
@@ -1983,44 +2028,21 @@ Nil"></textarea></label>
       function renderModuleConfigFields() {
         const box = els.moduleConfigFields;
         if (!box) return;
-        const mod = getRegisteredModules().find((m) => m.id === state.moduleId) || state.moduleMeta;
-        if (state.moduleId === 'arith') {
-          box.innerHTML = `<div class="section-title">Opcions d'aritmètica</div><div class="controls"><div class="group"><label class="toggle"><input class="check" type="checkbox" id="cap-op-plus" checked> Sumes</label><label class="toggle"><input class="check" type="checkbox" id="cap-op-minus" checked> Restes</label><label class="toggle"><input class="check" type="checkbox" id="cap-op-times" checked> Multiplicacions</label><label class="toggle"><input class="check" type="checkbox" id="cap-op-div" checked> Divisions</label></div></div>`;
-          return;
-        }
-        if (mod?.config && typeof mod.config.render === 'function') {
-          box.innerHTML = '';
-          const rendered = mod.config.render();
-          if (rendered) {
-            box.appendChild(rendered);
-            const basicInput = box.querySelector('input[name="cat-morf-sub"][value="basiques"]');
-            if (basicInput) {
-              basicInput.closest('label')?.remove();
-              if (basicInput.checked) box.querySelector('input[name="cat-morf-sub"]')?.setAttribute('checked', 'checked');
-            }
-          }
-          return;
-        }
-        box.innerHTML = '<span class="subtitle">Aquest mòdul no té opcions extra.</span>';
+        box.innerHTML = `<div class="section-title">Opcions d'aritmètica</div><div class="controls"><div class="group"><label class="toggle"><input class="check" type="checkbox" id="cap-op-plus" checked> Sumes</label><label class="toggle"><input class="check" type="checkbox" id="cap-op-minus" checked> Restes</label><label class="toggle"><input class="check" type="checkbox" id="cap-op-times" checked> Multiplicacions</label><label class="toggle"><input class="check" type="checkbox" id="cap-op-div" checked> Divisions</label></div></div>`;
       }
 
       function readModuleOptions() {
-        const options = {};
-        if (state.moduleId === 'arith') {
-          options.ops = [];
-          if (document.getElementById('cap-op-plus')?.checked) options.ops.push('+');
-          if (document.getElementById('cap-op-minus')?.checked) options.ops.push('-');
-          if (document.getElementById('cap-op-times')?.checked) options.ops.push('×');
-          if (document.getElementById('cap-op-div')?.checked) options.ops.push('÷');
-          if (!options.ops.length) options.ops.push('+');
-        } else if (state.moduleMeta?.config && typeof state.moduleMeta.config.collect === 'function') {
-          Object.assign(options, state.moduleMeta.config.collect() || {});
-        }
+        const options = { ops: [] };
+        if (document.getElementById('cap-op-plus')?.checked) options.ops.push('+');
+        if (document.getElementById('cap-op-minus')?.checked) options.ops.push('-');
+        if (document.getElementById('cap-op-times')?.checked) options.ops.push('×');
+        if (document.getElementById('cap-op-div')?.checked) options.ops.push('÷');
+        if (!options.ops.length) options.ops.push('+');
         state.moduleOptions = options;
       }
 
       function populateModuleOptions() {
-        const allowed = new Set(['arith', 'cat-morf']);
+        const allowed = new Set(['arith']);
         const mods = getRegisteredModules().filter((m) => allowed.has(m.id));
         els.moduleSelect.innerHTML = mods.map((m) => `<option value="${m.id}">${m.name || m.id}</option>`).join('') || '<option value="arith">Aritmètica</option>';
         if (!mods.some((m) => m.id === state.moduleId)) state.moduleId = mods[0]?.id || 'arith';
@@ -2043,20 +2065,7 @@ Nil"></textarea></label>
       }
 
       function createQuestion() {
-        if (state.moduleId === 'arith') return { ...createArithmeticQuestion(), rawOptions: null, html: '' };
-        const mod = state.moduleMeta || getRegisteredModules().find((m) => m.id === state.moduleId);
-        if (mod?.generator) {
-          const q = mod.generator(state.moduleOptions || {}, state.difficulty);
-          if (q?.q != null && q?.a != null) {
-            if (Array.isArray(q.options) && q.options.length) {
-              const idx = q.options.findIndex((op) => String(op).trim().toLowerCase() === String(q.a).trim().toLowerCase());
-              const html = `<div class="ttm-choice-grid">${q.options.map((label, i) => `<div class="ttm-choice-item"><strong>${i + 1}.</strong> ${label}</div>`).join('')}</div>`;
-              return { q: q.q, a: String(idx >= 0 ? idx + 1 : q.a), rawOptions: q.options.slice(), html: q.html || html };
-            }
-            return { q: q.q, a: String(q.a), rawOptions: null, html: q.html || '' };
-          }
-        }
-        return { q: '2 + 2 = ?', a: '4', rawOptions: null, html: '' };
+        return { ...createArithmeticQuestion(), rawOptions: null, html: '' };
       }
 
       function setQuestion(teamKey) {
@@ -2068,7 +2077,6 @@ Nil"></textarea></label>
         const teamPanel = root.querySelector(`.ttm-team[data-team="${teamKey}"]`);
         if (questionEl) questionEl.textContent = t.current.q;
         if (mediaEl) mediaEl.innerHTML = t.current.html || '';
-        if (teamPanel) teamPanel.classList.toggle('is-text-question', state.moduleId === 'cat-morf');
         renderTeamControls(teamKey);
       }
 
@@ -2135,10 +2143,10 @@ Nil"></textarea></label>
         if (!state.running) return;
         if (canBlue) {
           const boost = Math.round((getShotMultiplier('blue') - 1) * 100);
-          els.turnHint.textContent = `${state.teams.blue.name}: arrossega la xapa blava per xutar${boost ? ` (+${boost}% potència)` : ''}.`;
+          els.turnHint.textContent = `${state.teams.blue.name}: arrossega la xapa ${getChipTheme('blue').label} per xutar${boost ? ` (+${boost}% potència)` : ''}.`;
         } else if (canRed) {
           const boost = Math.round((getShotMultiplier('red') - 1) * 100);
-          els.turnHint.textContent = `${state.teams.red.name}: arrossega la xapa vermella per xutar${boost ? ` (+${boost}% potència)` : ''}.`;
+          els.turnHint.textContent = `${state.teams.red.name}: arrossega la xapa ${getChipTheme('red').label} per xutar${boost ? ` (+${boost}% potència)` : ''}.`;
         } else {
           const blockedBlue = isTeamBlocked('blue');
           const blockedRed = isTeamBlocked('red');
@@ -2306,19 +2314,10 @@ Nil"></textarea></label>
         const container = root.querySelector(`.ttm-keypad[data-keypad="${teamKey}"]`);
         const inputEl = teamKey === 'blue' ? els.inputBlue : els.inputRed;
         if (!container) return;
-        const current = state.teams[teamKey].current;
-        const hasChoices = state.moduleId === 'cat-morf' && Array.isArray(current?.rawOptions) && current.rawOptions.length;
-        if (hasChoices) {
-          container.classList.add('is-choices'); container.innerHTML = '';
-          current.rawOptions.forEach((label, i) => {
-            const btn = document.createElement('button'); btn.type='button'; btn.className='ttm-choice-btn'; btn.textContent=`${i + 1}. ${label}`;
-            btn.addEventListener('click',()=>{ if(!state.running) return; state.teams[teamKey].input=String(i+1); handleAnswer(teamKey); });
-            container.appendChild(btn);
-          });
-          if (inputEl) inputEl.style.display = 'none';
-          return;
-        }
-        container.classList.remove('is-choices'); container.innerHTML=''; if (inputEl) inputEl.style.display='block'; buildKeypad(teamKey, container);
+        container.classList.remove('is-choices');
+        container.innerHTML = '';
+        if (inputEl) inputEl.style.display = 'block';
+        buildKeypad(teamKey, container);
       }
 
       function prepareTournament(players, size) {
@@ -2361,6 +2360,7 @@ Nil"></textarea></label>
         });
         if (els.replay) els.replay.hidden = true;
         hideAimPreview();
+        applyChipColors();
         els.modal.hidden = true; els.result.hidden = true;
         setQuestion('blue'); setQuestion('red');
         resetField(); updateHud(); renderShotState();
@@ -2471,6 +2471,8 @@ Nil"></textarea></label>
         state.moduleMeta = getRegisteredModules().find((m) => m.id === state.moduleId) || null;
         renderModuleConfigFields();
       });
+      els.blueChipColor?.addEventListener('change', () => { state.teams.blue.chipColor = els.blueChipColor.value || 'blue'; applyChipColors(); renderShotState(); });
+      els.redChipColor?.addEventListener('change', () => { state.teams.red.chipColor = els.redChipColor.value || 'red'; applyChipColors(); renderShotState(); });
       els.modeButtons.forEach((btn) => btn.addEventListener('click', () => { state.gameMode = btn.dataset.mode === 'champ' ? 'champ' : 'duel'; applyGameModeUi(); }));
       els.bracketSize?.addEventListener('change', () => { state.bracketSize = Number(els.bracketSize.value || 4) === 8 ? 8 : 4; });
       els.levelButtons.forEach((btn) => btn.addEventListener('click', () => { state.difficulty = btn.dataset.level; els.levelButtons.forEach((b) => b.classList.toggle('is-selected', b === btn)); }));
@@ -2490,7 +2492,10 @@ Nil"></textarea></label>
         const blue = (els.blueNameInput.value || '').trim() || 'Equip blau';
         const red = (els.redNameInput.value || '').trim() || 'Equip vermell';
         if (blue.toLowerCase() === red.toLowerCase()) { els.setupError.textContent = 'Els equips han de tenir noms diferents.'; return; }
-        state.teams.blue.name = blue; state.teams.red.name = red; state.tournament = null; startGame();
+        state.teams.blue.name = blue; state.teams.red.name = red;
+        state.teams.blue.chipColor = els.blueChipColor?.value || 'blue';
+        state.teams.red.chipColor = els.redChipColor?.value || 'red';
+        state.tournament = null; startGame();
       });
       els.restartBtn.addEventListener('click', () => {
         if (state.gameMode === 'champ' && state.tournament?.awaitingNext) { state.tournament.awaitingNext = false; startGame(); return; }
@@ -2510,6 +2515,9 @@ Nil"></textarea></label>
       populateModuleOptions();
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', populateModuleOptions, { once: true });
       else setTimeout(populateModuleOptions, 50);
+      state.teams.blue.chipColor = els.blueChipColor?.value || 'blue';
+      state.teams.red.chipColor = els.redChipColor?.value || 'red';
+      applyChipColors();
       state.frameId = requestAnimationFrame(tick);
       updateStepUi(); updateHud(); renderShotState(); resetField();
     })();
