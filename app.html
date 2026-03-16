@@ -73,7 +73,11 @@
     .ttm-track { position: absolute; left: 9%; right: 9%; top: 50%; height: 8px; transform: translateY(-50%); border-radius: 999px; background: #1f1f21; }
     .ttm-rope { position: absolute; inset: 0; border-radius: 999px; background: linear-gradient(90deg, #101113, #2c2e33); }
     .ttm-flag { position: absolute; top: 50%; left: 50%; width: 14px; height: 36px; transform: translate(-50%, -50%); border-radius: 2px; background: linear-gradient(#d7393d 0 70%, #9d1f22 70%); transition: left .26s cubic-bezier(.22,.61,.36,1); }
-    .ttm-tugger { position: absolute; top: 53%; font-size: clamp(2.2rem, 4vw, 3.5rem); animation: ttmPull 1.1s ease-in-out infinite alternate; user-select: none; }
+    .ttm-tugger { position: absolute; top: 53%; width: clamp(58px, 8vw, 92px); height: clamp(58px, 8vw, 92px); animation: ttmPull 1.1s ease-in-out infinite alternate; user-select: none; display:grid; place-items:center; }
+    .ttm-tugger-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .ttm-tugger-emoji { font-size: clamp(2.2rem, 4vw, 3.5rem); line-height: 1; }
+    .ttm-tugger--image .ttm-tugger-emoji { display: none; }
+    .ttm-tugger--emoji .ttm-tugger-img { display: none; }
     .ttm-tugger--left { left: 6%; }
     .ttm-tugger--left.b { left: 20%; animation-delay: .2s; }
     .ttm-tugger--right { right: 20%; animation-delay: .1s; }
@@ -836,6 +840,16 @@ Nil"></textarea>
                       <input id="ttmRedNameInput" type="text" maxlength="20" placeholder="Ex: Flames roges" />
                     </label>
                   </div>
+                  <label class="ttm-module-field" style="margin-top:.75rem; display:block;">
+                    Personatges del tira-corda
+                    <select id="ttmCharacterModeSelect">
+                      <option value="auto">Automàtic (imatges si existeixen)</option>
+                      <option value="emoji">Només emojis</option>
+                      <option value="team">Imatges separades per equip</option>
+                      <option value="shared">Una sola imatge per als dos equips</option>
+                    </select>
+                  </label>
+                  <p class="subtitle" style="margin:.4rem 0 0;">Rutes suportades (extensions: <code>.png</code>, <code>.jpg</code>, <code>.jpeg</code>, <code>.webp</code>): <code>assets/challenges/tug-war-blue.*</code>, <code>assets/challenges/tug-war-red.*</code>, <code>assets/challenges/tug-war.*</code>.</p>
                 </div>
 
                 <p id="ttmSetupError" class="ttm-error" aria-live="polite"></p>
@@ -876,11 +890,23 @@ Nil"></textarea>
                     <div class="ttm-rope"></div>
                     <div class="ttm-flag" id="ttmFlag"></div>
                   </div>
-                  <div class="ttm-tugger ttm-tugger--left" id="ttmBluePullerA">🧍‍♂️</div>
-                  <div class="ttm-tugger ttm-tugger--left b" id="ttmBluePullerB">🧍‍♂️</div>
-                  <div class="ttm-tugger ttm-tugger--right" id="ttmRedPullerA">🧍‍♂️</div>
-                  <div class="ttm-tugger ttm-tugger--right b" id="ttmRedPullerB">🧍‍♂️</div>
-                  <p class="ttm-image-hint">Si vols posar una imatge pròpia de l'animació, desa-la a <code>assets/challenges/tug-war.png</code> i substitueix aquests personatges.</p>
+                  <div class="ttm-tugger ttm-tugger--left ttm-tugger--emoji" id="ttmBluePullerA" data-team="blue">
+                    <img class="ttm-tugger-img" alt="Personatge equip blau" loading="lazy">
+                    <span class="ttm-tugger-emoji" aria-hidden="true">🧍‍♂️</span>
+                  </div>
+                  <div class="ttm-tugger ttm-tugger--left b ttm-tugger--emoji" id="ttmBluePullerB" data-team="blue">
+                    <img class="ttm-tugger-img" alt="Personatge equip blau" loading="lazy">
+                    <span class="ttm-tugger-emoji" aria-hidden="true">🧍‍♂️</span>
+                  </div>
+                  <div class="ttm-tugger ttm-tugger--right ttm-tugger--emoji" id="ttmRedPullerA" data-team="red">
+                    <img class="ttm-tugger-img" alt="Personatge equip vermell" loading="lazy">
+                    <span class="ttm-tugger-emoji" aria-hidden="true">🧍‍♂️</span>
+                  </div>
+                  <div class="ttm-tugger ttm-tugger--right b ttm-tugger--emoji" id="ttmRedPullerB" data-team="red">
+                    <img class="ttm-tugger-img" alt="Personatge equip vermell" loading="lazy">
+                    <span class="ttm-tugger-emoji" aria-hidden="true">🧍‍♂️</span>
+                  </div>
+                  <p class="ttm-image-hint">Pots personalitzar els personatges afegint imatges a <code>assets/challenges/tug-war-blue.(png|jpg|jpeg|webp)</code> i <code>assets/challenges/tug-war-red.(png|jpg|jpeg|webp)</code> (o una de comuna a <code>assets/challenges/tug-war.(png|jpg|jpeg|webp)</code>).</p>
                 </div>
               </section>
 
@@ -1254,6 +1280,7 @@ Nil"></textarea></label>
         moduleId: 'arith',
         moduleMeta: null,
         moduleOptions: {},
+        characterMode: 'auto',
         gameMode: 'duel',
         bracketSize: 4,
         tournament: null,
@@ -1266,6 +1293,14 @@ Nil"></textarea></label>
           blue: { name: 'Equip blau', score: 0, input: '', current: null, rawCorrect: 0 },
           red: { name: 'Equip vermell', score: 0, input: '', current: null, rawCorrect: 0 }
         }
+      };
+
+      const spriteExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+      const buildSpriteCandidates = (name) => spriteExtensions.map((ext) => `assets/challenges/${name}.${ext}`);
+
+      const tuggerSpriteCandidates = {
+        blue: [...buildSpriteCandidates('tug-war-blue'), ...buildSpriteCandidates('tug-war')],
+        red: [...buildSpriteCandidates('tug-war-red'), ...buildSpriteCandidates('tug-war')]
       };
 
       const els = {
@@ -1287,6 +1322,7 @@ Nil"></textarea></label>
         teamInputsWrap: root.querySelector('.ttm-team-inputs'),
         blueNameInput: document.getElementById('ttmBlueNameInput'),
         redNameInput: document.getElementById('ttmRedNameInput'),
+        characterModeSelect: document.getElementById('ttmCharacterModeSelect'),
         blueName: document.getElementById('ttmBlueName'),
         redName: document.getElementById('ttmRedName'),
         bluePanelTitle: document.getElementById('ttmBluePanelTitle'),
@@ -1317,6 +1353,66 @@ Nil"></textarea></label>
       const formatTime = (t) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
       const getRegisteredModules = () => (typeof window.getRegisteredModules === 'function' ? window.getRegisteredModules() : []);
       const isIntegerLike = (value) => (typeof value === 'number' ? Number.isFinite(value) && Number.isInteger(value) : /^-?\d+$/.test(String(value || '').trim()));
+
+      function resolveImageSource(candidates = []) {
+        return new Promise((resolve) => {
+          const tryNext = (idx) => {
+            if (idx >= candidates.length) {
+              resolve(null);
+              return;
+            }
+            const src = candidates[idx];
+            const probe = new Image();
+            probe.onload = () => resolve(src);
+            probe.onerror = () => tryNext(idx + 1);
+            probe.src = src;
+          };
+          tryNext(0);
+        });
+      }
+
+      function getSpriteCandidatesForMode(mode = 'auto') {
+        if (mode === 'emoji') return { blue: [], red: [] };
+        if (mode === 'team') return { blue: buildSpriteCandidates('tug-war-blue'), red: buildSpriteCandidates('tug-war-red') };
+        if (mode === 'shared') return { blue: buildSpriteCandidates('tug-war'), red: buildSpriteCandidates('tug-war') };
+        return tuggerSpriteCandidates;
+      }
+
+      async function initTuggerSprites() {
+        const tuggers = [els.bluePullerA, els.bluePullerB, els.redPullerA, els.redPullerB].filter(Boolean);
+        if (!tuggers.length) return;
+        const hint = root.querySelector('.ttm-image-hint');
+        const spriteCandidates = getSpriteCandidatesForMode(state.characterMode);
+
+        const chosen = {
+          blue: await resolveImageSource(spriteCandidates.blue),
+          red: await resolveImageSource(spriteCandidates.red)
+        };
+
+        let anyImage = false;
+        tuggers.forEach((el) => {
+          const team = el.dataset.team === 'red' ? 'red' : 'blue';
+          const src = chosen[team];
+          const img = el.querySelector('.ttm-tugger-img');
+          if (!img) return;
+          if (src) {
+            img.src = src;
+            el.classList.add('ttm-tugger--image');
+            el.classList.remove('ttm-tugger--emoji');
+            anyImage = true;
+          } else {
+            el.classList.add('ttm-tugger--emoji');
+            el.classList.remove('ttm-tugger--image');
+          }
+        });
+
+        if (hint) {
+          hint.hidden = anyImage;
+          if (!anyImage && state.characterMode !== 'emoji') {
+            hint.innerHTML = `No s'ha trobat cap imatge. Revisa que els noms siguin exactes i en minúscules: <code>assets/challenges/tug-war-blue.(png|jpg|jpeg|webp)</code>, <code>assets/challenges/tug-war-red.(png|jpg|jpeg|webp)</code> o <code>assets/challenges/tug-war.(png|jpg|jpeg|webp)</code>.`;
+          }
+        }
+      }
 
       function renderModuleConfigFields() {
         if (!els.moduleConfigFields) return;
@@ -1721,6 +1817,13 @@ Nil"></textarea></label>
         });
       }
 
+      if (els.characterModeSelect) {
+        els.characterModeSelect.addEventListener('change', () => {
+          state.characterMode = els.characterModeSelect.value || 'auto';
+          initTuggerSprites();
+        });
+      }
+
       els.modeButtons.forEach((btn) => btn.addEventListener('click', () => {
         state.gameMode = btn.dataset.mode === 'champ' ? 'champ' : 'duel';
         applyGameModeUi();
@@ -1820,6 +1923,7 @@ Nil"></textarea></label>
       updateStepUi();
       updateHud();
       updateRope();
+      initTuggerSprites();
     })();
   </script>
 
