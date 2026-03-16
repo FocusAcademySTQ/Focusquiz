@@ -835,6 +835,16 @@ Nil"></textarea>
                       <input id="ttmRedNameInput" type="text" maxlength="20" placeholder="Ex: Flames roges" />
                     </label>
                   </div>
+                  <label class="ttm-module-field" style="margin-top:.75rem; display:block;">
+                    Personatges del tira-corda
+                    <select id="ttmCharacterModeSelect">
+                      <option value="auto">Automàtic (imatges si existeixen)</option>
+                      <option value="emoji">Només emojis</option>
+                      <option value="team">Imatges separades per equip</option>
+                      <option value="shared">Una sola imatge per als dos equips</option>
+                    </select>
+                  </label>
+                  <p class="subtitle" style="margin:.4rem 0 0;">Rutes suportades (extensions: <code>.png</code>, <code>.jpg</code>, <code>.jpeg</code>, <code>.webp</code>): <code>assets/challenges/tug-war-blue.*</code>, <code>assets/challenges/tug-war-red.*</code>, <code>assets/challenges/tug-war.*</code>.</p>
                 </div>
 
                 <p id="ttmSetupError" class="ttm-error" aria-live="polite"></p>
@@ -1252,6 +1262,7 @@ Nil"></textarea></label>
         moduleId: 'arith',
         moduleMeta: null,
         moduleOptions: {},
+        characterMode: 'auto',
         gameMode: 'duel',
         bracketSize: 4,
         tournament: null,
@@ -1264,6 +1275,14 @@ Nil"></textarea></label>
           blue: { name: 'Equip blau', score: 0, input: '', current: null, rawCorrect: 0 },
           red: { name: 'Equip vermell', score: 0, input: '', current: null, rawCorrect: 0 }
         }
+      };
+
+      const spriteExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+      const buildSpriteCandidates = (name) => spriteExtensions.map((ext) => `assets/challenges/${name}.${ext}`);
+
+      const tuggerSpriteCandidates = {
+        blue: [...buildSpriteCandidates('tug-war-blue'), ...buildSpriteCandidates('tug-war')],
+        red: [...buildSpriteCandidates('tug-war-red'), ...buildSpriteCandidates('tug-war')]
       };
 
       const els = {
@@ -1285,6 +1304,7 @@ Nil"></textarea></label>
         teamInputsWrap: root.querySelector('.ttm-team-inputs'),
         blueNameInput: document.getElementById('ttmBlueNameInput'),
         redNameInput: document.getElementById('ttmRedNameInput'),
+        characterModeSelect: document.getElementById('ttmCharacterModeSelect'),
         blueName: document.getElementById('ttmBlueName'),
         redName: document.getElementById('ttmRedName'),
         bluePanelTitle: document.getElementById('ttmBluePanelTitle'),
@@ -1721,6 +1741,13 @@ Nil"></textarea></label>
         });
       }
 
+      if (els.characterModeSelect) {
+        els.characterModeSelect.addEventListener('change', () => {
+          state.characterMode = els.characterModeSelect.value || 'auto';
+          initTuggerSprites();
+        });
+      }
+
       els.modeButtons.forEach((btn) => btn.addEventListener('click', () => {
         state.gameMode = btn.dataset.mode === 'champ' ? 'champ' : 'duel';
         applyGameModeUi();
@@ -1820,6 +1847,7 @@ Nil"></textarea></label>
       updateStepUi();
       updateHud();
       updateRope();
+      initTuggerSprites();
     })();
   </script>
 
