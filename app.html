@@ -29,6 +29,31 @@
     .challenge-card p { margin:0; font-size:.9rem; color:#475467; }
     .challenge-card.is-soon { opacity:.65; }
 
+    .cav-game { position: relative; min-height: 520px; border: 1px solid #dce6ff; border-radius: 16px; overflow: hidden; background: radial-gradient(circle at 50% 10%, #2f3a6f 0%, #121a38 55%, #0b1028 100%); color: #e9eeff; }
+    .cav-hud { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:.6rem; padding:.8rem 1rem; background: rgba(9, 13, 33, .7); border-bottom:1px solid rgba(157,175,255,.24); }
+    .cav-stats { display:flex; flex-wrap:wrap; gap:.5rem; }
+    .cav-pill { border:1px solid rgba(157,175,255,.35); border-radius:999px; padding:.22rem .7rem; font-weight:700; background:rgba(125,143,214,.2); }
+    .cav-arena { position: relative; height: 340px; margin: .9rem; border:1px solid rgba(157,175,255,.24); border-radius: 14px; background: linear-gradient(180deg, rgba(55,70,131,.2), rgba(10,17,44,.75)); overflow: hidden; }
+    .cav-lane { position:absolute; left:20px; right:20px; top:50%; height:2px; transform:translateY(-50%); background: linear-gradient(90deg, rgba(219,230,255,.4), rgba(219,230,255,.12)); }
+    .cav-wizard { position:absolute; left:28px; top:50%; transform:translateY(-50%); font-size:3rem; }
+    .cav-orc { position:absolute; right:18px; top:50%; transform:translateY(-50%); font-size:2.8rem; transition:right .22s linear; }
+    .cav-beam { position:absolute; left:96px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #9be5ff, #ecfdff); box-shadow: 0 0 16px rgba(155,229,255,.75); opacity:0; transition: width .16s ease, opacity .16s ease; }
+    .cav-hit { position:absolute; right:42px; top:42%; font-size:1.1rem; color:#b9ffd8; opacity:0; transform: translateY(0); transition: opacity .2s ease, transform .2s ease; }
+    .cav-controls { padding:0 1rem 1rem; display:grid; gap:.75rem; }
+    .cav-ops { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .cav-op-btn { border:1px solid rgba(157,175,255,.45); border-radius: 999px; background: rgba(33,46,95,.75); color:#eff5ff; padding:.4rem .75rem; font-weight:700; cursor:pointer; }
+    .cav-op-btn.is-active { background:#dce8ff; color:#17398f; border-color:#9bb5ff; }
+    .cav-question-wrap { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; }
+    .cav-question { font-size:1.35rem; font-weight:900; letter-spacing:.02em; }
+    .cav-answer { border:1px solid rgba(157,175,255,.5); border-radius:12px; padding:.52rem .65rem; font:inherit; min-width:120px; background:rgba(12,20,51,.75); color:#fff; }
+    .cav-actions { display:flex; gap:.5rem; }
+    .cav-actions button { border:none; border-radius:12px; padding:.55rem .9rem; font-weight:700; cursor:pointer; }
+    .cav-start { background:#4f7bff; color:#fff; }
+    .cav-check { background:#0fbc82; color:#fff; }
+    .cav-msg { min-height:1.35rem; font-weight:700; color:#c9d7ff; }
+    .cav-msg.is-bad { color:#fecaca; }
+    .cav-msg.is-good { color:#bbf7d0; }
+
     .ttm-mode-buttons { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:.45rem; margin-top:.6rem; }
     .ttm-mode-btn { border:1px solid #c4d2f2; background:#f5f8ff; border-radius:10px; padding:.6rem; font-weight:700; cursor:pointer; }
     .ttm-mode-btn.is-active { background:#e7efff; border-color:#5e7fe8; color:#1f3fa3; }
@@ -152,6 +177,9 @@
       .cap-status { grid-template-columns: 1fr; }
       .ttm-timer { justify-self: start; }
       .ttm-rope-zone { min-height: 300px; }
+      .cav-arena { height: 290px; }
+      .cav-wizard { font-size:2.4rem; }
+      .cav-orc { font-size:2.2rem; }
     }
 
     @keyframes ttmPull {
@@ -756,6 +784,11 @@
               <h3>Joc de les xapes</h3>
               <p>Resposta correcta = tir de xapa fins al primer gol.</p>
             </article>
+            <article class="challenge-card">
+              <span class="icon">🧙</span>
+              <h3>La Caverna</h3>
+              <p>Atura les ordes d'orcs resolent operacions.</p>
+            </article>
             <article class="challenge-card is-soon">
               <span class="icon">🏆</span>
               <h3>Torneig classe</h3>
@@ -767,12 +800,13 @@
           <div class="challenge-header">
             <p class="portal-section-title">Reptes</p>
             <h2 id="challengesTitle">Jocs per competir en equip</h2>
-            <p class="subtitle">Tria un joc del menú. Disponibles: <strong>Joc de la corda</strong> i <strong>Joc de les xapes</strong>.</p>
+            <p class="subtitle">Tria un joc del menú. Disponibles: <strong>Joc de la corda</strong>, <strong>Joc de les xapes</strong> i <strong>La Caverna</strong>.</p>
           </div>
 
           <div class="challenge-menu" aria-label="Menú de reptes">
             <button class="challenge-chip" type="button" data-challenge="tug" aria-current="true">🪢 Joc de la corda</button>
             <button class="challenge-chip" type="button" data-challenge="caps">⚽ Joc de les xapes</button>
+            <button class="challenge-chip" type="button" data-challenge="cave">🧙 La Caverna</button>
             <button class="challenge-chip" type="button" disabled>🎯 Properament</button>
           </div>
 
@@ -1009,6 +1043,46 @@ Nil"></textarea></label>
               </section>
             </div>
             <div class="ttm-result" id="capResult" hidden><div class="ttm-result-card"><p class="portal-section-title">Partida finalitzada</p><h3 id="capWinnerTitle">Gol!</h3><p id="capWinnerStats"></p><button class="pill" type="button" id="capRestartBtn">Tornar a jugar</button></div></div>
+          </div>
+
+          <div class="challenge-wrap" id="caveGame" data-challenge-panel="cave" hidden>
+            <div class="cav-game">
+              <div class="cav-hud">
+                <strong>🧙 La Caverna · mode fàcil</strong>
+                <div class="cav-stats">
+                  <span class="cav-pill" id="cavWave">Onada: 1</span>
+                  <span class="cav-pill" id="cavScore">Punts: 0</span>
+                  <span class="cav-pill" id="cavLives">Vides: 3</span>
+                </div>
+              </div>
+              <div class="cav-arena">
+                <div class="cav-lane"></div>
+                <div class="cav-wizard" aria-hidden="true">🧙‍♂️</div>
+                <div class="cav-beam" id="cavBeam"></div>
+                <div class="cav-hit" id="cavHit">⚡ Orc derrotat!</div>
+                <div class="cav-orc" id="cavOrc" aria-hidden="true">👹</div>
+              </div>
+              <div class="cav-controls">
+                <div>
+                  <p class="subtitle" style="color:#dbe7ff; margin:0 0 .4rem;">Tria operacions (pots activar-ne una o més):</p>
+                  <div class="cav-ops" id="cavOps">
+                    <button type="button" class="cav-op-btn is-active" data-op="add">➕ Sumes</button>
+                    <button type="button" class="cav-op-btn" data-op="sub">➖ Restes</button>
+                    <button type="button" class="cav-op-btn" data-op="mul">✖ Multiplicacions</button>
+                    <button type="button" class="cav-op-btn" data-op="div">➗ Divisions</button>
+                  </div>
+                </div>
+                <div class="cav-question-wrap">
+                  <span class="cav-question" id="cavQuestion">Prem «Comença» per iniciar la partida.</span>
+                  <input class="cav-answer" id="cavAnswer" type="text" inputmode="numeric" placeholder="Resposta" disabled>
+                  <div class="cav-actions">
+                    <button type="button" class="cav-start" id="cavStart">Comença</button>
+                    <button type="button" class="cav-check" id="cavCheck" disabled>Ataca ⚡</button>
+                  </div>
+                </div>
+                <p class="cav-msg" id="cavMsg" aria-live="polite"></p>
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -1884,6 +1958,204 @@ Nil"></textarea></label>
       };
       chips.forEach((chip) => chip.addEventListener('click', () => activate(chip.dataset.challenge || 'tug')));
       activate('tug');
+    })();
+  </script>
+
+  <script>
+    // ===== Lògica del repte: La Caverna =====
+    (() => {
+      const root = document.getElementById('caveGame');
+      if (!root) return;
+
+      const state = {
+        running: false,
+        lives: 3,
+        wave: 1,
+        score: 0,
+        orcDistance: 100,
+        orcStep: 14,
+        answer: null,
+        timerId: null,
+        allowedOps: new Set(['add'])
+      };
+
+      const els = {
+        wave: document.getElementById('cavWave'),
+        score: document.getElementById('cavScore'),
+        lives: document.getElementById('cavLives'),
+        question: document.getElementById('cavQuestion'),
+        answer: document.getElementById('cavAnswer'),
+        start: document.getElementById('cavStart'),
+        check: document.getElementById('cavCheck'),
+        msg: document.getElementById('cavMsg'),
+        orc: document.getElementById('cavOrc'),
+        beam: document.getElementById('cavBeam'),
+        hit: document.getElementById('cavHit'),
+        ops: Array.from(document.querySelectorAll('#cavOps [data-op]'))
+      };
+
+      const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+      const normalize = (value) => String(value || '').trim().replace(',', '.');
+
+      function updateHud() {
+        els.wave.textContent = `Onada: ${state.wave}`;
+        els.score.textContent = `Punts: ${state.score}`;
+        els.lives.textContent = `Vides: ${state.lives}`;
+        els.orc.style.right = `${Math.max(0, state.orcDistance)}%`;
+      }
+
+      function setMessage(text, type = '') {
+        els.msg.textContent = text || '';
+        els.msg.classList.toggle('is-good', type === 'good');
+        els.msg.classList.toggle('is-bad', type === 'bad');
+      }
+
+      function buildQuestion() {
+        const ops = Array.from(state.allowedOps);
+        const op = ops[randomInt(0, ops.length - 1)] || 'add';
+        if (op === 'sub') {
+          const a = randomInt(4, 30);
+          const b = randomInt(1, a);
+          return { text: `${a} - ${b} = ?`, result: a - b };
+        }
+        if (op === 'mul') {
+          const a = randomInt(1, 10);
+          const b = randomInt(1, 10);
+          return { text: `${a} × ${b} = ?`, result: a * b };
+        }
+        if (op === 'div') {
+          const b = randomInt(1, 10);
+          const result = randomInt(1, 10);
+          const a = b * result;
+          return { text: `${a} ÷ ${b} = ?`, result };
+        }
+        const a = randomInt(1, 30);
+        const b = randomInt(1, 30);
+        return { text: `${a} + ${b} = ?`, result: a + b };
+      }
+
+      function castBeam() {
+        els.beam.style.opacity = '1';
+        els.beam.style.width = '72%';
+        els.hit.style.opacity = '1';
+        els.hit.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+          els.beam.style.opacity = '0';
+          els.beam.style.width = '0';
+          els.hit.style.opacity = '0';
+          els.hit.style.transform = 'translateY(0)';
+        }, 180);
+      }
+
+      function moveOrcForward(reason = 'slow') {
+        const progress = reason === 'wrong' ? state.orcStep + 4 : state.orcStep;
+        state.orcDistance = Math.max(0, state.orcDistance - progress);
+        if (state.orcDistance <= 0) {
+          state.lives -= 1;
+          state.orcDistance = 100;
+          if (state.lives <= 0) {
+            endGame();
+            return;
+          }
+          setMessage('L’orc t’ha tocat! Has perdut una vida.', 'bad');
+        }
+        updateHud();
+      }
+
+      function nextTurn() {
+        state.answer = buildQuestion();
+        els.question.textContent = state.answer.text;
+        els.answer.value = '';
+        clearTimeout(state.timerId);
+        state.timerId = setTimeout(() => {
+          if (!state.running) return;
+          moveOrcForward('slow');
+          setMessage('Temps esgotat! L’orc avança.', 'bad');
+          nextTurn();
+        }, 7000);
+      }
+
+      function checkAnswer() {
+        if (!state.running || !state.answer) return;
+        const entered = normalize(els.answer.value);
+        if (!entered) return;
+        const isCorrect = Number(entered) === Number(state.answer.result);
+        if (isCorrect) {
+          state.score += 10;
+          if (state.score % 50 === 0) state.wave += 1;
+          castBeam();
+          state.orcDistance = 100;
+          setMessage('Molt bé! Has derrotat un orc.', 'good');
+          updateHud();
+        } else {
+          moveOrcForward('wrong');
+          setMessage(`Incorrecte. La resposta era ${state.answer.result}.`, 'bad');
+        }
+        nextTurn();
+      }
+
+      function resetState() {
+        clearTimeout(state.timerId);
+        state.running = false;
+        state.lives = 3;
+        state.wave = 1;
+        state.score = 0;
+        state.orcDistance = 100;
+        state.answer = null;
+        els.question.textContent = 'Prem «Comença» per iniciar la partida.';
+        els.answer.value = '';
+        els.answer.disabled = true;
+        els.check.disabled = true;
+        setMessage('');
+        updateHud();
+      }
+
+      function endGame() {
+        clearTimeout(state.timerId);
+        state.running = false;
+        els.answer.disabled = true;
+        els.check.disabled = true;
+        els.question.textContent = 'Partida acabada.';
+        setMessage(`Has arribat a l'onada ${state.wave} amb ${state.score} punts.`, 'bad');
+      }
+
+      els.start?.addEventListener('click', () => {
+        clearTimeout(state.timerId);
+        state.running = true;
+        state.lives = 3;
+        state.wave = 1;
+        state.score = 0;
+        state.orcDistance = 100;
+        els.answer.disabled = false;
+        els.check.disabled = false;
+        els.answer.focus();
+        setMessage('La horda s’acosta... resol per atacar!', 'good');
+        updateHud();
+        nextTurn();
+      });
+
+      els.check?.addEventListener('click', checkAnswer);
+      els.answer?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          checkAnswer();
+        }
+      });
+
+      els.ops.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.op;
+          if (!key) return;
+          if (state.allowedOps.has(key) && state.allowedOps.size > 1) {
+            state.allowedOps.delete(key);
+          } else {
+            state.allowedOps.add(key);
+          }
+          btn.classList.toggle('is-active', state.allowedOps.has(key));
+        });
+      });
+
+      resetState();
     })();
   </script>
 
