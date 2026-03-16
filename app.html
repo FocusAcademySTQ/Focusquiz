@@ -849,7 +849,7 @@ Nil"></textarea>
                       <option value="shared">Una sola imatge per als dos equips</option>
                     </select>
                   </label>
-                  <p class="subtitle" style="margin:.4rem 0 0;">Rutes suportades: <code>assets/challenges/tug-war-blue.png</code>, <code>assets/challenges/tug-war-red.png</code>, <code>assets/challenges/tug-war.png</code>.</p>
+                  <p class="subtitle" style="margin:.4rem 0 0;">Rutes suportades (extensions: <code>.png</code>, <code>.jpg</code>, <code>.jpeg</code>, <code>.webp</code>): <code>assets/challenges/tug-war-blue.*</code>, <code>assets/challenges/tug-war-red.*</code>, <code>assets/challenges/tug-war.*</code>.</p>
                 </div>
 
                 <p id="ttmSetupError" class="ttm-error" aria-live="polite"></p>
@@ -906,7 +906,7 @@ Nil"></textarea>
                     <img class="ttm-tugger-img" alt="Personatge equip vermell" loading="lazy">
                     <span class="ttm-tugger-emoji" aria-hidden="true">🧍‍♂️</span>
                   </div>
-                  <p class="ttm-image-hint">Pots personalitzar els personatges afegint imatges a <code>assets/challenges/tug-war-blue.png</code> i <code>assets/challenges/tug-war-red.png</code> (o una de comuna a <code>assets/challenges/tug-war.png</code>).</p>
+                  <p class="ttm-image-hint">Pots personalitzar els personatges afegint imatges a <code>assets/challenges/tug-war-blue.(png|jpg|jpeg|webp)</code> i <code>assets/challenges/tug-war-red.(png|jpg|jpeg|webp)</code> (o una de comuna a <code>assets/challenges/tug-war.(png|jpg|jpeg|webp)</code>).</p>
                 </div>
               </section>
 
@@ -1295,9 +1295,12 @@ Nil"></textarea></label>
         }
       };
 
+      const spriteExtensions = ['png', 'jpg', 'jpeg', 'webp'];
+      const buildSpriteCandidates = (name) => spriteExtensions.map((ext) => `assets/challenges/${name}.${ext}`);
+
       const tuggerSpriteCandidates = {
-        blue: ['assets/challenges/tug-war-blue.png', 'assets/challenges/tug-war.png'],
-        red: ['assets/challenges/tug-war-red.png', 'assets/challenges/tug-war.png']
+        blue: [...buildSpriteCandidates('tug-war-blue'), ...buildSpriteCandidates('tug-war')],
+        red: [...buildSpriteCandidates('tug-war-red'), ...buildSpriteCandidates('tug-war')]
       };
 
       const els = {
@@ -1370,8 +1373,8 @@ Nil"></textarea></label>
 
       function getSpriteCandidatesForMode(mode = 'auto') {
         if (mode === 'emoji') return { blue: [], red: [] };
-        if (mode === 'team') return { blue: ['assets/challenges/tug-war-blue.png'], red: ['assets/challenges/tug-war-red.png'] };
-        if (mode === 'shared') return { blue: ['assets/challenges/tug-war.png'], red: ['assets/challenges/tug-war.png'] };
+        if (mode === 'team') return { blue: buildSpriteCandidates('tug-war-blue'), red: buildSpriteCandidates('tug-war-red') };
+        if (mode === 'shared') return { blue: buildSpriteCandidates('tug-war'), red: buildSpriteCandidates('tug-war') };
         return tuggerSpriteCandidates;
       }
 
@@ -1406,7 +1409,7 @@ Nil"></textarea></label>
         if (hint) {
           hint.hidden = anyImage;
           if (!anyImage && state.characterMode !== 'emoji') {
-            hint.innerHTML = `No s'ha trobat cap imatge. Posa fitxers a <code>assets/challenges/tug-war-blue.png</code>, <code>assets/challenges/tug-war-red.png</code> o <code>assets/challenges/tug-war.png</code>.`;
+            hint.innerHTML = `No s'ha trobat cap imatge. Revisa que els noms siguin exactes i en minúscules: <code>assets/challenges/tug-war-blue.(png|jpg|jpeg|webp)</code>, <code>assets/challenges/tug-war-red.(png|jpg|jpeg|webp)</code> o <code>assets/challenges/tug-war.(png|jpg|jpeg|webp)</code>.`;
           }
         }
       }
