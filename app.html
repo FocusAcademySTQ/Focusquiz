@@ -1062,7 +1062,22 @@ Nil"></textarea></label>
                 <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" id="cavWizardSprite" src="assets/challenges/cave-wizard-idle.svg" alt="Mag" /></div>
                 <div class="cav-beam" id="cavBeam"></div>
                 <div class="cav-hit" id="cavHit">⚡ Orc derrotat!</div>
-                <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc.svg" alt="Orc" /></div>
+                <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc.png" alt="Orc" /></div>
+              </div>
+              <div class="cav-keypad cav-keypad--inline" id="cavKeypad" aria-label="Teclat numèric de la Caverna">
+                <button type="button" data-key="1">1</button>
+                <button type="button" data-key="2">2</button>
+                <button type="button" data-key="3">3</button>
+                <button type="button" data-key="4">4</button>
+                <button type="button" data-key="5">5</button>
+                <button type="button" data-key="6">6</button>
+                <button type="button" data-key="7">7</button>
+                <button type="button" data-key="8">8</button>
+                <button type="button" data-key="9">9</button>
+                <button type="button" data-action="clear">C</button>
+                <button type="button" data-key="0">0</button>
+                <button type="button" data-action="back">⌫</button>
+                <button type="button" data-action="ok">OK</button>
               </div>
               <div class="cav-keypad cav-keypad--inline" id="cavKeypad" aria-label="Teclat numèric de la Caverna">
                 <button type="button" data-key="1">1</button>
@@ -1096,6 +1111,13 @@ Nil"></textarea></label>
                     <button type="button" class="cav-start" id="cavStart">Comença</button>
                     <button type="button" class="cav-check" id="cavCheck" disabled>Ataca ⚡</button>
                   </div>
+                </div>
+                <div class="cav-keypad" id="cavKeypad" aria-label="Teclat numèric de la caverna">
+                  <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button>
+                  <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button>
+                  <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button>
+                  <button type="button" data-action="clear">C</button><button type="button" data-key="0">0</button><button type="button" data-action="back">⌫</button>
+                  <button type="button" data-key="-">−</button><button type="button" data-key=".">.</button><button type="button" data-action="ok">OK</button>
                 </div>
                 <p class="cav-msg" id="cavMsg" aria-live="polite"></p>
               </div>
@@ -2003,7 +2025,7 @@ Nil"></textarea></label>
         wave: 1,
         score: 0,
         orcX: 88,
-        orcBaseSpeed: 8.8,
+        orcBaseSpeed: 6.1,
         answer: null,
         timerId: null,
         frameId: null,
@@ -2011,6 +2033,7 @@ Nil"></textarea></label>
         orcStepFrameIndex: 0,
         orcStepFrameTimer: 0,
         orcStepFramesReady: false,
+        wizardSpritesReady: false,
         allowedOps: new Set(['add'])
       };
 
@@ -2135,12 +2158,13 @@ Nil"></textarea></label>
           els.beam.style.width = '0';
           els.hit.style.opacity = '0';
           els.hit.style.transform = 'translateY(0)';
+          setWizardSprite('normal');
         }, 180);
         wizardResetTimer = setTimeout(() => setWizardSprite('idle'), 420);
       }
 
       function moveOrcForward(reason = 'slow') {
-        const progress = reason === 'wrong' ? 9 : 4;
+        const progress = reason === 'wrong' ? 6 : 3;
         state.orcX = Math.max(ORC_END_X, state.orcX - progress);
         if (state.orcX <= ORC_END_X) {
           state.lives -= 1;
@@ -2241,6 +2265,7 @@ Nil"></textarea></label>
         els.check.disabled = true;
         setWizardSprite('idle');
         setMessage('');
+        setWizardSprite('normal');
         updateHud();
       }
 
@@ -2253,6 +2278,7 @@ Nil"></textarea></label>
         setWizardSprite('idle');
         els.question.textContent = 'Partida acabada.';
         setMessage(`Has arribat a l'onada ${state.wave} amb ${state.score} punts.`, 'bad');
+        setWizardSprite('normal');
       }
 
       els.start?.addEventListener('click', () => {
@@ -2316,6 +2342,7 @@ Nil"></textarea></label>
       });
 
       setupOrcStepFrames();
+      preloadWizardSprites();
       resetState();
     })();
   </script>
