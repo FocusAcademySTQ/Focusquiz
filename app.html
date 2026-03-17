@@ -56,9 +56,9 @@
     .cav-question { font-size:1.35rem; font-weight:900; letter-spacing:.02em; }
     .cav-answer { border:1px solid rgba(157,175,255,.5); border-radius:12px; padding:.52rem .65rem; font:inherit; min-width:120px; background:rgba(12,20,51,.75); color:#fff; }
     .cav-actions { display:flex; gap:.5rem; }
-    .cav-keypad { display:grid; grid-template-columns: 1fr; gap:.35rem; width: min(86px, 100%); }
-    .cav-keypad--inline { display:grid; grid-template-columns: 1fr; gap:.35rem; padding:0 1rem .35rem; justify-content:center; }
-    .cav-keypad--inline button { min-width:56px; }
+    .cav-keypad { display:grid; grid-template-columns: repeat(9, minmax(44px, 1fr)); gap:.35rem; width:100%; }
+    .cav-keypad--inline { display:grid; grid-template-columns: repeat(9, minmax(44px, 1fr)); gap:.35rem; padding:0 1rem .35rem; justify-content:center; }
+    .cav-keypad--inline button { min-width:44px; }
     .cav-keypad button { border:1px solid rgba(157,175,255,.45); border-radius:10px; padding:.5rem; font-weight:700; background:rgba(33,46,95,.75); color:#eff5ff; cursor:pointer; }
     .cav-keypad button[data-action="ok"] { background:#0fbc82; border-color:#0fbc82; }
     .cav-actions button { border:none; border-radius:12px; padding:.55rem .9rem; font-weight:700; cursor:pointer; }
