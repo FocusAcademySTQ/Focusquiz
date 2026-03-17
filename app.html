@@ -46,7 +46,7 @@
     .cav-wizard { position:absolute; left:24px; top:50%; transform:translateY(-50%); width:92px; height:110px; }
     .cav-orc { position:absolute; left:88%; top:50%; transform:translateY(-50%); width:90px; height:108px; }
     .cav-character-img { display:block; width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
-    .cav-beam { position:absolute; left:112px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #ff6b6b, #ffe2e2); box-shadow: 0 0 16px rgba(255,97,97,.78); opacity:0; transition: width .16s ease, opacity .16s ease; }
+    .cav-beam { position:absolute; left:112px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #ff9b9b, #ff2d55); box-shadow: 0 0 16px rgba(255,80,120,.8); opacity:0; transition: width .16s ease, opacity .16s ease; }
     .cav-hit { position:absolute; right:42px; top:42%; font-size:1.1rem; color:#b9ffd8; opacity:0; transform: translateY(0); transition: opacity .2s ease, transform .2s ease; }
     .cav-controls { padding:0 1rem 1rem; display:grid; gap:.75rem; }
     .cav-ops { display:flex; flex-wrap:wrap; gap:.4rem; }
@@ -810,7 +810,7 @@
             </article>
           </div>
         </section>
-<section id="challengesSection" class="panel card challenge-section" aria-labelledby="challengesTitle">
+<section id="challengesSection" class="panel card challenge-section" aria-label="Jocs de reptes">
           <div class="challenge-wrap" id="ttmGame" data-challenge-panel="tug">
             <!-- Modal de configuració inicial (3 passos) -->
             <div class="ttm-modal" id="ttmModal" role="dialog" aria-modal="true" aria-labelledby="ttmSetupTitle">
@@ -1058,7 +1058,7 @@ Nil"></textarea></label>
               </div>
               <div class="cav-arena">
                 <div class="cav-lane"></div>
-                <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" id="cavWizardSprite" src="assets/challenges/cave-wizard-idle.png" alt="Mag" /></div>
+                <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" id="cavWizardSprite" src="assets/challenges/cave-wizard.svg" alt="Mag" /></div>
                 <div class="cav-beam" id="cavBeam"></div>
                 <div class="cav-hit" id="cavHit">⚡ Orc derrotat!</div>
                 <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc.png" alt="Orc" /></div>
@@ -1095,6 +1095,13 @@ Nil"></textarea></label>
                     <button type="button" class="cav-start" id="cavStart">Comença</button>
                     <button type="button" class="cav-check" id="cavCheck" disabled>Ataca ⚡</button>
                   </div>
+                </div>
+                <div class="cav-keypad" id="cavKeypad" aria-label="Teclat numèric de la caverna">
+                  <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button>
+                  <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button>
+                  <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button>
+                  <button type="button" data-action="clear">C</button><button type="button" data-key="0">0</button><button type="button" data-action="back">⌫</button>
+                  <button type="button" data-key="-">−</button><button type="button" data-key=".">.</button><button type="button" data-action="ok">OK</button>
                 </div>
                 <p class="cav-msg" id="cavMsg" aria-live="polite"></p>
               </div>
@@ -2002,7 +2009,7 @@ Nil"></textarea></label>
         wave: 1,
         score: 0,
         orcX: 88,
-        orcBaseSpeed: 8.8,
+        orcBaseSpeed: 6.1,
         answer: null,
         timerId: null,
         frameId: null,
@@ -2010,6 +2017,7 @@ Nil"></textarea></label>
         orcStepFrameIndex: 0,
         orcStepFrameTimer: 0,
         orcStepFramesReady: false,
+        wizardSpritesReady: false,
         allowedOps: new Set(['add'])
       };
 
@@ -2030,8 +2038,8 @@ Nil"></textarea></label>
         orcSprite: document.getElementById('cavOrcSprite'),
         beam: document.getElementById('cavBeam'),
         hit: document.getElementById('cavHit'),
-        wizardSprite: document.getElementById('cavWizardSprite'),
-        ops: Array.from(document.querySelectorAll('#cavOps [data-op]'))
+        ops: Array.from(document.querySelectorAll('#cavOps [data-op]')),
+        wizardSprite: document.getElementById('cavWizardSprite')
       };
 
       const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -2043,13 +2051,30 @@ Nil"></textarea></label>
       ];
 
       const WIZARD_SPRITES = {
-        idle: 'assets/challenges/cave-wizard-idle.png',
+        normal: 'assets/challenges/cave-wizard-normal.png',
         cast: 'assets/challenges/cave-wizard-cast.png'
       };
 
-      function setWizardSprite(mode = 'idle') {
-        if (!els.wizardSprite) return;
-        els.wizardSprite.src = WIZARD_SPRITES[mode] || WIZARD_SPRITES.idle;
+      function setWizardSprite(mode = 'normal') {
+        if (!els.wizardSprite || !state.wizardSpritesReady) return;
+        const next = mode === 'cast' ? WIZARD_SPRITES.cast : WIZARD_SPRITES.normal;
+        if (els.wizardSprite.src.endsWith(next)) return;
+        els.wizardSprite.src = next;
+      }
+
+      function preloadWizardSprites() {
+        const preloads = Object.values(WIZARD_SPRITES).map((src) => new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = src;
+        }));
+        Promise.all(preloads).then(() => {
+          state.wizardSpritesReady = true;
+          setWizardSprite('normal');
+        }).catch(() => {
+          state.wizardSpritesReady = false;
+        });
       }
 
       function setOrcStepFrame(index = 0) {
@@ -2131,12 +2156,12 @@ Nil"></textarea></label>
           els.beam.style.width = '0';
           els.hit.style.opacity = '0';
           els.hit.style.transform = 'translateY(0)';
-          setWizardSprite('idle');
+          setWizardSprite('normal');
         }, 180);
       }
 
       function moveOrcForward(reason = 'slow') {
-        const progress = reason === 'wrong' ? 9 : 4;
+        const progress = reason === 'wrong' ? 6 : 3;
         state.orcX = Math.max(ORC_END_X, state.orcX - progress);
         if (state.orcX <= ORC_END_X) {
           state.lives -= 1;
@@ -2237,6 +2262,7 @@ Nil"></textarea></label>
         els.check.disabled = true;
         setWizardSprite('idle');
         setMessage('');
+        setWizardSprite('normal');
         updateHud();
       }
 
@@ -2249,6 +2275,7 @@ Nil"></textarea></label>
         setWizardSprite('idle');
         els.question.textContent = 'Partida acabada.';
         setMessage(`Has arribat a l'onada ${state.wave} amb ${state.score} punts.`, 'bad');
+        setWizardSprite('normal');
       }
 
       els.start?.addEventListener('click', () => {
@@ -2312,6 +2339,7 @@ Nil"></textarea></label>
       });
 
       setupOrcStepFrames();
+      preloadWizardSprites();
       resetState();
     })();
   </script>
