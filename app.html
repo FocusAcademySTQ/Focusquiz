@@ -35,9 +35,10 @@
     .cav-pill { border:1px solid rgba(157,175,255,.35); border-radius:999px; padding:.22rem .7rem; font-weight:700; background:rgba(125,143,214,.2); }
     .cav-arena { position: relative; height: 340px; margin: .9rem; border:1px solid rgba(157,175,255,.24); border-radius: 14px; background: linear-gradient(180deg, rgba(55,70,131,.2), rgba(10,17,44,.75)); overflow: hidden; }
     .cav-lane { position:absolute; left:20px; right:20px; top:50%; height:2px; transform:translateY(-50%); background: linear-gradient(90deg, rgba(219,230,255,.4), rgba(219,230,255,.12)); }
-    .cav-wizard { position:absolute; left:28px; top:50%; transform:translateY(-50%); font-size:3rem; }
-    .cav-orc { position:absolute; left:88%; top:50%; transform:translateY(-50%); font-size:2.8rem; }
-    .cav-beam { position:absolute; left:96px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #9be5ff, #ecfdff); box-shadow: 0 0 16px rgba(155,229,255,.75); opacity:0; transition: width .16s ease, opacity .16s ease; }
+    .cav-wizard { position:absolute; left:24px; top:50%; transform:translateY(-50%); width:92px; height:110px; }
+    .cav-orc { position:absolute; left:88%; top:50%; transform:translateY(-50%); width:90px; height:108px; }
+    .cav-character-img { display:block; width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
+    .cav-beam { position:absolute; left:112px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #9be5ff, #ecfdff); box-shadow: 0 0 16px rgba(155,229,255,.75); opacity:0; transition: width .16s ease, opacity .16s ease; }
     .cav-hit { position:absolute; right:42px; top:42%; font-size:1.1rem; color:#b9ffd8; opacity:0; transform: translateY(0); transition: opacity .2s ease, transform .2s ease; }
     .cav-controls { padding:0 1rem 1rem; display:grid; gap:.75rem; }
     .cav-ops { display:flex; flex-wrap:wrap; gap:.4rem; }
@@ -178,8 +179,8 @@
       .ttm-timer { justify-self: start; }
       .ttm-rope-zone { min-height: 300px; }
       .cav-arena { height: 290px; }
-      .cav-wizard { font-size:2.4rem; }
-      .cav-orc { font-size:2.2rem; }
+      .cav-wizard { width:74px; height:90px; left:18px; }
+      .cav-orc { width:74px; height:90px; }
     }
 
     @keyframes ttmPull {
@@ -1057,10 +1058,10 @@ Nil"></textarea></label>
               </div>
               <div class="cav-arena">
                 <div class="cav-lane"></div>
-                <div class="cav-wizard" aria-hidden="true">🧙‍♂️</div>
+                <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" src="assets/challenges/cave-wizard.svg" alt="Mag" /></div>
                 <div class="cav-beam" id="cavBeam"></div>
                 <div class="cav-hit" id="cavHit">⚡ Orc derrotat!</div>
-                <div class="cav-orc" id="cavOrc" aria-hidden="true">👹</div>
+                <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" src="assets/challenges/cave-orc.svg" alt="Orc" /></div>
               </div>
               <div class="cav-controls">
                 <div>
