@@ -12,6 +12,13 @@
     .challenge-section { margin-top: 1rem; }
     .challenge-wrap { border: 1px solid #d7dff5; border-radius: 18px; padding: 1rem; background: #fff; position: relative; overflow: hidden; }
     .challenge-wrap[hidden] { display:none; }
+    body.embedded-challenges .topbar,
+    body.embedded-challenges #view-home,
+    body.embedded-challenges #view-config,
+    body.embedded-challenges #view-quiz,
+    body.embedded-challenges #view-results,
+    body.embedded-challenges #view-about { display:none !important; }
+    body.embedded-challenges #view-challenges { display:block !important; }
     .challenge-header { display: grid; gap: .4rem; margin-bottom: .9rem; }
     .challenge-header h2 { margin: 0; }
     .challenge-menu { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
@@ -27,6 +34,7 @@
     .challenge-card .icon { font-size:1.4rem; }
     .challenge-card h3 { margin:0; font-size:1rem; }
     .challenge-card p { margin:0; font-size:.9rem; color:#475467; }
+    .challenge-card[data-open-challenge] { cursor:pointer; }
     .challenge-card.is-soon { opacity:.65; }
 
     .cav-game { position: relative; min-height: 520px; border: 1px solid #dce6ff; border-radius: 16px; overflow: hidden; background: radial-gradient(circle at 50% 10%, #2f3a6f 0%, #121a38 55%, #0b1028 100%); color: #e9eeff; }
@@ -35,9 +43,10 @@
     .cav-pill { border:1px solid rgba(157,175,255,.35); border-radius:999px; padding:.22rem .7rem; font-weight:700; background:rgba(125,143,214,.2); }
     .cav-arena { position: relative; height: 340px; margin: .9rem; border:1px solid rgba(157,175,255,.24); border-radius: 14px; background: linear-gradient(180deg, rgba(55,70,131,.2), rgba(10,17,44,.75)); overflow: hidden; }
     .cav-lane { position:absolute; left:20px; right:20px; top:50%; height:2px; transform:translateY(-50%); background: linear-gradient(90deg, rgba(219,230,255,.4), rgba(219,230,255,.12)); }
-    .cav-wizard { position:absolute; left:28px; top:50%; transform:translateY(-50%); font-size:3rem; }
-    .cav-orc { position:absolute; right:18px; top:50%; transform:translateY(-50%); font-size:2.8rem; transition:right .22s linear; }
-    .cav-beam { position:absolute; left:96px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #9be5ff, #ecfdff); box-shadow: 0 0 16px rgba(155,229,255,.75); opacity:0; transition: width .16s ease, opacity .16s ease; }
+    .cav-wizard { position:absolute; left:24px; top:50%; transform:translateY(-50%); width:92px; height:110px; }
+    .cav-orc { position:absolute; left:88%; top:50%; transform:translateY(-50%); width:90px; height:108px; }
+    .cav-character-img { display:block; width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
+    .cav-beam { position:absolute; left:112px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #9be5ff, #ecfdff); box-shadow: 0 0 16px rgba(155,229,255,.75); opacity:0; transition: width .16s ease, opacity .16s ease; }
     .cav-hit { position:absolute; right:42px; top:42%; font-size:1.1rem; color:#b9ffd8; opacity:0; transform: translateY(0); transition: opacity .2s ease, transform .2s ease; }
     .cav-controls { padding:0 1rem 1rem; display:grid; gap:.75rem; }
     .cav-ops { display:flex; flex-wrap:wrap; gap:.4rem; }
@@ -47,6 +56,9 @@
     .cav-question { font-size:1.35rem; font-weight:900; letter-spacing:.02em; }
     .cav-answer { border:1px solid rgba(157,175,255,.5); border-radius:12px; padding:.52rem .65rem; font:inherit; min-width:120px; background:rgba(12,20,51,.75); color:#fff; }
     .cav-actions { display:flex; gap:.5rem; }
+    .cav-keypad { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:.35rem; max-width:280px; }
+    .cav-keypad button { border:1px solid rgba(157,175,255,.45); border-radius:10px; padding:.5rem; font-weight:700; background:rgba(33,46,95,.75); color:#eff5ff; cursor:pointer; }
+    .cav-keypad button[data-action="ok"] { background:#0fbc82; border-color:#0fbc82; }
     .cav-actions button { border:none; border-radius:12px; padding:.55rem .9rem; font-weight:700; cursor:pointer; }
     .cav-start { background:#4f7bff; color:#fff; }
     .cav-check { background:#0fbc82; color:#fff; }
@@ -178,8 +190,8 @@
       .ttm-timer { justify-self: start; }
       .ttm-rope-zone { min-height: 300px; }
       .cav-arena { height: 290px; }
-      .cav-wizard { font-size:2.4rem; }
-      .cav-orc { font-size:2.2rem; }
+      .cav-wizard { width:74px; height:90px; left:18px; }
+      .cav-orc { width:74px; height:90px; }
     }
 
     @keyframes ttmPull {
@@ -231,7 +243,7 @@
       <nav class="main-nav" aria-label="Navegació principal">
         <button class="pill nav-btn" type="button" onclick="scrollToSection('tutorSection')">Tutor</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('calendarSection')">Calendari</button>
-        <button class="pill nav-btn" type="button" onclick="showView('challenges')">Reptes</button>
+        <a class="pill nav-btn" href="reptes.html">Reptes</a>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('classSection')">Aula</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('liveSection')">Live</button>
         <a class="pill nav-btn nav-btn-ghost" href="/portal/supabase-portal.html">Accés professorat</a>
@@ -355,7 +367,7 @@
             <p class="subtitle">Entra a la zona de jocs i tria el repte disponible. Ara mateix: <strong>Joc de la corda</strong>.</p>
           </div>
           <div class="challenge-entry__actions">
-            <button class="pill" type="button" onclick="showView('challenges')">Entrar a Reptes →</button>
+            <a class="pill" href="reptes.html">Entrar a Reptes →</a>
           </div>
         </section>
 
@@ -774,17 +786,17 @@
           <h2>Reptes Focus</h2>
           <p class="subtitle">Tria un mode de joc</p>
           <div class="challenges-cards">
-            <article class="challenge-card">
+            <article class="challenge-card" role="button" tabindex="0" data-open-challenge="tug">
               <span class="icon">🪢</span>
               <h3>Joc de la corda</h3>
               <p>Duel 1 vs 1 o campionat d'eliminatòries.</p>
             </article>
-            <article class="challenge-card">
+            <article class="challenge-card" role="button" tabindex="0" data-open-challenge="caps">
               <span class="icon">⚽</span>
               <h3>Joc de les xapes</h3>
               <p>Resposta correcta = tir de xapa fins al primer gol.</p>
             </article>
-            <article class="challenge-card">
+            <article class="challenge-card" role="button" tabindex="0" data-open-challenge="cave">
               <span class="icon">🧙</span>
               <h3>La Caverna</h3>
               <p>Atura les ordes d'orcs resolent operacions.</p>
@@ -1057,10 +1069,10 @@ Nil"></textarea></label>
               </div>
               <div class="cav-arena">
                 <div class="cav-lane"></div>
-                <div class="cav-wizard" aria-hidden="true">🧙‍♂️</div>
+                <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" src="assets/challenges/cave-wizard.svg" alt="Mag" /></div>
                 <div class="cav-beam" id="cavBeam"></div>
                 <div class="cav-hit" id="cavHit">⚡ Orc derrotat!</div>
-                <div class="cav-orc" id="cavOrc" aria-hidden="true">👹</div>
+                <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc.svg" alt="Orc" /></div>
               </div>
               <div class="cav-controls">
                 <div>
@@ -1951,12 +1963,25 @@ Nil"></textarea></label>
     (() => {
       const chips = Array.from(document.querySelectorAll('.challenge-chip[data-challenge]'));
       const panels = Array.from(document.querySelectorAll('[data-challenge-panel]'));
+      const cards = Array.from(document.querySelectorAll('.challenge-card[data-open-challenge]'));
       if (!chips.length || !panels.length) return;
       const activate = (id) => {
         chips.forEach((chip) => chip.setAttribute('aria-current', chip.dataset.challenge === id ? 'true' : 'false'));
         panels.forEach((panel) => { panel.hidden = panel.dataset.challengePanel !== id; });
       };
       chips.forEach((chip) => chip.addEventListener('click', () => activate(chip.dataset.challenge || 'tug')));
+      cards.forEach((card) => {
+        const open = () => {
+          const id = card.dataset.openChallenge || 'tug';
+          activate(id);
+          document.getElementById('challengesSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        card.addEventListener('click', open);
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); }
+        });
+      });
+      window.openChallengePanel = activate;
       activate('tug');
     })();
   </script>
@@ -1972,12 +1997,20 @@ Nil"></textarea></label>
         lives: 3,
         wave: 1,
         score: 0,
-        orcDistance: 100,
-        orcStep: 14,
+        orcX: 88,
+        orcBaseSpeed: 8.8,
         answer: null,
         timerId: null,
+        frameId: null,
+        lastTick: null,
+        orcStepFrameIndex: 0,
+        orcStepFrameTimer: 0,
+        orcStepFramesReady: false,
         allowedOps: new Set(['add'])
       };
+
+      const ORC_START_X = 88;
+      const ORC_END_X = 10;
 
       const els = {
         wave: document.getElementById('cavWave'),
@@ -1987,8 +2020,10 @@ Nil"></textarea></label>
         answer: document.getElementById('cavAnswer'),
         start: document.getElementById('cavStart'),
         check: document.getElementById('cavCheck'),
+        keypad: document.getElementById('cavKeypad'),
         msg: document.getElementById('cavMsg'),
         orc: document.getElementById('cavOrc'),
+        orcSprite: document.getElementById('cavOrcSprite'),
         beam: document.getElementById('cavBeam'),
         hit: document.getElementById('cavHit'),
         ops: Array.from(document.querySelectorAll('#cavOps [data-op]'))
@@ -1997,11 +2032,47 @@ Nil"></textarea></label>
       const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
       const normalize = (value) => String(value || '').trim().replace(',', '.');
 
+      const ORC_STEP_FRAMES = [
+        'assets/challenges/cave-orc-step-1.png',
+        'assets/challenges/cave-orc-step-2.png'
+      ];
+
+      function setOrcStepFrame(index = 0) {
+        if (!els.orcSprite || !state.orcStepFramesReady) return;
+        state.orcStepFrameIndex = index % ORC_STEP_FRAMES.length;
+        els.orcSprite.src = ORC_STEP_FRAMES[state.orcStepFrameIndex];
+      }
+
+      function setupOrcStepFrames() {
+        if (!els.orcSprite) return;
+        const preloads = ORC_STEP_FRAMES.map((src) => new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = src;
+        }));
+        Promise.all(preloads).then(() => {
+          state.orcStepFramesReady = true;
+          state.orcStepFrameTimer = 0;
+          setOrcStepFrame(0);
+        }).catch(() => {
+          state.orcStepFramesReady = false;
+        });
+      }
+
+      function advanceOrcStepAnimation(distanceTravelled = 0) {
+        if (!state.orcStepFramesReady || ORC_STEP_FRAMES.length < 2) return;
+        state.orcStepFrameTimer += Math.max(0, distanceTravelled);
+        if (state.orcStepFrameTimer < 1.6) return;
+        state.orcStepFrameTimer = 0;
+        setOrcStepFrame(state.orcStepFrameIndex === 0 ? 1 : 0);
+      }
+
       function updateHud() {
         els.wave.textContent = `Onada: ${state.wave}`;
         els.score.textContent = `Punts: ${state.score}`;
         els.lives.textContent = `Vides: ${state.lives}`;
-        els.orc.style.right = `${Math.max(0, state.orcDistance)}%`;
+        els.orc.style.left = `${Math.max(ORC_END_X, Math.min(ORC_START_X, state.orcX))}%`;
       }
 
       function setMessage(text, type = '') {
@@ -2048,11 +2119,11 @@ Nil"></textarea></label>
       }
 
       function moveOrcForward(reason = 'slow') {
-        const progress = reason === 'wrong' ? state.orcStep + 4 : state.orcStep;
-        state.orcDistance = Math.max(0, state.orcDistance - progress);
-        if (state.orcDistance <= 0) {
+        const progress = reason === 'wrong' ? 9 : 4;
+        state.orcX = Math.max(ORC_END_X, state.orcX - progress);
+        if (state.orcX <= ORC_END_X) {
           state.lives -= 1;
-          state.orcDistance = 100;
+          state.orcX = ORC_START_X;
           if (state.lives <= 0) {
             endGame();
             return;
@@ -2060,6 +2131,44 @@ Nil"></textarea></label>
           setMessage('L’orc t’ha tocat! Has perdut una vida.', 'bad');
         }
         updateHud();
+      }
+
+      function animateOrc(timestamp) {
+        if (!state.running) return;
+        if (!state.lastTick) state.lastTick = timestamp;
+        const deltaSec = Math.min(0.05, (timestamp - state.lastTick) / 1000);
+        state.lastTick = timestamp;
+        const waveBoost = (state.wave - 1) * 1.1;
+        const travel = (state.orcBaseSpeed + waveBoost) * deltaSec;
+        state.orcX -= travel;
+        advanceOrcStepAnimation(travel);
+        if (state.orcX <= ORC_END_X) {
+          state.lives -= 1;
+          state.orcX = ORC_START_X;
+          if (state.lives <= 0) {
+            endGame();
+            return;
+          }
+          setMessage('L’orc t\'ha tocat! Has perdut una vida.', 'bad');
+        }
+        updateHud();
+        state.frameId = requestAnimationFrame(animateOrc);
+      }
+
+      function startOrcMotion() {
+        cancelAnimationFrame(state.frameId);
+        state.lastTick = null;
+        state.orcStepFrameTimer = 0;
+        setOrcStepFrame(0);
+        state.frameId = requestAnimationFrame(animateOrc);
+      }
+
+      function stopOrcMotion() {
+        cancelAnimationFrame(state.frameId);
+        state.frameId = null;
+        state.lastTick = null;
+        state.orcStepFrameTimer = 0;
+        setOrcStepFrame(0);
       }
 
       function nextTurn() {
@@ -2084,7 +2193,9 @@ Nil"></textarea></label>
           state.score += 10;
           if (state.score % 50 === 0) state.wave += 1;
           castBeam();
-          state.orcDistance = 100;
+          state.orcX = ORC_START_X;
+          state.orcStepFrameTimer = 0;
+          setOrcStepFrame(0);
           setMessage('Molt bé! Has derrotat un orc.', 'good');
           updateHud();
         } else {
@@ -2096,11 +2207,12 @@ Nil"></textarea></label>
 
       function resetState() {
         clearTimeout(state.timerId);
+        stopOrcMotion();
         state.running = false;
         state.lives = 3;
         state.wave = 1;
         state.score = 0;
-        state.orcDistance = 100;
+        state.orcX = ORC_START_X;
         state.answer = null;
         els.question.textContent = 'Prem «Comença» per iniciar la partida.';
         els.answer.value = '';
@@ -2112,6 +2224,7 @@ Nil"></textarea></label>
 
       function endGame() {
         clearTimeout(state.timerId);
+        stopOrcMotion();
         state.running = false;
         els.answer.disabled = true;
         els.check.disabled = true;
@@ -2125,12 +2238,13 @@ Nil"></textarea></label>
         state.lives = 3;
         state.wave = 1;
         state.score = 0;
-        state.orcDistance = 100;
+        state.orcX = ORC_START_X;
         els.answer.disabled = false;
         els.check.disabled = false;
         els.answer.focus();
         setMessage('La horda s’acosta... resol per atacar!', 'good');
         updateHud();
+        startOrcMotion();
         nextTurn();
       });
 
@@ -2140,6 +2254,29 @@ Nil"></textarea></label>
           event.preventDefault();
           checkAnswer();
         }
+      });
+
+      els.keypad?.addEventListener('click', (event) => {
+        const btn = event.target.closest('button');
+        if (!btn || !state.running) return;
+        const key = btn.dataset.key;
+        const action = btn.dataset.action;
+        if (key !== undefined) {
+          if (key === '-' && els.answer.value.includes('-')) return;
+          if (key === '.' && els.answer.value.includes('.')) return;
+          if (key === '-' && els.answer.value.length > 0) return;
+          els.answer.value += key;
+          return;
+        }
+        if (action === 'clear') {
+          els.answer.value = '';
+          return;
+        }
+        if (action === 'back') {
+          els.answer.value = els.answer.value.slice(0, -1);
+          return;
+        }
+        if (action === 'ok') checkAnswer();
       });
 
       els.ops.forEach((btn) => {
@@ -2155,6 +2292,7 @@ Nil"></textarea></label>
         });
       });
 
+      setupOrcStepFrames();
       resetState();
     })();
   </script>
@@ -2800,5 +2938,21 @@ Nil"></textarea></label>
   <script type="module" src="supabase/student-sync.js"></script>
   <script src="main.js" defer></script>
   <script src="math.js" defer></script>
+
+  <script>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('page') === 'challenges') {
+        if (typeof showView === 'function') showView('challenges');
+      }
+      if (params.get('embedded') === '1') {
+        document.body.classList.add('embedded-challenges');
+      }
+      if (params.get('openChallenge') && typeof window.openChallengePanel === 'function') {
+        window.openChallengePanel(params.get('openChallenge'));
+      }
+    })();
+  </script>
+
 </body>
 </html>
