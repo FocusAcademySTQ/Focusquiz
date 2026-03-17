@@ -56,9 +56,9 @@
     .cav-question { font-size:1.35rem; font-weight:900; letter-spacing:.02em; }
     .cav-answer { border:1px solid rgba(157,175,255,.5); border-radius:12px; padding:.52rem .65rem; font:inherit; min-width:120px; background:rgba(12,20,51,.75); color:#fff; }
     .cav-actions { display:flex; gap:.5rem; }
-    .cav-keypad { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:.35rem; max-width:280px; }
-    .cav-keypad--inline { display:flex; flex-wrap:nowrap; gap:.35rem; padding:0 1rem .35rem; justify-content:center; overflow-x:auto; }
-    .cav-keypad--inline button { min-width:46px; }
+    .cav-keypad { display:grid; grid-template-columns: repeat(9, minmax(44px, 1fr)); gap:.35rem; width:100%; }
+    .cav-keypad--inline { display:grid; grid-template-columns: repeat(9, minmax(44px, 1fr)); gap:.35rem; padding:0 1rem .35rem; justify-content:center; }
+    .cav-keypad--inline button { min-width:44px; }
     .cav-keypad button { border:1px solid rgba(157,175,255,.45); border-radius:10px; padding:.5rem; font-weight:700; background:rgba(33,46,95,.75); color:#eff5ff; cursor:pointer; }
     .cav-keypad button[data-action="ok"] { background:#0fbc82; border-color:#0fbc82; }
     .cav-actions button { border:none; border-radius:12px; padding:.55rem .9rem; font-weight:700; cursor:pointer; }
@@ -1059,25 +1059,10 @@ Nil"></textarea></label>
               </div>
               <div class="cav-arena">
                 <div class="cav-lane"></div>
-                <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" id="cavWizardSprite" src="assets/challenges/cave-wizard-idle.svg" alt="Mag" /></div>
+                <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" id="cavWizardSprite" src="assets/challenges/cave-wizard-idle.png" alt="Mag" /></div>
                 <div class="cav-beam" id="cavBeam"></div>
                 <div class="cav-hit" id="cavHit">⚡ Orc derrotat!</div>
-                <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc.png" alt="Orc" /></div>
-              </div>
-              <div class="cav-keypad cav-keypad--inline" id="cavKeypad" aria-label="Teclat numèric de la Caverna">
-                <button type="button" data-key="1">1</button>
-                <button type="button" data-key="2">2</button>
-                <button type="button" data-key="3">3</button>
-                <button type="button" data-key="4">4</button>
-                <button type="button" data-key="5">5</button>
-                <button type="button" data-key="6">6</button>
-                <button type="button" data-key="7">7</button>
-                <button type="button" data-key="8">8</button>
-                <button type="button" data-key="9">9</button>
-                <button type="button" data-action="clear">C</button>
-                <button type="button" data-key="0">0</button>
-                <button type="button" data-action="back">⌫</button>
-                <button type="button" data-action="ok">OK</button>
+                <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc-step-1.png" alt="Orc" /></div>
               </div>
               <div class="cav-keypad cav-keypad--inline" id="cavKeypad" aria-label="Teclat numèric de la Caverna">
                 <button type="button" data-key="1">1</button>
@@ -1111,13 +1096,6 @@ Nil"></textarea></label>
                     <button type="button" class="cav-start" id="cavStart">Comença</button>
                     <button type="button" class="cav-check" id="cavCheck" disabled>Ataca ⚡</button>
                   </div>
-                </div>
-                <div class="cav-keypad" id="cavKeypad" aria-label="Teclat numèric de la caverna">
-                  <button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button>
-                  <button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button>
-                  <button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button>
-                  <button type="button" data-action="clear">C</button><button type="button" data-key="0">0</button><button type="button" data-action="back">⌫</button>
-                  <button type="button" data-key="-">−</button><button type="button" data-key=".">.</button><button type="button" data-action="ok">OK</button>
                 </div>
                 <p class="cav-msg" id="cavMsg" aria-live="polite"></p>
               </div>
@@ -2067,8 +2045,8 @@ Nil"></textarea></label>
       ];
 
       const WIZARD_SPRITES = {
-        idle: 'assets/challenges/cave-wizard-idle.svg',
-        cast: 'assets/challenges/cave-wizard-cast.svg'
+        idle: 'assets/challenges/cave-wizard-idle.png',
+        cast: 'assets/challenges/cave-wizard-cast.png'
       };
 
       let wizardResetTimer = null;
@@ -2158,9 +2136,8 @@ Nil"></textarea></label>
           els.beam.style.width = '0';
           els.hit.style.opacity = '0';
           els.hit.style.transform = 'translateY(0)';
-          setWizardSprite('normal');
-        }, 180);
-        wizardResetTimer = setTimeout(() => setWizardSprite('idle'), 420);
+        }, 240);
+        wizardResetTimer = setTimeout(() => setWizardSprite('idle'), 2000);
       }
 
       function moveOrcForward(reason = 'slow') {
@@ -2265,7 +2242,6 @@ Nil"></textarea></label>
         els.check.disabled = true;
         setWizardSprite('idle');
         setMessage('');
-        setWizardSprite('normal');
         updateHud();
       }
 
@@ -2278,7 +2254,6 @@ Nil"></textarea></label>
         setWizardSprite('idle');
         els.question.textContent = 'Partida acabada.';
         setMessage(`Has arribat a l'onada ${state.wave} amb ${state.score} punts.`, 'bad');
-        setWizardSprite('normal');
       }
 
       els.start?.addEventListener('click', () => {
