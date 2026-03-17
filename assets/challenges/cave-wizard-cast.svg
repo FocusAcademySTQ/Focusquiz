@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 260" role="img" aria-label="Mag">
+  <defs>
+    <linearGradient id="robe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5b6cff"/>
+      <stop offset="1" stop-color="#1f2f98"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="110" cy="236" rx="62" ry="14" fill="#0a0f2f" opacity=".35"/>
+  <circle cx="110" cy="78" r="30" fill="#ffd7b3"/>
+  <polygon points="110,6 56,88 164,88" fill="#3548ca"/>
+  <rect x="69" y="86" width="82" height="12" rx="5" fill="#e2c27b"/>
+  <path d="M72 116 L148 116 L168 228 L52 228 Z" fill="url(#robe)"/>
+  <rect x="94" y="122" width="32" height="100" rx="16" fill="#2b3fb4"/>
+  <circle cx="109" cy="138" r="3.5" fill="#d9e6ff"/>
+  <circle cx="109" cy="156" r="3.5" fill="#d9e6ff"/>
+  <circle cx="109" cy="174" r="3.5" fill="#d9e6ff"/>
+  <rect x="156" y="92" width="10" height="120" rx="5" fill="#8f5b2e"/>
+  <circle cx="161" cy="88" r="12" fill="#7ff6ff"/>
+</svg>
