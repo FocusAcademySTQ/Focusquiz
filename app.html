@@ -57,6 +57,8 @@
     .cav-answer { border:1px solid rgba(157,175,255,.5); border-radius:12px; padding:.52rem .65rem; font:inherit; min-width:120px; background:rgba(12,20,51,.75); color:#fff; }
     .cav-actions { display:flex; gap:.5rem; }
     .cav-keypad { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:.35rem; max-width:280px; }
+    .cav-keypad--inline { display:flex; flex-wrap:nowrap; gap:.35rem; padding:0 1rem .35rem; justify-content:center; overflow-x:auto; }
+    .cav-keypad--inline button { min-width:46px; }
     .cav-keypad button { border:1px solid rgba(157,175,255,.45); border-radius:10px; padding:.5rem; font-weight:700; background:rgba(33,46,95,.75); color:#eff5ff; cursor:pointer; }
     .cav-keypad button[data-action="ok"] { background:#0fbc82; border-color:#0fbc82; }
     .cav-actions button { border:none; border-radius:12px; padding:.55rem .9rem; font-weight:700; cursor:pointer; }
@@ -1059,7 +1061,22 @@ Nil"></textarea></label>
                 <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" id="cavWizardSprite" src="assets/challenges/cave-wizard.svg" alt="Mag" /></div>
                 <div class="cav-beam" id="cavBeam"></div>
                 <div class="cav-hit" id="cavHit">⚡ Orc derrotat!</div>
-                <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc.svg" alt="Orc" /></div>
+                <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc.png" alt="Orc" /></div>
+              </div>
+              <div class="cav-keypad cav-keypad--inline" id="cavKeypad" aria-label="Teclat numèric de la Caverna">
+                <button type="button" data-key="1">1</button>
+                <button type="button" data-key="2">2</button>
+                <button type="button" data-key="3">3</button>
+                <button type="button" data-key="4">4</button>
+                <button type="button" data-key="5">5</button>
+                <button type="button" data-key="6">6</button>
+                <button type="button" data-key="7">7</button>
+                <button type="button" data-key="8">8</button>
+                <button type="button" data-key="9">9</button>
+                <button type="button" data-action="clear">C</button>
+                <button type="button" data-key="0">0</button>
+                <button type="button" data-action="back">⌫</button>
+                <button type="button" data-action="ok">OK</button>
               </div>
               <div class="cav-controls">
                 <div>
@@ -2243,6 +2260,7 @@ Nil"></textarea></label>
         els.answer.value = '';
         els.answer.disabled = true;
         els.check.disabled = true;
+        setWizardSprite('idle');
         setMessage('');
         setWizardSprite('normal');
         updateHud();
@@ -2254,6 +2272,7 @@ Nil"></textarea></label>
         state.running = false;
         els.answer.disabled = true;
         els.check.disabled = true;
+        setWizardSprite('idle');
         els.question.textContent = 'Partida acabada.';
         setMessage(`Has arribat a l'onada ${state.wave} amb ${state.score} punts.`, 'bad');
         setWizardSprite('normal');
