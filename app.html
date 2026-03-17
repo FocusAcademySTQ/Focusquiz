@@ -46,7 +46,7 @@
     .cav-wizard { position:absolute; left:24px; top:50%; transform:translateY(-50%); width:92px; height:110px; }
     .cav-orc { position:absolute; left:88%; top:50%; transform:translateY(-50%); width:90px; height:108px; }
     .cav-character-img { display:block; width:100%; height:100%; object-fit:contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,.35)); }
-    .cav-beam { position:absolute; left:112px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #9be5ff, #ecfdff); box-shadow: 0 0 16px rgba(155,229,255,.75); opacity:0; transition: width .16s ease, opacity .16s ease; }
+    .cav-beam { position:absolute; left:112px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #ff6b6b, #ffe2e2); box-shadow: 0 0 16px rgba(255,97,97,.78); opacity:0; transition: width .16s ease, opacity .16s ease; }
     .cav-hit { position:absolute; right:42px; top:42%; font-size:1.1rem; color:#b9ffd8; opacity:0; transform: translateY(0); transition: opacity .2s ease, transform .2s ease; }
     .cav-controls { padding:0 1rem 1rem; display:grid; gap:.75rem; }
     .cav-ops { display:flex; flex-wrap:wrap; gap:.4rem; }
@@ -57,6 +57,8 @@
     .cav-answer { border:1px solid rgba(157,175,255,.5); border-radius:12px; padding:.52rem .65rem; font:inherit; min-width:120px; background:rgba(12,20,51,.75); color:#fff; }
     .cav-actions { display:flex; gap:.5rem; }
     .cav-keypad { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:.35rem; max-width:280px; }
+    .cav-keypad--inline { display:flex; flex-wrap:nowrap; gap:.35rem; padding:0 1rem .35rem; justify-content:center; overflow-x:auto; }
+    .cav-keypad--inline button { min-width:46px; }
     .cav-keypad button { border:1px solid rgba(157,175,255,.45); border-radius:10px; padding:.5rem; font-weight:700; background:rgba(33,46,95,.75); color:#eff5ff; cursor:pointer; }
     .cav-keypad button[data-action="ok"] { background:#0fbc82; border-color:#0fbc82; }
     .cav-actions button { border:none; border-radius:12px; padding:.55rem .9rem; font-weight:700; cursor:pointer; }
@@ -809,19 +811,6 @@
           </div>
         </section>
 <section id="challengesSection" class="panel card challenge-section" aria-labelledby="challengesTitle">
-          <div class="challenge-header">
-            <p class="portal-section-title">Reptes</p>
-            <h2 id="challengesTitle">Jocs per competir en equip</h2>
-            <p class="subtitle">Tria un joc del menú. Disponibles: <strong>Joc de la corda</strong>, <strong>Joc de les xapes</strong> i <strong>La Caverna</strong>.</p>
-          </div>
-
-          <div class="challenge-menu" aria-label="Menú de reptes">
-            <button class="challenge-chip" type="button" data-challenge="tug" aria-current="true">🪢 Joc de la corda</button>
-            <button class="challenge-chip" type="button" data-challenge="caps">⚽ Joc de les xapes</button>
-            <button class="challenge-chip" type="button" data-challenge="cave">🧙 La Caverna</button>
-            <button class="challenge-chip" type="button" disabled>🎯 Properament</button>
-          </div>
-
           <div class="challenge-wrap" id="ttmGame" data-challenge-panel="tug">
             <!-- Modal de configuració inicial (3 passos) -->
             <div class="ttm-modal" id="ttmModal" role="dialog" aria-modal="true" aria-labelledby="ttmSetupTitle">
@@ -1069,10 +1058,25 @@ Nil"></textarea></label>
               </div>
               <div class="cav-arena">
                 <div class="cav-lane"></div>
-                <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" src="assets/challenges/cave-wizard.svg" alt="Mag" /></div>
+                <div class="cav-wizard" aria-hidden="true"><img class="cav-character-img" id="cavWizardSprite" src="assets/challenges/cave-wizard-idle.svg" alt="Mag" /></div>
                 <div class="cav-beam" id="cavBeam"></div>
                 <div class="cav-hit" id="cavHit">⚡ Orc derrotat!</div>
                 <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc.svg" alt="Orc" /></div>
+              </div>
+              <div class="cav-keypad cav-keypad--inline" id="cavKeypad" aria-label="Teclat numèric de la Caverna">
+                <button type="button" data-key="1">1</button>
+                <button type="button" data-key="2">2</button>
+                <button type="button" data-key="3">3</button>
+                <button type="button" data-key="4">4</button>
+                <button type="button" data-key="5">5</button>
+                <button type="button" data-key="6">6</button>
+                <button type="button" data-key="7">7</button>
+                <button type="button" data-key="8">8</button>
+                <button type="button" data-key="9">9</button>
+                <button type="button" data-action="clear">C</button>
+                <button type="button" data-key="0">0</button>
+                <button type="button" data-action="back">⌫</button>
+                <button type="button" data-action="ok">OK</button>
               </div>
               <div class="cav-controls">
                 <div>
@@ -1964,7 +1968,7 @@ Nil"></textarea></label>
       const chips = Array.from(document.querySelectorAll('.challenge-chip[data-challenge]'));
       const panels = Array.from(document.querySelectorAll('[data-challenge-panel]'));
       const cards = Array.from(document.querySelectorAll('.challenge-card[data-open-challenge]'));
-      if (!chips.length || !panels.length) return;
+      if (!panels.length) return;
       const activate = (id) => {
         chips.forEach((chip) => chip.setAttribute('aria-current', chip.dataset.challenge === id ? 'true' : 'false'));
         panels.forEach((panel) => { panel.hidden = panel.dataset.challengePanel !== id; });
@@ -2026,6 +2030,7 @@ Nil"></textarea></label>
         orcSprite: document.getElementById('cavOrcSprite'),
         beam: document.getElementById('cavBeam'),
         hit: document.getElementById('cavHit'),
+        wizardSprite: document.getElementById('cavWizardSprite'),
         ops: Array.from(document.querySelectorAll('#cavOps [data-op]'))
       };
 
@@ -2036,6 +2041,16 @@ Nil"></textarea></label>
         'assets/challenges/cave-orc-step-1.png',
         'assets/challenges/cave-orc-step-2.png'
       ];
+
+      const WIZARD_SPRITES = {
+        idle: 'assets/challenges/cave-wizard-idle.svg',
+        cast: 'assets/challenges/cave-wizard-cast.svg'
+      };
+
+      function setWizardSprite(mode = 'idle') {
+        if (!els.wizardSprite) return;
+        els.wizardSprite.src = WIZARD_SPRITES[mode] || WIZARD_SPRITES.idle;
+      }
 
       function setOrcStepFrame(index = 0) {
         if (!els.orcSprite || !state.orcStepFramesReady) return;
@@ -2106,6 +2121,7 @@ Nil"></textarea></label>
       }
 
       function castBeam() {
+        setWizardSprite('cast');
         els.beam.style.opacity = '1';
         els.beam.style.width = '72%';
         els.hit.style.opacity = '1';
@@ -2115,6 +2131,7 @@ Nil"></textarea></label>
           els.beam.style.width = '0';
           els.hit.style.opacity = '0';
           els.hit.style.transform = 'translateY(0)';
+          setWizardSprite('idle');
         }, 180);
       }
 
@@ -2218,6 +2235,7 @@ Nil"></textarea></label>
         els.answer.value = '';
         els.answer.disabled = true;
         els.check.disabled = true;
+        setWizardSprite('idle');
         setMessage('');
         updateHud();
       }
@@ -2228,6 +2246,7 @@ Nil"></textarea></label>
         state.running = false;
         els.answer.disabled = true;
         els.check.disabled = true;
+        setWizardSprite('idle');
         els.question.textContent = 'Partida acabada.';
         setMessage(`Has arribat a l'onada ${state.wave} amb ${state.score} punts.`, 'bad');
       }
