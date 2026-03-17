@@ -36,7 +36,7 @@
     .cav-arena { position: relative; height: 340px; margin: .9rem; border:1px solid rgba(157,175,255,.24); border-radius: 14px; background: linear-gradient(180deg, rgba(55,70,131,.2), rgba(10,17,44,.75)); overflow: hidden; }
     .cav-lane { position:absolute; left:20px; right:20px; top:50%; height:2px; transform:translateY(-50%); background: linear-gradient(90deg, rgba(219,230,255,.4), rgba(219,230,255,.12)); }
     .cav-wizard { position:absolute; left:28px; top:50%; transform:translateY(-50%); font-size:3rem; }
-    .cav-orc { position:absolute; right:18px; top:50%; transform:translateY(-50%); font-size:2.8rem; transition:right .22s linear; }
+    .cav-orc { position:absolute; left:88%; top:50%; transform:translateY(-50%); font-size:2.8rem; }
     .cav-beam { position:absolute; left:96px; top:50%; height:8px; width:0; border-radius:999px; transform:translateY(-50%); background: linear-gradient(90deg, #9be5ff, #ecfdff); box-shadow: 0 0 16px rgba(155,229,255,.75); opacity:0; transition: width .16s ease, opacity .16s ease; }
     .cav-hit { position:absolute; right:42px; top:42%; font-size:1.1rem; color:#b9ffd8; opacity:0; transform: translateY(0); transition: opacity .2s ease, transform .2s ease; }
     .cav-controls { padding:0 1rem 1rem; display:grid; gap:.75rem; }
@@ -1972,12 +1972,17 @@ Nil"></textarea></label>
         lives: 3,
         wave: 1,
         score: 0,
-        orcDistance: 100,
-        orcStep: 14,
+        orcX: 88,
+        orcBaseSpeed: 8.8,
         answer: null,
         timerId: null,
+        frameId: null,
+        lastTick: null,
         allowedOps: new Set(['add'])
       };
+
+      const ORC_START_X = 88;
+      const ORC_END_X = 10;
 
       const els = {
         wave: document.getElementById('cavWave'),
@@ -2001,7 +2006,7 @@ Nil"></textarea></label>
         els.wave.textContent = `Onada: ${state.wave}`;
         els.score.textContent = `Punts: ${state.score}`;
         els.lives.textContent = `Vides: ${state.lives}`;
-        els.orc.style.right = `${Math.max(0, state.orcDistance)}%`;
+        els.orc.style.left = `${Math.max(ORC_END_X, Math.min(ORC_START_X, state.orcX))}%`;
       }
 
       function setMessage(text, type = '') {
@@ -2048,11 +2053,11 @@ Nil"></textarea></label>
       }
 
       function moveOrcForward(reason = 'slow') {
-        const progress = reason === 'wrong' ? state.orcStep + 4 : state.orcStep;
-        state.orcDistance = Math.max(0, state.orcDistance - progress);
-        if (state.orcDistance <= 0) {
+        const progress = reason === 'wrong' ? 9 : 4;
+        state.orcX = Math.max(ORC_END_X, state.orcX - progress);
+        if (state.orcX <= ORC_END_X) {
           state.lives -= 1;
-          state.orcDistance = 100;
+          state.orcX = ORC_START_X;
           if (state.lives <= 0) {
             endGame();
             return;
@@ -2060,6 +2065,38 @@ Nil"></textarea></label>
           setMessage('L’orc t’ha tocat! Has perdut una vida.', 'bad');
         }
         updateHud();
+      }
+
+      function animateOrc(timestamp) {
+        if (!state.running) return;
+        if (!state.lastTick) state.lastTick = timestamp;
+        const deltaSec = Math.min(0.05, (timestamp - state.lastTick) / 1000);
+        state.lastTick = timestamp;
+        const waveBoost = (state.wave - 1) * 1.1;
+        state.orcX -= (state.orcBaseSpeed + waveBoost) * deltaSec;
+        if (state.orcX <= ORC_END_X) {
+          state.lives -= 1;
+          state.orcX = ORC_START_X;
+          if (state.lives <= 0) {
+            endGame();
+            return;
+          }
+          setMessage('L’orc t\'ha tocat! Has perdut una vida.', 'bad');
+        }
+        updateHud();
+        state.frameId = requestAnimationFrame(animateOrc);
+      }
+
+      function startOrcMotion() {
+        cancelAnimationFrame(state.frameId);
+        state.lastTick = null;
+        state.frameId = requestAnimationFrame(animateOrc);
+      }
+
+      function stopOrcMotion() {
+        cancelAnimationFrame(state.frameId);
+        state.frameId = null;
+        state.lastTick = null;
       }
 
       function nextTurn() {
@@ -2084,7 +2121,7 @@ Nil"></textarea></label>
           state.score += 10;
           if (state.score % 50 === 0) state.wave += 1;
           castBeam();
-          state.orcDistance = 100;
+          state.orcX = ORC_START_X;
           setMessage('Molt bé! Has derrotat un orc.', 'good');
           updateHud();
         } else {
@@ -2096,11 +2133,12 @@ Nil"></textarea></label>
 
       function resetState() {
         clearTimeout(state.timerId);
+        stopOrcMotion();
         state.running = false;
         state.lives = 3;
         state.wave = 1;
         state.score = 0;
-        state.orcDistance = 100;
+        state.orcX = ORC_START_X;
         state.answer = null;
         els.question.textContent = 'Prem «Comença» per iniciar la partida.';
         els.answer.value = '';
@@ -2112,6 +2150,7 @@ Nil"></textarea></label>
 
       function endGame() {
         clearTimeout(state.timerId);
+        stopOrcMotion();
         state.running = false;
         els.answer.disabled = true;
         els.check.disabled = true;
@@ -2125,12 +2164,13 @@ Nil"></textarea></label>
         state.lives = 3;
         state.wave = 1;
         state.score = 0;
-        state.orcDistance = 100;
+        state.orcX = ORC_START_X;
         els.answer.disabled = false;
         els.check.disabled = false;
         els.answer.focus();
         setMessage('La horda s’acosta... resol per atacar!', 'good');
         updateHud();
+        startOrcMotion();
         nextTurn();
       });
 
