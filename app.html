@@ -12,6 +12,13 @@
     .challenge-section { margin-top: 1rem; }
     .challenge-wrap { border: 1px solid #d7dff5; border-radius: 18px; padding: 1rem; background: #fff; position: relative; overflow: hidden; }
     .challenge-wrap[hidden] { display:none; }
+    body.embedded-challenges .topbar,
+    body.embedded-challenges #view-home,
+    body.embedded-challenges #view-config,
+    body.embedded-challenges #view-quiz,
+    body.embedded-challenges #view-results,
+    body.embedded-challenges #view-about { display:none !important; }
+    body.embedded-challenges #view-challenges { display:block !important; }
     .challenge-header { display: grid; gap: .4rem; margin-bottom: .9rem; }
     .challenge-header h2 { margin: 0; }
     .challenge-menu { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
@@ -27,6 +34,7 @@
     .challenge-card .icon { font-size:1.4rem; }
     .challenge-card h3 { margin:0; font-size:1rem; }
     .challenge-card p { margin:0; font-size:.9rem; color:#475467; }
+    .challenge-card[data-open-challenge] { cursor:pointer; }
     .challenge-card.is-soon { opacity:.65; }
 
     .cav-game { position: relative; min-height: 520px; border: 1px solid #dce6ff; border-radius: 16px; overflow: hidden; background: radial-gradient(circle at 50% 10%, #2f3a6f 0%, #121a38 55%, #0b1028 100%); color: #e9eeff; }
@@ -48,6 +56,9 @@
     .cav-question { font-size:1.35rem; font-weight:900; letter-spacing:.02em; }
     .cav-answer { border:1px solid rgba(157,175,255,.5); border-radius:12px; padding:.52rem .65rem; font:inherit; min-width:120px; background:rgba(12,20,51,.75); color:#fff; }
     .cav-actions { display:flex; gap:.5rem; }
+    .cav-keypad { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:.35rem; max-width:280px; }
+    .cav-keypad button { border:1px solid rgba(157,175,255,.45); border-radius:10px; padding:.5rem; font-weight:700; background:rgba(33,46,95,.75); color:#eff5ff; cursor:pointer; }
+    .cav-keypad button[data-action="ok"] { background:#0fbc82; border-color:#0fbc82; }
     .cav-actions button { border:none; border-radius:12px; padding:.55rem .9rem; font-weight:700; cursor:pointer; }
     .cav-start { background:#4f7bff; color:#fff; }
     .cav-check { background:#0fbc82; color:#fff; }
@@ -232,7 +243,7 @@
       <nav class="main-nav" aria-label="Navegació principal">
         <button class="pill nav-btn" type="button" onclick="scrollToSection('tutorSection')">Tutor</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('calendarSection')">Calendari</button>
-        <button class="pill nav-btn" type="button" onclick="showView('challenges')">Reptes</button>
+        <a class="pill nav-btn" href="reptes.html">Reptes</a>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('classSection')">Aula</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('liveSection')">Live</button>
         <a class="pill nav-btn nav-btn-ghost" href="/portal/supabase-portal.html">Accés professorat</a>
@@ -356,7 +367,7 @@
             <p class="subtitle">Entra a la zona de jocs i tria el repte disponible. Ara mateix: <strong>Joc de la corda</strong>.</p>
           </div>
           <div class="challenge-entry__actions">
-            <button class="pill" type="button" onclick="showView('challenges')">Entrar a Reptes →</button>
+            <a class="pill" href="reptes.html">Entrar a Reptes →</a>
           </div>
         </section>
 
@@ -775,17 +786,17 @@
           <h2>Reptes Focus</h2>
           <p class="subtitle">Tria un mode de joc</p>
           <div class="challenges-cards">
-            <article class="challenge-card">
+            <article class="challenge-card" role="button" tabindex="0" data-open-challenge="tug">
               <span class="icon">🪢</span>
               <h3>Joc de la corda</h3>
               <p>Duel 1 vs 1 o campionat d'eliminatòries.</p>
             </article>
-            <article class="challenge-card">
+            <article class="challenge-card" role="button" tabindex="0" data-open-challenge="caps">
               <span class="icon">⚽</span>
               <h3>Joc de les xapes</h3>
               <p>Resposta correcta = tir de xapa fins al primer gol.</p>
             </article>
-            <article class="challenge-card">
+            <article class="challenge-card" role="button" tabindex="0" data-open-challenge="cave">
               <span class="icon">🧙</span>
               <h3>La Caverna</h3>
               <p>Atura les ordes d'orcs resolent operacions.</p>
@@ -1952,12 +1963,25 @@ Nil"></textarea></label>
     (() => {
       const chips = Array.from(document.querySelectorAll('.challenge-chip[data-challenge]'));
       const panels = Array.from(document.querySelectorAll('[data-challenge-panel]'));
+      const cards = Array.from(document.querySelectorAll('.challenge-card[data-open-challenge]'));
       if (!chips.length || !panels.length) return;
       const activate = (id) => {
         chips.forEach((chip) => chip.setAttribute('aria-current', chip.dataset.challenge === id ? 'true' : 'false'));
         panels.forEach((panel) => { panel.hidden = panel.dataset.challengePanel !== id; });
       };
       chips.forEach((chip) => chip.addEventListener('click', () => activate(chip.dataset.challenge || 'tug')));
+      cards.forEach((card) => {
+        const open = () => {
+          const id = card.dataset.openChallenge || 'tug';
+          activate(id);
+          document.getElementById('challengesSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+        card.addEventListener('click', open);
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); }
+        });
+      });
+      window.openChallengePanel = activate;
       activate('tug');
     })();
   </script>
@@ -1996,6 +2020,7 @@ Nil"></textarea></label>
         answer: document.getElementById('cavAnswer'),
         start: document.getElementById('cavStart'),
         check: document.getElementById('cavCheck'),
+        keypad: document.getElementById('cavKeypad'),
         msg: document.getElementById('cavMsg'),
         orc: document.getElementById('cavOrc'),
         orcSprite: document.getElementById('cavOrcSprite'),
@@ -2229,6 +2254,29 @@ Nil"></textarea></label>
           event.preventDefault();
           checkAnswer();
         }
+      });
+
+      els.keypad?.addEventListener('click', (event) => {
+        const btn = event.target.closest('button');
+        if (!btn || !state.running) return;
+        const key = btn.dataset.key;
+        const action = btn.dataset.action;
+        if (key !== undefined) {
+          if (key === '-' && els.answer.value.includes('-')) return;
+          if (key === '.' && els.answer.value.includes('.')) return;
+          if (key === '-' && els.answer.value.length > 0) return;
+          els.answer.value += key;
+          return;
+        }
+        if (action === 'clear') {
+          els.answer.value = '';
+          return;
+        }
+        if (action === 'back') {
+          els.answer.value = els.answer.value.slice(0, -1);
+          return;
+        }
+        if (action === 'ok') checkAnswer();
       });
 
       els.ops.forEach((btn) => {
@@ -2890,5 +2938,21 @@ Nil"></textarea></label>
   <script type="module" src="supabase/student-sync.js"></script>
   <script src="main.js" defer></script>
   <script src="math.js" defer></script>
+
+  <script>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('page') === 'challenges') {
+        if (typeof showView === 'function') showView('challenges');
+      }
+      if (params.get('embedded') === '1') {
+        document.body.classList.add('embedded-challenges');
+      }
+      if (params.get('openChallenge') && typeof window.openChallengePanel === 'function') {
+        window.openChallengePanel(params.get('openChallenge'));
+      }
+    })();
+  </script>
+
 </body>
 </html>
