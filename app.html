@@ -1079,21 +1079,6 @@ Nil"></textarea></label>
                 <button type="button" data-action="back">⌫</button>
                 <button type="button" data-action="ok">OK</button>
               </div>
-              <div class="cav-keypad cav-keypad--inline" aria-label="Teclat numèric de la Caverna">
-                <button type="button" data-key="1">1</button>
-                <button type="button" data-key="2">2</button>
-                <button type="button" data-key="3">3</button>
-                <button type="button" data-key="4">4</button>
-                <button type="button" data-key="5">5</button>
-                <button type="button" data-key="6">6</button>
-                <button type="button" data-key="7">7</button>
-                <button type="button" data-key="8">8</button>
-                <button type="button" data-key="9">9</button>
-                <button type="button" data-action="clear">C</button>
-                <button type="button" data-key="0">0</button>
-                <button type="button" data-action="back">⌫</button>
-                <button type="button" data-action="ok">OK</button>
-              </div>
               <div class="cav-controls">
                 <div>
                   <p class="subtitle" style="color:#dbe7ff; margin:0 0 .4rem;">Tria operacions (pots activar-ne una o més):</p>
@@ -1111,23 +1096,6 @@ Nil"></textarea></label>
                     <button type="button" class="cav-start" id="cavStart">Comença</button>
                     <button type="button" class="cav-check" id="cavCheck" disabled>Ataca ⚡</button>
                   </div>
-                </div>
-                <div class="cav-keypad" id="cavKeypad" aria-label="Teclat numèric de la caverna">
-                  <button type="button" data-key="1">1</button>
-                  <button type="button" data-key="2">2</button>
-                  <button type="button" data-key="3">3</button>
-                  <button type="button" data-key="4">4</button>
-                  <button type="button" data-key="5">5</button>
-                  <button type="button" data-key="6">6</button>
-                  <button type="button" data-key="7">7</button>
-                  <button type="button" data-key="8">8</button>
-                  <button type="button" data-key="9">9</button>
-                  <button type="button" data-action="clear">C</button>
-                  <button type="button" data-key="0">0</button>
-                  <button type="button" data-action="back">⌫</button>
-                  <button type="button" data-key="-">−</button>
-                  <button type="button" data-key=".">.</button>
-                  <button type="button" data-action="ok">OK</button>
                 </div>
                 <p class="cav-msg" id="cavMsg" aria-live="polite"></p>
               </div>
@@ -2168,9 +2136,8 @@ Nil"></textarea></label>
           els.beam.style.width = '0';
           els.hit.style.opacity = '0';
           els.hit.style.transform = 'translateY(0)';
-          setWizardSprite('normal');
-        }, 180);
-        wizardResetTimer = setTimeout(() => setWizardSprite('idle'), 420);
+        }, 240);
+        wizardResetTimer = setTimeout(() => setWizardSprite('idle'), 2000);
       }
 
       function moveOrcForward(reason = 'slow') {
@@ -2275,7 +2242,6 @@ Nil"></textarea></label>
         els.check.disabled = true;
         setWizardSprite('idle');
         setMessage('');
-        setWizardSprite('normal');
         updateHud();
       }
 
@@ -2288,7 +2254,6 @@ Nil"></textarea></label>
         setWizardSprite('idle');
         els.question.textContent = 'Partida acabada.';
         setMessage(`Has arribat a l'onada ${state.wave} amb ${state.score} punts.`, 'bad');
-        setWizardSprite('normal');
       }
 
       els.start?.addEventListener('click', () => {
