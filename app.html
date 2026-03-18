@@ -1064,7 +1064,7 @@ Nil"></textarea></label>
                 <div class="cav-hit" id="cavHit">⚡ Orc derrotat!</div>
                 <div class="cav-orc" id="cavOrc" aria-hidden="true"><img class="cav-character-img" id="cavOrcSprite" src="assets/challenges/cave-orc-step-1.png" alt="Orc" /></div>
               </div>
-              <div class="cav-keypad cav-keypad--inline" aria-label="Teclat numèric de la Caverna">
+              <div class="cav-keypad cav-keypad--inline" id="cavKeypad" aria-label="Teclat numèric de la Caverna">
                 <button type="button" data-key="1">1</button>
                 <button type="button" data-key="2">2</button>
                 <button type="button" data-key="3">3</button>
@@ -2079,6 +2079,22 @@ Nil"></textarea></label>
         });
       }
 
+      function preloadWizardSprites() {
+        const sprites = Object.values(WIZARD_SPRITES);
+        if (!sprites.length) return;
+        const preloads = sprites.map((src) => new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = src;
+        }));
+        Promise.all(preloads).then(() => {
+          state.wizardSpritesReady = true;
+        }).catch(() => {
+          state.wizardSpritesReady = false;
+        });
+      }
+
       function advanceOrcStepAnimation(distanceTravelled = 0) {
         if (!state.orcStepFramesReady || ORC_STEP_FRAMES.length < 2) return;
         state.orcStepFrameTimer += Math.max(0, distanceTravelled);
@@ -2126,11 +2142,13 @@ Nil"></textarea></label>
 
       function castBeam() {
         clearTimeout(wizardResetTimer);
-        setWizardSprite('cast');
-        els.beam.style.opacity = '1';
-        els.beam.style.width = '72%';
-        els.hit.style.opacity = '1';
-        els.hit.style.transform = 'translateY(-10px)';
+        requestAnimationFrame(() => {
+          setWizardSprite('cast');
+          els.beam.style.opacity = '1';
+          els.beam.style.width = '72%';
+          els.hit.style.opacity = '1';
+          els.hit.style.transform = 'translateY(-10px)';
+        });
         setTimeout(() => {
           els.beam.style.opacity = '0';
           els.beam.style.width = '0';
