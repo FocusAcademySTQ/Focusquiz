@@ -54,7 +54,7 @@
     .cav-op-btn.is-active { background:#dce8ff; color:#17398f; border-color:#9bb5ff; }
     .cav-question-wrap { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; }
     .cav-question { font-size:1.35rem; font-weight:900; letter-spacing:.02em; }
-    .cav-answer { border:1px solid rgba(157,175,255,.5); border-radius:12px; padding:.52rem .65rem; font:inherit; min-width:120px; background:rgba(12,20,51,.75); color:#fff; }
+    .cav-answer { border:1px solid rgba(157,175,255,.5); border-radius:12px; padding:.52rem .65rem; font:inherit; min-width:120px; background:rgba(12,20,51,.75); color:#fff; font-weight:800; letter-spacing:.04em; text-align:center; user-select:none; }
     .cav-actions { display:flex; gap:.5rem; }
     .cav-keypad { display:grid; grid-template-columns: repeat(9, minmax(44px, 1fr)); gap:.35rem; width:100%; }
     .cav-keypad--inline { display:grid; grid-template-columns: repeat(9, minmax(44px, 1fr)); gap:.35rem; padding:0 1rem .35rem; justify-content:center; }
@@ -245,7 +245,6 @@
       <!-- 🔹 Navegació principal -->
       <nav class="main-nav" aria-label="Navegació principal">
         <button class="pill nav-btn" type="button" onclick="scrollToSection('tutorSection')">Tutor</button>
-        <button class="pill nav-btn" type="button" onclick="scrollToSection('calendarSection')">Calendari</button>
         <a class="pill nav-btn" href="reptes.html">Reptes</a>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('classSection')">Aula</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('liveSection')">Live</button>
@@ -280,88 +279,6 @@
           <div class="tutor-actions">
           </div>
         </div>
-
-        <section id="calendarSection" class="panel card study-calendar" aria-labelledby="studyCalendarTitle">
-          <div class="study-calendar__header">
-            <div>
-              <p class="portal-section-title">Calendari d'estudi</p>
-              <h2 id="studyCalendarTitle">Apunta tasques, exàmens i recordatoris</h2>
-              <p class="subtitle">Un espai perquè l'alumnat pugui organitzar-se i afegir una descripció clara de cada esdeveniment.</p>
-            </div>
-            <div class="study-calendar__actions">
-              <button class="pill" id="studyCalendarAddShortcut" type="button">+ Afegir</button>
-              <button class="btn-ghost" id="studyCalendarToday" type="button">Avui</button>
-            </div>
-          </div>
-
-          <div class="study-calendar__layout">
-            <div class="study-calendar__board">
-              <div class="study-calendar__month">
-                <button class="btn-ghost" id="studyCalendarPrev" type="button" aria-label="Mes anterior">←</button>
-                <div class="study-calendar__month-title">
-                  <span data-calendar-month>Setembre 2024</span>
-                  <strong>Vista mensual</strong>
-                </div>
-                <button class="btn-ghost" id="studyCalendarNext" type="button" aria-label="Mes següent">→</button>
-              </div>
-
-              <div class="study-calendar__legend">
-                <span class="study-calendar__pill is-homework">Deures</span>
-                <span class="study-calendar__pill is-exam">Examen</span>
-                <span class="study-calendar__pill is-reminder">Recordatori</span>
-              </div>
-
-              <div class="study-calendar__weekdays">
-                <span>Dl</span>
-                <span>Dt</span>
-                <span>Dc</span>
-                <span>Dj</span>
-                <span>Dv</span>
-                <span>Ds</span>
-                <span>Dg</span>
-              </div>
-
-              <div id="studyCalendarGrid" class="study-calendar__grid"></div>
-            </div>
-
-            <aside class="study-calendar__details">
-              <div class="study-calendar__details-header">
-                <div>
-                  <p class="portal-section-title">Fitxa del dia</p>
-                  <h3 id="studyCalendarSelectedDate">Selecciona un dia</h3>
-                </div>
-                <span class="study-calendar__badge" id="studyCalendarSelectedBadge">--</span>
-              </div>
-              <div class="study-calendar__details-card">
-                <label class="study-calendar__label">
-                  <span>Què tens?</span>
-                  <input class="input" id="studyCalendarTitleInput" type="text" placeholder="Examen, treball, recordatori..." />
-                </label>
-                <label class="study-calendar__label">
-                  <span>Tipus</span>
-                  <select class="input" id="studyCalendarTypeInput">
-                    <option value="homework">Deures</option>
-                    <option value="exam">Examen</option>
-                    <option value="reminder">Recordatori</option>
-                  </select>
-                </label>
-                <label class="study-calendar__label">
-                  <span>Descripció</span>
-                  <textarea class="input" id="studyCalendarDescriptionInput" rows="5" placeholder="Detalla què cal preparar, material, passos..."></textarea>
-                </label>
-                <div class="study-calendar__details-actions">
-                  <button class="btn-primary" id="studyCalendarAddButton" type="button">Afegir</button>
-                  <button class="btn-secondary" id="studyCalendarClearButton" type="button">Neteja</button>
-                </div>
-              </div>
-              <div class="study-calendar__list">
-                <h4>Esdeveniments del dia</h4>
-                <p id="studyCalendarEmpty" class="study-calendar__empty">Encara no hi ha res programat per aquest dia.</p>
-                <ul id="studyCalendarList" class="study-calendar__list-items"></ul>
-              </div>
-            </aside>
-          </div>
-        </section>
 
         <section id="challengesEntrySection" class="panel card challenge-entry" aria-labelledby="challengesEntryTitle">
           <div>
@@ -496,277 +413,7 @@
               });
             }
 
-            const calendarSection = document.querySelector('.study-calendar');
-            if (calendarSection) {
-              const storagePrefix = 'focusquiz.studyCalendar';
-              const getStorageKey = () => `${storagePrefix}.${localStorage.getItem('lastStudent') || 'default'}`;
-              let storageKey = getStorageKey();
-              const addShortcut = document.getElementById('studyCalendarAddShortcut');
-              const todayButton = document.getElementById('studyCalendarToday');
-              const prevButton = document.getElementById('studyCalendarPrev');
-              const nextButton = document.getElementById('studyCalendarNext');
-              const monthLabel = calendarSection.querySelector('[data-calendar-month]');
-              const grid = document.getElementById('studyCalendarGrid');
-              const titleInput = document.getElementById('studyCalendarTitleInput');
-              const typeInput = document.getElementById('studyCalendarTypeInput');
-              const descInput = document.getElementById('studyCalendarDescriptionInput');
-              const addButton = document.getElementById('studyCalendarAddButton');
-              const clearButton = document.getElementById('studyCalendarClearButton');
-              const selectedDateLabel = document.getElementById('studyCalendarSelectedDate');
-              const selectedBadge = document.getElementById('studyCalendarSelectedBadge');
-              const list = document.getElementById('studyCalendarList');
-              const emptyState = document.getElementById('studyCalendarEmpty');
-              let cells = [];
-              let selectedDate = null;
-              let eventsByDate = {};
-              let editingIndex = null;
-              let currentMonth = new Date();
-              currentMonth.setDate(1);
 
-              const loadEvents = () => {
-                try {
-                  eventsByDate = JSON.parse(localStorage.getItem(storageKey)) || {};
-                } catch (error) {
-                  eventsByDate = {};
-                }
-              };
-
-              loadEvents();
-
-              const typeLabels = {
-                homework: 'Deures',
-                exam: 'Examen',
-                reminder: 'Recordatori'
-              };
-
-              const formatDate = (value) => {
-                const parsed = new Date(value);
-                if (Number.isNaN(parsed.getTime())) return value;
-                return parsed.toLocaleDateString('ca-ES', { weekday: 'short', day: 'numeric', month: 'long' });
-              };
-
-              const formatISO = (date) => date.toISOString().slice(0, 10);
-
-              const setSelectedDate = (value) => {
-                selectedDate = value;
-                cells.forEach(cell => cell.classList.toggle('is-selected', cell.dataset.date === value));
-                if (selectedDateLabel) selectedDateLabel.textContent = formatDate(value);
-                if (selectedBadge) selectedBadge.textContent = value || '--';
-                renderDetails();
-              };
-
-              const ensureSelectedDate = () => {
-                if (!cells.length) return;
-                const todayIso = formatISO(new Date());
-                const todayCell = cells.find(cell => cell.dataset.date === todayIso);
-                const monthCell = cells.find(cell => cell.dataset.inMonth === 'true');
-                const hasSelected = cells.some(cell => cell.dataset.date === selectedDate);
-                if (hasSelected && selectedDate) {
-                  setSelectedDate(selectedDate);
-                  return;
-                }
-                const fallback = todayCell || monthCell || cells[0];
-                if (fallback) setSelectedDate(fallback.dataset.date);
-              };
-
-              const persist = () => {
-                localStorage.setItem(storageKey, JSON.stringify(eventsByDate));
-              };
-
-              const syncWithActiveUser = () => {
-                storageKey = getStorageKey();
-                loadEvents();
-                renderCells();
-                renderDetails();
-              };
-
-              const renderMonthGrid = () => {
-                if (!grid) return;
-                if (monthLabel) {
-                  monthLabel.textContent = currentMonth.toLocaleDateString('ca-ES', { month: 'long', year: 'numeric' });
-                }
-
-                grid.innerHTML = '';
-                cells = [];
-
-                const startOfMonth = new Date(currentMonth);
-                startOfMonth.setDate(1);
-                const startOffset = (startOfMonth.getDay() + 6) % 7;
-                const totalCells = 42;
-
-                for (let index = 0; index < totalCells; index++) {
-                  const dayNumber = index - startOffset + 1;
-                  const cellDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), dayNumber);
-                  const isCurrentMonth = cellDate.getMonth() === currentMonth.getMonth();
-                  const button = document.createElement('button');
-                  button.className = 'study-calendar__cell';
-                  if (!isCurrentMonth) button.classList.add('is-outside');
-                  if (isCurrentMonth) button.dataset.inMonth = 'true';
-                  button.dataset.date = formatISO(cellDate);
-                  button.innerHTML = `
-                    <span class="study-calendar__date">${cellDate.getDate()}</span>
-                    <span class="study-calendar__events"></span>
-                  `;
-                  button.addEventListener('click', () => setSelectedDate(button.dataset.date));
-                  grid.appendChild(button);
-                  cells.push(button);
-                }
-
-                ensureSelectedDate();
-                renderCells();
-              };
-
-              const renderCells = () => {
-                const today = formatISO(new Date());
-                cells.forEach(cell => {
-                  const date = cell.dataset.date;
-                  const container = cell.querySelector('.study-calendar__events');
-                  cell.classList.toggle('is-today', date === today);
-                  if (!container) return;
-                  container.innerHTML = '';
-                  const items = eventsByDate[date] || [];
-                  items.slice(0, 2).forEach(item => {
-                    const badge = document.createElement('span');
-                    badge.className = `study-calendar__event is-${item.type}`;
-                    badge.textContent = item.title;
-                    container.appendChild(badge);
-                  });
-                  if (items.length > 2) {
-                    const more = document.createElement('span');
-                    more.className = 'study-calendar__more';
-                    more.textContent = `+${items.length - 2}`;
-                    container.appendChild(more);
-                  }
-                  if (items.length > 0) {
-                    const count = document.createElement('span');
-                    count.className = 'study-calendar__count';
-                    count.textContent = items.length;
-                    container.appendChild(count);
-                  }
-                });
-              };
-
-              const renderDetails = () => {
-                const items = eventsByDate[selectedDate] || [];
-                list.innerHTML = '';
-                if (items.length === 0) {
-                  emptyState.classList.remove('hidden');
-                  editingIndex = null;
-                  addButton.textContent = 'Afegir';
-                  return;
-                }
-                emptyState.classList.add('hidden');
-                items.forEach((item, index) => {
-                  const li = document.createElement('li');
-                  li.className = 'study-calendar__list-item';
-                  li.innerHTML = `
-                    <div>
-                      <p class="study-calendar__list-title">${item.title}</p>
-                      <p class="study-calendar__list-meta">${typeLabels[item.type] || 'Apunt'} · ${item.description || 'Sense descripció'}</p>
-                    </div>
-                    <div class="study-calendar__list-actions">
-                      <button class="btn-ghost" type="button" data-edit-index="${index}">Edita</button>
-                      <button class="btn-ghost" type="button" data-remove-index="${index}">Elimina</button>
-                    </div>
-                  `;
-                  list.appendChild(li);
-                });
-              };
-
-              const addEvent = () => {
-                if (!selectedDate || !titleInput.value.trim()) {
-                  titleInput.focus();
-                  return;
-                }
-                const entry = {
-                  title: titleInput.value.trim(),
-                  description: descInput.value.trim(),
-                  type: typeInput.value
-                };
-                eventsByDate[selectedDate] = eventsByDate[selectedDate] || [];
-                if (editingIndex !== null) {
-                  eventsByDate[selectedDate][editingIndex] = entry;
-                  editingIndex = null;
-                  addButton.textContent = 'Afegir';
-                } else {
-                  eventsByDate[selectedDate].push(entry);
-                }
-                persist();
-                renderCells();
-                renderDetails();
-                titleInput.value = '';
-                descInput.value = '';
-                titleInput.focus();
-              };
-
-              const clearForm = () => {
-                titleInput.value = '';
-                descInput.value = '';
-                typeInput.value = 'homework';
-                editingIndex = null;
-                addButton.textContent = 'Afegir';
-              };
-
-              const goToToday = () => {
-                const today = new Date();
-                const formatted = formatISO(today);
-                currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-                renderMonthGrid();
-                const todayCell = cells.find(cell => cell.dataset.date === formatted);
-                if (todayCell) {
-                  setSelectedDate(formatted);
-                  todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-              };
-
-              list.addEventListener('click', (event) => {
-                const target = event.target;
-                if (!(target instanceof HTMLElement)) return;
-                if (target.dataset.editIndex !== undefined) {
-                  const index = Number(target.dataset.editIndex);
-                  const items = eventsByDate[selectedDate] || [];
-                  const current = items[index];
-                  if (!current) return;
-                  editingIndex = index;
-                  titleInput.value = current.title;
-                  descInput.value = current.description || '';
-                  typeInput.value = current.type || 'homework';
-                  addButton.textContent = 'Desa canvis';
-                  titleInput.focus();
-                  return;
-                }
-                const removeIndex = target.dataset.removeIndex;
-                if (removeIndex === undefined) return;
-                const items = eventsByDate[selectedDate] || [];
-                items.splice(Number(removeIndex), 1);
-                if (items.length === 0) {
-                  delete eventsByDate[selectedDate];
-                }
-                persist();
-                renderCells();
-                renderDetails();
-              });
-
-              addButton.addEventListener('click', addEvent);
-              addShortcut.addEventListener('click', addEvent);
-              clearButton.addEventListener('click', clearForm);
-              todayButton.addEventListener('click', goToToday);
-
-              prevButton?.addEventListener('click', () => {
-                currentMonth.setMonth(currentMonth.getMonth() - 1);
-                renderMonthGrid();
-              });
-
-              nextButton?.addEventListener('click', () => {
-                currentMonth.setMonth(currentMonth.getMonth() + 1);
-                renderMonthGrid();
-              });
-
-              document.addEventListener('focusquiz:user-login', syncWithActiveUser);
-              document.addEventListener('focusquiz:user-logout', syncWithActiveUser);
-
-              renderMonthGrid();
-            }
           });
         </script>
       </div>
@@ -1091,7 +738,7 @@ Nil"></textarea></label>
                 </div>
                 <div class="cav-question-wrap">
                   <span class="cav-question" id="cavQuestion">Prem «Comença» per iniciar la partida.</span>
-                  <input class="cav-answer" id="cavAnswer" type="text" inputmode="numeric" placeholder="Resposta" disabled>
+                  <div class="cav-answer" id="cavAnswer" aria-live="polite">—</div>
                   <div class="cav-actions">
                     <button type="button" class="cav-start" id="cavStart">Comença</button>
                     <button type="button" class="cav-check" id="cavCheck" disabled>Ataca ⚡</button>
@@ -2005,6 +1652,7 @@ Nil"></textarea></label>
         orcX: 88,
         orcBaseSpeed: 6.1,
         answer: null,
+        answerText: '',
         timerId: null,
         frameId: null,
         lastTick: null,
@@ -2110,6 +1758,30 @@ Nil"></textarea></label>
         els.orc.style.left = `${Math.max(ORC_END_X, Math.min(ORC_START_X, state.orcX))}%`;
       }
 
+      function renderAnswer() {
+        const value = state.answerText || '—';
+        els.answer.textContent = value;
+      }
+
+      function appendAnswer(value) {
+        if (!state.running) return;
+        if (value === '-' && state.answerText.includes('-')) return;
+        if (value === '.' && state.answerText.includes('.')) return;
+        if (value === '-' && state.answerText.length > 0) return;
+        state.answerText += value;
+        renderAnswer();
+      }
+
+      function clearAnswer() {
+        state.answerText = '';
+        renderAnswer();
+      }
+
+      function backspaceAnswer() {
+        state.answerText = state.answerText.slice(0, -1);
+        renderAnswer();
+      }
+
       function setMessage(text, type = '') {
         els.msg.textContent = text || '';
         els.msg.classList.toggle('is-good', type === 'good');
@@ -2213,8 +1885,8 @@ Nil"></textarea></label>
 
       function nextTurn() {
         state.answer = buildQuestion();
+        clearAnswer();
         els.question.textContent = state.answer.text;
-        els.answer.value = '';
         clearTimeout(state.timerId);
         state.timerId = setTimeout(() => {
           if (!state.running) return;
@@ -2226,7 +1898,7 @@ Nil"></textarea></label>
 
       function checkAnswer() {
         if (!state.running || !state.answer) return;
-        const entered = normalize(els.answer.value);
+        const entered = normalize(state.answerText);
         if (!entered) return;
         const isCorrect = Number(entered) === Number(state.answer.result);
         if (isCorrect) {
@@ -2254,9 +1926,9 @@ Nil"></textarea></label>
         state.score = 0;
         state.orcX = ORC_START_X;
         state.answer = null;
+        state.answerText = '';
         els.question.textContent = 'Prem «Comença» per iniciar la partida.';
-        els.answer.value = '';
-        els.answer.disabled = true;
+        renderAnswer();
         els.check.disabled = true;
         setWizardSprite('idle');
         setMessage('');
@@ -2267,7 +1939,6 @@ Nil"></textarea></label>
         clearTimeout(state.timerId);
         stopOrcMotion();
         state.running = false;
-        els.answer.disabled = true;
         els.check.disabled = true;
         setWizardSprite('idle');
         els.question.textContent = 'Partida acabada.';
@@ -2281,9 +1952,8 @@ Nil"></textarea></label>
         state.wave = 1;
         state.score = 0;
         state.orcX = ORC_START_X;
-        els.answer.disabled = false;
         els.check.disabled = false;
-        els.answer.focus();
+        clearAnswer();
         setMessage('La horda s’acosta... resol per atacar!', 'good');
         updateHud();
         startOrcMotion();
@@ -2291,12 +1961,6 @@ Nil"></textarea></label>
       });
 
       els.check?.addEventListener('click', checkAnswer);
-      els.answer?.addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          checkAnswer();
-        }
-      });
 
       els.keypad?.addEventListener('click', (event) => {
         const btn = event.target.closest('button');
@@ -2304,21 +1968,41 @@ Nil"></textarea></label>
         const key = btn.dataset.key;
         const action = btn.dataset.action;
         if (key !== undefined) {
-          if (key === '-' && els.answer.value.includes('-')) return;
-          if (key === '.' && els.answer.value.includes('.')) return;
-          if (key === '-' && els.answer.value.length > 0) return;
-          els.answer.value += key;
+          appendAnswer(key);
           return;
         }
         if (action === 'clear') {
-          els.answer.value = '';
+          clearAnswer();
           return;
         }
         if (action === 'back') {
-          els.answer.value = els.answer.value.slice(0, -1);
+          backspaceAnswer();
           return;
         }
         if (action === 'ok') checkAnswer();
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (!state.running) return;
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          checkAnswer();
+          return;
+        }
+        if (event.key === 'Backspace') {
+          event.preventDefault();
+          backspaceAnswer();
+          return;
+        }
+        if (event.key === 'Escape') {
+          event.preventDefault();
+          clearAnswer();
+          return;
+        }
+        if (/^[0-9]$/.test(event.key)) {
+          event.preventDefault();
+          appendAnswer(event.key);
+        }
       });
 
       els.ops.forEach((btn) => {
