@@ -1391,6 +1391,59 @@ tr:hover td{background: #f9fafb}
 #view-results .chart-card svg{ width:100%; height:auto; display:block }
 
 
+
+
+/* ===== Informes d'alumnat ===== */
+.modal-inner.modal-inner--report{
+  width:min(96vw, 980px);
+  max-height:calc(100vh - 56px);
+  overflow-y:auto;
+  padding:clamp(20px, 4vw, 34px);
+}
+.student-report{display:flex;flex-direction:column;gap:18px;color:var(--text)}
+.student-report__header{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid var(--hair);padding-bottom:14px}
+.student-report__header .title{margin:.1rem 0 .35rem}
+.report-alert{border:1px solid #fde68a;background:#fffbeb;color:#78350f;border-radius:14px;padding:12px 14px;font-weight:700;line-height:1.45}
+.report-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.report-stat{border:1px solid var(--hair);border-radius:16px;background:#fff;padding:13px 14px;box-shadow:var(--shadow)}
+.report-stat span{display:block;color:var(--muted);font-size:.82rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.report-stat strong{font-size:1.35rem;font-weight:900;color:var(--text)}
+.report-grid-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.report-section{border:1px solid var(--hair);border-radius:18px;background:rgba(255,255,255,.86);padding:16px;box-shadow:0 10px 28px -22px rgba(15,23,42,.45)}
+.report-section h4{margin:0 0 10px;font-size:1.02rem;color:var(--text)}
+.report-section p{line-height:1.55;margin:.45rem 0;color:#334155}
+.report-module-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.report-module-item{border:1px solid #e2e8f0;border-radius:14px;padding:12px;background:#f8fafc;display:grid;gap:4px}
+.report-module-item span{font-weight:800;color:#0f172a}
+.report-module-item strong{font-size:1.35rem;color:#1d4ed8}
+.report-module-item small{color:var(--muted);font-weight:700}
+.report-error-card{border:1px solid #dbeafe;border-radius:16px;background:linear-gradient(180deg,#f8fbff,#fff);padding:14px;margin-bottom:12px}
+.report-error-card:last-child{margin-bottom:0}
+.report-error-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.report-error-head h4{margin:0;color:#172554}
+.report-error-head p{margin:.15rem 0 0;color:var(--muted);font-size:.9rem}
+.report-examples{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin:10px 0}
+.report-example{border:1px solid #e2e8f0;border-radius:14px;background:#fff;padding:11px}
+.report-example small{display:inline-flex;color:#1e40af;background:#eff6ff;border-radius:999px;padding:4px 8px;font-weight:800;margin-bottom:6px}
+.report-example p{margin:.25rem 0;font-size:.92rem}
+.report-recommendation{border-left:4px solid #60a5fa;padding-left:10px;background:#eff6ff;border-radius:8px;padding-top:8px;padding-bottom:8px}
+.report-resources{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.report-resource{display:flex;justify-content:space-between;gap:10px;align-items:center;text-decoration:none;color:#0f172a;border:1px solid #c7d2fe;background:#eef2ff;border-radius:14px;padding:12px;font-weight:800}
+.report-resource strong{color:#1d4ed8;white-space:nowrap}
+.report-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;border-top:1px solid var(--hair);padding-top:14px}
+@media (max-width:760px){
+  .student-report__header{flex-direction:column}
+  .report-stats,.report-grid-two{grid-template-columns:1fr}
+}
+@media print{
+  body:has(.student-report) > *:not(.modal){display:none!important}
+  body:has(.student-report) .modal{position:static;inset:auto;background:#fff;backdrop-filter:none;padding:0;overflow:visible;display:block}
+  body:has(.student-report) .modal-inner.modal-inner--report{width:auto;max-height:none;overflow:visible;box-shadow:none;border:0;border-radius:0}
+  body:has(.student-report) .student-report__header .btn-ghost,
+  body:has(.student-report) .report-actions{display:none!important}
+  .report-section,.report-stat,.report-error-card{break-inside:avoid;box-shadow:none}
+}
+
 /* ===== Footer ===== */
 footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
 .link{color:#6366f1; text-decoration:none}

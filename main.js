@@ -282,7 +282,11 @@ function sanitizeResultEntry(entry = {}, fallbackName = 'Anònim') {
       user: safeString(w.user),
       correct: safeString(expected !== null ? fmtAns(expected) : ''),
       answer: expected,
-      expected
+      expected,
+      type: safeString(w.type),
+      module: safeString(w.module || entry.module),
+      topic: safeString(w.topic || w.meta?.topic),
+      skill: safeString(w.skill || w.meta?.skill)
     };
   });
 
@@ -3075,6 +3079,499 @@ function renderAnalytics(filtered, nameFilter){
   // ==== Gràfic 3: temps vs puntuació ====
   const pts = set.map(r=>({ x: +(r.time_spent/60).toFixed(2), y: r.score }));
   if(cScatter) cScatter.innerHTML = scatterSVG(pts);
+}
+
+
+const REPORT_RESOURCES = {
+  arith: [
+    { label: 'Teoria d’aritmètica', url: 'teoria.html#aritmetica' },
+    { label: 'Formats i errors típics', url: 'teoria.html#formats' }
+  ],
+  frac: [
+    { label: 'Teoria de fraccions', url: 'teoria.html#fraccions' },
+    { label: 'Càpsula: suma de fraccions', url: 'capsula-suma-fraccions.html' },
+    { label: 'Càpsula: multiplicació i divisió de fraccions', url: 'capsula-multiplicacio-divisio-fraccions.html' }
+  ],
+  perc: [{ label: 'Teoria de percentatges', url: 'teoria.html#percentatges' }],
+  geom: [{ label: 'Teoria de geometria', url: 'teoria.html#geometria' }],
+  coord: [{ label: 'Teoria de geometria i coordenades', url: 'teoria.html#geometria' }],
+  stats: [{ label: 'Teoria d’estadística', url: 'teoria.html#estadistica' }],
+  units: [{ label: 'Teoria d’unitats i conversions', url: 'teoria.html#unitats' }],
+  eq: [{ label: 'Teoria d’equacions', url: 'teoria.html#equacions' }],
+  func: [{ label: 'Teoria de funcions', url: 'teoria.html#funcions' }],
+  'cat-ort': [
+    { label: 'Teoria d’ortografia catalana', url: 'teoriacatala.html#ortografia' },
+    { label: 'Càpsula: accentuació bàsica', url: 'capsula-accentuacio-basica.html' }
+  ],
+  'cat-morf': [{ label: 'Teoria de gramàtica catalana', url: 'teoriacatala.html#gramatica' }],
+  'cat-lect': [{ label: 'Recursos de comprensió i lectura', url: 'recursos.html#theory-library' }],
+  chem: [{ label: 'Recursos de ciències', url: 'recursos.html#theory-library' }],
+  'chem-compounds': [{ label: 'Recursos de formulació i ciències', url: 'recursos.html#theory-library' }],
+  'geo-europe': [{ label: 'Recursos de geografia', url: 'recursos.html#theory-library' }],
+  'geo-america': [{ label: 'Recursos de geografia', url: 'recursos.html#theory-library' }],
+  'geo-africa': [{ label: 'Recursos de geografia', url: 'recursos.html#theory-library' }],
+  'geo-asia': [{ label: 'Recursos de geografia', url: 'recursos.html#theory-library' }]
+};
+
+let currentStudentReportText = '';
+
+function uniqueByUrl(items){
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = item.url || item.label;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function moduleNameFromId(moduleId){
+  return MODULES.find(m => m.id === moduleId)?.name || moduleId || 'Mòdul desconegut';
+}
+
+function moduleAverage(entries){
+  const groups = by(entries, 'module');
+  return Object.entries(groups).map(([moduleId, items]) => ({
+    moduleId,
+    name: moduleNameFromId(moduleId),
+    attempts: items.length,
+    average: avg(items.map(item => Number(item.score) || 0)),
+    wrongs: items.reduce((total, item) => total + (Array.isArray(item.wrongs) ? item.wrongs.length : 0), 0)
+  })).sort((a,b) => a.average - b.average);
+}
+
+function scoreBand(score){
+  if (score >= 90) return {
+    label: 'excel·lent',
+    sentence: 'Mostra un domini molt sòlid dels continguts treballats i pot afrontar activitats de més complexitat.'
+  };
+  if (score >= 75) return {
+    label: 'bo',
+    sentence: 'Mostra un bon domini general, amb alguns punts concrets que encara convé consolidar.'
+  };
+  if (score >= 60) return {
+    label: 'suficient',
+    sentence: 'Té una base de treball suficient, però necessita pràctica guiada per guanyar seguretat i regularitat.'
+  };
+  if (score >= 40) return {
+    label: 'a reforçar',
+    sentence: 'Presenta dificultats importants en diversos exercicis i convé tornar als passos bàsics abans d’augmentar la dificultat.'
+  };
+  return {
+    label: 'inicial',
+    sentence: 'Necessita una revisió pausada dels conceptes essencials i activitats curtes amb feedback immediat.'
+  };
+}
+
+function trendAnalysis(entries){
+  const sorted = entries.slice().sort((a,b) => new Date(a.at) - new Date(b.at));
+  if (sorted.length < 2) {
+    return {
+      label: 'Dades inicials',
+      sentence: 'Encara només hi ha un intent registrat; l’informe és orientatiu i caldria repetir la pràctica per veure una tendència real.',
+      delta: 0
+    };
+  }
+  const firstScore = Number(sorted[0].score) || 0;
+  const lastScore = Number(sorted[sorted.length - 1].score) || 0;
+  const split = Math.max(1, Math.floor(sorted.length / 2));
+  const firstAvg = avg(sorted.slice(0, split).map(item => Number(item.score) || 0));
+  const lastAvg = avg(sorted.slice(-split).map(item => Number(item.score) || 0));
+  const delta = Math.round(lastAvg - firstAvg);
+  if (delta >= 10) return {
+    label: 'Evolució positiva',
+    sentence: `S’observa una millora clara: els últims intents estan aproximadament ${Math.abs(delta)} punts per sobre dels primers. La pràctica sembla estar ajudant a consolidar continguts.`,
+    delta
+  };
+  if (delta <= -10) return {
+    label: 'Evolució a revisar',
+    sentence: `Els últims intents estan aproximadament ${Math.abs(delta)} punts per sota dels primers. Pot convenir revisar si hi ha més dificultat, cansament o falta de consolidació.`,
+    delta
+  };
+  if (lastScore >= 75 && firstScore >= 75) return {
+    label: 'Rendiment estable',
+    sentence: 'El rendiment es manté estable en una franja positiva; l’objectiu ara és consolidar i reduir errors puntuals.',
+    delta
+  };
+  return {
+    label: 'Rendiment irregular',
+    sentence: 'No hi ha una millora o baixada clara. Cal observar més intents i treballar els errors que es repeteixen.',
+    delta
+  };
+}
+
+function detectErrorInsight(wrong = {}, moduleId = ''){
+  const text = String(wrong.text || '').toLowerCase();
+  const user = String(wrong.user || '').trim();
+  const type = String(wrong.type || '').toLowerCase();
+  const moduleKey = String(wrong.module || moduleId || '').toLowerCase();
+  const skipped = !user || /omet/i.test(user) || user === '—' || user === '-';
+  if (skipped) {
+    return {
+      key: 'omissions',
+      title: 'Preguntes omeses',
+      interpretation: 'Hi ha preguntes sense resposta. Pot indicar dubte, falta de temps o inseguretat davant el procediment.',
+      recommendation: 'Practicar primer sense límit de temps i verbalitzar els passos abans de respondre.'
+    };
+  }
+  if (moduleKey === 'frac' || type.includes('frac') || text.includes('/')) {
+    const hasAddition = /\+/.test(text);
+    const hasDifferentDenominators = /\d+\s*\/\s*\d+/.test(text);
+    return {
+      key: hasAddition && hasDifferentDenominators ? 'frac-denominador' : 'frac-procediment',
+      title: hasAddition ? 'Fraccions: denominador comú' : 'Fraccions: procediment i simplificació',
+      interpretation: hasAddition
+        ? 'L’error suggereix que encara cal consolidar el pas de buscar un denominador comú abans d’operar.'
+        : 'L’error apunta a dificultats en el procediment de fraccions o en la simplificació del resultat final.',
+      recommendation: 'Repassar la teoria de fraccions i fer una pràctica curta centrada en explicar cada pas.'
+    };
+  }
+  if (moduleKey === 'units' || type.startsWith('units-')) {
+    return {
+      key: 'unitats-conversio',
+      title: 'Unitats: conversions',
+      interpretation: 'L’error pot venir d’un salt incorrecte en l’escala d’unitats o d’una multiplicació/divisió per 10, 100 o 1000 mal aplicada.',
+      recommendation: 'Repassar l’escala d’unitats i escriure sempre el factor de conversió abans del resultat.'
+    };
+  }
+  if (moduleKey === 'eq' || type.startsWith('eq-')) {
+    return {
+      key: 'equacions-operacio-inversa',
+      title: 'Equacions: operació inversa',
+      interpretation: 'L’error pot estar relacionat amb canvis de signe, operacions inverses o trasllat de termes.',
+      recommendation: 'Treballar equacions pas a pas i comprovar el resultat substituint la solució.'
+    };
+  }
+  if (moduleKey === 'perc' || type.includes('perc')) {
+    return {
+      key: 'percentatges-base',
+      title: 'Percentatges: base de càlcul',
+      interpretation: 'Pot haver-hi confusió entre el percentatge, el total i la quantitat resultant.',
+      recommendation: 'Identificar sempre què és el 100% i escriure la proporció abans de calcular.'
+    };
+  }
+  if (moduleKey === 'geom' || moduleKey === 'coord' || type.includes('geom')) {
+    return {
+      key: 'geometria-formules',
+      title: 'Geometria: fórmula i dades',
+      interpretation: 'L’error pot venir de triar una fórmula incorrecta, confondre radi/diàmetre o no revisar les unitats.',
+      recommendation: 'Repassar la fórmula adequada i subratllar les dades abans de substituir-les.'
+    };
+  }
+  if (moduleKey === 'stats' || type.includes('stats')) {
+    return {
+      key: 'estadistica-concepte',
+      title: 'Estadística: concepte aplicat',
+      interpretation: 'L’error pot indicar confusió entre mitjana, mediana, moda, rang o lectura de dades.',
+      recommendation: 'Fer una taula petita amb les dades ordenades abans de calcular.'
+    };
+  }
+  if (moduleKey.startsWith('cat-')) {
+    return {
+      key: 'catala-norma',
+      title: 'Llengua catalana: norma o comprensió',
+      interpretation: 'L’error indica que cal repassar la norma lingüística o rellegir l’enunciat amb més atenció.',
+      recommendation: 'Repassar la teoria relacionada i fer una segona lectura abans de respondre.'
+    };
+  }
+  if (moduleKey.startsWith('geo-')) {
+    return {
+      key: 'geografia-associacio',
+      title: 'Geografia: associació i localització',
+      interpretation: 'L’error pot venir de confondre capital, bandera, regió o localització al mapa.',
+      recommendation: 'Repassar amb mapa visual i repetir preguntes agrupades per regió.'
+    };
+  }
+  if (moduleKey.startsWith('chem')) {
+    return {
+      key: 'quimica-concepte',
+      title: 'Química: símbols i formulació',
+      interpretation: 'L’error pot estar relacionat amb símbols, valències, nomenclatura o lectura de fórmules.',
+      recommendation: 'Repassar la taula o la regla de formulació abans de tornar a practicar.'
+    };
+  }
+  return {
+    key: 'general-procediment',
+    title: 'Procediment general',
+    interpretation: 'L’error sembla puntual o no té una categoria clara. Cal revisar l’enunciat i comparar-lo amb la resposta correcta.',
+    recommendation: 'Repetir una pràctica curta i escriure el raonament abans de respondre.'
+  };
+}
+
+function buildErrorGroups(entries){
+  const groups = new Map();
+  entries.forEach((entry) => {
+    const wrongs = Array.isArray(entry.wrongs) ? entry.wrongs : [];
+    wrongs.forEach((wrong) => {
+      const insight = detectErrorInsight(wrong, entry.module);
+      const current = groups.get(insight.key) || { ...insight, count: 0, examples: [] };
+      current.count += 1;
+      if (current.examples.length < 2) {
+        current.examples.push({
+          question: wrong.text || 'Pregunta no disponible',
+          user: wrong.user || '—',
+          correct: wrong.correct || fmtAns(wrong.answer),
+          module: moduleNameFromId(wrong.module || entry.module)
+        });
+      }
+      groups.set(insight.key, current);
+    });
+  });
+  return Array.from(groups.values()).sort((a,b) => b.count - a.count).slice(0, 3);
+}
+
+function resourcesForReport(moduleStats){
+  const weakOrRelevant = moduleStats
+    .filter(item => item.average < 75 || item.wrongs > 0)
+    .slice(0, 4);
+  const base = weakOrRelevant.length ? weakOrRelevant : moduleStats.slice(0, 3);
+  const resources = base.flatMap(item => REPORT_RESOURCES[item.moduleId] || []);
+  resources.push({ label: 'Guia general: errors típics', url: 'teoria.html#errors' });
+  return uniqueByUrl(resources).slice(0, 6);
+}
+
+function buildStudentReport(entries, requestedName = ''){
+  const sorted = entries.slice().sort((a,b) => new Date(a.at) - new Date(b.at));
+  const studentName = requestedName || sorted[0]?.name || 'Alumne/a';
+  const scores = sorted.map(item => Number(item.score) || 0);
+  const average = avg(scores);
+  const best = Math.max(...scores);
+  const attempts = sorted.length;
+  const totalQuestions = sorted.reduce((sum, item) => sum + (Number(item.count) || 0), 0);
+  const totalCorrect = sorted.reduce((sum, item) => sum + (Number(item.correct) || 0), 0);
+  const avgTimeMin = avg(sorted.map(item => Number(item.time_spent) || 0)) / 60;
+  const modules = moduleAverage(sorted);
+  const strong = modules.filter(item => item.average >= 75).sort((a,b) => b.average - a.average).slice(0, 3);
+  const weak = modules.filter(item => item.average < 70 || item.wrongs > 0).slice(0, 3);
+  const band = scoreBand(average);
+  const trend = trendAnalysis(sorted);
+  const errorGroups = buildErrorGroups(sorted);
+  const resources = resourcesForReport(modules);
+  const reliability = attempts < 3
+    ? 'Aquest informe és orientatiu perquè hi ha poques activitats registrades. Per tenir una lectura més fiable, convé fer almenys 3 intents.'
+    : attempts < 5
+      ? 'Les dades permeten una primera lectura, però encara convé acumular més intents per confirmar la tendència.'
+      : 'Hi ha prou intents per observar una tendència inicial de rendiment.';
+
+  const weakSentence = weak.length
+    ? `Els aspectes prioritaris a reforçar són: ${weak.map(item => `${item.name} (${fmtPct(item.average)}%)`).join(', ')}.`
+    : 'No apareix cap mòdul clarament feble; convé continuar consolidant amb pràctica variada.';
+  const strongSentence = strong.length
+    ? `Destaca especialment en ${strong.map(item => `${item.name} (${fmtPct(item.average)}%)`).join(', ')}.`
+    : 'Encara no hi ha un punt fort clar; cal continuar recollint resultats i reforçar la base.';
+
+  return {
+    studentName,
+    average,
+    best,
+    attempts,
+    totalQuestions,
+    totalCorrect,
+    avgTimeMin,
+    modules,
+    strong,
+    weak,
+    band,
+    trend,
+    errorGroups,
+    resources,
+    reliability,
+    summary: `${studentName} presenta un rendiment global ${band.label}, amb una mitjana del ${fmtPct(average)}% en ${attempts} activitat${attempts === 1 ? '' : 's'}. ${band.sentence}`,
+    strongSentence,
+    weakSentence
+  };
+}
+
+function reportToPlainText(report){
+  const lines = [
+    `Informe de rendiment — ${report.studentName}`,
+    '',
+    `Resum general: ${report.summary}`,
+    `Fiabilitat: ${report.reliability}`,
+    '',
+    'Indicadors:',
+    `- Mitjana: ${fmtPct(report.average)}%`,
+    `- Millor resultat: ${fmtPct(report.best)}%`,
+    `- Intents analitzats: ${report.attempts}`,
+    `- Encerts totals: ${report.totalCorrect}/${report.totalQuestions}`,
+    `- Temps mitjà: ${report.avgTimeMin.toFixed(1)} min`,
+    '',
+    `Evolució: ${report.trend.label}. ${report.trend.sentence}`,
+    '',
+    `Punts forts: ${report.strongSentence}`,
+    `Aspectes a reforçar: ${report.weakSentence}`,
+    '',
+    'Errors destacats:'
+  ];
+  if (report.errorGroups.length) {
+    report.errorGroups.forEach((group, idx) => {
+      lines.push(`${idx + 1}. ${group.title} (${group.count} error${group.count === 1 ? '' : 's'}): ${group.interpretation}`);
+      group.examples.forEach((example) => {
+        lines.push(`   - Exemple: ${example.question} | Resposta alumne/a: ${example.user} | Correcta: ${example.correct}`);
+      });
+      lines.push(`   Recomanació: ${group.recommendation}`);
+    });
+  } else {
+    lines.push('- No hi ha errors registrats en els intents analitzats.');
+  }
+  lines.push('', 'Recursos recomanats:');
+  report.resources.forEach(resource => lines.push(`- ${resource.label}: ${resource.url}`));
+  return lines.join('\n');
+}
+
+function renderReportHTML(report){
+  const statCards = [
+    { label: 'Mitjana', value: `${fmtPct(report.average)}%` },
+    { label: 'Millor resultat', value: `${fmtPct(report.best)}%` },
+    { label: 'Intents', value: report.attempts },
+    { label: 'Temps mitjà', value: `${report.avgTimeMin.toFixed(1)} min` }
+  ].map(item => `<div class="report-stat"><span>${item.label}</span><strong>${item.value}</strong></div>`).join('');
+
+  const modulesHTML = report.modules.length ? `
+    <div class="report-module-list">
+      ${report.modules.map(item => `
+        <div class="report-module-item">
+          <span>${escapeHTML(item.name)}</span>
+          <strong>${fmtPct(item.average)}%</strong>
+          <small>${item.attempts} intent${item.attempts === 1 ? '' : 's'} · ${item.wrongs} error${item.wrongs === 1 ? '' : 's'}</small>
+        </div>`).join('')}
+    </div>` : '<p class="subtitle">No hi ha mòduls per resumir.</p>';
+
+  const errorsHTML = report.errorGroups.length ? report.errorGroups.map((group, idx) => `
+    <article class="report-error-card">
+      <div class="report-error-head">
+        <span class="chip">${idx + 1}</span>
+        <div>
+          <h4>${escapeHTML(group.title)}</h4>
+          <p>${group.count} error${group.count === 1 ? '' : 's'} semblant${group.count === 1 ? '' : 's'}</p>
+        </div>
+      </div>
+      <p><strong>Interpretació:</strong> ${escapeHTML(group.interpretation)}</p>
+      <div class="report-examples">
+        ${group.examples.map(example => `
+          <div class="report-example">
+            <small>${escapeHTML(example.module)}</small>
+            <p><strong>Pregunta:</strong> ${escapeHTML(example.question)}</p>
+            <p><strong>Resposta alumne/a:</strong> ${escapeHTML(example.user || '—')}</p>
+            <p><strong>Resposta correcta:</strong> ${escapeHTML(example.correct || '—')}</p>
+          </div>`).join('')}
+      </div>
+      <p class="report-recommendation"><strong>Recomanació:</strong> ${escapeHTML(group.recommendation)}</p>
+    </article>`).join('') : '<div class="feedback">No hi ha errors registrats en els intents analitzats. Mantén la pràctica per consolidar.</div>';
+
+  const resourcesHTML = report.resources.map(resource => `
+    <a class="report-resource" href="${escapeHTML(resource.url)}" target="_blank" rel="noopener">
+      <span>${escapeHTML(resource.label)}</span>
+      <strong>Obre →</strong>
+    </a>`).join('');
+
+  return `
+    <section class="student-report" aria-labelledby="studentReportTitle">
+      <header class="student-report__header">
+        <div>
+          <p class="section-title">Informe automàtic</p>
+          <h3 class="title" id="studentReportTitle">Informe de rendiment · ${escapeHTML(report.studentName)}</h3>
+          <p class="subtitle">Generat a partir dels resultats guardats i dels errors registrats.</p>
+        </div>
+        <button class="btn-ghost" type="button" onclick="closeModal()">Tanca</button>
+      </header>
+
+      <div class="report-alert">${escapeHTML(report.reliability)}</div>
+      <div class="report-stats">${statCards}</div>
+
+      <section class="report-section">
+        <h4>Resum general</h4>
+        <p>${escapeHTML(report.summary)}</p>
+      </section>
+
+      <section class="report-grid-two">
+        <article class="report-section">
+          <h4>Evolució</h4>
+          <p><strong>${escapeHTML(report.trend.label)}.</strong> ${escapeHTML(report.trend.sentence)}</p>
+        </article>
+        <article class="report-section">
+          <h4>Punts forts i reforç</h4>
+          <p>${escapeHTML(report.strongSentence)}</p>
+          <p>${escapeHTML(report.weakSentence)}</p>
+        </article>
+      </section>
+
+      <section class="report-section">
+        <h4>Rendiment per mòdul</h4>
+        ${modulesHTML}
+      </section>
+
+      <section class="report-section">
+        <h4>Errors destacats amb exemples</h4>
+        ${errorsHTML}
+      </section>
+
+      <section class="report-section">
+        <h4>Teoria i recursos recomanats</h4>
+        <div class="report-resources">${resourcesHTML}</div>
+      </section>
+
+      <footer class="report-actions">
+        <button class="btn-secondary" type="button" onclick="copyStudentReport()">Copia el text</button>
+        <button class="btn-primary" type="button" onclick="printStudentReport()">Imprimeix / PDF</button>
+      </footer>
+    </section>`;
+}
+
+function createStudentReport(){
+  const data = store.all();
+  const modSelect = $('#filter-module');
+  const nameInput = $('#filter-student');
+  const modFilter = modSelect ? modSelect.value : '';
+  const nameFilter = (nameInput && nameInput.value ? nameInput.value : '').trim().toLowerCase();
+  const filtered = data.filter(r =>
+    (!modFilter || r.module === modFilter) &&
+    (!nameFilter || (r.name || '').toLowerCase().includes(nameFilter))
+  );
+
+  if (!filtered.length) {
+    alert('No hi ha dades per crear cap informe amb els filtres actuals.');
+    return;
+  }
+
+  const names = Array.from(new Set(filtered.map(item => item.name || 'Anònim')));
+  if (!nameFilter && names.length > 1) {
+    alert('Escriu o selecciona un alumne al filtre abans de crear l’informe.');
+    nameInput?.focus();
+    return;
+  }
+
+  const reportName = nameFilter ? (filtered[0]?.name || nameInput.value.trim()) : names[0];
+  const report = buildStudentReport(filtered, reportName);
+  currentStudentReportText = reportToPlainText(report);
+  showModal(renderReportHTML(report), { innerClass: 'modal-inner--report modal-inner--floating' });
+}
+
+async function copyStudentReport(){
+  if (!currentStudentReportText) return;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(currentStudentReportText);
+    } else {
+      const textarea = document.createElement('textarea');
+      textarea.value = currentStudentReportText;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      textarea.remove();
+    }
+    alert('Informe copiat al porta-retalls.');
+  } catch (error) {
+    console.error('No s’ha pogut copiar l’informe.', error);
+    alert('No s’ha pogut copiar automàticament. Pots seleccionar el text de l’informe manualment.');
+  }
+}
+
+function printStudentReport(){
+  window.print();
 }
 
 function exportCSV(){
