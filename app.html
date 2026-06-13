@@ -6,6 +6,7 @@
   <title>Focus Academy · Espai de repàs</title>
   <meta name="description" content="Pràctiques de matemàtiques per a estudiants. Single-file, sense dependències." />
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="focusmind.css">
 
   <style>
     /* ===== Reptes: Joc de la corda ===== */
@@ -245,6 +246,7 @@
       <!-- 🔹 Navegació principal -->
       <nav class="main-nav" aria-label="Navegació principal">
         <button class="pill nav-btn" type="button" onclick="scrollToSection('tutorSection')">Tutor</button>
+        <button class="pill nav-btn" type="button" onclick="showFocusMind()">FocusMind</button>
         <a class="pill nav-btn" href="reptes.html">Reptes</a>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('classSection')">Aula</button>
         <button class="pill nav-btn" type="button" onclick="scrollToSection('liveSection')">Live</button>
@@ -279,6 +281,18 @@
           <div class="tutor-actions">
           </div>
         </div>
+
+
+        <section id="focusMindEntrySection" class="panel card focusmind-entry" aria-labelledby="focusMindEntryTitle">
+          <div>
+            <p class="portal-section-title">FocusMind</p>
+            <h2 id="focusMindEntryTitle">Minijocs mentals premium</h2>
+            <p class="subtitle">Minijocs cognitius per entrenar memòria, atenció i agilitat mental.</p>
+          </div>
+          <div class="challenge-entry__actions">
+            <button class="pill" type="button" onclick="showFocusMind()">Entrar</button>
+          </div>
+        </section>
 
         <section id="challengesEntrySection" class="panel card challenge-entry" aria-labelledby="challengesEntryTitle">
           <div>
@@ -753,6 +767,8 @@ Nil"></textarea></label>
     </section>
 
     <!-- CONFIG -->
+    <section id="view-focusmind" class="hidden"></section>
+
     <section id="view-config" class="hidden">
       <div class="panel card">
         <div class="row" style="align-items:center">
@@ -2665,6 +2681,7 @@ Nil"></textarea></label>
   <!-- 🔹 Lògica principal i generadors de matemàtiques -->
   <script type="module" src="supabase/student-sync.js"></script>
   <script src="main.js" defer></script>
+  <script src="focusmind.js" defer></script>
   <script src="math.js" defer></script>
 
   <script>
