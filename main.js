@@ -522,11 +522,20 @@ const isAssignedSession = () => Boolean(session && session.assignmentId);
 /* ===================== VIEWS ===================== */
 
 function showView(name){
-  ['home','challenges','config','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
+  ['home','challenges','focusmind','config','quiz','results','about'].forEach(v=> $('#view-'+v).classList.toggle('hidden', v!==name));
   $$('.nav-btn[data-view]').forEach(btn=>{
     btn.classList.toggle('active', btn.dataset.view === name);
   });
   if(name==='results') renderResults();
+  if(name==='focusmind' && typeof window.initFocusMind === 'function' && !$('#view-focusmind')?.dataset.ready) window.initFocusMind();
+}
+
+
+function showFocusMind(){
+  if (window.location.pathname !== '/focusmind') {
+    try { history.pushState(null, '', '/focusmind'); } catch (err) {}
+  }
+  showView('focusmind');
 }
 
 function scrollToSection(id){
