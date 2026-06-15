@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bar · FocusMind</title>
+  <link rel="stylesheet" href="cafe-focus.css" />
+</head>
+<body>
+  <main class="cafe-shell">
+    <section class="cafe-hero" id="introPanel">
+      <div>
+        <p class="cafe-kicker">FocusMind · Atenció, memòria i velocitat</p>
+        <h1>Bar</h1>
+        <p>Memoritza la comanda de cada client i prepara-la ràpidament. Cada ronda afegeix més elements i menys temps.</p>
+        <div class="cafe-actions">
+          <button class="cafe-btn" id="startBtn">Començar partida</button>
+          <a class="cafe-btn cafe-btn--ghost" href="/focusmind" id="backLink">Tornar a FocusMind</a>
+        </div>
+      </div>
+      <div class="cafe-counter" aria-hidden="true">
+        <span>☕</span><span>🥐</span><span>🧃</span><span>🍰</span>
+      </div>
+    </section>
+
+    <section class="cafe-game" id="gamePanel" hidden>
+      <header class="cafe-hud">
+        <div><strong>Ronda</strong><span id="roundText">1/8</span></div>
+        <div><strong>Punts</strong><span id="scoreText">0</span></div>
+        <div><strong>Temps</strong><span id="timeText">0.0 s</span></div>
+        <div><strong>Precisió</strong><span id="accuracyText">100%</span></div>
+      </header>
+
+      <div class="cafe-order-card">
+        <p class="cafe-status" id="statusText">Observa la comanda...</p>
+        <div class="cafe-order" id="orderList"></div>
+      </div>
+
+      <div class="cafe-tray" id="trayList" aria-live="polite"></div>
+      <div class="cafe-menu" id="menuGrid"></div>
+      <div class="cafe-actions cafe-actions--game">
+        <button class="cafe-btn cafe-btn--ghost" id="clearBtn">Netejar safata</button>
+        <button class="cafe-btn" id="serveBtn">Servir comanda</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="cafe-modal" id="resultModal" hidden>
+    <div class="cafe-result-card">
+      <h2>Resultat del Bar</h2>
+      <p id="resultMessage"></p>
+      <div class="cafe-result-grid" id="resultStats"></div>
+      <div class="cafe-actions">
+        <button class="cafe-btn" id="repeatBtn">Repetir</button>
+        <a class="cafe-btn cafe-btn--ghost" href="/focusmind" id="finishBackLink">Tornar a FocusMind</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="cafe-focus.js" defer></script>
+</body>
+</html>
