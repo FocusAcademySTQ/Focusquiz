@@ -416,6 +416,11 @@
   object-fit: cover;
 }
 
+.fm-game-emoji {
+  font-size: 2.9rem;
+  line-height: 1;
+}
+
 .fm-game-card p {
   margin: 0;
   line-height: 1.45;
