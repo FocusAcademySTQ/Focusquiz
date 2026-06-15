@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ca">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FocusQuiz - Minijocs Focus</title>
+    <link rel="stylesheet" href="cafe-focus.css" />
+  </head>
+  <body>
+    <main id="focusquiz-root">
+      <section class="hub" id="hub-screen" aria-labelledby="hub-title">
+        <div class="hub__intro">
+          <p class="eyebrow">Minijocs Focus</p>
+          <h1 id="hub-title">FocusQuiz</h1>
+          <p>Tria un entrenament curt per treballar habilitats cognitives amb activitats visuals i tactils.</p>
+        </div>
+
+        <button class="game-card" id="open-cafe-focus" type="button">
+          <span class="game-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 96 96" role="img">
+              <path d="M22 38h46v22a20 20 0 0 1-20 20h-6a20 20 0 0 1-20-20V38Z" fill="#fff5e6" />
+              <path d="M68 44h8a10 10 0 0 1 0 20h-8" fill="none" stroke="#6f4b32" stroke-width="7" stroke-linecap="round" />
+              <path d="M28 46h34v14a14 14 0 0 1-14 14h-6a14 14 0 0 1-14-14V46Z" fill="#b9784c" />
+              <path d="M20 82h52" stroke="#2d5a5a" stroke-width="7" stroke-linecap="round" />
+              <path d="M35 13c-5 7 5 10 0 17M50 13c-5 7 5 10 0 17" stroke="#6f4b32" stroke-width="5" stroke-linecap="round" fill="none" />
+            </svg>
+          </span>
+          <span class="game-card__content">
+            <strong>Caf&egrave; Focus</strong>
+            <span>Prepara caf&egrave;s i entrena l'atenci&oacute;, la mem&ograve;ria i la precisi&oacute;.</span>
+          </span>
+        </button>
+      </section>
+
+      <section class="cafe-app is-hidden" id="cafe-focus" aria-labelledby="cafe-title">
+        <header class="cafe-topbar">
+          <button class="ghost-button" id="back-to-hub" type="button">Minijocs Focus</button>
+          <div>
+            <p class="eyebrow">Atenci&oacute; &middot; Mem&ograve;ria &middot; Precisi&oacute;</p>
+            <h1 id="cafe-title">Caf&egrave; Focus</h1>
+          </div>
+          <div class="score-pill" aria-live="polite">
+            <span>Precisi&oacute;</span>
+            <strong id="accuracy-label">100%</strong>
+          </div>
+        </header>
+
+        <section class="setup-panel" id="setup-panel" aria-label="Configuracio de partida">
+          <div>
+            <h2>Nova partida</h2>
+            <p>Serveix 8 clients. La velocitat ajuda, pero el joc valora sobretot mirar, recordar i preparar be.</p>
+          </div>
+          <div class="setup-grid">
+            <fieldset>
+              <legend>Mode</legend>
+              <label><input type="radio" name="mode" value="practice" checked /> Practica</label>
+              <label><input type="radio" name="mode" value="memory" /> Memoria</label>
+              <label><input type="radio" name="mode" value="speed" /> Rapid</label>
+            </fieldset>
+            <fieldset>
+              <legend>Nivell</legend>
+              <label><input type="radio" name="level" value="1" checked /> 1</label>
+              <label><input type="radio" name="level" value="2" /> 2</label>
+              <label><input type="radio" name="level" value="3" /> 3</label>
+              <label><input type="radio" name="level" value="4" /> 4</label>
+            </fieldset>
+          </div>
+          <button class="primary-button" id="start-game" type="button">Comen&ccedil;ar</button>
+        </section>
+
+        <section class="game-layout is-hidden" id="game-panel" aria-label="Partida de Cafe Focus">
+          <div class="client-panel">
+            <div class="client-avatar" id="client-avatar" aria-hidden="true">
+              <span class="avatar-face"></span>
+            </div>
+            <div class="order-card">
+              <div class="order-card__meta">
+                <span id="client-label">Client 1 de 8</span>
+                <span id="timer-label">Sense temps</span>
+              </div>
+              <p id="order-text">Vull un caf&egrave; sol.</p>
+            </div>
+          </div>
+
+          <div class="customer-queue" id="customer-queue" aria-label="Cua de clients"></div>
+
+          <div class="progress-track" aria-label="Progres de clients">
+            <span id="progress-fill"></span>
+          </div>
+
+          <div class="experience-board">
+            <section class="bar-station" aria-label="Taulell de preparacio">
+              <div class="dispenser-top" aria-label="Sortidors de cafe">
+                <div class="dispenser-panel">
+                  <span class="machine__light" id="machine-light" aria-hidden="true"></span>
+                  <strong>Sortidors</strong>
+                </div>
+                <button class="coffee-spout normal-spout" type="button" draggable="true" data-action="shot" aria-label="Sortidor de cafe normal">
+                  <span class="spout-head"></span>
+                  <b>caf&egrave;</b>
+                </button>
+                <button class="coffee-spout decaf-spout" type="button" draggable="true" data-action="decaf" aria-label="Sortidor de cafe descafeinat">
+                  <span class="spout-head"></span>
+                  <b>descaf.</b>
+                </button>
+              </div>
+
+              <div class="service-area">
+                <div class="cup-shelf" aria-label="Tasses netes">
+                  <button class="clean-cup active-cup" id="place-cup" type="button" draggable="true" aria-label="Posar tassa sota la maquina">
+                    <span></span>
+                    <b>tassa</b>
+                  </button>
+                  <div class="cup-stack" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                  </div>
+                </div>
+
+                <div class="cup-stage no-cup" id="cup-drop-zone" aria-label="Tassa">
+                  <div class="focus-distractor" aria-hidden="true"></div>
+                  <div class="pour-stream" id="pour-stream" aria-hidden="true"></div>
+                  <div class="cup-placeholder" aria-hidden="true">posa la tassa</div>
+                  <div class="cup" id="cup">
+                    <div class="cup__steam"></div>
+                    <div class="cup__liquid coffee-layer" id="coffee-layer"></div>
+                    <div class="cup__liquid water-layer" id="water-layer"></div>
+                    <div class="cup__liquid milk-layer" id="milk-layer"></div>
+                    <div class="cup__extras" id="cup-extras"></div>
+                  </div>
+                  <p id="selection-summary">Posa una tassa, afegeix ingredients i serveix.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="ingredient-panel" aria-label="Ingredients visuals">
+              <div class="tray">
+                <button class="ingredient jug small-milk" type="button" draggable="true" data-action="milk-small" aria-label="Rajoli de llet">
+                  <span></span>
+                  <b>rajoli llet</b>
+                </button>
+                <button class="ingredient jug big-milk" type="button" draggable="true" data-action="milk-big" aria-label="Llet">
+                  <span></span>
+                  <b>llet</b>
+                </button>
+                <button class="ingredient jug veggie-milk" type="button" draggable="true" data-action="veggie-milk" aria-label="Llet vegetal">
+                  <span></span>
+                  <b>vegetal</b>
+                </button>
+                <button class="ingredient water-tool" type="button" draggable="true" data-action="water" aria-label="Aigua calenta">
+                  <span></span>
+                  <b>aigua</b>
+                </button>
+                <button class="ingredient sugar-tool" type="button" draggable="true" data-action="sugar" aria-label="Sucre">
+                  <span></span>
+                  <b>sucre</b>
+                </button>
+                <button class="ingredient no-sugar-tool" type="button" draggable="true" data-action="no-sugar" aria-label="Sense sucre">
+                  <span></span>
+                  <b>sense sucre</b>
+                </button>
+                <button class="ingredient ice-tool" type="button" draggable="true" data-action="ice" aria-label="Gel">
+                  <span></span>
+                  <b>gel</b>
+                </button>
+              </div>
+
+              <div class="action-row">
+                <button class="secondary-button" id="clear-selection" type="button">Reiniciar tassa</button>
+                <button class="serve-button" id="serve-coffee" type="button" disabled>Servir</button>
+              </div>
+            </section>
+          </div>
+
+          <aside class="feedback-panel" id="feedback-panel" aria-live="polite">
+            <strong>Preparat per comen&ccedil;ar.</strong>
+            <span>Observa la comanda i construeix el cafe amb la maquina.</span>
+          </aside>
+        </section>
+
+        <section class="results-panel is-hidden" id="results-panel" aria-label="Resultat final">
+          <h2>Resum de la ronda</h2>
+          <div class="results-grid" id="results-grid"></div>
+          <p class="final-message" id="final-message"></p>
+          <div class="results-actions">
+            <button class="secondary-button" id="play-again" type="button">Jugar de nou</button>
+            <button class="ghost-button" id="return-home" type="button">Tornar als minijocs</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="cafe-focus.js"></script>
+  </body>
+</html>
