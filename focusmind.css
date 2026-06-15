@@ -398,13 +398,22 @@
 }
 
 .fm-game-art {
-  min-height: 104px;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 22% 28%, var(--fm-blue), transparent 18%),
-    radial-gradient(circle at 68% 62%, var(--fm-mint), transparent 22%),
-    linear-gradient(135deg, #f5f8ff, #ffffff);
+  width: 82px;
+  height: 82px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #f8fbff, #ffffff);
   border: 1px solid #dce6ff;
+  box-shadow: 0 12px 26px rgba(79, 70, 229, 0.10);
+  overflow: hidden;
+}
+
+.fm-game-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .fm-game-card p {
