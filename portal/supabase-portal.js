@@ -1759,6 +1759,14 @@ function renderResults() {
   highlightActiveResultButton();
 }
 
+function renderAll() {
+  renderClasses();
+  renderAssignments();
+  buildResultsFilters();
+  renderResults();
+  renderClassroomTools();
+}
+
 async function updateRoster(classId, rawValue, feedbackNode) {
   const names = sanitizeListInput(rawValue);
   const existing = state.classes.find((cls) => cls.id === classId);
