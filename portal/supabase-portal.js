@@ -135,6 +135,26 @@ function getNested(source, keys, fallback) {
   return current === undefined ? fallback : current;
 }
 
+function getNestedState(path, fallback = '') {
+  if (!path) return fallback;
+  return getNested(state, path.split('.'), fallback);
+}
+
+function setNestedState(path, value) {
+  if (!path) return;
+  const keys = path.split('.').filter(Boolean);
+  if (!keys.length) return;
+  let target = state;
+  for (let index = 0; index < keys.length - 1; index += 1) {
+    const key = keys[index];
+    if (!target[key] || typeof target[key] !== 'object') {
+      target[key] = {};
+    }
+    target = target[key];
+  }
+  target[keys[keys.length - 1]] = value;
+}
+
 function coalesce(value, fallback) {
   return value === null || value === undefined ? fallback : value;
 }
