@@ -2609,91 +2609,56 @@
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
-.classroom-random-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  align-items: end;
-}
-
-.classroom-random-actions {
-  display: grid;
-  gap: 0.5rem;
-  align-content: center;
-}
-
-.classroom-pick-result {
-  margin: 0;
-  font-size: 1rem;
-  color: #0f172a;
-  min-height: 1.5em;
-}
-
-.classroom-history {
+.portal-quiz-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-
-.classroom-history .portal-chip,
-.classroom-history .portal-chip--muted {
-  cursor: default;
-}
-
-.classroom-timer-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   align-items: center;
+  gap: 0.7rem;
 }
 
-.classroom-timer-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+.portal-quiz-chip {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-}
-
-.classroom-timer-display {
-  min-width: 160px;
-}
-
-.classroom-timer-time {
-  font-size: 2.4rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.classroom-timer-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.classroom-timer-bar {
-  position: relative;
-  width: 100%;
-  height: 12px;
+  gap: 0.55rem;
+  width: fit-content;
+  padding: 0.38rem 0.45rem 0.38rem 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.36);
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.25);
-  overflow: hidden;
-  margin-top: 0.5rem;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 500;
+  box-shadow: 0 8px 24px -18px rgba(15, 23, 42, 0.35);
 }
 
-.classroom-timer-bar span {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 100%;
-  background: #f6f8ff;
-  transform-origin: left center;
-  transform: scaleX(0);
-  transition: transform 0.2s ease;
+.portal-quiz-chip span {
+  white-space: nowrap;
 }
 
-.classroom-notes {
-  margin-top: 0.5rem;
+.portal-quiz-chip select.input {
+  min-width: 4rem;
+  width: auto;
+  margin: 0;
+  padding: 0.52rem 2rem 0.52rem 0.9rem;
+  border-radius: 12px;
+  border-color: rgba(148, 163, 184, 0.32);
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.portal-quiz-chip select[name="time"] {
+  min-width: 7.7rem;
+}
+
+@media (max-width: 560px) {
+  .portal-quiz-options {
+    align-items: stretch;
+  }
+
+  .portal-quiz-chip {
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 .portal-actions {
