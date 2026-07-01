@@ -15,6 +15,12 @@ export const MODULES = [
   { id: 'coord', name: 'Coordenades cartesianes', desc: 'Col·loca punts als quadrants i llegeix coordenades.', category: 'math' },
   { id: 'stats', name: 'Estadística bàsica', desc: 'Mitjana/mediana/moda, rang/desviació i gràfics.', category: 'math' },
   { id: 'units', name: 'Unitats i conversions', desc: 'Longitud, massa, volum, superfície i temps.', category: 'math' },
+  {
+    id: 'competencial',
+    name: 'Problemes competencials',
+    desc: 'Situacions reals amb diners, temps, unitats, gràfics, geometria, percentatges i raonament multistep.',
+    category: 'math',
+  },
   { id: 'eq', name: 'Equacions', desc: '1r grau, 2n grau, sistemes, fraccions i parèntesis.', category: 'math' },
   { id: 'func', name: 'Estudi de funcions', desc: 'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', category: 'math' },
   {
