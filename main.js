@@ -907,6 +907,25 @@ function openConfig(moduleId){
         <span class="subtitle">Escriu <b>només el nombre</b> (la unitat ja surt a l'enunciat).</span>
       </div>
     `;
+  } else if(pendingModule.id === 'competencial'){
+    wrap.innerHTML = `
+      <div class="section-title">Problemes competencials · Subtemes</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Subtemes de problemes competencials">
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="mix" checked> Barrejats</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="money"> Compres i diners</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="time"> Temps i horaris</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="units"> Mesures i unitats</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="proportion"> Proporcionalitat</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="graphs"> Gràfics i taules</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="geometry"> Geometria aplicada</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="percent"> Percentatges</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="equations"> Equacions en context</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="multistep"> Problemes multistep</label>
+        </div>
+      </div>
+      <div class="subtitle">Cada subtema comença amb 3 problemes de mostra. Escriu només el nombre; la unitat apareix com a pista.</div>
+    `;
   } else if(pendingModule.id === 'coord'){
     wrap.innerHTML = `
       <div class="section-title">Coordenades cartesianes · Subtemes</div>
@@ -1090,6 +1109,8 @@ function collectConfigValues(){
   } else if(pendingModule.id==='units'){
     options.sub = document.querySelector('input[name="units-sub"]:checked')?.value || 'length';
     options.round = parseInt($('#units-round').value || '2');
+  } else if(pendingModule.id==='competencial'){
+    options.sub = document.querySelector('input[name="competencial-sub"]:checked')?.value || 'mix';
   } else if(pendingModule.id==='coord'){
     options.sub = document.querySelector('input[name="coord-sub"]:checked')?.value || 'read';
   } else if(pendingModule.id==='eq'){
