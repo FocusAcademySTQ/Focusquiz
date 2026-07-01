@@ -190,27 +190,39 @@
               <p id="moduleConfigNotice" class="portal-muted hidden"></p>
             </div>
           </div>
-          <div class="portal-form portal-form--three">
-            <label>
-              <span class="portal-field-label">Preguntes</span>
-              <input class="input" name="count" type="number" min="1" max="200" value="20" />
+          <div class="portal-quiz-options" aria-label="Opcions comunes de la prova">
+            <label class="portal-quiz-chip">
+              <span>Preguntes</span>
+              <select class="input" name="count" aria-label="Nombre de preguntes">
+                <option selected>10</option>
+                <option>20</option>
+                <option>30</option>
+                <option>50</option>
+              </select>
             </label>
-            <label>
-              <span class="portal-field-label">Temps (minuts)</span>
-              <input class="input" name="time" type="number" min="0" max="180" value="0" />
+            <label class="portal-quiz-chip">
+              <span>Temps (min)</span>
+              <select class="input" name="time" aria-label="Temps màxim en minuts">
+                <option value="0" selected>Sense límit</option>
+                <option>5</option>
+                <option>10</option>
+                <option>15</option>
+                <option>20</option>
+              </select>
             </label>
-            <label id="assignmentLevelField">
-              <span class="portal-field-label">Nivell (1-4)</span>
-              <input id="assignmentLevelInput" class="input" name="level" type="number" min="1" max="4" value="1" />
+            <label id="assignmentLevelField" class="portal-quiz-chip">
+              <span>Nivell (1–4)</span>
+              <select id="assignmentLevelInput" class="input" name="level" aria-label="Nivell de dificultat">
+                <option selected>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+              </select>
             </label>
           </div>
           <label>
             <span class="portal-field-label">Data límit (opcional)</span>
             <input class="input" name="due_at" type="datetime-local" />
-          </label>
-          <label class="portal-form--stack">
-            <span class="portal-field-label">Notes internes</span>
-            <textarea class="input" name="notes" rows="3" placeholder="Anota criteris o instruccions per recordar-les"></textarea>
           </label>
           <div class="portal-actions">
             <button class="btn-primary" type="submit">Publica la prova</button>

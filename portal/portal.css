@@ -2609,6 +2609,58 @@
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
+.portal-quiz-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.portal-quiz-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: fit-content;
+  padding: 0.38rem 0.45rem 0.38rem 0.8rem;
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 500;
+  box-shadow: 0 8px 24px -18px rgba(15, 23, 42, 0.35);
+}
+
+.portal-quiz-chip span {
+  white-space: nowrap;
+}
+
+.portal-quiz-chip select.input {
+  min-width: 4rem;
+  width: auto;
+  margin: 0;
+  padding: 0.52rem 2rem 0.52rem 0.9rem;
+  border-radius: 12px;
+  border-color: rgba(148, 163, 184, 0.32);
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.portal-quiz-chip select[name="time"] {
+  min-width: 7.7rem;
+}
+
+@media (max-width: 560px) {
+  .portal-quiz-options {
+    align-items: stretch;
+  }
+
+  .portal-quiz-chip {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 .portal-actions {
   display: flex;
   flex-wrap: wrap;

@@ -1699,8 +1699,6 @@ async function createAssignment(formData) {
   const storedLevel = usesLevels ? level : 0;
   const levelLabel = usesLevels ? null : moduleFreeLevelLabel(module);
   const dueAtRaw = readFormValue(formData, 'due_at').trim();
-  const notesValue = readFormValue(formData, 'notes').trim();
-  const notes = notesValue ? notesValue : null;
   const moduleOptions = collectModuleOptions();
   const questionSet = Array.isArray(state.assignmentDraft.questionSet)
     ? state.assignmentDraft.questionSet.map((question) => {
@@ -1744,7 +1742,6 @@ async function createAssignment(formData) {
       quiz_config: quizConfig,
       status: 'published',
       due_at: dueAtRaw ? new Date(dueAtRaw).toISOString() : null,
-      notes,
     };
     const { error } = await client.from('assignments').insert(payload);
     if (error) throw error;
