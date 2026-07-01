@@ -19,6 +19,19 @@ const STATUS_LABELS = {
   reviewed: 'Revisada',
 };
 
+const LEVEL_ENABLED_MODULE_IDS = new Set([
+  'arith',
+  'frac',
+  'perc',
+  'geom',
+  'coord',
+  'stats',
+  'units',
+  'competencial',
+  'eq',
+  'func',
+]);
+
 const elements = {
   main: document.getElementById('classMain'),
   error: document.getElementById('classError'),
@@ -48,8 +61,7 @@ function resolveModuleInfo(moduleOrId) {
 
 function moduleSupportsLevels(moduleOrId) {
   const moduleInfo = resolveModuleInfo(moduleOrId);
-  if (!moduleInfo) return true;
-  return moduleInfo.usesLevels !== false;
+  return Boolean(moduleInfo && LEVEL_ENABLED_MODULE_IDS.has(moduleInfo.id) && moduleInfo.usesLevels !== false);
 }
 
 function moduleFreeLevelLabel(moduleOrId) {

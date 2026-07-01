@@ -109,6 +109,19 @@ const unitsSubthemes = [
   { value: 'time', label: 'Temps' },
 ];
 
+const competencialSubthemes = [
+  { value: 'mix', label: 'Barrejats' },
+  { value: 'money', label: 'Compres i diners' },
+  { value: 'time', label: 'Temps i horaris' },
+  { value: 'units', label: 'Mesures i unitats' },
+  { value: 'proportion', label: 'Proporcionalitat' },
+  { value: 'graphs', label: 'Gràfics i taules' },
+  { value: 'geometry', label: 'Geometria aplicada' },
+  { value: 'percent', label: 'Percentatges' },
+  { value: 'equations', label: 'Equacions en context' },
+  { value: 'multistep', label: 'Problemes multistep' },
+];
+
 const equationFormats = [
   { value: 'normal', label: 'Normals' },
   { value: 'frac', label: 'Amb fraccions' },
@@ -683,6 +696,49 @@ const unitsDefinition = {
   },
 };
 
+function competencialDefaults() {
+  return { sub: 'mix' };
+}
+
+function competencialNormalize(options = {}) {
+  const allowed = competencialSubthemes.map((item) => item.value);
+  const sub = allowed.includes(options.sub) ? options.sub : 'mix';
+  return { sub };
+}
+
+const competencialDefinition = {
+  defaults: competencialDefaults,
+  normalize: competencialNormalize,
+  render(options = {}) {
+    const opts = competencialNormalize(options);
+    const radios = competencialSubthemes
+      .map((item) => `
+        <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="${item.value}" ${CHECKED(opts.sub === item.value)}> ${item.label}</label>
+      `)
+      .join('');
+    return createContainer('competencial', `
+      <div class="section-title">Subtemes competencials</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Subtemes de problemes competencials">
+          ${radios}
+        </div>
+      </div>
+      <p class="subtitle">Cada subtema inclou 3 problemes de mostra. L'opció “Barrejats” combina tots els subtemes.</p>
+    `);
+  },
+  collect(card) {
+    const scope = safeQuery(card, '[data-module-config="competencial"]');
+    if (!scope) return competencialDefaults();
+    const sub = getCheckedValue(scope, 'input[name="competencial-sub"]:checked', 'mix');
+    return competencialNormalize({ sub });
+  },
+  summarize(options = {}) {
+    const opts = competencialNormalize(options);
+    const subInfo = competencialSubthemes.find((item) => item.value === opts.sub);
+    return `Subtema: ${subInfo ? subInfo.label : 'Barrejats'}`;
+  },
+};
+
 function equationsDefaults() {
   return {
     format: 'normal',
@@ -1238,6 +1294,7 @@ export const MODULE_OPTION_DEFINITIONS = {
   coord: coordDefinition,
   stats: statsDefinition,
   units: unitsDefinition,
+  competencial: competencialDefinition,
   eq: equationsDefinition,
   func: functionsDefinition,
   'cat-ort': ortografiaDefinition,
