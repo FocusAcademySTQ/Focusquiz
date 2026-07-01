@@ -105,91 +105,8 @@
     <div id="portalTabs" class="portal-tabs hidden" data-portal-tablist role="tablist" aria-label="Eines del professorat">
       <button id="tab-classes" class="portal-tab" type="button" data-tab="classes" role="tab" aria-controls="classesPanel" aria-selected="false">Classes</button>
       <button id="tab-assignments" class="portal-tab" type="button" data-tab="assignments" role="tab" aria-controls="assignmentsPanel" aria-selected="false">Assignacions</button>
-      <button id="tab-classroom" class="portal-tab" type="button" data-tab="classroom" role="tab" aria-controls="classroomPanel" aria-selected="false">Gestió d'aula</button>
       <button id="tab-results" class="portal-tab" type="button" data-tab="results" role="tab" aria-controls="resultsPanel" aria-selected="false">Resultats</button>
     </div>
-
-    <section id="classroomPanel" class="portal-tabpanel hidden" data-tab-panel="classroom" role="tabpanel" aria-labelledby="tab-classroom">
-      <section class="panel card">
-        <div class="portal-section-header">
-          <div>
-            <p class="portal-section-title">Participació equilibrada</p>
-            <h2>Selector aleatori d'alumnes</h2>
-            <p class="portal-muted">Recorre tota la llista sense repetir fins a reiniciar la ronda.</p>
-          </div>
-          <div class="portal-actions">
-            <button id="classroomResetPicks" class="btn-ghost" type="button">Reinicia ronda</button>
-          </div>
-        </div>
-
-        <div class="classroom-random-grid">
-          <label>
-            <span class="portal-field-label">Classe</span>
-            <select id="classroomClassSelect" class="input"></select>
-          </label>
-          <div class="classroom-random-actions">
-            <button id="classroomPickStudent" class="btn-primary" type="button">Tria un alumne</button>
-            <p id="classroomPickResult" class="classroom-pick-result portal-muted" role="status" aria-live="polite"></p>
-          </div>
-        </div>
-
-        <div id="classroomPickHistory" class="classroom-history"></div>
-      </section>
-
-      <section class="panel card">
-        <div class="portal-section-header">
-          <div>
-            <p class="portal-section-title">Control del temps</p>
-            <h2>Temporitzador de classe</h2>
-            <p class="portal-muted">Marca els minuts d'una activitat, pausa quan calgui i reinicia fàcilment.</p>
-          </div>
-          <div class="portal-actions">
-            <button id="classroomTimerReset" class="btn-ghost" type="button">Reinicia</button>
-          </div>
-        </div>
-
-        <div class="classroom-timer-grid">
-          <label>
-            <span class="portal-field-label">Minuts</span>
-            <input id="classroomTimerMinutes" class="input" type="number" min="1" max="120" value="5" />
-          </label>
-          <div class="classroom-timer-controls">
-            <div class="classroom-timer-display" aria-live="polite">
-              <p id="classroomTimerDisplay" class="classroom-timer-time">05:00</p>
-              <p id="classroomTimerStatus" class="portal-muted" style="margin:0">Preparat</p>
-            </div>
-            <div class="classroom-timer-buttons">
-              <button id="classroomTimerToggle" class="btn-primary" type="button">Inicia</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="classroom-timer-bar" aria-hidden="true">
-          <span id="classroomTimerProgress"></span>
-        </div>
-      </section>
-
-      <section class="panel card">
-        <div class="portal-section-header">
-          <div>
-            <p class="portal-section-title">Seguiment ràpid</p>
-            <h2>Notes de classe</h2>
-            <p class="portal-muted">Anota incidències, encàrrecs o idees sense sortir del gestor.</p>
-          </div>
-          <div class="portal-actions">
-            <button id="classroomNotesSave" class="btn-secondary" type="button">Desa</button>
-          </div>
-        </div>
-
-        <div class="portal-form portal-form--stack">
-          <label>
-            <span class="portal-field-label">Notes ràpides</span>
-            <textarea id="classroomNotes" class="input" rows="5" placeholder="Puntua la participació, recordatoris, acord amb alumnat..."></textarea>
-            <span id="classroomNotesStatus" class="portal-muted" role="status" aria-live="polite"></span>
-          </label>
-        </div>
-      </section>
-    </section>
 
     <section id="classesPanel" class="portal-tabpanel hidden" data-tab-panel="classes" role="tabpanel" aria-labelledby="tab-classes">
       <section class="panel card">
@@ -273,27 +190,39 @@
               <p id="moduleConfigNotice" class="portal-muted hidden"></p>
             </div>
           </div>
-          <div class="portal-form portal-form--three">
-            <label>
-              <span class="portal-field-label">Preguntes</span>
-              <input class="input" name="count" type="number" min="1" max="200" value="20" />
+          <div class="portal-quiz-options" aria-label="Opcions comunes de la prova">
+            <label class="portal-quiz-chip">
+              <span>Preguntes</span>
+              <select class="input" name="count" aria-label="Nombre de preguntes">
+                <option selected>10</option>
+                <option>20</option>
+                <option>30</option>
+                <option>50</option>
+              </select>
             </label>
-            <label>
-              <span class="portal-field-label">Temps (minuts)</span>
-              <input class="input" name="time" type="number" min="0" max="180" value="0" />
+            <label class="portal-quiz-chip">
+              <span>Temps (min)</span>
+              <select class="input" name="time" aria-label="Temps màxim en minuts">
+                <option value="0" selected>Sense límit</option>
+                <option>5</option>
+                <option>10</option>
+                <option>15</option>
+                <option>20</option>
+              </select>
             </label>
-            <label id="assignmentLevelField">
-              <span class="portal-field-label">Nivell (1-4)</span>
-              <input id="assignmentLevelInput" class="input" name="level" type="number" min="1" max="4" value="1" />
+            <label id="assignmentLevelField" class="portal-quiz-chip">
+              <span>Nivell (1–4)</span>
+              <select id="assignmentLevelInput" class="input" name="level" aria-label="Nivell de dificultat">
+                <option selected>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+              </select>
             </label>
           </div>
           <label>
             <span class="portal-field-label">Data límit (opcional)</span>
             <input class="input" name="due_at" type="datetime-local" />
-          </label>
-          <label class="portal-form--stack">
-            <span class="portal-field-label">Notes internes</span>
-            <textarea class="input" name="notes" rows="3" placeholder="Anota criteris o instruccions per recordar-les"></textarea>
           </label>
           <div class="portal-actions">
             <button class="btn-primary" type="submit">Publica la prova</button>

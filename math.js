@@ -1016,6 +1016,96 @@ function genPercent(level, opts = {}){
   return { type:'percent-discount', text:`Descompte del ${off}% sobre ${n} → preu final = ?`, answer: ans };
 }
 
+/* ===== Problemes competencials ===== */
+
+const COMPETENCIAL_SUBTHEMES = ['mix','money','time','units','proportion','graphs','geometry','percent','equations','multistep'];
+
+const COMPETENCIAL_BANK = {
+  money: [
+    { level: 1, text: 'Una llibreta costa 2,50 €. Si en compres 4, quant pagaràs?', answer: 10, unit: '€' },
+    { level: 2, text: 'Una entrada val 6 €. Compreu 4 entrades i pagueu amb 30 €. Quin canvi us tornen?', answer: 6, unit: '€' },
+    { level: 3, text: 'Un grup compra 3 entrepans de 4 € i 2 aigües de 1,50 €. Quant paga en total?', answer: 15, unit: '€' },
+  ],
+  time: [
+    { level: 1, text: 'Una activitat comença a les 9:15 i acaba a les 10:05. Quants minuts dura?', answer: 50, unit: 'min' },
+    { level: 2, text: 'Un tren surt a les 16:40 i arriba a les 18:10. Quants minuts dura el trajecte?', answer: 90, unit: 'min' },
+    { level: 3, text: 'Una pel·lícula comença a les 17:20 i dura 1 h 35 min. Quants minuts passen fins que acaba?', answer: 95, unit: 'min' },
+  ],
+  units: [
+    { level: 1, text: 'Una corda fa 2,5 m. Quants centímetres són?', answer: 250, unit: 'cm' },
+    { level: 2, text: 'Una ampolla té 1,5 L d’aigua. Quants mil·lilitres són?', answer: 1500, unit: 'ml' },
+    { level: 3, text: 'Un camí fa 2,4 km i ja n’has recorregut 850 m. Quants metres et falten?', answer: 1550, unit: 'm' },
+  ],
+  proportion: [
+    { level: 1, text: 'Una recepta per a 4 persones necessita 300 g de pasta. Quants grams calen per a 8 persones?', answer: 600, unit: 'g' },
+    { level: 2, text: 'Un cotxe recorre 180 km en 3 hores. Quants quilòmetres fa en 1 hora si manté el ritme?', answer: 60, unit: 'km' },
+    { level: 3, text: 'En un mapa, 1 cm representa 5 km. Si dues ciutats estan separades 7 cm al mapa, quants km són en realitat?', answer: 35, unit: 'km' },
+  ],
+  graphs: [
+    {
+      level: 1,
+      text: 'Segons la taula, quin dia es van vendre més entrades? Escriu el nombre d’entrades.',
+      html: '<table class="mini-table"><tr><th>Dilluns</th><th>Dimarts</th><th>Dimecres</th></tr><tr><td>35</td><td>42</td><td>38</td></tr></table>',
+      answer: 42,
+      unit: 'entrades',
+    },
+    {
+      level: 2,
+      text: 'Segons la taula, quina diferència hi ha entre la temperatura més alta i la més baixa?',
+      html: '<table class="mini-table"><tr><th>Dilluns</th><th>Dimarts</th><th>Dimecres</th></tr><tr><td>18 °C</td><td>24 °C</td><td>21 °C</td></tr></table>',
+      answer: 6,
+      unit: '°C',
+    },
+    {
+      level: 3,
+      text: 'Segons la taula, quina és la mitjana de llibres llegits?',
+      html: '<table class="mini-table"><tr><th>Aina</th><th>Nil</th><th>Ona</th><th>Marc</th></tr><tr><td>3</td><td>5</td><td>4</td><td>8</td></tr></table>',
+      answer: 5,
+      unit: 'llibres',
+    },
+  ],
+  geometry: [
+    { level: 1, text: 'Un jardí rectangular fa 8 m de llarg i 5 m d’ample. Quants metres de tanca calen per envoltar-lo?', answer: 26, unit: 'm' },
+    { level: 2, text: 'Una paret fa 4 m d’ample i 3 m d’alt. Quina superfície té?', answer: 12, unit: 'm²' },
+    { level: 3, text: 'Una caixa rectangular fa 6 cm de llarg, 4 cm d’ample i 5 cm d’alt. Quin volum té?', answer: 120, unit: 'cm³' },
+  ],
+  percent: [
+    { level: 1, text: 'Una bicicleta val 200 € i té un descompte del 15%. Quants euros t’estalvies?', answer: 30, unit: '€' },
+    { level: 2, text: 'Una dessuadora val 80 € i té un descompte del 20%. Quin és el preu final?', answer: 64, unit: '€' },
+    { level: 3, text: 'En una classe de 25 alumnes, el 40% han triat bàsquet. Quants alumnes són?', answer: 10, unit: 'alumnes' },
+  ],
+  equations: [
+    { level: 1, text: 'La Laia té alguns cromos. Si en rep 5 i acaba amb 18, quants cromos tenia al principi?', answer: 13, unit: 'cromos' },
+    { level: 2, text: 'Tres entrades iguals costen 24 €. Quant costa una entrada?', answer: 8, unit: '€' },
+    { level: 3, text: 'Un nombre multiplicat per 4 i després sumat amb 6 dona 34. Quin és el nombre?', answer: 7, unit: '' },
+  ],
+  multistep: [
+    { level: 2, text: 'Una sortida costa 240 € d’autocar per a 48 alumnes i 5 € d’entrada per alumne. Quant paga cada alumne en total?', answer: 10, unit: '€' },
+    { level: 3, text: 'Una família compra 2 adults a 9 € i 3 infants a 6 €. Si paga amb 50 €, quin canvi rep?', answer: 14, unit: '€' },
+    { level: 4, text: 'Per pintar 38 m², cada pot cobreix 12 m² i costa 18 €. Quants euros costaran els pots necessaris?', answer: 72, unit: '€' },
+  ],
+};
+
+function genCompetencial(level, opts = {}) {
+  const requested = COMPETENCIAL_SUBTHEMES.includes(opts.sub) ? opts.sub : 'mix';
+  const subthemes = requested === 'mix'
+    ? COMPETENCIAL_SUBTHEMES.filter((item) => item !== 'mix')
+    : [requested];
+  const pool = subthemes
+    .flatMap((sub) => (COMPETENCIAL_BANK[sub] || []).map((problem) => ({ ...problem, sub })))
+    .filter((problem) => !Number.isFinite(problem.level) || problem.level <= clamp(level, 1, 4) + 1);
+  const problem = choice(pool.length ? pool : Object.values(COMPETENCIAL_BANK).flat());
+  const unitHint = problem.unit ? ` <span class="chip">Resposta en ${problem.unit}</span>` : '';
+  return {
+    type: 'competencial',
+    text: problem.text,
+    html: problem.html || '',
+    answer: problem.answer,
+    meta: { subtheme: problem.sub, unit: problem.unit || '' },
+    title: `${problem.text}${unitHint}`,
+  };
+}
+
 /* ===== Equacions ===== */
 
 function randCoef(rangeKey){
@@ -1601,6 +1691,7 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
     { id:'coord', name:'Coordenades cartesianes', desc:'Col·loca punts als quadrants i llegeix coordenades.', gen: genCoordinates, category:'math' },
     { id:'stats', name:'Estadística bàsica', desc:'Mitjana/mediana/moda, rang/desviació i gràfics.', gen: genStats, category:'math' },
     { id:'units', name:'Unitats i conversions', desc:'Longitud, massa, volum, superfície i temps.', gen: genUnits, category:'math' },
+    { id:'competencial', name:'Problemes competencials', desc:'Situacions reals amb diners, temps, unitats, gràfics, geometria, percentatges i raonament multistep.', gen: genCompetencial, category:'math' },
     { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', gen: genEq, category:'math' },
     { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', gen: genFunctions, category:'math' }
 ];

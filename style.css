@@ -1284,6 +1284,29 @@ a.btn-secondary{
 .timer{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" on; font-size:1.2rem}
 .chip{border:1px solid var(--hair); color:var(--muted); padding:6px 10px; border-radius:999px; background:#fff}
 
+.mini-table{
+  width:100%;
+  border-collapse:separate;
+  border-spacing:0;
+  overflow:hidden;
+  border:1px solid var(--hair);
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 10px 24px rgba(15,23,42,.06);
+}
+.mini-table th,
+.mini-table td{
+  padding:10px 12px;
+  text-align:center;
+  border-bottom:1px solid var(--hair);
+  border-right:1px solid var(--hair);
+}
+.mini-table th:last-child,
+.mini-table td:last-child{border-right:0}
+.mini-table tr:last-child td{border-bottom:0}
+.mini-table th{background:#eef4ff;color:#1f2937;font-weight:800}
+.mini-table td{font-weight:700;color:#0f172a}
+
 .quiz.sci-mode {
   grid-template-columns: 1fr;
 }
