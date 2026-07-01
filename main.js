@@ -510,6 +510,18 @@ let urlModuleHandled = false;
 let pendingUrlQuizConfig = null;
 let pendingUrlQuizOverrides = null;
 const DEFAULTS = { count: 10, time: 0, level: 1 };
+const LEVEL_ENABLED_MODULE_IDS = new Set([
+  'arith',
+  'frac',
+  'perc',
+  'geom',
+  'coord',
+  'stats',
+  'units',
+  'competencial',
+  'eq',
+  'func',
+]);
 let session = null;
 let timerHandle = null;
 let pendingPreviewRequested = false;
@@ -518,6 +530,10 @@ let previewOverlay = null;
 let previewStatusTimer = null;
 
 const isAssignedSession = () => Boolean(session && session.assignmentId);
+
+function moduleUsesLevels(module) {
+  return Boolean(module && LEVEL_ENABLED_MODULE_IDS.has(module.id) && module.usesLevels !== false);
+}
 
 /* ===================== VIEWS ===================== */
 
@@ -787,7 +803,7 @@ function openConfig(moduleId){
   $('#cfg-time').value = DEFAULTS.time;
   const levelSelect = $('#cfg-level');
   const levelWrap = $('#cfg-level-wrap');
-  const usesLevels = pendingModule?.usesLevels !== false;
+  const usesLevels = moduleUsesLevels(pendingModule);
   if (levelSelect) {
     levelSelect.value = String(usesLevels ? DEFAULTS.level : 4);
     levelSelect.disabled = !usesLevels;
@@ -1067,7 +1083,7 @@ function collectConfigValues(){
   const count = parseInt($('#cfg-count').value||DEFAULTS.count);
   const time = parseInt($('#cfg-time').value||0);
   const levelSelect = $('#cfg-level');
-  const usesLevels = pendingModule?.usesLevels !== false;
+  const usesLevels = moduleUsesLevels(pendingModule);
   const rawLevel = parseInt(levelSelect?.value || (usesLevels ? DEFAULTS.level : 4));
   const level = usesLevels ? clamp(rawLevel, 1, 4) : clamp(rawLevel || 4, 1, 4);
   const options = {};
@@ -1231,7 +1247,7 @@ function startQuiz(moduleId, cfg, meta = {}){
   const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
   const count = clamp(parseInt(cfg.count)||10, 1, 200);
   const time = clamp(parseInt(cfg.time)||0, 0, 180);
-  const usesLevels = module?.usesLevels !== false;
+  const usesLevels = moduleUsesLevels(module);
   const rawLevel = parseInt(cfg.level);
   const genLevel = usesLevels ? clamp(rawLevel||1, 1, 4) : clamp(rawLevel||4, 1, 4);
   const levelLabel = usesLevels ? `Nivell ${genLevel}` : (module?.levelLabel || 'Mode lliure');
@@ -1392,7 +1408,7 @@ function startPreviewSession(moduleId, cfg, meta = {}) {
   if (!module) return;
   const count = clamp(parseInt(cfg.count) || DEFAULTS.count, 1, 200);
   const time = clamp(parseInt(cfg.time) || 0, 0, 180);
-  const usesLevels = module?.usesLevels !== false;
+  const usesLevels = moduleUsesLevels(module);
   const rawLevel = parseInt(cfg.level);
   const level = usesLevels ? clamp(rawLevel || DEFAULTS.level, 1, 4) : clamp(rawLevel || 4, 1, 4);
   const baseOptions = cfg.options && typeof cfg.options === 'object' ? cloneObject(cfg.options) : {};
@@ -1450,7 +1466,7 @@ function renderPreviewOverlay() {
     `${previewContext.count} preguntes`,
     previewContext.moduleName,
   ];
-  if (previewContext.level && previewContext.level > 0 && previewContext.module?.usesLevels !== false) {
+  if (previewContext.level && previewContext.level > 0 && moduleUsesLevels(previewContext.module)) {
     subtitleParts.push(`Nivell ${previewContext.level}`);
   }
   subtitleParts.push(timeLabel);
