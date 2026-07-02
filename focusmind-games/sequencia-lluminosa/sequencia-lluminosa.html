@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seqüència lluminosa · FocusMind</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/focusmind.css" />
+  <link rel="stylesheet" href="./sequencia-lluminosa.css" />
+</head>
+<body class="focusmind-game-page">
+  <main id="sequenciaLluminosaApp" class="sequencia-lluminosa" aria-labelledby="sequenciaLluminosaTitle">
+    <section class="sequencia-lluminosa__card">
+      <p class="sequencia-lluminosa__kicker">FocusMind · Memòria</p>
+      <h1 id="sequenciaLluminosaTitle">Seqüència lluminosa</h1>
+      <p class="sequencia-lluminosa__lead">
+        Plantilla preparada perquè hi puguis bolcar el codi del joc. Manté els botons bàsics, el retorn a FocusMind i el guardat de resultats.
+      </p>
+      <div class="sequencia-lluminosa__actions">
+        <button id="sequenciaStart" class="fm-btn" type="button">Comença</button>
+        <a class="fm-btn secondary" href="/focusmind">Torna a FocusMind</a>
+      </div>
+      <p id="sequenciaStatus" class="sequencia-lluminosa__status" role="status" aria-live="polite">A punt per començar.</p>
+    </section>
+
+    <section class="sequencia-lluminosa__stage" aria-label="Zona de joc">
+      <div id="sequenciaBoard" class="sequencia-lluminosa__board"></div>
+    </section>
+  </main>
+
+  <script src="/focusmind.js" defer></script>
+  <script src="./sequencia-lluminosa.js" defer></script>
+</body>
+</html>

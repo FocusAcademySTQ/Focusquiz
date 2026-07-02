@@ -510,6 +510,18 @@ let urlModuleHandled = false;
 let pendingUrlQuizConfig = null;
 let pendingUrlQuizOverrides = null;
 const DEFAULTS = { count: 10, time: 0, level: 1 };
+const LEVEL_ENABLED_MODULE_IDS = new Set([
+  'arith',
+  'frac',
+  'perc',
+  'geom',
+  'coord',
+  'stats',
+  'units',
+  'competencial',
+  'eq',
+  'func',
+]);
 let session = null;
 let timerHandle = null;
 let pendingPreviewRequested = false;
@@ -518,6 +530,10 @@ let previewOverlay = null;
 let previewStatusTimer = null;
 
 const isAssignedSession = () => Boolean(session && session.assignmentId);
+
+function moduleUsesLevels(module) {
+  return Boolean(module && LEVEL_ENABLED_MODULE_IDS.has(module.id) && module.usesLevels !== false);
+}
 
 /* ===================== VIEWS ===================== */
 
@@ -787,7 +803,7 @@ function openConfig(moduleId){
   $('#cfg-time').value = DEFAULTS.time;
   const levelSelect = $('#cfg-level');
   const levelWrap = $('#cfg-level-wrap');
-  const usesLevels = pendingModule?.usesLevels !== false;
+  const usesLevels = moduleUsesLevels(pendingModule);
   if (levelSelect) {
     levelSelect.value = String(usesLevels ? DEFAULTS.level : 4);
     levelSelect.disabled = !usesLevels;
@@ -906,6 +922,25 @@ function openConfig(moduleId){
         </label>
         <span class="subtitle">Escriu <b>només el nombre</b> (la unitat ja surt a l'enunciat).</span>
       </div>
+    `;
+  } else if(pendingModule.id === 'competencial'){
+    wrap.innerHTML = `
+      <div class="section-title">Problemes competencials · Subtemes</div>
+      <div class="controls">
+        <div class="group" role="group" aria-label="Subtemes de problemes competencials">
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="mix" checked> Barrejats</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="money"> Compres i diners</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="time"> Temps i horaris</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="units"> Mesures i unitats</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="proportion"> Proporcionalitat</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="graphs"> Gràfics i taules</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="geometry"> Geometria aplicada</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="percent"> Percentatges</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="equations"> Equacions en context</label>
+          <label class="toggle"><input class="check" type="radio" name="competencial-sub" value="multistep"> Problemes multistep</label>
+        </div>
+      </div>
+      <div class="subtitle">Cada subtema comença amb 3 problemes de mostra. Escriu només el nombre; la unitat apareix com a pista.</div>
     `;
   } else if(pendingModule.id === 'coord'){
     wrap.innerHTML = `
@@ -1048,7 +1083,7 @@ function collectConfigValues(){
   const count = parseInt($('#cfg-count').value||DEFAULTS.count);
   const time = parseInt($('#cfg-time').value||0);
   const levelSelect = $('#cfg-level');
-  const usesLevels = pendingModule?.usesLevels !== false;
+  const usesLevels = moduleUsesLevels(pendingModule);
   const rawLevel = parseInt(levelSelect?.value || (usesLevels ? DEFAULTS.level : 4));
   const level = usesLevels ? clamp(rawLevel, 1, 4) : clamp(rawLevel || 4, 1, 4);
   const options = {};
@@ -1090,6 +1125,8 @@ function collectConfigValues(){
   } else if(pendingModule.id==='units'){
     options.sub = document.querySelector('input[name="units-sub"]:checked')?.value || 'length';
     options.round = parseInt($('#units-round').value || '2');
+  } else if(pendingModule.id==='competencial'){
+    options.sub = document.querySelector('input[name="competencial-sub"]:checked')?.value || 'mix';
   } else if(pendingModule.id==='coord'){
     options.sub = document.querySelector('input[name="coord-sub"]:checked')?.value || 'read';
   } else if(pendingModule.id==='eq'){
@@ -1210,7 +1247,7 @@ function startQuiz(moduleId, cfg, meta = {}){
   const module = MODULES.find(m=>m.id===moduleId) || MODULES[0];
   const count = clamp(parseInt(cfg.count)||10, 1, 200);
   const time = clamp(parseInt(cfg.time)||0, 0, 180);
-  const usesLevels = module?.usesLevels !== false;
+  const usesLevels = moduleUsesLevels(module);
   const rawLevel = parseInt(cfg.level);
   const genLevel = usesLevels ? clamp(rawLevel||1, 1, 4) : clamp(rawLevel||4, 1, 4);
   const levelLabel = usesLevels ? `Nivell ${genLevel}` : (module?.levelLabel || 'Mode lliure');
@@ -1371,7 +1408,7 @@ function startPreviewSession(moduleId, cfg, meta = {}) {
   if (!module) return;
   const count = clamp(parseInt(cfg.count) || DEFAULTS.count, 1, 200);
   const time = clamp(parseInt(cfg.time) || 0, 0, 180);
-  const usesLevels = module?.usesLevels !== false;
+  const usesLevels = moduleUsesLevels(module);
   const rawLevel = parseInt(cfg.level);
   const level = usesLevels ? clamp(rawLevel || DEFAULTS.level, 1, 4) : clamp(rawLevel || 4, 1, 4);
   const baseOptions = cfg.options && typeof cfg.options === 'object' ? cloneObject(cfg.options) : {};
@@ -1429,7 +1466,7 @@ function renderPreviewOverlay() {
     `${previewContext.count} preguntes`,
     previewContext.moduleName,
   ];
-  if (previewContext.level && previewContext.level > 0 && previewContext.module?.usesLevels !== false) {
+  if (previewContext.level && previewContext.level > 0 && moduleUsesLevels(previewContext.module)) {
     subtitleParts.push(`Nivell ${previewContext.level}`);
   }
   subtitleParts.push(timeLabel);

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Memòria de monstres · FocusMind</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/focusmind.css" />
+  <link rel="stylesheet" href="./memoria-monstres.css" />
+</head>
+<body class="focusmind-game-page">
+  <main id="MemoriaMonstresApp" class="memoria-monstres" aria-labelledby="MemoriaMonstresTitle">
+    <section class="memoria-monstres__card">
+      <p class="memoria-monstres__kicker">FocusMind · Memòria visual</p>
+      <h1 id="MemoriaMonstresTitle">👾 Memòria de monstres</h1>
+      <p class="memoria-monstres__lead">
+        Plantilla preparada perquè hi puguis bolcar el codi del joc. Manté l'estructura base, el retorn a FocusMind i el guardat de resultats.
+      </p>
+      <div class="memoria-monstres__actions">
+        <button id="MemoriaMonstresStart" class="fm-btn" type="button">Comença</button>
+        <a class="fm-btn secondary" href="/focusmind">Torna a FocusMind</a>
+      </div>
+      <p id="MemoriaMonstresStatus" class="memoria-monstres__status" role="status" aria-live="polite">A punt per començar.</p>
+    </section>
+
+    <section class="memoria-monstres__stage" aria-label="Zona de joc">
+      <div id="MemoriaMonstresBoard" class="memoria-monstres__board"></div>
+    </section>
+  </main>
+
+  <script src="/focusmind.js" defer></script>
+  <script src="./memoria-monstres.js" defer></script>
+</body>
+</html>

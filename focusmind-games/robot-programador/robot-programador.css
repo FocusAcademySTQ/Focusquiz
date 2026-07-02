@@ -1,0 +1,63 @@
+.focusmind-game-page {
+  min-height: 100vh;
+  margin: 0;
+  background: #e8eefc;
+}
+
+.robot-programador {
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 56px) 0;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.robot-programador__card,
+.robot-programador__stage {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 28px 70px -46px rgba(15, 23, 42, 0.55);
+  padding: clamp(20px, 4vw, 36px);
+}
+
+.robot-programador__kicker {
+  margin: 0 0 0.4rem;
+  color: #2563eb;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.robot-programador h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 4rem);
+  color: #0f172a;
+}
+
+.robot-programador__lead,
+.robot-programador__status {
+  color: #475569;
+  font-size: 1.05rem;
+}
+
+.robot-programador__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.robot-programador__board {
+  min-height: 260px;
+  border: 1px dashed rgba(37, 99, 235, 0.35);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(219, 234, 254, 0.7), rgba(224, 231, 255, 0.7));
+  display: grid;
+  place-items: center;
+  color: #334155;
+  font-weight: 800;
+  text-align: center;
+  padding: 1.5rem;
+}

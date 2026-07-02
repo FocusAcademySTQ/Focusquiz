@@ -1,0 +1,73 @@
+.focusmind-game-page {
+  min-height: 100vh;
+  margin: 0;
+  background: #e8eefc;
+}
+
+.sequencia-lluminosa {
+  width: min(980px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: clamp(24px, 5vw, 56px) 0;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.sequencia-lluminosa__card,
+.sequencia-lluminosa__stage {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 28px 70px -46px rgba(15, 23, 42, 0.55);
+  padding: clamp(20px, 4vw, 36px);
+}
+
+.sequencia-lluminosa__kicker {
+  margin: 0 0 0.4rem;
+  color: #2563eb;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.sequencia-lluminosa h1 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 4rem);
+  color: #0f172a;
+}
+
+.sequencia-lluminosa__lead,
+.sequencia-lluminosa__status {
+  color: #475569;
+  font-size: 1.05rem;
+}
+
+.sequencia-lluminosa__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.sequencia-lluminosa__board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(74px, 1fr));
+  gap: clamp(10px, 2vw, 18px);
+}
+
+.sequencia-lluminosa__pad {
+  min-height: clamp(88px, 18vw, 150px);
+  border: 0;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #dbeafe, #c7d2fe);
+  box-shadow: inset 0 -10px 20px rgba(37, 99, 235, 0.12), 0 18px 36px -28px rgba(37, 99, 235, 0.75);
+  cursor: pointer;
+  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
+}
+
+.sequencia-lluminosa__pad:hover,
+.sequencia-lluminosa__pad.is-on {
+  transform: translateY(-2px);
+  filter: brightness(1.12) saturate(1.15);
+  box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.16), 0 24px 48px -30px rgba(37, 99, 235, 0.85);
+}
