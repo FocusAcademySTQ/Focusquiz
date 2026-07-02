@@ -1,86 +1,34 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Seqüència lluminosa</title>
-  <link rel="stylesheet" href="sequencia-lluminosa.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seqüència lluminosa · FocusMind</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/focusmind.css" />
+  <link rel="stylesheet" href="./sequencia-lluminosa.css" />
 </head>
-<body>
-  <main class="game-shell">
-    <section id="start-screen" class="panel start-panel">
-      <p class="eyebrow">Joc independent · Memòria de treball</p>
-      <h1>Seqüència lluminosa</h1>
-      <p class="intro">Observa una seqüència de caselles il·luminades i repeteix-la en el mateix ordre. El joc treballa memòria de treball, atenció sostinguda i resposta calmada.</p>
-
-      <div class="level-selector" aria-label="Selector de nivell">
-        <button class="level-option selected" type="button" data-level="1" aria-pressed="true">
-          <strong>Nivell 1</strong>
-          <span>Graella 3x3 · 6 rondes</span>
-        </button>
-        <button class="level-option" type="button" data-level="2" aria-pressed="false">
-          <strong>Nivell 2</strong>
-          <span>Graella 3x3 · 7 rondes</span>
-        </button>
-        <button class="level-option" type="button" data-level="3" aria-pressed="false">
-          <strong>Nivell 3</strong>
-          <span>Graella 4x4 · 8 rondes</span>
-        </button>
+<body class="focusmind-game-page">
+  <main id="sequenciaLluminosaApp" class="sequencia-lluminosa" aria-labelledby="sequenciaLluminosaTitle">
+    <section class="sequencia-lluminosa__card">
+      <p class="sequencia-lluminosa__kicker">FocusMind · Memòria</p>
+      <h1 id="sequenciaLluminosaTitle">Seqüència lluminosa</h1>
+      <p class="sequencia-lluminosa__lead">
+        Plantilla preparada perquè hi puguis bolcar el codi del joc. Manté els botons bàsics, el retorn a FocusMind i el guardat de resultats.
+      </p>
+      <div class="sequencia-lluminosa__actions">
+        <button id="sequenciaStart" class="fm-btn" type="button">Comença</button>
+        <a class="fm-btn secondary" href="/focusmind">Torna a FocusMind</a>
       </div>
-
-      <button id="start-button" class="primary-button" type="button">Començar</button>
+      <p id="sequenciaStatus" class="sequencia-lluminosa__status" role="status" aria-live="polite">A punt per començar.</p>
     </section>
 
-    <section id="play-screen" class="panel hidden" aria-live="polite">
-      <div class="topbar">
-        <div class="stat">
-          <span>Nivell</span>
-          <strong id="stat-level">1</strong>
-        </div>
-        <div class="stat">
-          <span>Punts</span>
-          <strong id="stat-points">0</strong>
-        </div>
-        <div class="stat">
-          <span>Ronda</span>
-          <strong id="stat-round">0</strong>
-        </div>
-        <div class="stat">
-          <span>Precisió</span>
-          <strong id="stat-accuracy">100%</strong>
-        </div>
-      </div>
-
-      <div class="play-area">
-        <div id="board" class="light-board" aria-label="Graella de seqüència"></div>
-        <p id="feedback" class="feedback">Observa amb calma.</p>
-      </div>
-    </section>
-
-    <section id="end-screen" class="panel end-panel hidden">
-      <p class="eyebrow">Activitat completada</p>
-      <h1>Bon treball de memòria</h1>
-      <div class="results">
-        <div>
-          <span>Precisió</span>
-          <strong id="end-accuracy">0%</strong>
-        </div>
-        <div>
-          <span>Punts</span>
-          <strong id="end-points">0</strong>
-        </div>
-        <div>
-          <span>Rondes</span>
-          <strong id="end-rounds">0</strong>
-        </div>
-      </div>
-      <p class="intro">Has practicat retenir informació uns segons i respondre pas a pas, sense pressa ni càstig.</p>
-      <div class="actions">
-        <button id="restart-button" class="primary-button" type="button">Tornar a jugar</button>
-      </div>
+    <section class="sequencia-lluminosa__stage" aria-label="Zona de joc">
+      <div id="sequenciaBoard" class="sequencia-lluminosa__board"></div>
     </section>
   </main>
 
-  <script src="sequencia-lluminosa.js"></script>
+  <script src="/focusmind.js" defer></script>
+  <script src="./sequencia-lluminosa.js" defer></script>
 </body>
 </html>

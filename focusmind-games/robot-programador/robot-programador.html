@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Robot programador · FocusMind</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/focusmind.css" />
+  <link rel="stylesheet" href="./robot-programador.css" />
+</head>
+<body class="focusmind-game-page">
+  <main id="RobotProgramadorApp" class="robot-programador" aria-labelledby="RobotProgramadorTitle">
+    <section class="robot-programador__card">
+      <p class="robot-programador__kicker">FocusMind · Planificació · Lògica</p>
+      <h1 id="RobotProgramadorTitle">🤖 Robot programador</h1>
+      <p class="robot-programador__lead">
+        Plantilla preparada perquè hi puguis bolcar el codi del joc. Manté l'estructura base, el retorn a FocusMind i el guardat de resultats.
+      </p>
+      <div class="robot-programador__actions">
+        <button id="RobotProgramadorStart" class="fm-btn" type="button">Comença</button>
+        <a class="fm-btn secondary" href="/focusmind">Torna a FocusMind</a>
+      </div>
+      <p id="RobotProgramadorStatus" class="robot-programador__status" role="status" aria-live="polite">A punt per començar.</p>
+    </section>
+
+    <section class="robot-programador__stage" aria-label="Zona de joc">
+      <div id="RobotProgramadorBoard" class="robot-programador__board"></div>
+    </section>
+  </main>
+
+  <script src="/focusmind.js" defer></script>
+  <script src="./robot-programador.js" defer></script>
+</body>
+</html>

@@ -1,9 +1,9 @@
 (() => {
-  const GAME_NAME = 'Seqüència lluminosa';
-  const AREA = 'Memòria';
-  const board = document.getElementById('sequenciaBoard');
-  const startButton = document.getElementById('sequenciaStart');
-  const status = document.getElementById('sequenciaStatus');
+  const GAME_NAME = 'Robot programador';
+  const AREA = 'Planificació · Lògica';
+  const board = document.getElementById('RobotProgramadorBoard');
+  const startButton = document.getElementById('RobotProgramadorStart');
+  const status = document.getElementById('RobotProgramadorStatus');
 
   const state = {
     running: false,
@@ -35,11 +35,9 @@
     }
   }
 
-  function renderPads() {
+  function renderPlaceholder() {
     if (!board) return;
-    board.innerHTML = Array.from({ length: 9 }, (_, index) => (
-      `<button class="sequencia-lluminosa__pad" type="button" data-pad="${index}" aria-label="Casella ${index + 1}"></button>`
-    )).join('');
+    board.innerHTML = '<span>Plantilla del joc: substitueix aquest contingut pel teu codi definitiu.</span>';
   }
 
   function startGame() {
@@ -50,14 +48,14 @@
     state.wrong = 0;
     state.startedAt = Date.now();
     state.reactionTimes = [];
-    renderPads();
+    renderPlaceholder();
     if (status) status.textContent = 'Plantilla activa. Substitueix aquest fitxer JS pel teu joc definitiu.';
   }
 
   startButton?.addEventListener('click', startGame);
-  renderPads();
+  renderPlaceholder();
 
-  window.SequenciaLluminosaFocusMind = {
+  window.RobotProgramadorFocusMind = {
     startGame,
     saveResult,
     state,

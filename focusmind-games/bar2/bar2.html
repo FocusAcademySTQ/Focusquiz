@@ -3,41 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>FocusQuiz - Minijocs Focus</title>
+    <title>La Cafeteria · FocusMind</title>
     <link rel="stylesheet" href="bar2.css" />
   </head>
   <body>
     <main id="focusquiz-root">
-      <section class="hub" id="hub-screen" aria-labelledby="hub-title">
-        <div class="hub__intro">
-          <p class="eyebrow">Minijocs Focus</p>
-          <h1 id="hub-title">FocusQuiz</h1>
-          <p>Tria un entrenament curt per treballar habilitats cognitives amb activitats visuals i tactils.</p>
-        </div>
-
-        <button class="game-card" id="open-bar2-focus" type="button">
-          <span class="game-card__icon" aria-hidden="true">
-            <svg viewBox="0 0 96 96" role="img">
-              <path d="M22 38h46v22a20 20 0 0 1-20 20h-6a20 20 0 0 1-20-20V38Z" fill="#fff5e6" />
-              <path d="M68 44h8a10 10 0 0 1 0 20h-8" fill="none" stroke="#6f4b32" stroke-width="7" stroke-linecap="round" />
-              <path d="M28 46h34v14a14 14 0 0 1-14 14h-6a14 14 0 0 1-14-14V46Z" fill="#b9784c" />
-              <path d="M20 82h52" stroke="#2d5a5a" stroke-width="7" stroke-linecap="round" />
-              <path d="M35 13c-5 7 5 10 0 17M50 13c-5 7 5 10 0 17" stroke="#6f4b32" stroke-width="5" stroke-linecap="round" fill="none" />
-            </svg>
-          </span>
-          <span class="game-card__content">
-            <strong>Bar2 Focus</strong>
-            <span>Prepara caf&egrave;s i entrena l'atenci&oacute;, la mem&ograve;ria i la precisi&oacute;.</span>
-          </span>
-        </button>
-      </section>
-
-      <section class="cafe-app is-hidden" id="bar2-focus" aria-labelledby="cafe-title">
+      <section class="cafe-app" id="bar2-focus" aria-labelledby="cafe-title">
         <header class="cafe-topbar">
-          <button class="ghost-button" id="back-to-hub" type="button">Minijocs Focus</button>
+          <a class="ghost-button" href="/focusmind">FocusMind</a>
           <div>
             <p class="eyebrow">Atenci&oacute; &middot; Mem&ograve;ria &middot; Precisi&oacute;</p>
-            <h1 id="cafe-title">Bar2 Focus</h1>
+            <h1 id="cafe-title">La Cafeteria</h1>
           </div>
           <div class="score-pill" aria-live="polite">
             <span>Precisi&oacute;</span>
@@ -183,7 +159,7 @@
           <p class="final-message" id="final-message"></p>
           <div class="results-actions">
             <button class="secondary-button" id="play-again" type="button">Jugar de nou</button>
-            <button class="ghost-button" id="return-home" type="button">Tornar als minijocs</button>
+            <button class="ghost-button" id="return-home" type="button">Nova partida</button>
           </div>
         </section>
       </section>

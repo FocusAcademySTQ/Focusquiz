@@ -114,7 +114,7 @@
     const accuracy = total ? Math.round((state.correct / total) * 100) : 100;
     const averageReactionTime = Math.round(state.reactionTimes.reduce((sum, value) => sum + value, 0) / Math.max(1, state.reactionTimes.length));
     saveResult({
-      gameName: 'Bar',
+      gameName: 'La Barra',
       cognitiveArea: 'Atenció · Memòria · Velocitat',
       score: state.score,
       correct: state.correct,

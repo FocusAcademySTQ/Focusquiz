@@ -51,10 +51,7 @@
   let initialized = false;
 
   const el = {
-    hub: document.getElementById("hub-screen"),
-    openGame: document.getElementById("open-bar2-focus"),
     app: document.getElementById("bar2-focus"),
-    backToHub: document.getElementById("back-to-hub"),
     setupPanel: document.getElementById("setup-panel"),
     gamePanel: document.getElementById("game-panel"),
     resultsPanel: document.getElementById("results-panel"),
@@ -89,7 +86,7 @@
     const moduleInfo = {
       id: "bar2-focus",
       section: "Minijocs Focus",
-      title: "Bar2 Focus",
+      title: "La Cafeteria",
       subtitle: "Prepara caf\u00e8s i entrena l'atenci\u00f3, la mem\u00f2ria i la precisi\u00f3.",
       icon: "coffee",
       mount: init
@@ -110,8 +107,6 @@
   }
 
   function bindEvents() {
-    el.openGame.addEventListener("click", showGame);
-    el.backToHub.addEventListener("click", showHub);
     el.returnHome.addEventListener("click", showHub);
     el.startGame.addEventListener("click", startGame);
     el.clear.addEventListener("click", clearSelection);
@@ -154,14 +149,11 @@
   }
 
   function showGame() {
-    el.hub.classList.add("is-hidden");
     el.app.classList.remove("is-hidden");
   }
 
   function showHub() {
     stopTimers();
-    el.app.classList.add("is-hidden");
-    el.hub.classList.remove("is-hidden");
     el.gamePanel.classList.add("is-hidden");
     el.resultsPanel.classList.add("is-hidden");
     el.setupPanel.classList.remove("is-hidden");
@@ -565,7 +557,7 @@
     ));
 
     const result = {
-      joc: "Bar2 Focus",
+      joc: "La Cafeteria",
       mode: modeLabel(state.mode),
       nivell: state.level,
       cafesServits: state.served,

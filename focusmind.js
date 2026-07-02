@@ -2,9 +2,11 @@
 const KEY='focusmind-results-v1';
 const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const games=[
-{id:'cafe-focus',name:'Bar',area:'Atenció · Memòria · Velocitat',desc:'Serveix comandes de cafeteria recordant begudes i reaccionant abans que s’acabi el temps.',diff:'Progressiva',duration:'90 s',emoji:'☕',url:'/focusmind-games/bar/bar.html'},
-{id:'bar2-focus',name:'Bar2',area:'Atenció · Memòria · Velocitat',desc:'Prepara cafès i entrena l’atenció, la memòria i la precisió.',diff:'Progressiva',duration:'90 s',emoji:'☕',url:'/focusmind-games/bar2/bar2.html'},
-{id:'sequencia-lluminosa',name:'Seqüència lluminosa',area:'Memòria',desc:'Plantilla preparada per bolcar-hi el teu joc de seqüència lluminosa.',diff:'Pendent',duration:'2-4 min',emoji:'✨',url:'/focusmind-games/sequencia-lluminosa/sequencia-lluminosa.html'}];
+{id:'cafe-focus',name:'La Barra',area:'Atenció · Memòria · Velocitat',desc:'Serveix comandes de barra recordant plats i begudes abans que s’acabi el temps.',diff:'Progressiva',duration:'90 s',emoji:'🍎',url:'/focusmind-games/bar/bar.html'},
+{id:'bar2-focus',name:'La Cafeteria',area:'Atenció · Memòria · Velocitat',desc:'Prepara cafès i entrena l’atenció, la memòria i la precisió.',diff:'Progressiva',duration:'90 s',emoji:'☕',url:'/focusmind-games/bar2/bar2.html'},
+{id:'sequencia-lluminosa',name:'Seqüència lluminosa',area:'Memòria',desc:'Plantilla preparada per bolcar-hi el teu joc de seqüència lluminosa.',diff:'Pendent',duration:'2-4 min',emoji:'✨',url:'/focusmind-games/sequencia-lluminosa/sequencia-lluminosa.html'},
+{id:'robot-programador',name:'Robot programador',area:'Planificació · Lògica',desc:'Plantilla preparada per bolcar-hi el joc de programar un robot.',diff:'Pendent',duration:'2-4 min',emoji:'🤖',url:'/focusmind-games/robot-programador/robot-programador.html'},
+{id:'memoria-monstres',name:'Memòria de monstres',area:'Memòria visual',desc:'Plantilla preparada per bolcar-hi el joc de recordar monstres.',diff:'Pendent',duration:'2-4 min',emoji:'👾',url:'/focusmind-games/memoria-monstres/memoria-monstres.html'}];
 function read(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}} function write(v){localStorage.setItem(KEY,JSON.stringify(v))}
 window.saveFocusMindResult=(r)=>{const item={id:crypto?.randomUUID?.()||String(Date.now()),date:new Date().toISOString(),...r};write([item,...read()].slice(0,200));return item};
 window.getFocusMindResults=read; window.getFocusMindBestScore=(n)=>Math.max(0,...read().filter(r=>r.gameName===n).map(r=>r.score||0)); window.getFocusMindAverageAccuracy=()=>avg(read().map(r=>r.accuracy)); window.getFocusMindTotalGamesPlayed=()=>read().length; window.getFocusMindRecentGames=()=>read().slice(0,10); window.getFocusMindBestArea=()=>areaSort()[0]?.[0]||'—'; window.getFocusMindWeakestArea=()=>areaSort().at(-1)?.[0]||'—';
