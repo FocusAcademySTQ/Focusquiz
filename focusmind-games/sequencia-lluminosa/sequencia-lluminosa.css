@@ -1,73 +1,250 @@
-.focusmind-game-page {
+:root {
+  --bg: #eef8fc;
+  --grid-line: rgba(87, 135, 163, 0.13);
+  --card: rgba(255, 255, 255, 0.9);
+  --ink: #243746;
+  --muted: #647987;
+  --line: #c8e2ee;
+  --blue: #5aa9e6;
+  --lilac: #9b8de5;
+  --mint: #6ecfba;
+  --coral: #ff8f86;
+  --soft: #e8f6fb;
+  --shadow: 0 18px 38px rgba(58, 96, 122, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
   min-height: 100vh;
   margin: 0;
-  background: #e8eefc;
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    radial-gradient(circle at 12% 14%, rgba(110, 207, 186, 0.2), transparent 28%),
+    radial-gradient(circle at 86% 12%, rgba(155, 141, 229, 0.18), transparent 24%),
+    var(--bg);
+  background-size: 34px 34px, 34px 34px, auto, auto, auto;
 }
 
-.sequencia-lluminosa {
-  width: min(980px, calc(100% - 32px));
+button {
+  font: inherit;
+}
+
+.game-shell {
+  width: min(940px, calc(100% - 28px));
   margin: 0 auto;
-  padding: clamp(24px, 5vw, 56px) 0;
-  display: grid;
-  gap: 1.25rem;
+  padding: 28px 0 44px;
 }
 
-.sequencia-lluminosa__card,
-.sequencia-lluminosa__stage {
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 28px 70px -46px rgba(15, 23, 42, 0.55);
-  padding: clamp(20px, 4vw, 36px);
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
-.sequencia-lluminosa__kicker {
-  margin: 0 0 0.4rem;
-  color: #2563eb;
+.start-panel,
+.end-panel {
+  padding: 30px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.88rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+}
+
+h1 {
+  max-width: 760px;
+  margin: 0 0 12px;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.intro {
+  max-width: 720px;
+  margin: 0 0 24px;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.level-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.level-option {
+  min-height: 94px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  box-shadow: none;
+}
+
+.level-option strong,
+.level-option span {
+  display: block;
+}
+
+.level-option span {
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.level-option.selected {
+  border-color: var(--blue);
+  background: var(--soft);
+  outline: 3px solid rgba(90, 169, 230, 0.22);
+}
+
+.primary-button {
+  min-height: 50px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 24px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--blue), var(--lilac));
+  box-shadow: 0 12px 22px rgba(85, 121, 185, 0.2);
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.primary-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 15px 24px rgba(85, 121, 185, 0.24);
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.stat {
+  min-height: 68px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.stat span,
+.results span {
+  display: block;
+  color: var(--muted);
   font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
-.sequencia-lluminosa h1 {
+.stat strong,
+.results strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.32rem;
+}
+
+.play-area {
+  min-height: 450px;
+  padding: 28px;
+  display: grid;
+  align-items: center;
+  gap: 18px;
+}
+
+.light-board {
+  display: grid;
+  gap: 10px;
+  width: min(100%, 520px);
+  margin: 0 auto;
+  aspect-ratio: 1;
+}
+
+.cell {
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 8px 16px rgba(57, 95, 122, 0.08);
+  cursor: pointer;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.cell:hover {
+  transform: translateY(-1px);
+}
+
+.cell.active {
+  background: linear-gradient(135deg, #b9e8ff, #d8d3ff);
+  border-color: var(--blue);
+  box-shadow: 0 0 0 5px rgba(90, 169, 230, 0.16);
+}
+
+.cell.selected {
+  background: linear-gradient(135deg, #dff7ef, #fff0ee);
+  border-color: var(--mint);
+}
+
+.feedback {
+  min-height: 38px;
   margin: 0;
-  font-size: clamp(2rem, 6vw, 4rem);
-  color: #0f172a;
+  color: #496476;
+  font-weight: 800;
+  text-align: center;
 }
 
-.sequencia-lluminosa__lead,
-.sequencia-lluminosa__status {
-  color: #475569;
-  font-size: 1.05rem;
+.results {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
 }
 
-.sequencia-lluminosa__actions {
+.results div {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fcff;
+}
+
+.actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: 12px;
 }
 
-.sequencia-lluminosa__board {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(74px, 1fr));
-  gap: clamp(10px, 2vw, 18px);
+.hidden {
+  display: none !important;
 }
 
-.sequencia-lluminosa__pad {
-  min-height: clamp(88px, 18vw, 150px);
-  border: 0;
-  border-radius: 24px;
-  background: linear-gradient(145deg, #dbeafe, #c7d2fe);
-  box-shadow: inset 0 -10px 20px rgba(37, 99, 235, 0.12), 0 18px 36px -28px rgba(37, 99, 235, 0.75);
-  cursor: pointer;
-  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
-}
+@media (max-width: 760px) {
+  .level-selector,
+  .topbar,
+  .results {
+    grid-template-columns: 1fr;
+  }
 
-.sequencia-lluminosa__pad:hover,
-.sequencia-lluminosa__pad.is-on {
-  transform: translateY(-2px);
-  filter: brightness(1.12) saturate(1.15);
-  box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.16), 0 24px 48px -30px rgba(37, 99, 235, 0.85);
+  .start-panel,
+  .end-panel,
+  .play-area {
+    padding: 20px;
+  }
 }
