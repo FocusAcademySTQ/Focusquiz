@@ -2,8 +2,8 @@
 const KEY='focusmind-results-v1';
 const $=(s,r=document)=>r.querySelector(s); const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
 const games=[
-{id:'cafe-focus',name:'Bar',area:'Atenció · Memòria · Velocitat',desc:'Serveix comandes de cafeteria recordant begudes i reaccionant abans que s’acabi el temps.',diff:'Progressiva',duration:'90 s',emoji:'☕',url:'/cafe-focus.html'},
-{id:'bar2-focus',name:'Bar2',area:'Atenció · Memòria · Velocitat',desc:'Prepara cafès i entrena l’atenció, la memòria i la precisió.',diff:'Progressiva',duration:'90 s',emoji:'☕',url:'/bar2-focus.html'},
+{id:'cafe-focus',name:'Bar',area:'Atenció · Memòria · Velocitat',desc:'Serveix comandes de cafeteria recordant begudes i reaccionant abans que s’acabi el temps.',diff:'Progressiva',duration:'90 s',emoji:'☕',url:'/focusmind-games/bar/bar.html'},
+{id:'bar2-focus',name:'Bar2',area:'Atenció · Memòria · Velocitat',desc:'Prepara cafès i entrena l’atenció, la memòria i la precisió.',diff:'Progressiva',duration:'90 s',emoji:'☕',url:'/focusmind-games/bar2/bar2.html'},
 {id:'sequencia-lluminosa',name:'Seqüència lluminosa',area:'Memòria',desc:'Plantilla preparada per bolcar-hi el teu joc de seqüència lluminosa.',diff:'Pendent',duration:'2-4 min',emoji:'✨',url:'/focusmind-games/sequencia-lluminosa/sequencia-lluminosa.html'}];
 function read(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch{return[]}} function write(v){localStorage.setItem(KEY,JSON.stringify(v))}
 window.saveFocusMindResult=(r)=>{const item={id:crypto?.randomUUID?.()||String(Date.now()),date:new Date().toISOString(),...r};write([item,...read()].slice(0,200));return item};
