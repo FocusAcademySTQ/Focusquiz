@@ -1,34 +1,55 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ca">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Memòria de monstres · FocusMind</title>
-  <link rel="stylesheet" href="/style.css" />
-  <link rel="stylesheet" href="/focusmind.css" />
-  <link rel="stylesheet" href="./memoria-monstres.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Memòria de Monstres</title>
+  <link rel="stylesheet" href="memoria-de-monstres.css">
 </head>
-<body class="focusmind-game-page">
-  <main id="MemoriaMonstresApp" class="memoria-monstres" aria-labelledby="MemoriaMonstresTitle">
-    <section class="memoria-monstres__card">
-      <p class="memoria-monstres__kicker">FocusMind · Memòria visual</p>
-      <h1 id="MemoriaMonstresTitle">👾 Memòria de monstres</h1>
-      <p class="memoria-monstres__lead">
-        Plantilla preparada perquè hi puguis bolcar el codi del joc. Manté l'estructura base, el retorn a FocusMind i el guardat de resultats.
-      </p>
-      <div class="memoria-monstres__actions">
-        <button id="MemoriaMonstresStart" class="fm-btn" type="button">Comença</button>
-        <a class="fm-btn secondary" href="/focusmind">Torna a FocusMind</a>
+<body>
+  <main class="game-shell">
+    <section id="start-screen" class="panel start-panel">
+      <p class="eyebrow">Joc independent · Memòria de treball</p>
+      <h1>Memòria de Monstres</h1>
+      <p class="intro">Observa monstres amb característiques diferents i respon després quina criatura havia aparegut. Practica memòria de treball, discriminació visual i concentració.</p>
+      <div class="level-selector" aria-label="Selector de nivell">
+        <button class="level-option selected" type="button" data-level="1" aria-pressed="true"><strong>Nivell 1</strong><span>2 monstres · preguntes simples</span></button>
+        <button class="level-option" type="button" data-level="2" aria-pressed="false"><strong>Nivell 2</strong><span>3 monstres · més detalls</span></button>
+        <button class="level-option" type="button" data-level="3" aria-pressed="false"><strong>Nivell 3</strong><span>4 monstres · combinacions complexes</span></button>
       </div>
-      <p id="MemoriaMonstresStatus" class="memoria-monstres__status" role="status" aria-live="polite">A punt per començar.</p>
+      <button id="start-button" class="primary-button" type="button">Començar</button>
     </section>
 
-    <section class="memoria-monstres__stage" aria-label="Zona de joc">
-      <div id="MemoriaMonstresBoard" class="memoria-monstres__board"></div>
+    <section id="play-screen" class="panel hidden" aria-live="polite">
+      <div class="topbar">
+        <div class="stat"><span>Nivell</span><strong id="stat-level">1</strong></div>
+        <div class="stat"><span>Punts</span><strong id="stat-points">0</strong></div>
+        <div class="stat"><span>Ronda</span><strong id="stat-round">0/8</strong></div>
+        <div class="stat"><span>Precisió</span><strong id="stat-accuracy">100%</strong></div>
+      </div>
+      <div class="play-area">
+        <p id="phase-label" class="instruction">Observa els monstres</p>
+        <div id="monster-stage" class="monster-stage" aria-label="Monstres per recordar"></div>
+        <section id="question-panel" class="question-panel hidden">
+          <h2 id="question-text"></h2>
+          <div id="choices" class="choice-grid" aria-label="Opcions de resposta"></div>
+        </section>
+        <p id="feedback" class="feedback">Observa els detalls amb calma.</p>
+      </div>
+    </section>
+
+    <section id="end-screen" class="panel end-panel hidden">
+      <p class="eyebrow">Activitat completada</p>
+      <h1>Memòria visual entrenada</h1>
+      <div class="results">
+        <div><span>Precisió</span><strong id="end-accuracy">0%</strong></div>
+        <div><span>Punts</span><strong id="end-points">0</strong></div>
+        <div><span>Rondes</span><strong id="end-rounds">0</strong></div>
+      </div>
+      <p class="intro">Has practicat retenir detalls visuals i recuperar-los després d'una pausa, sense pressa i amb estratègia.</p>
+      <div class="actions"><button id="restart-button" class="primary-button" type="button">Tornar a jugar</button></div>
     </section>
   </main>
-
-  <script src="/focusmind.js" defer></script>
-  <script src="./memoria-monstres.js" defer></script>
+  <script src="memoria-de-monstres.js"></script>
 </body>
 </html>
