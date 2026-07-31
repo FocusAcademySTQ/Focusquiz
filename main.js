@@ -570,8 +570,7 @@ function buildHome(){
   function renderSection(title, cat){
     const mods = MODULES.filter(m=>m.category===cat);
     if(!mods.length) return;
-    const section = document.createElement('section');
-    section.className = `module-section module-section--${cat}`;
+    const section = document.createElement('div');
     section.innerHTML = `<div class="section-title">${title}</div>`;
     const subgrid = document.createElement('div');
     subgrid.className = 'grid'
@@ -579,14 +578,13 @@ function buildHome(){
       + (cat==='sci' ? ' grid--sci' : '')
       + (cat==='geo' ? ' grid--geo' : '');
     mods.forEach(m=>{
-      const el = document.createElement('button');
-      el.type = 'button';
+      const el = document.createElement('div');
       el.className='option';
       const badge = m.badge ? `<span class="option-badge">${m.badge}</span>` : '';
       el.innerHTML = `
         ${badge}
-        <span class="option-title">${m.name}</span>
-        <span class="option-description">${m.desc}</span>`;
+        <h3>${m.name}</h3>
+        <p>${m.desc}</p>`;
       el.onclick = ()=> openConfig(m.id);
       subgrid.appendChild(el);
     });
