@@ -3,138 +3,137 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Focus Academy · Benvinguda</title>
+  <meta name="description" content="Practica matemàtiques, llengües, ciències i geografia amb activitats curtes, reptes i feedback immediat." />
+  <title>FocusQuiz · Aprèn practicant</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
-
 </head>
 <body class="landing-body">
   <header class="landing-header">
-    <div class="landing-brand">
-      <div class="brand-mark">FQ</div>
-      <div class="brand-text">
-        <span class="brand-label">Focus Academy</span>
-        <small>Repàs gamificat</small>
-      </div>
-    </div>
-    <a class="landing-link" href="app.html">Entrar directe</a>
+    <a class="landing-brand" href="index.html" aria-label="FocusQuiz, inici">
+      <span class="brand-mark" aria-hidden="true">FQ</span>
+      <span class="brand-label">FocusQuiz</span>
+    </a>
+    <nav class="landing-nav" aria-label="Navegació principal">
+      <a href="#com-funciona">Com funciona</a>
+      <a href="#continguts">Continguts</a>
+      <a href="#professorat">Professorat</a>
+    </nav>
+    <a class="landing-link" href="app.html">Entrar</a>
   </header>
 
   <main class="landing-main">
-    <section class="landing-hero">
+    <section class="landing-hero" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="eyebrow">Repàs digital per primària i ESO</p>
-        <h1>Aprèn, practica i competeix amb FocusQuiz</h1>
-        <p class="hero-subtitle">Centralitza mòduls, flashcards, càpsules i codis d’aula en un sol espai pensat per a docents i alumnes.</p>
+        <p class="eyebrow">Aprèn practicant</p>
+        <h1 id="hero-title">Practicar no ha de ser avorrit.</h1>
+        <p class="hero-subtitle">Repassa matemàtiques, llengües, ciències i geografia amb activitats curtes, reptes i feedback immediat.</p>
         <div class="hero-cta">
-          <a class="cta-primary" href="app.html">Comença</a>
+          <a class="cta-primary" href="app.html">Començar a practicar <span aria-hidden="true">→</span></a>
+          <a class="cta-secondary" href="app.html#classSection">Entrar amb un codi</a>
         </div>
+        <a class="teacher-shortcut" href="portal/supabase-portal.html">Soc docent <span aria-hidden="true">↗</span></a>
       </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="hero-gradient"></div>
-        <div class="hero-tiles">
-          <div class="hero-tile">🔤 Codis d'aula</div>
-          <div class="hero-tile">🧠 Flashcards</div>
-          <div class="hero-tile">📊 Estadístiques</div>
-          <div class="hero-tile">🎯 Mòduls</div>
+
+      <div class="quiz-preview" aria-label="Exemple d'una activitat de FocusQuiz">
+        <div class="preview-topline">
+          <span class="preview-subject">Matemàtiques</span>
+          <span class="preview-score">★ 120 punts</span>
         </div>
+        <div class="preview-progress" aria-hidden="true"><span></span></div>
+        <p class="preview-step">Pregunta 3 de 8</p>
+        <h2>Quina fracció representa la part acolorida?</h2>
+        <div class="fraction-visual" aria-hidden="true">
+          <span class="is-filled"></span><span class="is-filled"></span><span class="is-filled"></span><span></span>
+        </div>
+        <div class="preview-options" aria-hidden="true">
+          <span>1/4</span><span class="is-selected">3/4</span><span>2/3</span><span>4/3</span>
+        </div>
+        <p class="preview-feedback"><span aria-hidden="true">✓</span> Molt bé! Continua així.</p>
+        <span class="doodle doodle-star" aria-hidden="true">✦</span>
+        <span class="doodle doodle-line" aria-hidden="true"></span>
       </div>
     </section>
 
-    <section class="landing-features">
+    <section class="subject-strip" id="continguts" aria-label="Assignatures disponibles">
+      <span>Matemàtiques</span><i aria-hidden="true"></i>
+      <span>Català</span><i aria-hidden="true"></i>
+      <span>Castellà</span><i aria-hidden="true"></i>
+      <span>Ciències</span><i aria-hidden="true"></i>
+      <span>Geografia</span>
+    </section>
+
+    <section class="landing-features" id="com-funciona" aria-labelledby="features-title">
       <header>
-        <p class="eyebrow">Tot en un sol clic</p>
-        <h2>Resum de funcionalitats clau</h2>
-        <p>Accedeix a cada experiència sense sortir de Focus Academy.</p>
+        <p class="eyebrow">Fet per avançar</p>
+        <h2 id="features-title">Una manera més clara de repassar</h2>
+        <p>Tot el que necessites per convertir els dubtes en progrés.</p>
       </header>
       <div class="feature-grid">
-        <a class="feature-card" href="app.html#moduleGrid">
-          <div class="feature-icon">🎯</div>
-          <h3>Pràctica per mòduls</h3>
-          <p>Entrena per assignatura amb itineraris adaptables.</p>
-          <span class="feature-link">Obrir grid de mòduls →</span>
-        </a>
-        <a class="feature-card" href="teoria.html">
-          <div class="feature-icon">📖</div>
-          <h3>Teoria Focus</h3>
-          <p>Consulta la secció de teoria per repassar definicions i exemples.</p>
-          <span class="feature-link">Obrir teoria →</span>
-        </a>
-        <a class="feature-card" href="app.html#classSection">
-          <div class="feature-icon">👥</div>
-          <h3>Aula amb codis</h3>
-          <p>Comparteix codis de classe perquè l’alumnat accedeixi a les proves assignades.</p>
-          <span class="feature-link">Entrar a l’aula →</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="landing-split">
-      <div>
-        <p class="eyebrow">Sense registres complicats</p>
-        <h2>Funciona offline i guarda les dades en local</h2>
-        <p>FocusQuiz no requereix servidors ni correus personals. Tot el progrés es guarda en el dispositiu mitjançant localStorage, perfecte per a aules amb poc internet.</p>
-      </div>
-      <div>
-        <p class="eyebrow">Per a qui és?</p>
-        <ul class="audience-list">
-          <li><strong>Estudiants:</strong> motivació extra amb punts i reptes.</li>
-          <li><strong>Docents:</strong> accés a codis i portals per gestionar sessions.</li>
-          <li><strong>Famílies:</strong> seguiment ràpid del progrés sense comptes.</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="landing-feedback">
-      <header>
-        <p class="eyebrow">Feedback immediat</p>
-        <h2>Comprova al moment què passa a l'aula</h2>
-        <p>Les dades de cada partida alimenten estadístiques, gràfiques i tutories perquè puguis reaccionar sense esperar informes.</p>
-      </header>
-      <div class="feedback-grid">
-        <article class="feedback-card">
-          <div class="feedback-icon">📊</div>
-          <h3>Indicadors en directe</h3>
-          <p>Acabats, encerts i temps es refresquen a l’instant perquè segueixis el ritme.</p>
+        <article class="feature-card feature-card--blue">
+          <span class="feature-number">01</span>
+          <div class="feature-icon" aria-hidden="true">↗</div>
+          <h3>Practica al teu ritme</h3>
+          <p>Sessions curtes per tema, nivell i assignatura. Tu decideixes per on començar.</p>
         </article>
-        <article class="feedback-card">
-          <div class="feedback-icon">⚠️</div>
-          <h3>Alertes immediates</h3>
-          <p>El tutor virtual destaca qui s’encalla o surt del flux per donar-hi suport.</p>
+        <article class="feature-card feature-card--yellow">
+          <span class="feature-number">02</span>
+          <div class="feature-icon" aria-hidden="true">?</div>
+          <h3>Entén els errors</h3>
+          <p>Rep correcció immediata i consulta la teoria relacionada quan et calgui.</p>
         </article>
-        <article class="feedback-card">
-          <div class="feedback-icon">✅</div>
-          <h3>Resum final</h3>
-          <p>Rep punts forts i reptes següents amb enllaços a teoria i flashcards.</p>
+        <article class="feature-card feature-card--green">
+          <span class="feature-number">03</span>
+          <div class="feature-icon" aria-hidden="true">✓</div>
+          <h3>Segueix el progrés</h3>
+          <p>Descobreix què ja domines i quins continguts convé reforçar després.</p>
         </article>
       </div>
     </section>
 
-    <section class="landing-cta">
-      <h2>Preparat/ada per començar?</h2>
-      <p>Entra a l'espai de pràctiques i activa la teva sessió FocusQuiz.</p>
-      <div class="hero-cta hero-cta--bridge">
-        <a class="cta-primary" href="app.html">Entrar a Focus Academy</a>
-        <a class="cta-secondary" href="portal/supabase-portal.html">Accés professorat</a>
+    <section class="audience-section" id="professorat" aria-labelledby="audience-title">
+      <div class="audience-heading">
+        <p class="eyebrow">Un espai per a cadascú</p>
+        <h2 id="audience-title">Com vols utilitzar FocusQuiz?</h2>
+      </div>
+      <div class="audience-grid">
+        <article class="audience-card audience-card--student">
+          <span class="audience-kicker">Per a alumnes</span>
+          <h3>Posa’t a prova i supera’t.</h3>
+          <p>Tria una assignatura, completa reptes i reforça allò que treballes a classe.</p>
+          <a href="app.html">Explorar activitats <span aria-hidden="true">→</span></a>
+          <span class="audience-decoration" aria-hidden="true">A+</span>
+        </article>
+        <article class="audience-card audience-card--teacher">
+          <span class="audience-kicker">Per a docents</span>
+          <h3>Prepara, comparteix i acompanya.</h3>
+          <p>Crea activitats, comparteix codis d’aula i consulta els resultats del teu alumnat.</p>
+          <a href="portal/supabase-portal.html">Accedir al portal <span aria-hidden="true">→</span></a>
+          <span class="audience-decoration" aria-hidden="true">✎</span>
+        </article>
       </div>
     </section>
 
-
-
-
+    <section class="landing-cta" aria-labelledby="cta-title">
+      <span class="cta-spark" aria-hidden="true">✦</span>
+      <p class="eyebrow">Preparat?</p>
+      <h2 id="cta-title">Comença amb una pregunta.<br>Acaba sabent-ne una mica més.</h2>
+      <a class="cta-primary" href="app.html">Començar a practicar <span aria-hidden="true">→</span></a>
+    </section>
   </main>
 
   <footer class="landing-footer">
-    <small>© 2024 Focus Academy · Materials educatius de proximitat</small>
-    <nav>
+    <a class="landing-brand" href="index.html">
+      <span class="brand-mark" aria-hidden="true">FQ</span>
+      <span class="brand-label">FocusQuiz</span>
+    </a>
+    <small>© 2026 FocusQuiz · Aprendre també pot ser un repte.</small>
+    <nav aria-label="Navegació del peu">
       <a href="teoria.html">Teoria</a>
-      <a href="portal/supabase-portal.html">Portal docents</a>
+      <a href="portal/supabase-portal.html">Portal docent</a>
     </nav>
   </footer>
-
-
-
 </body>
 </html>
