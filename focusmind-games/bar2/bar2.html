@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>La Cafeteria · FocusMind</title>
     <link rel="stylesheet" href="bar2.css" />
+    <link rel="stylesheet" href="../shared-setup.css" />
   </head>
   <body>
     <main id="focusquiz-root">
@@ -21,12 +22,12 @@
           </div>
         </header>
 
-        <section class="setup-panel" id="setup-panel" aria-label="Configuracio de partida">
-          <div>
-            <h2>Nova partida</h2>
-            <p>Serveix 8 clients. La velocitat ajuda, pero el joc valora sobretot mirar, recordar i preparar be.</p>
-          </div>
-          <div class="setup-grid">
+        <section class="setup-panel fm-unified-setup" id="setup-panel" aria-label="Configuració de partida">
+          <div class="fm-setup-copy">
+            <p class="fm-setup-kicker">FocusMind · Atenció, memòria i precisió</p>
+            <h1>La Cafeteria ☕</h1>
+            <p class="fm-setup-lead">Serveix 8 clients. La velocitat ajuda, però el joc valora sobretot mirar, recordar i preparar bé.</p>
+          <div class="setup-grid fm-setup-options">
             <fieldset>
               <legend>Mode</legend>
               <label><input type="radio" name="mode" value="practice" checked /> Practica</label>
@@ -41,7 +42,12 @@
               <label><input type="radio" name="level" value="4" /> 4</label>
             </fieldset>
           </div>
-          <button class="primary-button" id="start-game" type="button">Comen&ccedil;ar</button>
+          <div class="fm-setup-actions">
+            <button class="primary-button fm-setup-primary" id="start-game" type="button">Començar partida</button>
+            <a class="ghost-button fm-setup-secondary" href="/focusmind">Tornar a FocusMind</a>
+          </div>
+          </div>
+          <div class="fm-setup-visual" aria-hidden="true"><span>☕</span><span>🥛</span><span>🫘</span><span>🧊</span></div>
         </section>
 
         <section class="game-layout is-hidden" id="game-panel" aria-label="Partida de Cafe Focus">
