@@ -5,20 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>La Barra · FocusMind</title>
   <link rel="stylesheet" href="bar.css" />
+  <link rel="stylesheet" href="../shared-setup.css" />
 </head>
 <body>
   <main class="cafe-shell">
-    <section class="cafe-hero" id="introPanel">
-      <div>
-        <p class="cafe-kicker">FocusMind · Atenció, memòria i velocitat</p>
+    <section class="cafe-hero fm-unified-setup" id="introPanel">
+      <div class="fm-setup-copy">
+        <p class="cafe-kicker fm-setup-kicker">FocusMind · Atenció, memòria i velocitat</p>
         <h1>La Barra 🍎</h1>
-        <p>Memoritza la comanda de cada client a la barra i prepara-la ràpidament. Cada ronda afegeix més elements i menys temps.</p>
-        <div class="cafe-actions">
-          <button class="cafe-btn" id="startBtn">Començar partida</button>
-          <a class="cafe-btn cafe-btn--ghost" href="/focusmind" id="backLink">Tornar a FocusMind</a>
+        <p class="fm-setup-lead">Memoritza la comanda de cada client a la barra i prepara-la ràpidament. Cada ronda afegeix més elements i menys temps.</p>
+        <div class="cafe-actions fm-setup-actions">
+          <button class="cafe-btn fm-setup-primary" id="startBtn">Començar partida</button>
+          <a class="cafe-btn cafe-btn--ghost fm-setup-secondary" href="/focusmind" id="backLink">Tornar a FocusMind</a>
         </div>
       </div>
-      <div class="cafe-counter" aria-hidden="true">
+      <div class="cafe-counter fm-setup-visual" aria-hidden="true">
         <span>🍎</span><span>🥐</span><span>🧃</span><span>🍰</span>
       </div>
     </section>
