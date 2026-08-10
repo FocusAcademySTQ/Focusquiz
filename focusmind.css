@@ -287,6 +287,12 @@
   align-content: stretch;
   gap: 1.25rem;
   position: relative;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(143, 181, 255, .28);
+  border-radius: 24px;
+  background: radial-gradient(circle at center, rgba(122, 162, 255, .14), transparent 42%), linear-gradient(145deg, rgba(248, 251, 255, .92), rgba(241, 248, 247, .86));
   overflow: hidden;
 }
 
