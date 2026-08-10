@@ -287,12 +287,6 @@
   align-content: stretch;
   gap: 1.25rem;
   position: relative;
-  min-height: 320px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(143, 181, 255, .28);
-  border-radius: 24px;
-  background: radial-gradient(circle at center, rgba(122, 162, 255, .14), transparent 42%), linear-gradient(145deg, rgba(248, 251, 255, .92), rgba(241, 248, 247, .86));
   overflow: hidden;
 }
 
@@ -302,9 +296,15 @@
 
 .fm-cognitive-visual {
   position: relative;
+  width: 100%;
+  min-width: 0;
   min-height: 320px;
   display: grid;
-  place-items: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: center;
+  align-items: center;
+  gap: .8rem;
+  padding: clamp(1rem, 3vw, 2rem);
   border: 1px solid rgba(143, 181, 255, .28);
   border-radius: 24px;
   background: radial-gradient(circle at center, rgba(122, 162, 255, .14), transparent 42%), linear-gradient(145deg, rgba(248, 251, 255, .92), rgba(241, 248, 247, .86));
@@ -326,6 +326,8 @@
 .fm-cognitive-core {
   position: relative;
   z-index: 2;
+  grid-column: 1 / -1;
+  justify-self: center;
   width: 126px;
   aspect-ratio: 1;
   display: grid;
@@ -339,8 +341,9 @@
 }
 
 .fm-cognitive-node {
-  position: absolute;
+  position: relative;
   z-index: 3;
+  width: 100%;
   padding: .55rem .75rem;
   border: 1px solid #d6e2ff;
   border-radius: 12px;
@@ -349,12 +352,13 @@
   box-shadow: 0 10px 24px rgba(31, 78, 161, .1);
   font-size: .78rem;
   font-weight: 850;
+  text-align: center;
 }
 
-.fm-cognitive-node--memory { top: 12%; left: 8%; }
-.fm-cognitive-node--attention { top: 17%; right: 7%; }
-.fm-cognitive-node--speed { bottom: 14%; left: 9%; }
-.fm-cognitive-node--flexibility { right: 6%; bottom: 11%; }
+.fm-cognitive-node--memory,
+.fm-cognitive-node--attention,
+.fm-cognitive-node--speed,
+.fm-cognitive-node--flexibility { inset: auto; }
 
 .fm-face-cluster {
   position: relative;
