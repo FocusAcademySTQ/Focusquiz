@@ -36,49 +36,14 @@
   align-content: center;
 }
 
-.fq-home-landing__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin-top: 0.35rem;
+.fq-home-landing--compact {
+  grid-template-columns: 1fr;
+  padding-block: clamp(1rem, 2vw, 1.4rem);
 }
 
-.fq-home-landing__chips span {
-  padding: 0.55rem 0.8rem;
-  border: 1px solid #d6e2ff;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  color: #24449a;
-  font-weight: 800;
-}
-
-.fq-home-landing__visual {
-  position: relative;
-  min-height: 220px;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at 50% 44%, rgba(122, 162, 255, 0.42), transparent 33%),
-    linear-gradient(160deg, rgba(255, 255, 255, 0.75), rgba(234, 242, 255, 0.78));
-  border: 1px solid rgba(143, 181, 255, 0.32);
-}
-
-.fq-orbit-card {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  width: 96px;
-  height: 96px;
-  border-radius: 28px;
-  color: #1f3fa3;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid #d7e3ff;
-  box-shadow: 0 16px 34px rgba(79, 70, 229, 0.14);
-  font-weight: 900;
-}
-
-.fq-orbit-card--one { top: 18px; left: 22px; }
-.fq-orbit-card--two { right: 22px; top: 70px; }
-.fq-orbit-card--three { left: 34%; bottom: 22px; }
+.fq-home-landing--compact .fq-home-landing__content { max-width: 760px; }
+.fq-home-landing--compact .title { margin: 0; }
+.fq-home-landing--compact .subtitle { margin: 0; }
 
 .focusmind-shell {
   min-height: calc(100svh - 92px);
