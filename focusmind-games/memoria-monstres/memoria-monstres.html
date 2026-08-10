@@ -4,20 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Memòria de Monstres</title>
-  <link rel="stylesheet" href="memoria-de-monstres.css">
+  <link rel="stylesheet" href="memoria-monstres.css">
+  <link rel="stylesheet" href="../shared-setup.css">
 </head>
 <body>
   <main class="game-shell">
-    <section id="start-screen" class="panel start-panel">
-      <p class="eyebrow">Joc independent · Memòria de treball</p>
+    <section id="start-screen" class="panel start-panel fm-unified-setup">
+      <div class="fm-setup-copy">
+      <p class="eyebrow fm-setup-kicker">FocusMind · Memòria visual</p>
       <h1>Memòria de Monstres</h1>
-      <p class="intro">Observa monstres amb característiques diferents i respon després quina criatura havia aparegut. Practica memòria de treball, discriminació visual i concentració.</p>
-      <div class="level-selector" aria-label="Selector de nivell">
+      <p class="intro fm-setup-lead">Observa monstres amb característiques diferents i respon després quina criatura havia aparegut. Practica memòria de treball, discriminació visual i concentració.</p>
+      <div class="level-selector fm-setup-options" aria-label="Selector de nivell">
         <button class="level-option selected" type="button" data-level="1" aria-pressed="true"><strong>Nivell 1</strong><span>2 monstres · preguntes simples</span></button>
         <button class="level-option" type="button" data-level="2" aria-pressed="false"><strong>Nivell 2</strong><span>3 monstres · més detalls</span></button>
         <button class="level-option" type="button" data-level="3" aria-pressed="false"><strong>Nivell 3</strong><span>4 monstres · combinacions complexes</span></button>
       </div>
-      <button id="start-button" class="primary-button" type="button">Començar</button>
+      <div class="fm-setup-actions">
+        <button id="start-button" class="primary-button fm-setup-primary" type="button">Començar partida</button>
+        <a class="fm-setup-secondary" href="/focusmind">Tornar a FocusMind</a>
+      </div>
+      </div>
+      <div class="fm-setup-visual" aria-hidden="true"><span>👾</span><span>👹</span><span>👻</span><span>🤓</span></div>
     </section>
 
     <section id="play-screen" class="panel hidden" aria-live="polite">
@@ -50,6 +57,6 @@
       <div class="actions"><button id="restart-button" class="primary-button" type="button">Tornar a jugar</button></div>
     </section>
   </main>
-  <script src="memoria-de-monstres.js"></script>
+  <script src="memoria-monstres.js"></script>
 </body>
 </html>

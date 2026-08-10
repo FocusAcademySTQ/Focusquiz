@@ -30,7 +30,7 @@
     .challenges-hero { border:1px solid #d8e0f4; border-radius:18px; background:#f8faff; padding:1rem; margin-bottom:1rem; }
     .challenges-hero h2 { margin:0; color:#1f4ea1; }
     .challenges-hero p { margin:.25rem 0 .85rem; }
-    .challenges-cards { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:.7rem; }
+    .challenges-cards { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:.7rem; }
     .challenge-card { border:1px solid #ccd8f2; border-radius:14px; background:#fff; padding:.85rem; display:grid; gap:.25rem; }
     .challenge-card .icon { font-size:1.4rem; }
     .challenge-card h3 { margin:0; font-size:1rem; }
@@ -67,6 +67,9 @@
     .ttm-module-field select { border: 1px solid #cbd7f6; border-radius: 10px; padding: .55rem .65rem; background: #fff; }
     .ttm-actions { margin-top: .9rem; display: flex; justify-content: space-between; gap: .5rem; }
     .ttm-error { min-height: 1.2rem; color: #b42318; margin-top: .4rem; }
+    .ttm-quick-start { margin-top:.75rem; padding:.7rem .95rem; border:1px solid #b9c9f2; border-radius:12px; background:#eef4ff; display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
+    .ttm-quick-start p { margin:0; color:#344054; font-size:.9rem; }
+    .ttm-quick-start button { flex:0 0 auto; }
 
     .ttm-titlebar { text-align: center; color: #1f73b8; font-weight: 900; letter-spacing: .04em; font-size: clamp(1.2rem, 2.4vw, 2rem); margin-bottom: .9rem; }
     .ttm-quick-actions { display:flex; justify-content:flex-end; margin-bottom:.45rem; }
@@ -159,6 +162,7 @@
       .ttm-grid4 { grid-template-columns: repeat(2, minmax(0,1fr)); }
       .ttm-grid3 { grid-template-columns: 1fr; }
       .ttm-team-inputs, .ttm-layout { grid-template-columns: 1fr; }
+      .ttm-quick-start { align-items:stretch; flex-direction:column; }
       .ttm-hud { grid-template-columns: 1fr; }
       .cap-status { grid-template-columns: 1fr; }
       .ttm-timer { justify-self: start; }
@@ -235,22 +239,10 @@
     <!-- HOME -->
     <section id="view-home" class="hero">
       <div class="panel card">
-        <section class="fq-home-landing" aria-labelledby="focusQuizHomeTitle">
+        <section class="fq-home-landing fq-home-landing--compact" aria-labelledby="focusQuizHomeTitle">
           <div class="fq-home-landing__content">
-            <p class="portal-section-title">FocusQuiz · Plataforma educativa</p>
-            <h2 id="focusQuizHomeTitle" class="title">Aprenentatge i entrenament cognitiu en un sol espai</h2>
-            <p class="subtitle">Crea proves, practica continguts, entra a l'aula amb codi i accedeix a FocusMind des del menú superior quan vulguis entrenar atenció, memòria i flexibilitat mental.</p>
-            <div class="fq-home-landing__chips" aria-label="Àrees disponibles">
-              <span>📚 Mòduls d'estudi</span>
-              <span>🧠 FocusMind</span>
-              <span>👥 Aula</span>
-              <span>🤖 Tutor virtual</span>
-            </div>
-          </div>
-          <div class="fq-home-landing__visual" aria-hidden="true">
-            <div class="fq-orbit-card fq-orbit-card--one">Quiz</div>
-            <div class="fq-orbit-card fq-orbit-card--two">Aula</div>
-            <div class="fq-orbit-card fq-orbit-card--three">Ment</div>
+            <h2 id="focusQuizHomeTitle" class="title">Com funcionen els mòduls?</h2>
+            <p class="subtitle">Tria una assignatura, configura què vols practicar i comença els exercicis. En acabar, podràs consultar-ne els resultats.</p>
           </div>
         </section>
 
@@ -375,7 +367,7 @@
             <p class="subtitle">Tria un joc i configura la partida per mòdul.</p>
           </div>
           <div class="controls">
-            <button class="btn-secondary" type="button" onclick="showView('home')">← Torna</button>
+            <button class="btn-secondary" type="button" onclick="leaveChallenges()">← Torna</button>
           </div>
         </div>
 
@@ -393,11 +385,6 @@
               <h3>Joc de les xapes</h3>
               <p>Resposta correcta = tir de xapa fins al primer gol.</p>
             </article>
-            <article class="challenge-card is-soon">
-              <span class="icon">🏆</span>
-              <h3>Torneig classe</h3>
-              <p>Noves modalitats en preparació. Properament.</p>
-            </article>
           </div>
         </section>
 <section id="challengesSection" class="panel card challenge-section" aria-labelledby="challengesTitle">
@@ -407,7 +394,11 @@
               <div class="ttm-card">
                 <p class="ttm-step-label" id="ttmStepLabel">Pas 1 de 3</p>
                 <h3 id="ttmSetupTitle" class="ttm-title">Configuració del joc de la corda</h3>
-                <p class="subtitle">Quan entris al joc, primer et demanarà de quin mòdul vols fer el repte.</p>
+                <p class="subtitle">Personalitza la partida en tres passos o comença directament amb la configuració recomanada.</p>
+                <div class="ttm-quick-start">
+                  <p><strong>Partida ràpida:</strong> aritmètica, nivell fàcil i dos equips.</p>
+                  <button class="btn-secondary" type="button" id="ttmQuickStart">Comença ara</button>
+                </div>
 
                 <div class="ttm-step is-active" data-step="1">
                   <label class="ttm-module-field">
@@ -547,7 +538,11 @@ Nil"></textarea>
               <div class="ttm-card">
                 <p class="ttm-step-label" id="capStepLabel">Pas 1 de 3</p>
                 <h3 id="capSetupTitle" class="ttm-title">Configuració del joc de les xapes</h3>
-                <p class="subtitle">Resposta correcta = 1 tir de xapa. La partida acaba al primer gol.</p>
+                <p class="subtitle">Personalitza la partida en tres passos o comença directament amb la configuració recomanada.</p>
+                <div class="ttm-quick-start">
+                  <p><strong>Partida ràpida:</strong> aritmètica, nivell fàcil i primer gol.</p>
+                  <button class="btn-secondary" type="button" id="capQuickStart">Comença ara</button>
+                </div>
                 <div class="ttm-step is-active" data-step="1">
                   <label class="ttm-module-field">Mòdul del repte
                     <select id="capModuleSelect"><option value="arith">Aritmètica</option></select>
@@ -935,6 +930,7 @@ Nil"></textarea></label>
 
       const els = {
         modal: document.getElementById('ttmModal'),
+        quickStart: document.getElementById('ttmQuickStart'),
         stepLabel: document.getElementById('ttmStepLabel'),
         steps: Array.from(root.querySelectorAll('.ttm-step')),
         prevStep: document.getElementById('ttmPrevStep'),
@@ -1411,6 +1407,16 @@ Nil"></textarea></label>
         els.levelButtons.forEach(b => b.classList.toggle('is-selected', b === btn));
       }));
 
+      els.quickStart?.addEventListener('click', () => {
+        state.moduleId = 'arith';
+        state.difficulty = 'easy';
+        state.gameMode = 'duel';
+        if (els.moduleSelect) els.moduleSelect.value = 'arith';
+        els.levelButtons.forEach((btn) => btn.classList.toggle('is-selected', btn.dataset.level === 'easy'));
+        state.step = 3;
+        els.nextStep.click();
+      });
+
       els.prevStep.addEventListener('click', () => {
         state.step = Math.max(1, state.step - 1);
         els.setupError.textContent = '';
@@ -1486,7 +1492,7 @@ Nil"></textarea></label>
         updateStepUi();
         updateHud();
         updateRope();
-        if (typeof showView === 'function') showView('home');
+        if (typeof leaveChallenges === 'function') leaveChallenges();
       });
 
       populateModuleOptions();
@@ -1568,6 +1574,7 @@ Nil"></textarea></label>
 
       const els = {
         modal: document.getElementById('capModal'),
+        quickStart: document.getElementById('capQuickStart'),
         stepLabel: document.getElementById('capStepLabel'),
         steps: Array.from(root.querySelectorAll('.ttm-step')),
         prevStep: document.getElementById('capPrevStep'),
@@ -2117,6 +2124,15 @@ Nil"></textarea></label>
       els.modeButtons.forEach((btn) => btn.addEventListener('click', () => { state.gameMode = btn.dataset.mode === 'champ' ? 'champ' : 'duel'; applyGameModeUi(); }));
       els.bracketSize?.addEventListener('change', () => { state.bracketSize = Number(els.bracketSize.value || 4) === 8 ? 8 : 4; });
       els.levelButtons.forEach((btn) => btn.addEventListener('click', () => { state.difficulty = btn.dataset.level; els.levelButtons.forEach((b) => b.classList.toggle('is-selected', b === btn)); }));
+      els.quickStart?.addEventListener('click', () => {
+        state.moduleId = 'arith';
+        state.difficulty = 'easy';
+        state.gameMode = 'duel';
+        if (els.moduleSelect) els.moduleSelect.value = 'arith';
+        els.levelButtons.forEach((btn) => btn.classList.toggle('is-selected', btn.dataset.level === 'easy'));
+        state.step = 3;
+        els.nextStep.click();
+      });
       els.prevStep.addEventListener('click', () => { state.step = Math.max(1, state.step - 1); els.setupError.textContent = ''; updateStepUi(); });
       els.nextStep.addEventListener('click', () => {
         els.setupError.textContent = '';
@@ -2146,7 +2162,7 @@ Nil"></textarea></label>
       els.exitBtn?.addEventListener('click', () => {
         state.running = false; clearInterval(state.timerId); clearTimeout(state.replay.timeoutId); state.step = 1; state.timeLeft = DURATION; state.tournament = null;
         els.result.hidden = true; els.modal.hidden = false; if (els.replay) els.replay.hidden = true; hideAimPreview(); updateStepUi(); updateHud(); renderShotState(); resetField();
-        if (typeof showView === 'function') showView('home');
+        if (typeof leaveChallenges === 'function') leaveChallenges();
       });
 
       setupChipDrag('blue', els.chipBlue);

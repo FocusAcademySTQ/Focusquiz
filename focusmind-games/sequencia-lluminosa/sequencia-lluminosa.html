@@ -7,20 +7,24 @@
   <link rel="stylesheet" href="/style.css" />
   <link rel="stylesheet" href="/focusmind.css" />
   <link rel="stylesheet" href="./sequencia-lluminosa.css" />
+  <link rel="stylesheet" href="../shared-setup.css" />
 </head>
 <body class="focusmind-game-page">
   <main id="sequenciaLluminosaApp" class="sequencia-lluminosa" aria-labelledby="sequenciaLluminosaTitle">
-    <section class="sequencia-lluminosa__card">
-      <p class="sequencia-lluminosa__kicker">FocusMind · Memòria</p>
+    <section class="sequencia-lluminosa__card fm-unified-setup">
+      <div class="fm-setup-copy">
+      <p class="sequencia-lluminosa__kicker fm-setup-kicker">FocusMind · Memòria</p>
       <h1 id="sequenciaLluminosaTitle">Seqüència lluminosa</h1>
-      <p class="sequencia-lluminosa__lead">
-        Plantilla preparada perquè hi puguis bolcar el codi del joc. Manté els botons bàsics, el retorn a FocusMind i el guardat de resultats.
+      <p class="sequencia-lluminosa__lead fm-setup-lead">
+        Observa l'ordre en què s'il·luminen les caselles i reprodueix la seqüència. Cada encert posa una mica més a prova la teva memòria.
       </p>
-      <div class="sequencia-lluminosa__actions">
-        <button id="sequenciaStart" class="fm-btn" type="button">Comença</button>
-        <a class="fm-btn secondary" href="/focusmind">Torna a FocusMind</a>
+      <div class="sequencia-lluminosa__actions fm-setup-actions">
+        <button id="sequenciaStart" class="fm-btn fm-setup-primary" type="button">Començar partida</button>
+        <a class="fm-btn secondary fm-setup-secondary" href="/focusmind">Tornar a FocusMind</a>
       </div>
       <p id="sequenciaStatus" class="sequencia-lluminosa__status" role="status" aria-live="polite">A punt per començar.</p>
+      </div>
+      <div class="fm-setup-visual" aria-hidden="true"><span>🟦</span><span>🟨</span><span>🟩</span><span>🟪</span></div>
     </section>
 
     <section class="sequencia-lluminosa__stage" aria-label="Zona de joc">
