@@ -546,6 +546,15 @@ function showView(name){
   if(name==='focusmind' && typeof window.initFocusMind === 'function' && !$('#view-focusmind')?.dataset.ready) window.initFocusMind();
 }
 
+function leaveChallenges(){
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('embedded') === '1') {
+    window.location.assign('app.html');
+    return;
+  }
+  showView('home');
+}
+
 
 function showFocusMind(){
   if (window.location.pathname !== '/focusmind') {

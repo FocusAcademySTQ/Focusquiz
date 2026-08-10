@@ -379,7 +379,7 @@
             <p class="subtitle">Tria un joc i configura la partida per mòdul.</p>
           </div>
           <div class="controls">
-            <button class="btn-secondary" type="button" onclick="showView('home')">← Torna</button>
+            <button class="btn-secondary" type="button" onclick="leaveChallenges()">← Torna</button>
           </div>
         </div>
 
@@ -1504,7 +1504,7 @@ Nil"></textarea></label>
         updateStepUi();
         updateHud();
         updateRope();
-        if (typeof showView === 'function') showView('home');
+        if (typeof leaveChallenges === 'function') leaveChallenges();
       });
 
       populateModuleOptions();
@@ -2174,7 +2174,7 @@ Nil"></textarea></label>
       els.exitBtn?.addEventListener('click', () => {
         state.running = false; clearInterval(state.timerId); clearTimeout(state.replay.timeoutId); state.step = 1; state.timeLeft = DURATION; state.tournament = null;
         els.result.hidden = true; els.modal.hidden = false; if (els.replay) els.replay.hidden = true; hideAimPreview(); updateStepUi(); updateHud(); renderShotState(); resetField();
-        if (typeof showView === 'function') showView('home');
+        if (typeof leaveChallenges === 'function') leaveChallenges();
       });
 
       setupChipDrag('blue', els.chipBlue);
