@@ -162,7 +162,6 @@
 .fm-actions,
 .fm-meta,
 .fm-hud,
-.fm-home-metrics,
 .fm-game-tags {
   display: flex;
   flex-wrap: wrap;
@@ -263,12 +262,6 @@
   line-height: 1.55;
 }
 
-.fm-home-metrics {
-  margin-top: 1.3rem;
-}
-
-.fm-mini-metric,
-.fm-chip,
 .fm-meta span,
 .fm-game-tags span,
 .fm-hud span {
@@ -279,12 +272,6 @@
   font-weight: 850;
 }
 
-.fm-mini-metric,
-.fm-chip {
-  padding: 0.7rem 0.9rem;
-}
-
-.fm-benefits,
 .fm-stats,
 .fm-game-grid,
 .fm-progress-grid,
@@ -293,13 +280,6 @@
   gap: 1rem;
 }
 
-.fm-benefits {
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  margin-top: 1.25rem;
-}
-
-.fm-chip { min-width: 0; line-height: 1.3; overflow-wrap: anywhere; }
-
 .fm-psychology-panel {
   min-height: 470px;
   display: grid;
@@ -307,6 +287,12 @@
   align-content: stretch;
   gap: 1.25rem;
   position: relative;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(143, 181, 255, .28);
+  border-radius: 24px;
+  background: radial-gradient(circle at center, rgba(122, 162, 255, .14), transparent 42%), linear-gradient(145deg, rgba(248, 251, 255, .92), rgba(241, 248, 247, .86));
   overflow: hidden;
 }
 
@@ -667,11 +653,6 @@
 .fm-table th:last-child,
 .fm-table td:last-child { border-radius: 0 14px 14px 0; }
 
-.fm-fullscreen-note {
-  margin-top: 1rem;
-  color: var(--fm-muted);
-}
-
 @media (max-width: 1050px) {
   .fq-home-landing,
   .fm-hero {
@@ -683,7 +664,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .fm-benefits,
   .fm-progress-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -712,7 +692,6 @@
 
   .fm-game-grid,
   .fm-stats,
-  .fm-benefits,
   .fm-progress-grid {
     grid-template-columns: 1fr;
   }
