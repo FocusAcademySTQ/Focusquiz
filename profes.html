@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Prototip visual editable del portal docent de FocusQuiz.">
+  <title>FocusQuiz · Portal docent (prototip HTML)</title>
+  <style>
+    :root {
+      --ink: #17223b;
+      --muted: #69748a;
+      --line: #dfe4ef;
+      --paper: #ffffff;
+      --canvas: #f5f6fa;
+      --primary: #6558e8;
+      --primary-soft: #eeeafe;
+      --green: #32b47b;
+      --orange: #f39a51;
+      --radius: 20px;
+      --shadow: 0 18px 45px rgba(39, 45, 78, .08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+
+    .app { display: grid; grid-template-columns: 250px minmax(0, 1fr); min-height: 100vh; }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 34px;
+      padding: 28px 20px;
+      color: #f8f8ff;
+      background: #20213d;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; padding: 0 10px; font-size: 1.08rem; font-weight: 800; }
+    .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--primary); }
+    .nav { display: grid; gap: 8px; }
+    .nav a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; color: #b8bbd4; font-weight: 650; }
+    .nav a:hover, .nav a.active { color: white; background: rgba(255, 255, 255, .1); }
+    .nav-icon { width: 24px; text-align: center; }
+    .sidebar-help { margin-top: auto; padding: 18px; border-radius: 16px; background: rgba(255, 255, 255, .08); }
+    .sidebar-help strong, .sidebar-help small { display: block; }
+    .sidebar-help small { margin-top: 6px; color: #b8bbd4; line-height: 1.5; }
+
+    .page { min-width: 0; padding: 26px clamp(22px, 4vw, 56px) 54px; }
+    .topbar, .welcome, .section-head, .activity-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .search { width: min(420px, 42vw); padding: 11px 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+    .profile { display: flex; align-items: center; gap: 11px; }
+    .avatar { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; color: #453ca6; background: #dcd7ff; font-weight: 800; }
+    .profile small { display: block; color: var(--muted); }
+
+    .welcome { margin: 38px 0 24px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 7px; font-size: clamp(1.8rem, 3vw, 2.45rem); letter-spacing: -.04em; }
+    .welcome p, .muted { color: var(--muted); }
+    .primary, .ghost {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-weight: 750;
+    }
+    .primary { color: white; background: var(--primary); box-shadow: 0 10px 20px rgba(101, 88, 232, .22); }
+    .primary:hover { background: #5548da; transform: translateY(-1px); }
+    .ghost { color: var(--ink); background: var(--paper); border: 1px solid var(--line); }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .card { border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); box-shadow: var(--shadow); }
+    .stat { padding: 21px; }
+    .stat-top { display: flex; justify-content: space-between; color: var(--muted); font-weight: 650; }
+    .stat-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; background: var(--primary-soft); }
+    .stat strong { display: block; margin-top: 10px; font-size: 1.8rem; }
+    .trend { color: var(--green); font-size: .82rem; font-weight: 750; }
+
+    .content { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(260px, .75fr); gap: 20px; margin-top: 20px; }
+    .classes, .activity { padding: 24px; }
+    .section-head { margin-bottom: 18px; }
+    .section-head h2, .activity h2 { margin-bottom: 3px; font-size: 1.15rem; }
+    .class-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .class-item { padding: 18px; border: 1px solid var(--line); border-radius: 16px; }
+    .class-item:hover { border-color: #aaa1f6; box-shadow: 0 10px 25px rgba(50, 48, 100, .08); }
+    .class-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .class-title h3 { margin-bottom: 5px; font-size: 1rem; }
+    .class-dot { width: 10px; height: 10px; margin-top: 6px; border-radius: 50%; background: var(--green); }
+    .progress { height: 7px; margin: 17px 0 9px; overflow: hidden; border-radius: 99px; background: #eceef4; }
+    .progress span { display: block; height: 100%; border-radius: inherit; background: var(--primary); }
+    .class-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: .8rem; }
+
+    .activity-list { display: grid; gap: 18px; margin-top: 20px; }
+    .activity-row { display: grid; grid-template-columns: 39px 1fr; gap: 11px; }
+    .activity-icon { display: grid; place-items: center; height: 39px; border-radius: 12px; background: #edf7f2; }
+    .activity-row p { margin-bottom: 3px; font-size: .9rem; line-height: 1.35; }
+    .activity-row time { color: var(--muted); font-size: .76rem; }
+    .notice { margin-top: 24px; padding: 16px; border-radius: 15px; color: #7c4a20; background: #fff3e7; }
+    .notice strong { display: block; margin-bottom: 4px; }
+
+    .mobile-nav { display: none; }
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 82px minmax(0, 1fr); }
+      .brand-name, .nav-label, .sidebar-help { display: none; }
+      .brand, .nav a { justify-content: center; padding-inline: 0; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .content { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 650px) {
+      .app { display: block; }
+      .sidebar { display: none; }
+      .page { padding: 18px 16px 90px; }
+      .search { width: 100%; }
+      .profile-copy { display: none; }
+      .welcome { align-items: flex-start; margin-top: 28px; }
+      .stats, .class-grid { grid-template-columns: 1fr; }
+      .mobile-nav { position: fixed; z-index: 5; right: 12px; bottom: 12px; left: 12px; display: flex; justify-content: space-around; padding: 10px; border: 1px solid var(--line); border-radius: 17px; background: rgba(255, 255, 255, .94); box-shadow: var(--shadow); backdrop-filter: blur(12px); }
+      .mobile-nav a { padding: 8px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="brand-mark">FQ</span><span class="brand-name">FocusQuiz</span></a>
+      <nav class="nav" aria-label="Navegació del portal docent">
+        <a class="active" href="#inici"><span class="nav-icon">⌂</span><span class="nav-label">Inici</span></a>
+        <a href="#classes"><span class="nav-icon">▦</span><span class="nav-label">Classes</span></a>
+        <a href="#proves"><span class="nav-icon">✓</span><span class="nav-label">Proves</span></a>
+        <a href="#resultats"><span class="nav-icon">↗</span><span class="nav-label">Resultats</span></a>
+        <a href="#recursos"><span class="nav-icon">◇</span><span class="nav-label">Recursos</span></a>
+      </nav>
+      <div class="sidebar-help"><strong>Necessites ajuda?</strong><small>Consulta la guia ràpida per començar amb FocusQuiz.</small></div>
+    </aside>
+
+    <main class="page" id="inici">
+      <header class="topbar">
+        <input class="search" type="search" aria-label="Cerca" placeholder="Cerca classes, alumnes o proves…">
+        <div class="profile"><span class="avatar">MR</span><span class="profile-copy"><strong>Marta Rius</strong><small>Professora</small></span></div>
+      </header>
+
+      <section class="welcome">
+        <div><h1>Bon dia, Marta! 👋</h1><p>Aquí tens un resum de l'activitat de les teves classes.</p></div>
+        <button class="primary" type="button" id="newTest">＋ Nova prova</button>
+      </section>
+
+      <section class="stats" aria-label="Resum del curs">
+        <article class="card stat"><div class="stat-top"><span>Alumnes</span><span class="stat-icon">♙</span></div><strong>84</strong><span class="trend">↑ 6 aquest mes</span></article>
+        <article class="card stat"><div class="stat-top"><span>Classes actives</span><span class="stat-icon">▦</span></div><strong>4</strong><span class="muted">Curs 2025–26</span></article>
+        <article class="card stat"><div class="stat-top"><span>Proves creades</span><span class="stat-icon">✓</span></div><strong>18</strong><span class="trend">3 pendents</span></article>
+        <article class="card stat"><div class="stat-top"><span>Mitjana global</span><span class="stat-icon">↗</span></div><strong>7,8</strong><span class="trend">↑ 0,4 punts</span></article>
+      </section>
+
+      <div class="content">
+        <section class="card classes" id="classes">
+          <div class="section-head"><div><h2>Les meves classes</h2><span class="muted">Seguiment d'activitat i progrés</span></div><button class="ghost" type="button">Veure-les totes</button></div>
+          <div class="class-grid">
+            <article class="class-item"><div class="class-title"><div><h3>4t ESO · Matemàtiques</h3><span class="muted">24 alumnes</span></div><span class="class-dot"></span></div><div class="progress"><span style="width: 78%"></span></div><div class="class-meta"><span>Progrés mitjà</span><strong>78%</strong></div></article>
+            <article class="class-item"><div class="class-title"><div><h3>3r ESO · Català</h3><span class="muted">22 alumnes</span></div><span class="class-dot"></span></div><div class="progress"><span style="width: 64%"></span></div><div class="class-meta"><span>Progrés mitjà</span><strong>64%</strong></div></article>
+            <article class="class-item"><div class="class-title"><div><h3>2n ESO · Geografia</h3><span class="muted">20 alumnes</span></div><span class="class-dot"></span></div><div class="progress"><span style="width: 86%"></span></div><div class="class-meta"><span>Progrés mitjà</span><strong>86%</strong></div></article>
+            <article class="class-item"><div class="class-title"><div><h3>1r ESO · Llengua</h3><span class="muted">18 alumnes</span></div><span class="class-dot" style="background: var(--orange)"></span></div><div class="progress"><span style="width: 51%; background: var(--orange)"></span></div><div class="class-meta"><span>Progrés mitjà</span><strong>51%</strong></div></article>
+          </div>
+        </section>
+
+        <aside class="card activity">
+          <div class="activity-head"><h2>Activitat recent</h2><button class="ghost" type="button" aria-label="Més opcions">•••</button></div>
+          <div class="activity-list">
+            <div class="activity-row"><span class="activity-icon">✓</span><div><p><strong>Laia</strong> ha completat «Fraccions» amb un 9,2.</p><time>Fa 12 minuts</time></div></div>
+            <div class="activity-row"><span class="activity-icon">◎</span><div><p><strong>18 alumnes</strong> han començat la prova de català.</p><time>Fa 1 hora</time></div></div>
+            <div class="activity-row"><span class="activity-icon">＋</span><div><p>S'ha afegit <strong>Pol Garcia</strong> a 4t ESO.</p><time>Ahir, 16:40</time></div></div>
+          </div>
+          <div class="notice"><strong>Prova pendent</strong><span>La prova «Accentuació» es tanca demà.</span></div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <nav class="mobile-nav" aria-label="Navegació mòbil"><a href="#inici">⌂</a><a href="#classes">▦</a><a href="#proves">✓</a><a href="#resultats">↗</a></nav>
+  <script>
+    document.querySelector('#newTest').addEventListener('click', () => {
+      window.alert('Prototip visual: aquí pots connectar el formulari de creació de proves.');
+    });
+  </script>
+</body>
+</html>
