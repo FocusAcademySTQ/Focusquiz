@@ -16,14 +16,52 @@
         <h1>FocusQuiz</h1>
       </div>
       <nav class="main-nav" aria-label="Navegació principal">
-        <a class="pill" href="../app.html"><span aria-hidden="true">⌂</span> Plataforma</a>
-        <a class="pill" href="./supabase-portal.html" aria-current="page"><span aria-hidden="true">▦</span> Portal docent</a>
+        <a class="pill portal-home-link" href="./supabase-portal.html" aria-current="page"><span aria-hidden="true">⌂</span> Inici</a>
       </nav>
+      <div id="portalTabs" class="portal-tabs hidden" data-portal-tablist role="tablist" aria-label="Eines del professorat">
+        <button id="tab-classes" class="portal-tab" type="button" data-tab="classes" role="tab" aria-controls="classesPanel" aria-selected="false"><span aria-hidden="true">▦</span> Classes</button>
+        <button id="tab-assignments" class="portal-tab" type="button" data-tab="assignments" role="tab" aria-controls="assignmentsPanel" aria-selected="false"><span aria-hidden="true">✓</span> Proves</button>
+        <button id="tab-results" class="portal-tab" type="button" data-tab="results" role="tab" aria-controls="resultsPanel" aria-selected="false"><span aria-hidden="true">↗</span> Resultats</button>
+        <a class="portal-tab portal-resource-link" href="../recursos.html"><span aria-hidden="true">◇</span> Recursos</a>
+      </div>
     </div>
   </header>
 
   <main class="wrap portal-main">
-    <section class="panel card portal-hero">
+    <div id="teacherDashboard" class="teacher-dashboard hidden">
+      <header class="dashboard-topbar">
+        <label class="dashboard-search">
+          <span class="portal-visually-hidden">Cerca classes, alumnes o proves</span>
+          <input id="dashboardSearch" type="search" placeholder="Cerca classes, alumnes o proves…" />
+        </label>
+        <section id="sessionPanel" class="dashboard-profile hidden">
+          <span id="sessionAvatar" class="dashboard-avatar" aria-hidden="true">D</span>
+          <span class="dashboard-profile-copy">
+            <strong id="sessionName"></strong>
+            <span id="sessionEmail">Professora</span>
+          </span>
+          <button id="logoutBtn" class="dashboard-logout" type="button">Tanca la sessió</button>
+          <span id="sessionWarning" class="portal-error hidden" role="status" aria-live="polite"></span>
+        </section>
+      </header>
+
+      <div class="dashboard-welcome">
+        <div>
+          <h1>Bon dia, <span id="dashboardFirstName">docent</span>! <span aria-hidden="true">👋</span></h1>
+          <p>Aquí tens un resum de l'activitat de les teves classes.</p>
+        </div>
+        <button id="dashboardNewTest" class="btn-primary" type="button">＋ Nova prova</button>
+      </div>
+
+      <section class="dashboard-stats" aria-label="Resum del curs">
+        <article class="dashboard-stat"><div><span>Alumnes</span><strong id="dashboardStudentCount">0</strong><small id="dashboardStudentNote">Alumnes registrats</small></div><i aria-hidden="true">♟</i></article>
+        <article class="dashboard-stat"><div><span>Classes actives</span><strong id="dashboardClassCount">0</strong><small>Curs 2025–26</small></div><i aria-hidden="true">▦</i></article>
+        <article class="dashboard-stat"><div><span>Proves creades</span><strong id="dashboardTestCount">0</strong><small id="dashboardPendingCount">0 pendents</small></div><i aria-hidden="true">✓</i></article>
+        <article class="dashboard-stat"><div><span>Mitjana global</span><strong id="dashboardAverage">—</strong><small>Resultats enviats</small></div><i aria-hidden="true">↗</i></article>
+      </section>
+    </div>
+
+    <section id="portalHero" class="panel card portal-hero">
       <div class="portal-hero-body">
         <p class="portal-hero-kicker">Espai del professorat</p>
         <h1>Gestiona classes, proves i resultats</h1>
@@ -47,7 +85,7 @@
       </div>
     </section>
 
-    <div class="portal-auth-grid">
+    <div id="portalAuthGrid" class="portal-auth-grid">
       <section id="authPanel" class="panel card">
         <h2 style="margin-bottom:0.75rem">Inicia sessió com a docent</h2>
         <form id="loginForm" class="portal-form" autocomplete="on">
@@ -91,54 +129,40 @@
       </section>
     </div>
 
-    <section id="sessionPanel" class="panel card hidden">
-      <div class="portal-section-header">
-        <div>
-          <p class="portal-section-title" style="margin-bottom:0">Sessió docent</p>
-          <h2 style="margin:0" id="sessionName"></h2>
-          <p id="sessionEmail" class="portal-muted" style="margin-top:0.25rem"></p>
-        </div>
-        <button id="logoutBtn" class="btn-secondary" type="button">Tanca la sessió</button>
-      </div>
-      <div id="sessionWarning" class="portal-error hidden" role="status" aria-live="polite" style="margin-top:0.75rem"></div>
-    </section>
-
-    <div id="portalTabs" class="portal-tabs hidden" data-portal-tablist role="tablist" aria-label="Eines del professorat">
-      <button id="tab-classes" class="portal-tab" type="button" data-tab="classes" role="tab" aria-controls="classesPanel" aria-selected="false">Classes</button>
-      <button id="tab-assignments" class="portal-tab" type="button" data-tab="assignments" role="tab" aria-controls="assignmentsPanel" aria-selected="false">Assignacions</button>
-      <button id="tab-results" class="portal-tab" type="button" data-tab="results" role="tab" aria-controls="resultsPanel" aria-selected="false">Resultats</button>
-    </div>
-
     <section id="classesPanel" class="portal-tabpanel hidden" data-tab-panel="classes" role="tabpanel" aria-labelledby="tab-classes">
       <section class="panel card">
         <div class="portal-section-header">
-          <div>
-            <p class="portal-section-title">Nova classe</p>
-            <h2>Crea una classe i afegeix l'alumnat</h2>
-          </div>
-          <button id="refreshClasses" class="btn-ghost" type="button">Actualitza</button>
+          <h2>Activitat recent</h2>
+          <button id="refreshClasses" class="btn-ghost dashboard-more" type="button" aria-label="Actualitza l'activitat">•••</button>
         </div>
-        <form id="classCreateForm" class="portal-form portal-form--two">
-          <label>
-            <span class="portal-field-label">Nom de la classe</span>
-            <input class="input" name="class_name" type="text" required placeholder="4t ESO · Matemàtiques" />
-          </label>
-          <label class="portal-form--stack">
-            <span class="portal-field-label">Alumnes (un per línia)</span>
-            <textarea class="input" name="student_list" rows="6" placeholder="Nom alumne 1&#10;Nom alumne 2&#10;..."></textarea>
-            <span class="portal-field-hint">No cal correu ni contrasenya. Els alumnes s'identifiquen amb el seu nom.</span>
-          </label>
-          <div class="portal-actions">
-            <button class="btn-primary" type="submit">Crear classe</button>
-            <div id="classCreateFeedback" class="portal-muted" role="status" aria-live="polite"></div>
-          </div>
-        </form>
+        <div class="dashboard-activity-list">
+          <div><i aria-hidden="true">✓</i><p><strong>Resultats actualitzats</strong><span>Consulta les últimes notes a Resultats.</span></p></div>
+          <div><i aria-hidden="true">◎</i><p><strong>Proves en curs</strong><span id="dashboardActivityTests">Revisa les assignacions actives.</span></p></div>
+          <div><i aria-hidden="true">＋</i><p><strong>Gestiona l'alumnat</strong><span>Obre una classe per editar-ne la llista.</span></p></div>
+        </div>
+        <details class="dashboard-create-class">
+          <summary>＋ Nova classe</summary>
+          <form id="classCreateForm" class="portal-form">
+            <label>
+              <span class="portal-field-label">Nom de la classe</span>
+              <input class="input" name="class_name" type="text" required placeholder="4t ESO · Matemàtiques" />
+            </label>
+            <label class="portal-form--stack">
+              <span class="portal-field-label">Alumnes (un per línia)</span>
+              <textarea class="input" name="student_list" rows="5" placeholder="Nom alumne 1&#10;Nom alumne 2&#10;..."></textarea>
+            </label>
+            <div class="portal-actions">
+              <button class="btn-primary" type="submit">Crear classe</button>
+              <div id="classCreateFeedback" class="portal-muted" role="status" aria-live="polite"></div>
+            </div>
+          </form>
+        </details>
       </section>
 
       <section class="panel card">
         <div class="portal-section-header">
-          <h2>Les meves classes</h2>
-          <p class="portal-muted">Copia el codi o enllaç i comparteix-lo amb l'alumnat.</p>
+          <div><h2>Les meves classes</h2><p class="portal-muted">Seguiment d'activitat i progrés</p></div>
+          <button class="btn-ghost" type="button">Veure-les totes</button>
         </div>
         <div id="classList" class="portal-grid"></div>
         <div id="classEmptyState" class="portal-empty hidden">
@@ -283,6 +307,10 @@
         <h3 class="portal-class-name"></h3>
       </header>
       <dl class="portal-class-meta"></dl>
+      <div class="dashboard-class-progress" aria-label="Progrés mitjà">
+        <span class="dashboard-progress-track"><i></i></span>
+        <span class="dashboard-progress-copy"><small>Progrés mitjà</small><strong>0%</strong></span>
+      </div>
       <div class="portal-class-actions">
         <button class="pill portal-class-copy" type="button">Copia enllaç</button>
         <button class="btn-secondary portal-class-edit" type="button">Gestiona alumnes</button>
