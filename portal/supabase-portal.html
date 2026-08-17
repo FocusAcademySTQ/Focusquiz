@@ -3,20 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Focus Academy · Gestor de proves</title>
+  <meta name="description" content="Gestiona les classes, les proves i els resultats de FocusQuiz des del portal docent." />
+  <title>FocusQuiz · Portal docent</title>
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="./portal.css" />
 </head>
-<body>
+<body class="teacher-portal">
   <header class="topbar">
     <div class="wrap row header-bar">
       <div class="brand">
         <div class="logo">FQ</div>
-        <h1>Focus Academy</h1>
+        <h1>FocusQuiz</h1>
       </div>
       <nav class="main-nav" aria-label="Navegació principal">
-        <a class="pill" href="../app.html">🏠 Inici</a>
-        <a class="pill" href="./supabase-portal.html" aria-current="page">Accés professorat</a>
+        <a class="pill" href="../app.html"><span aria-hidden="true">⌂</span> Plataforma</a>
+        <a class="pill" href="./supabase-portal.html" aria-current="page"><span aria-hidden="true">▦</span> Portal docent</a>
       </nav>
     </div>
   </header>
@@ -24,8 +25,8 @@
   <main class="wrap portal-main">
     <section class="panel card portal-hero">
       <div class="portal-hero-body">
-        <p class="portal-hero-kicker">Portal docent</p>
-        <h1>Gestiona classes, proves i notes</h1>
+        <p class="portal-hero-kicker">Espai del professorat</p>
+        <h1>Gestiona classes, proves i resultats</h1>
         <p class="subtitle">
           Crea una classe amb els alumnes, assigna qualsevol mòdul FocusQuiz i comparteix el codi perquè l'alumnat faci la prova sense
           registrar-se.
