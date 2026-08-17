@@ -902,6 +902,8 @@ function renderClasses() {
     const node = template.content.firstElementChild.cloneNode(true);
     node.dataset.id = cls.id;
     node.querySelector('.portal-class-name').textContent = cls.class_name;
+    const classCode = node.querySelector('.dashboard-class-code strong');
+    if (classCode) classCode.textContent = cls.join_code;
     const metaList = node.querySelector('.portal-class-meta');
     const addMeta = (label, value) => {
       const dt = document.createElement('dt');

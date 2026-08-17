@@ -3375,7 +3375,36 @@ body.teacher-portal .portal-class-card::before,
 body.teacher-portal .portal-assignment-card::before { content: none; }
 body.teacher-portal .portal-class-card:hover { border-color: #aaa1f6; box-shadow: 0 10px 25px rgba(50, 48, 100, 0.08); }
 body.teacher-portal .portal-class-card .portal-chip { display: none; }
+body.teacher-portal .portal-class-card > header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
 body.teacher-portal .portal-class-name { margin: 0; font-size: 1.04rem; }
+body.teacher-portal .dashboard-class-code {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 2px;
+  min-width: 82px;
+  margin: 0;
+  padding: 8px 11px;
+  border: 1px solid #d9d4ff;
+  border-radius: 11px;
+  color: #4d42ad;
+  background: #f0edff;
+  text-align: center;
+}
+body.teacher-portal .dashboard-class-code span {
+  font-size: 0.63rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+body.teacher-portal .dashboard-class-code strong {
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+}
 body.teacher-portal .portal-class-meta { color: var(--dashboard-muted); }
 body.teacher-portal .portal-class-meta dt { display: none; }
 body.teacher-portal .portal-class-meta dd { margin: 0; }
