@@ -390,6 +390,7 @@ function switchTab(tab) {
   const loggedIn = Boolean(state.session && state.profile);
   if (!loggedIn) {
     state.activeTab = 'classes';
+    document.body.classList.remove('dashboard-subpage');
     elements.tabButtons.forEach((button) => {
       button.classList.remove('portal-tab--active');
       button.setAttribute('aria-selected', 'false');
@@ -402,6 +403,7 @@ function switchTab(tab) {
   }
 
   state.activeTab = tab;
+  document.body.classList.toggle('dashboard-subpage', tab !== 'classes');
   elements.tabButtons.forEach((button) => {
     const isActive = button.dataset.tab === tab;
     button.classList.toggle('portal-tab--active', isActive);
