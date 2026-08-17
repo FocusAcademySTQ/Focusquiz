@@ -59,6 +59,18 @@ const state = {
 
 const elements = {
   configWarning: document.getElementById('configWarning'),
+  portalHero: document.getElementById('portalHero'),
+  portalAuthGrid: document.getElementById('portalAuthGrid'),
+  teacherDashboard: document.getElementById('teacherDashboard'),
+  dashboardFirstName: document.getElementById('dashboardFirstName'),
+  dashboardSearch: document.getElementById('dashboardSearch'),
+  dashboardNewTest: document.getElementById('dashboardNewTest'),
+  dashboardStudentCount: document.getElementById('dashboardStudentCount'),
+  dashboardClassCount: document.getElementById('dashboardClassCount'),
+  dashboardTestCount: document.getElementById('dashboardTestCount'),
+  dashboardPendingCount: document.getElementById('dashboardPendingCount'),
+  dashboardAverage: document.getElementById('dashboardAverage'),
+  sessionAvatar: document.getElementById('sessionAvatar'),
   authPanel: document.getElementById('authPanel'),
   loginForm: document.getElementById('loginForm'),
   authError: document.getElementById('authError'),
@@ -329,19 +341,49 @@ function renderProfileWarning() {
 
 function updateAuthUI() {
   const loggedIn = Boolean(state.session && state.profile);
+  setVisibility(elements.portalHero, !loggedIn);
+  setVisibility(elements.portalAuthGrid, !loggedIn);
+  setVisibility(elements.teacherDashboard, loggedIn);
   setVisibility(elements.authPanel, !loggedIn);
   setVisibility(elements.registerPanel, !loggedIn);
   setVisibility(elements.sessionPanel, loggedIn);
   setVisibility(elements.tabs, loggedIn);
   elements.tabPanels.forEach((panel) => setVisibility(panel, loggedIn && panel.dataset.tabPanel === state.activeTab));
   if (loggedIn) {
-    elements.sessionName.textContent = state.profile.full_name || 'Docent';
-    elements.sessionEmail.textContent = state.profile.email || '';
+    const fullName = state.profile.full_name || 'Docent';
+    const initials = fullName
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toLocaleUpperCase('ca'))
+      .join('');
+    elements.sessionName.textContent = fullName;
+    elements.sessionEmail.textContent = 'Professora';
+    if (elements.sessionAvatar) elements.sessionAvatar.textContent = initials || 'D';
+    if (elements.dashboardFirstName) elements.dashboardFirstName.textContent = fullName.split(/\s+/)[0];
+    renderDashboardSummary();
     switchTab(state.activeTab || 'classes');
   } else {
     state.activeTab = 'classes';
     switchTab(state.activeTab);
   }
+}
+
+function renderDashboardSummary() {
+  const students = new Set();
+  state.classes.forEach((classroom) => {
+    (classroom.students || []).forEach((student) => students.add(student.trim().toLocaleLowerCase('ca')));
+  });
+  const activeAssignments = state.assignments.filter((assignment) => assignment.status !== 'closed');
+  const grades = state.submissions
+    .map((submission) => Number(submission.score ?? submission.grade))
+    .filter((score) => Number.isFinite(score));
+  const average = grades.length ? grades.reduce((sum, score) => sum + score, 0) / grades.length / 10 : null;
+  if (elements.dashboardStudentCount) elements.dashboardStudentCount.textContent = students.size;
+  if (elements.dashboardClassCount) elements.dashboardClassCount.textContent = state.classes.length;
+  if (elements.dashboardTestCount) elements.dashboardTestCount.textContent = state.assignments.length;
+  if (elements.dashboardPendingCount) elements.dashboardPendingCount.textContent = `${activeAssignments.length} pendents`;
+  if (elements.dashboardAverage) elements.dashboardAverage.textContent = average === null ? '—' : average.toLocaleString('ca-ES', { maximumFractionDigits: 1 });
 }
 
 function switchTab(tab) {
@@ -872,6 +914,15 @@ function renderClasses() {
     if (cls.created_at) {
       addMeta('Creada', new Date(cls.created_at).toLocaleString('ca-ES'));
     }
+    const classAssignments = state.assignments.filter((assignment) => assignment.class_id === cls.id);
+    const assignmentIds = new Set(classAssignments.map((assignment) => assignment.id));
+    const submittedCount = state.submissions.filter((submission) => assignmentIds.has(submission.assignment_id)).length;
+    const possibleCount = (cls.students || []).length * classAssignments.length;
+    const progress = possibleCount ? Math.min(100, Math.round((submittedCount / possibleCount) * 100)) : 0;
+    const progressBar = node.querySelector('.dashboard-progress-track i');
+    const progressValue = node.querySelector('.dashboard-progress-copy strong');
+    if (progressBar) progressBar.style.width = `${progress}%`;
+    if (progressValue) progressValue.textContent = `${progress}%`;
     const rosterDetails = node.querySelector('.portal-class-roster');
     const rosterForm = node.querySelector('.portal-class-roster-form');
     const textarea = rosterForm ? rosterForm.querySelector('textarea') : null;
@@ -916,6 +967,7 @@ function renderClasses() {
     node.querySelector('.portal-class-delete').addEventListener('click', () => deleteClass(cls));
     list.appendChild(node);
   });
+  renderDashboardSummary();
 }
 
 function renderAssignments() {
@@ -2022,6 +2074,17 @@ async function refreshData() {
 }
 
 function setupEventListeners() {
+  if (elements.dashboardNewTest) {
+    elements.dashboardNewTest.addEventListener('click', () => switchTab('assignments'));
+  }
+  if (elements.dashboardSearch) {
+    elements.dashboardSearch.addEventListener('input', () => {
+      const query = elements.dashboardSearch.value.trim().toLocaleLowerCase('ca');
+      document.querySelectorAll('#classList .portal-class-card').forEach((card) => {
+        card.classList.toggle('dashboard-filtered', Boolean(query) && !card.textContent.toLocaleLowerCase('ca').includes(query));
+      });
+    });
+  }
   elements.tabButtons.forEach((button) => {
     button.addEventListener('click', () => {
       switchTab(button.dataset.tab);
