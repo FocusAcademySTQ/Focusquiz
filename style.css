@@ -1543,6 +1543,16 @@ footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
 .portal-live-game-actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
 .portal-live-game-actions .btn-ghost{color:#0f172a}
 @media (max-width:720px){.portal-live-game-card{padding:1rem}.portal-live-game-actions{flex-direction:column;align-items:stretch}.portal-live-game-actions button{width:100%}}
+.home-page .app-battle-cta{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:clamp(24px,5vw,64px);margin-top:28px;padding:clamp(28px,5vw,52px);overflow:hidden;border:1px solid rgba(73,105,216,.4);background:linear-gradient(135deg,#edf2ff 0%,#fff 72%);box-shadow:0 28px 55px -42px rgba(41,70,173,.75)}
+.home-page .app-battle-cta::before{content:'';position:absolute;width:190px;height:190px;right:-85px;top:-110px;border:24px solid rgba(255,217,90,.42);border-radius:50%}
+.home-page .app-battle-cta__body{position:relative;z-index:1;max-width:650px}
+.home-page .app-battle-cta h2{margin:.2rem 0 .65rem;font-size:clamp(2rem,5vw,4rem);line-height:.95;letter-spacing:-.055em;color:#132238}
+.home-page .app-battle-cta .subtitle{max-width:570px;margin:0 0 1.4rem;color:#536074;font-size:1rem}
+.home-page .app-battle-cta__button{display:inline-flex;align-items:center;justify-content:center;gap:16px;min-height:48px;padding:11px 24px;border-radius:10px;background:#4969d8;color:#fff;font-weight:800;text-decoration:none;box-shadow:4px 4px 0 #2946ad;transition:transform .18s ease,box-shadow .18s ease}
+.home-page .app-battle-cta__button:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 #2946ad}
+.home-page .app-battle-cta__versus{position:relative;z-index:1;display:flex;align-items:center;gap:12px;font-weight:900;color:#4969d8}
+.home-page .app-battle-cta__versus span{width:58px;height:58px;display:grid;place-items:center;border:1.5px solid #132238;border-radius:50%;background:#fff;color:#132238;font-size:1.25rem;box-shadow:3px 3px 0 #132238}
+@media(max-width:650px){.home-page .app-battle-cta{grid-template-columns:1fr}.home-page .app-battle-cta__versus{grid-row:1;justify-content:center}.home-page .app-battle-cta__button{width:100%}}
 .fade-in{ animation: fade .45s ease both }
 @keyframes fade { from{opacity:0; transform: translateY(6px)} to{opacity:1; transform:none} }
 
