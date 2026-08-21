@@ -19,6 +19,8 @@ const state = {
   submissionResult: null,
   channel: null,
   timer: null,
+  advanceRetry: null,
+  advancing: false,
   presence: {},
   loadingQuestion: null,
 };
@@ -58,6 +60,7 @@ function resetGameState() {
   state.questionIndex = null;
   state.submittedIndex = null;
   state.submissionResult = null;
+  state.advancing = false;
   state.presence = {};
   state.loadingQuestion = null;
 }
@@ -212,7 +215,10 @@ function subscribe() {
 
 function cleanup() {
   clearInterval(state.timer);
+  clearTimeout(state.advanceRetry);
   state.timer = null;
+  state.advanceRetry = null;
+  state.advancing = false;
   if (state.channel && supabase) supabase.removeChannel(state.channel);
   state.channel = null;
 }
@@ -258,26 +264,33 @@ function renderQuestion() {
   const question = state.question;
   if (!question) return;
   const submitted = state.submittedIndex === index;
-  const timeLimit = Number(state.room.config?.timePerQuestion || 30);
+  const timeLimit = Number(state.room.config?.timePerQuestion || state.room.config?.time_per_question || 30);
   const startedAt = new Date(state.room.question_started_at).getTime();
+  const expired = Number.isFinite(startedAt) && Date.now() >= startedAt + timeLimit * 1000;
+  const locked = submitted || expired;
   const me = state.players.find(player => player.id === state.player.id);
   const rival = opponent() || { name: 'Rival', score: 0 };
   const choices = Array.isArray(question.options) ? question.options : null;
   const choicesHtml = choices
-    ? `<div class="answers">${choices.map(option => `<button class="answer-option" data-answer="${escapeHtml(option)}" ${submitted ? 'disabled' : ''}>${escapeHtml(option)}</button>`).join('')}</div>`
-    : `<form class="answer-form" id="answerForm"><input name="answer" aria-label="Resposta" autocomplete="off" required ${submitted ? 'disabled' : ''}><button class="primary" ${submitted ? 'disabled' : ''}>RESPONDRE</button></form>`;
+    ? `<div class="answers">${choices.map(option => `<button class="answer-option" data-answer="${escapeHtml(option)}" ${locked ? 'disabled' : ''}>${escapeHtml(option)}</button>`).join('')}</div>`
+    : `<form class="answer-form" id="answerForm"><input name="answer" aria-label="Resposta" autocomplete="off" required ${locked ? 'disabled' : ''}><button class="primary" ${locked ? 'disabled' : ''}>RESPONDRE</button></form>`;
   const totalQuestions = Number(state.room.config?.count || question.total_questions || 0);
   const feedback = submitted
     ? `${state.submissionResult?.correct === true ? 'Correcte! ' : state.submissionResult?.correct === false ? 'Resposta enviada. ' : ''}Esperant el rival…`
-    : '';
+    : expired ? 'Temps esgotat. Preparant la pregunta següent…' : '';
 
-  app.innerHTML = `<section class="battle-card"><div class="scoreboard"><div><strong>${escapeHtml(me?.name)}</strong><span>${me?.score || 0} pts</span></div><b>—</b><div><strong>${escapeHtml(rival.name)}</strong><span>${rival.score || 0} pts</span></div></div><div class="question-meta"><span>Pregunta ${index + 1}${totalQuestions ? ` / ${totalQuestions}` : ''}</span><span id="timerText">${timeLimit}s</span></div><div class="timer-track"><div class="timer-bar" id="timerBar"></div></div><p id="connectionNotice" class="status-note" hidden></p><h2 class="question-text">${escapeHtml(question.text)}</h2><div class="question-media">${mediaHtml(question)}</div>${choicesHtml}<p class="locked">${feedback}</p></section>`;
+  app.innerHTML = `<section class="battle-card"><div class="scoreboard"><div><strong>${escapeHtml(me?.name)}</strong><span>${me?.score || 0} pts</span></div><b>—</b><div><strong>${escapeHtml(rival.name)}</strong><span>${rival.score || 0} pts</span></div></div><div class="question-meta"><span>Pregunta ${index + 1}${totalQuestions ? ` / ${totalQuestions}` : ''}</span><span id="timerText">${timeLimit}s</span></div><div class="timer-track"><div class="timer-bar" id="timerBar"></div></div><p id="connectionNotice" class="status-note" hidden></p><h2 class="question-text">${escapeHtml(question.text)}</h2><div class="question-media">${mediaHtml(question)}</div>${choicesHtml}<p class="error battle-answer-error" id="answerError" role="alert"></p><p class="locked">${feedback}</p></section>`;
   updateConnectionNotice();
   startCountdown(timeLimit, startedAt);
 }
 
 function startCountdown(seconds, startedAt) {
   clearInterval(state.timer);
+  if (!Number.isFinite(startedAt)) {
+    showQuestionError('No s’ha pogut sincronitzar el temps de la pregunta. Actualitzant la sala…');
+    requestAdvanceUntilChanged(state.room.current_question);
+    return;
+  }
   const tick = async () => {
     const remaining = Math.max(0, seconds - (Date.now() - startedAt) / 1000);
     const bar = document.querySelector('#timerBar');
@@ -286,7 +299,10 @@ function startCountdown(seconds, startedAt) {
     if (label) label.textContent = `${Math.ceil(remaining)}s`;
     if (remaining <= 0) {
       clearInterval(state.timer);
-      await advance();
+      document.querySelectorAll('.answer-option, #answerForm input, #answerForm button').forEach(control => { control.disabled = true; });
+      const lockedMessage = document.querySelector('.locked');
+      if (lockedMessage && state.submittedIndex !== state.room.current_question) lockedMessage.textContent = 'Temps esgotat. Preparant la pregunta següent…';
+      requestAdvanceUntilChanged(state.room.current_question);
     }
   };
   tick();
@@ -308,12 +324,20 @@ async function submitAnswer(answer) {
   if (error) {
     state.submittedIndex = null;
     renderQuestion();
+    showQuestionError(error.message || 'No s’ha pogut enviar la resposta.');
+    if (/temps|time|expired|fora de torn/i.test(error.message || '')) requestAdvanceUntilChanged(index);
     throw error;
   }
   state.submissionResult = Array.isArray(data) ? data[0] : data;
   renderQuestion();
   await loadPlayers();
-  await advance();
+  await requestAdvanceUntilChanged(index, false);
+}
+
+function showQuestionError(message) {
+  const errorNode = document.querySelector('#answerError');
+  if (errorNode) errorNode.textContent = message;
+  else showToast(message);
 }
 
 async function loadPlayers() {
@@ -323,13 +347,28 @@ async function loadPlayers() {
   if (state.room?.status === 'playing') renderQuestion();
 }
 
-async function advance() {
-  if (!state.room) return;
-  const { error } = await supabase.rpc('advance_battle_room', {
-    p_room_id: state.room.id,
-    p_player_token: state.player.token,
-  });
-  if (error) console.warn('El servidor encara no ha avançat la pregunta:', error.message);
+async function requestAdvanceUntilChanged(questionIndex, retry = true) {
+  if (!state.room || state.room.status !== 'playing' || state.room.current_question !== questionIndex) return;
+  if (state.advancing) return;
+  state.advancing = true;
+  clearTimeout(state.advanceRetry);
+  try {
+    const { error } = await supabase.rpc('advance_battle_room', {
+      p_room_id: state.room.id,
+      p_player_token: state.player.token,
+    });
+    if (error) throw error;
+    await new Promise(resolve => setTimeout(resolve, 180));
+    await loadRoom(state.room.id);
+  } catch (error) {
+    console.warn('No s’ha pogut avançar la pregunta:', error.message);
+    showQuestionError(error.message || 'No s’ha pogut avançar la pregunta. Es tornarà a provar.');
+  } finally {
+    state.advancing = false;
+  }
+  if (retry && state.room?.status === 'playing' && state.room.current_question === questionIndex) {
+    state.advanceRetry = setTimeout(() => requestAdvanceUntilChanged(questionIndex), 1000);
+  }
 }
 
 function renderResult() {
