@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Focus Battle: competeix en directe amb les preguntes de FocusQuiz.">
+  <title>Focus Battle · FocusQuiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="battle.css">
+</head>
+<body>
+  <header class="battle-header">
+    <a href="index.html" class="battle-brand"><span>FQ</span> FocusQuiz</a>
+    <b>FOCUS BATTLE</b>
+    <button type="button" class="link-button" data-action="leave">Sortir</button>
+  </header>
+  <main id="battleApp" class="battle-shell" aria-live="polite">
+    <noscript>Cal activar JavaScript per jugar a Focus Battle.</noscript>
+  </main>
+  <div id="battleToast" class="battle-toast" role="status" hidden></div>
+  <script>
+    window._BATTLE_MODULES_ = [];
+    window.addModules = modules => { if (Array.isArray(modules)) window._BATTLE_MODULES_.push(...modules); };
+  </script>
+  <script src="lang-cat.js"></script>
+  <script src="lang-esp.js"></script>
+  <script src="quim.js"></script>
+  <script src="geo.js"></script>
+  <script src="math.js"></script>
+  <script type="module" src="battle.js"></script>
+</body>
+</html>
