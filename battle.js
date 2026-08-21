@@ -16,6 +16,7 @@ const state = {
   question: null,
   questionIndex: null,
   submittedIndex: null,
+  submissionStatus: null,
   submissionResult: null,
   channel: null,
   timer: null,
@@ -59,6 +60,7 @@ function resetGameState() {
   state.question = null;
   state.questionIndex = null;
   state.submittedIndex = null;
+  state.submissionStatus = null;
   state.submissionResult = null;
   state.advancing = false;
   state.presence = {};
@@ -162,6 +164,7 @@ async function loadRoom(roomId) {
     state.question = null;
     state.questionIndex = null;
     state.submittedIndex = null;
+    state.submissionStatus = null;
     state.submissionResult = null;
   }
   await renderRoom();
@@ -276,7 +279,9 @@ function renderQuestion() {
     : `<form class="answer-form" id="answerForm"><input name="answer" aria-label="Resposta" autocomplete="off" required ${locked ? 'disabled' : ''}><button class="primary" ${locked ? 'disabled' : ''}>RESPONDRE</button></form>`;
   const totalQuestions = Number(state.room.config?.count || question.total_questions || 0);
   const feedback = submitted
-    ? `${state.submissionResult?.correct === true ? 'Correcte! ' : state.submissionResult?.correct === false ? 'Resposta enviada. ' : ''}Esperant el rival…`
+    ? state.submissionStatus === 'sending'
+      ? 'Enviant resposta…'
+      : `${state.submissionResult?.correct === true ? 'Correcte! ' : ''}Resposta enviada. Esperant el rival…`
     : expired ? 'Temps esgotat. Preparant la pregunta següent…' : '';
 
   app.innerHTML = `<section class="battle-card"><div class="scoreboard"><div><strong>${escapeHtml(me?.name)}</strong><span>${me?.score || 0} pts</span></div><b>—</b><div><strong>${escapeHtml(rival.name)}</strong><span>${rival.score || 0} pts</span></div></div><div class="question-meta"><span>Pregunta ${index + 1}${totalQuestions ? ` / ${totalQuestions}` : ''}</span><span id="timerText">${timeLimit}s</span></div><div class="timer-track"><div class="timer-bar" id="timerBar"></div></div><p id="connectionNotice" class="status-note" hidden></p><h2 class="question-text">${escapeHtml(question.text)}</h2><div class="question-media">${mediaHtml(question)}</div>${choicesHtml}<p class="error battle-answer-error" id="answerError" role="alert"></p><p class="locked">${feedback}</p></section>`;
@@ -313,6 +318,8 @@ async function submitAnswer(answer) {
   const index = state.room.current_question;
   if (!answer || state.submittedIndex === index) return;
   state.submittedIndex = index;
+  state.submissionStatus = 'sending';
+  state.submissionResult = null;
   renderQuestion();
 
   const { data, error } = await supabase.rpc('submit_battle_answer', {
@@ -323,15 +330,23 @@ async function submitAnswer(answer) {
   });
   if (error) {
     state.submittedIndex = null;
+    state.submissionStatus = null;
     renderQuestion();
     showQuestionError(error.message || 'No s’ha pogut enviar la resposta.');
     if (/temps|time|expired|fora de torn/i.test(error.message || '')) requestAdvanceUntilChanged(index);
     throw error;
   }
   state.submissionResult = Array.isArray(data) ? data[0] : data;
+  state.submissionStatus = 'sent';
   renderQuestion();
-  await loadPlayers();
-  await requestAdvanceUntilChanged(index, false);
+  // L'avanç de pregunta no pot dependre d'una lectura posterior del marcador.
+  // Es reintenta fins que el servidor confirma un altre current_question.
+  requestAdvanceUntilChanged(index);
+  try {
+    await loadPlayers();
+  } catch (scoreError) {
+    console.warn('La resposta s’ha enviat, però el marcador encara no s’ha actualitzat:', scoreError.message);
+  }
 }
 
 function showQuestionError(message) {
