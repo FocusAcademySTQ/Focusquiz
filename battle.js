@@ -9,6 +9,8 @@ const publicRoomColumns = 'id,code,status,creator_player_id,config,current_quest
 const publicPlayerColumns = 'id,room_id,name,player_number,score,correct_count,wrong_count,connected,last_seen';
 const supabaseConfig = resolveSupabaseConfig();
 const supabase = supabaseConfig.configured ? createClient(supabaseConfig.url, supabaseConfig.anonKey) : null;
+const battleDebugEnabled = new URLSearchParams(window.location.search).get('battleDebug') === '1'
+  || localStorage.getItem('focusbattle-debug') === '1';
 const state = {
   room: null,
   player: null,
@@ -47,6 +49,11 @@ function showToast(message) {
 function errorMessage(error) {
   console.error(error);
   return error?.message || String(error || 'Error inesperat');
+}
+
+function battleLog(event, details = {}) {
+  if (!battleDebugEnabled) return;
+  console.debug(`[FocusBattle] ${event}`, details);
 }
 
 function connectionWarning() {
@@ -322,6 +329,16 @@ async function submitAnswer(answer) {
   state.submissionResult = null;
   renderQuestion();
 
+  const playerBefore = state.players.find(player => player.id === state.player.id);
+  battleLog('answer:selected', {
+    answer: String(answer),
+    room_id: state.room.id,
+    player_token: state.player.token,
+    player_id: state.player.id,
+    question_index: index,
+    score_before: playerBefore?.score ?? null,
+  });
+
   const { data, error } = await supabase.rpc('submit_battle_answer', {
     p_room_id: state.room.id,
     p_player_token: state.player.token,
@@ -329,6 +346,12 @@ async function submitAnswer(answer) {
     p_answer: String(answer),
   });
   if (error) {
+    battleLog('answer:error', {
+      room_id: state.room.id,
+      player_id: state.player.id,
+      question_index: index,
+      error,
+    });
     state.submittedIndex = null;
     state.submissionStatus = null;
     renderQuestion();
@@ -338,10 +361,27 @@ async function submitAnswer(answer) {
   }
   state.submissionResult = Array.isArray(data) ? data[0] : data;
   state.submissionStatus = 'sent';
+  if (playerBefore && Number.isFinite(Number(state.submissionResult?.score_after))) {
+    playerBefore.score = Number(state.submissionResult.score_after);
+  }
+  if (playerBefore && Number.isFinite(Number(state.submissionResult?.correct_count))) {
+    playerBefore.correct_count = Number(state.submissionResult.correct_count);
+  }
+  if (playerBefore && Number.isFinite(Number(state.submissionResult?.wrong_count))) {
+    playerBefore.wrong_count = Number(state.submissionResult.wrong_count);
+  }
+  battleLog('answer:accepted', {
+    room_id: state.room.id,
+    player_id: state.player.id,
+    question_index: index,
+    result: state.submissionResult,
+    score_before: playerBefore?.score === undefined ? null : Number(state.submissionResult?.score_before ?? playerBefore.score),
+    score_after: playerBefore?.score ?? null,
+  });
   renderQuestion();
   // L'avanç de pregunta no pot dependre d'una lectura posterior del marcador.
   // Es reintenta fins que el servidor confirma un altre current_question.
-  requestAdvanceUntilChanged(index);
+  await requestAdvanceUntilChanged(index);
   try {
     await loadPlayers();
   } catch (scoreError) {
@@ -359,6 +399,15 @@ async function loadPlayers() {
   const { data, error } = await supabase.from('battle_players').select(publicPlayerColumns).eq('room_id', state.room.id).order('player_number');
   if (error) throw error;
   state.players = data || [];
+  battleLog('players:refreshed', {
+    room_id: state.room.id,
+    players: state.players.map(player => ({
+      id: player.id,
+      score: player.score,
+      correct_count: player.correct_count,
+      wrong_count: player.wrong_count,
+    })),
+  });
   if (state.room?.status === 'playing') renderQuestion();
 }
 
@@ -367,6 +416,11 @@ async function requestAdvanceUntilChanged(questionIndex, retry = true) {
   if (state.advancing) return;
   state.advancing = true;
   clearTimeout(state.advanceRetry);
+  battleLog('question:advance-requested', {
+    room_id: state.room.id,
+    player_token: state.player.token,
+    question_index: questionIndex,
+  });
   try {
     const { error } = await supabase.rpc('advance_battle_room', {
       p_room_id: state.room.id,
@@ -375,7 +429,18 @@ async function requestAdvanceUntilChanged(questionIndex, retry = true) {
     if (error) throw error;
     await new Promise(resolve => setTimeout(resolve, 180));
     await loadRoom(state.room.id);
+    battleLog('question:advance-result', {
+      room_id: state.room.id,
+      previous_question: questionIndex,
+      current_question: state.room.current_question,
+      status: state.room.status,
+    });
   } catch (error) {
+    battleLog('question:advance-error', {
+      room_id: state.room?.id,
+      question_index: questionIndex,
+      error,
+    });
     console.warn('No s’ha pogut avançar la pregunta:', error.message);
     showQuestionError(error.message || 'No s’ha pogut avançar la pregunta. Es tornarà a provar.');
   } finally {
