@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="../style.css" />
   <link rel="stylesheet" href="./portal.css" />
 </head>
-<body class="teacher-portal">
+<body class="teacher-portal portal-auth-page">
   <header class="topbar">
     <div class="wrap row header-bar">
       <div class="brand">
@@ -74,6 +74,9 @@
           <li>Configura proves amb opcions personalitzades.</li>
           <li>Consulta resultats en directe des del centre.</li>
         </ul>
+        <div class="portal-hero-actions">
+          <a class="btn-ghost portal-back-link" href="../index.html"><span aria-hidden="true">←</span> Torna a FocusQuiz</a>
+        </div>
         <div id="configWarning" class="portal-alert hidden">
           Configura les claus Supabase a <code>SUPABASE_URL</code> i <code>SUPABASE_ANON_KEY</code> mitjançant variables d'entorn.
         </div>

@@ -341,6 +341,7 @@ function renderProfileWarning() {
 
 function updateAuthUI() {
   const loggedIn = Boolean(state.session && state.profile);
+  document.body.classList.toggle('portal-auth-page', !loggedIn);
   setVisibility(elements.portalHero, !loggedIn);
   setVisibility(elements.portalAuthGrid, !loggedIn);
   setVisibility(elements.teacherDashboard, loggedIn);
