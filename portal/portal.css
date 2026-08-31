@@ -3488,3 +3488,11 @@ body.teacher-portal .portal-main textarea { border-color: var(--dashboard-border
   body.teacher-portal #classesPanel > .panel:nth-child(1),
   body.teacher-portal #classesPanel > .panel:nth-child(2) { padding: 22px; }
 }
+
+/* The navigation belongs to the private dashboard, not the public sign-in page. */
+body.teacher-portal.portal-auth-page > .topbar { display: none; }
+body.teacher-portal.portal-auth-page .portal-main { margin-left: 0; }
+
+@media (max-width: 720px) {
+  body.teacher-portal.portal-auth-page { padding-bottom: 0; }
+}
