@@ -2193,6 +2193,270 @@ const SUBS_MORF = [
       ],
       answer: 'Llegir el primer capítol del llibre triat'
     },
+     {
+  title: 'Canvi d’horari a la biblioteca',
+  passage: 'A partir del mes d’octubre, la biblioteca municipal modificarà l’horari d’obertura entre setmana. De dilluns a dijous obrirà de nou del matí a vuit del vespre, mentre que els divendres tancarà dues hores abans. Els dissabtes mantindrà l’horari habitual de deu del matí a dues del migdia. Durant la setmana d’exàmens, però, la sala d’estudi romandrà oberta fins a les deu de la nit de dilluns a dijous. Per accedir-hi després de les vuit caldrà presentar el carnet de la biblioteca.',
+  question: 'Què haurà de fer un estudiant que vulgui quedar-se a estudiar un dimecres fins a les nou del vespre durant la setmana d’exàmens?',
+  options: [
+    'Marxar a les vuit perquè la biblioteca tanca',
+    'Presentar el carnet de la biblioteca per continuar a la sala d’estudi',
+    'Reservar plaça obligatòriament abans de les sis',
+    'Esperar fins al dissabte, quan la biblioteca obre més hores'
+  ],
+  answer: 'Presentar el carnet de la biblioteca per continuar a la sala d’estudi'
+},
+{
+  title: 'Excursió al parc natural',
+  passage: 'Els alumnes de segon d’ESO faran una excursió al parc natural el proper dijous. L’autocar sortirà de l’institut a les vuit en punt, de manera que es demana arribar com a mínim quinze minuts abans. Durant el matí es farà una ruta guiada de sis quilòmetres i, després de dinar, els alumnes participaran en una activitat d’orientació. Cal portar calçat còmode, aigua, esmorzar i dinar. En cas de pluja intensa, la sortida no se suspendrà, però la ruta serà substituïda per activitats al centre d’interpretació.',
+  question: 'Què passarà si dijous plou intensament?',
+  options: [
+    'L’excursió es cancel·larà completament',
+    'Els alumnes tornaran a casa després d’esmorzar',
+    'La ruta exterior serà substituïda per activitats en un espai cobert',
+    'Només es farà l’activitat d’orientació'
+  ],
+  answer: 'La ruta exterior serà substituïda per activitats en un espai cobert'
+},
+     {
+  title: 'Sortida al museu de ciències',
+  passage: 'Els alumnes de tercer d’ESO visitaran el museu de ciències el proper divendres. La sortida començarà a les vuit del matí i està previst que tornin al centre cap a les cinc de la tarda. Cada alumne haurà de portar esmorzar, dinar i una ampolla d’aigua. El museu ofereix servei de cafeteria, però el temps destinat a dinar serà limitat i no es garanteix que tots els alumnes hi puguin comprar menjar. A més, per participar en el taller de robòtica cal haver entregat prèviament l’autorització familiar. Els alumnes que no l’hagin presentada podran visitar el museu, però no podran participar en aquesta activitat.',
+  question: 'Què passarà amb un alumne que assisteixi a la sortida però no hagi entregat l’autorització?',
+  options: [
+    'No podrà entrar al museu',
+    'Podrà visitar el museu però no participar en el taller de robòtica',
+    'Haurà de tornar a l’institut abans de dinar',
+    'Podrà fer totes les activitats si porta diners'
+  ],
+  answer: 'Podrà visitar el museu però no participar en el taller de robòtica'
+},
+{
+  title: 'Concurs de relats breus',
+  passage: 'L’institut ha convocat un concurs de relats breus obert a tots els alumnes. Els textos han de tenir entre 500 i 800 paraules i estar escrits en català. El tema és lliure, però no es poden presentar textos que ja hagin estat publicats o premiats en altres concursos. Cada alumne pot presentar una única obra abans del 15 de novembre. El jurat tindrà en compte especialment l’originalitat, la qualitat lingüística i la capacitat de construir una història coherent. Els treballs que superin el límit màxim de paraules quedaran exclosos encara que compleixin la resta de requisits.',
+  question: 'Quin d’aquests textos podria ser admès al concurs?',
+  options: [
+    'Un relat de 850 paraules escrit en català',
+    'Un relat de 650 paraules que ja va guanyar un concurs',
+    'Un relat de 700 paraules original i escrit en català',
+    'Dos relats de 600 paraules presentats pel mateix alumne'
+  ],
+  answer: 'Un relat de 700 paraules original i escrit en català'
+},
+{
+  title: 'Canvis en el servei d’autobús',
+  passage: 'Durant les obres de millora de l’avinguda principal, la línia 4 d’autobús modificarà temporalment el seu recorregut. Les parades del mercat i de la biblioteca quedaran fora de servei durant dues setmanes. En canvi, s’habilitarà una nova parada provisional al carrer del Nord. Els autobusos mantindran la freqüència habitual de quinze minuts, excepte entre les vuit i les nou del matí, quan passaran cada deu minuts. L’empresa recomana consultar els panells informatius perquè els horaris poden patir petits retards.',
+  question: 'Quina afirmació és correcta segons el text?',
+  options: [
+    'La línia 4 deixarà de funcionar durant dues setmanes',
+    'Els autobusos passaran sempre cada deu minuts',
+    'Algunes parades habituals seran substituïdes temporalment',
+    'La parada de la biblioteca continuarà funcionant amb normalitat'
+  ],
+  answer: 'Algunes parades habituals seran substituïdes temporalment'
+},
+{
+  title: 'Treball de recerca en grup',
+  passage: 'Els alumnes hauran de preparar un treball de recerca en grups de quatre persones. Cada grup haurà de triar un tema relacionat amb el medi ambient i presentar una exposició oral de deu minuts. Tots els membres han de participar en la presentació, encara que no és necessari que parlin exactament el mateix temps. El professor valorarà tant el contingut com l’organització del grup i la capacitat de respondre les preguntes finals. Si algun alumne no pot assistir el dia de l’exposició per una causa justificada, haurà de presentar individualment la seva part en una altra data.',
+  question: 'Què es pot deduir sobre la participació dels membres del grup?',
+  options: [
+    'Tots han de parlar exactament dos minuts i mig',
+    'Només ha de parlar l’alumne que hagi preparat més informació',
+    'Tots han de participar, encara que el temps de parla pot ser diferent',
+    'Un membre pot no intervenir si els altres ho prefereixen'
+  ],
+  answer: 'Tots han de participar, encara que el temps de parla pot ser diferent'
+},
+{
+  title: 'Inscripció a les activitats esportives',
+  passage: 'El centre esportiu ofereix aquest trimestre tres activitats per a joves: natació, bàsquet i escalada. La natació es fa dilluns i dimecres, el bàsquet dimarts i dijous i l’escalada només els divendres. Cada alumne pot inscriure’s com a màxim a dues activitats, sempre que els horaris no coincideixin. Per participar en escalada és obligatori presentar una autorització específica, mentre que per a les altres activitats n’hi ha prou amb la inscripció general. Les places s’assignaran per ordre de sol·licitud.',
+  question: 'Quin alumne compleix segur totes les condicions d’inscripció?',
+  options: [
+    'Un alumne apuntat a tres activitats',
+    'Un alumne apuntat a bàsquet i escalada amb l’autorització corresponent',
+    'Un alumne apuntat a escalada sense autorització',
+    'Un alumne que demana plaça després que totes estiguin ocupades'
+  ],
+  answer: 'Un alumne apuntat a bàsquet i escalada amb l’autorització corresponent'
+},
+{
+  title: 'Reserva de llibres digitals',
+  passage: 'La biblioteca permet reservar llibres digitals a través de la seva plataforma. Cada usuari pot tenir en préstec un màxim de tres llibres alhora durant vint dies. Si un llibre està ocupat, es pot entrar en una llista d’espera i el sistema envia un avís quan torna a estar disponible. A partir d’aquell moment, l’usuari disposa de quaranta-vuit hores per activar el préstec. Si no ho fa dins d’aquest termini, el llibre passa automàticament a la següent persona de la llista.',
+  question: 'Què passa si un usuari rep l’avís de disponibilitat però no activa el préstec a temps?',
+  options: [
+    'El llibre queda reservat indefinidament',
+    'Ha de pagar una penalització',
+    'Perd la reserva i el llibre passa a un altre usuari',
+    'El préstec s’activa automàticament'
+  ],
+  answer: 'Perd la reserva i el llibre passa a un altre usuari'
+},
+{
+  title: 'Jornada de voluntariat ambiental',
+  passage: 'Dissabte al matí es durà a terme una jornada de voluntariat per netejar una zona propera al riu. L’activitat començarà a les nou i acabarà aproximadament a la una. L’organització proporcionarà guants i bosses, però recomana portar roba vella, calçat resistent i protecció solar. Els menors de setze anys han d’anar acompanyats d’un adult. En cas de pluja lleu, l’activitat es mantindrà, però si hi ha previsió de tempesta es posposarà fins al dissabte següent.',
+  question: 'En quina situació s’ajornaria l’activitat?',
+  options: [
+    'Si fa una mica de fred',
+    'Si plou lleugerament',
+    'Si hi ha previsió de tempesta',
+    'Si algun participant oblida els guants'
+  ],
+  answer: 'Si hi ha previsió de tempesta'
+},
+{
+  title: 'Examen de recuperació',
+  passage: 'Els alumnes que no hagin superat l’examen de matemàtiques podran presentar-se a una prova de recuperació la setmana vinent. L’examen inclourà els mateixos continguts, però els exercicis no seran exactament iguals. Per poder presentar-s’hi, cal haver entregat abans el dossier de recuperació complet. Aquest dossier no comptarà per a la nota final, però és un requisit obligatori. Els alumnes que ja hagin aprovat poden fer la prova voluntàriament per intentar millorar la qualificació.',
+  question: 'Per què és important entregar el dossier?',
+  options: [
+    'Perquè determina tota la nota de l’examen',
+    'Perquè és obligatori per poder fer la recuperació',
+    'Perquè substitueix l’examen',
+    'Perquè només els alumnes aprovats l’han de presentar'
+  ],
+  answer: 'Perquè és obligatori per poder fer la recuperació'
+},
+{
+  title: 'Canvi en el menú del menjador',
+  passage: 'A partir de la setmana vinent, el menjador escolar introduirà alguns canvis en el menú. Els dilluns es mantindrà el menú habitual, però els dimecres s’oferirà una opció vegetariana com a alternativa al plat principal. Els alumnes amb al·lèrgies o intoleràncies continuaran disposant de menús específics sempre que el centre tingui actualitzat l’informe mèdic corresponent. Les famílies que vulguin canviar de menú de manera permanent hauran de comunicar-ho amb una setmana d’antelació.',
+  question: 'Quina família haurà de fer un tràmit previ per garantir un menú especial per motius mèdics?',
+  options: [
+    'Una família que vulgui el menú habitual',
+    'Una família que vulgui l’opció vegetariana un dimecres',
+    'Una família amb un alumne al·lèrgic sense l’informe mèdic actualitzat',
+    'Una família que no utilitza el menjador'
+  ],
+  answer: 'Una família amb un alumne al·lèrgic sense l’informe mèdic actualitzat'
+},
+{
+  title: 'Projecte de lectura mensual',
+  passage: 'Durant aquest trimestre, els alumnes hauran de llegir un llibre cada mes. El primer serà obligatori i igual per a tota la classe, mentre que els dos següents es podran escollir d’una llista proposada pel professor. Després de cada lectura, els alumnes hauran de completar una activitat diferent: una ressenya, una exposició oral o un debat. No es podrà repetir el mateix tipus d’activitat dues vegades. L’objectiu és que els alumnes no només comprenguin els llibres, sinó que també aprenguin a expressar-ne una opinió argumentada.',
+  question: 'Quina combinació compleix les condicions del projecte?',
+  options: [
+    'Fer tres ressenyes, una per cada llibre',
+    'Fer una ressenya, una exposició oral i un debat',
+    'Llegir només els dos llibres que l’alumne esculli',
+    'Fer dues exposicions orals i una ressenya'
+  ],
+  answer: 'Fer una ressenya, una exposició oral i un debat'
+},
+{
+  title: 'Accés a la sala d’estudi',
+  passage: 'La sala d’estudi municipal estarà oberta de dilluns a divendres fins a les deu de la nit durant el període d’exàmens. Fins a les vuit hi pot entrar qualsevol usuari, però a partir d’aquesta hora només hi podran romandre els majors de catorze anys que disposin del carnet de la biblioteca. Els menors de setze anys, a més, han de tenir una autorització familiar registrada. No es permet reservar taules ni guardar llocs per a altres persones.',
+  question: 'Qui podria quedar-se a estudiar fins a les nou del vespre?',
+  options: [
+    'Un alumne de tretze anys amb carnet',
+    'Un alumne de quinze anys amb carnet però sense autorització familiar',
+    'Un alumne de quinze anys amb carnet i autorització familiar',
+    'Un alumne de dotze anys acompanyat d’un amic'
+  ],
+  answer: 'Un alumne de quinze anys amb carnet i autorització familiar'
+},
+{
+  title: 'Curs de programació',
+  passage: 'El centre tecnològic ofereix un curs d’iniciació a la programació format per sis sessions. Per obtenir el certificat cal assistir com a mínim a cinc sessions i entregar el projecte final. Les faltes justificades compten igualment com a absència a efectes del certificat. El projecte es pot fer individualment o en parelles, però tots els participants han de ser capaços d’explicar el funcionament del programa durant la presentació final.',
+  question: 'Quin alumne obtindria el certificat?',
+  options: [
+    'Un alumne que assisteix a quatre sessions i entrega el projecte',
+    'Un alumne que assisteix a cinc sessions però no entrega el projecte',
+    'Un alumne que assisteix a cinc sessions i entrega el projecte final',
+    'Un alumne que falta a dues sessions justificadament i no presenta el projecte'
+  ],
+  answer: 'Un alumne que assisteix a cinc sessions i entrega el projecte final'
+},
+{
+  title: 'Concurs de fotografia',
+  passage: 'L’ajuntament ha convocat un concurs de fotografia adreçat a joves d’entre dotze i divuit anys. Cada participant pot presentar un màxim de dues fotografies relacionades amb el tema “La ciutat i la natura”. Les imatges s’han d’enviar abans del 20 de novembre i no poden haver estat publicades anteriorment en cap xarxa social ni haver participat en altres concursos. El jurat valorarà especialment l’originalitat, la composició i la relació amb el tema. Les fotografies fetes amb telèfon mòbil també seran acceptades.',
+  question: 'Quina d’aquestes fotografies NO podria participar en el concurs?',
+  options: [
+    'Una fotografia feta amb un telèfon mòbil en un parc de la ciutat',
+    'Una fotografia d’un arbre entre edificis feta expressament per al concurs',
+    'Una fotografia publicada a Instagram el mes anterior',
+    'Una fotografia d’un riu urbà que encara no s’ha mostrat públicament'
+  ],
+  answer: 'Una fotografia publicada a Instagram el mes anterior'
+},
+{
+  title: 'Torneig esportiu escolar',
+  passage: 'El torneig esportiu de primavera se celebrarà divendres a la tarda. Els partits de futbol començaran a les quatre, mentre que els de bàsquet s’iniciaran mitja hora més tard. Els alumnes que participin en més d’un esport han d’avisar el professor d’Educació Física abans de dimecres perquè els horaris dels equips es puguin ajustar. Tots els participants han de portar roba esportiva i una ampolla d’aigua. L’organització proporcionarà el material necessari per jugar, però no es farà responsable dels objectes personals.',
+  question: 'Per què han d’avisar abans de dimecres els alumnes que juguen a més d’un esport?',
+  options: [
+    'Perquè han de pagar una inscripció especial',
+    'Per evitar que els horaris dels seus partits coincideixin',
+    'Perquè necessiten material esportiu diferent',
+    'Per poder sortir de classe abans que la resta'
+  ],
+  answer: 'Per evitar que els horaris dels seus partits coincideixin'
+},
+{
+  title: 'Campanya de recollida d’aliments',
+  passage: 'Durant les dues primeres setmanes de desembre, l’institut participarà en una campanya de recollida d’aliments destinada a famílies del municipi. Es poden portar productes de llarga conservació com arròs, pasta, llegums, oli o conserves. En canvi, no s’acceptaran aliments frescos ni productes que hagin superat la data de consum preferent. Les caixes de recollida estaran situades a l’entrada principal i es buidaran cada tarda. El grup que aconsegueixi reunir més quilos de productes rebrà un reconeixement durant la festa de final de trimestre.',
+  question: 'Quin d’aquests productes seria adequat per a la campanya?',
+  options: [
+    'Una safata de carn fresca',
+    'Un paquet d’arròs tancat i dins de la data de consum',
+    'Un iogurt que caduca l’endemà',
+    'Una llauna de conserva amb la data superada'
+  ],
+  answer: 'Un paquet d’arròs tancat i dins de la data de consum'
+},
+{
+  title: 'Obres al carrer Major',
+  passage: 'Les obres de renovació del carrer Major començaran dilluns i es preveu que durin aproximadament tres setmanes. Durant aquest període quedarà prohibida la circulació de vehicles entre la plaça Nova i el carrer de l’Estació. Els residents podran accedir als aparcaments particulars entre les vuit del vespre i les set del matí. Els autobusos modificaran temporalment el recorregut i la parada de la plaça Nova es traslladarà al passeig del Riu. Els comerços continuaran oberts amb normalitat i l’accés per als vianants estarà garantit.',
+  question: 'Quina conseqüència tindran les obres per a una persona que utilitza habitualment l’autobús de la plaça Nova?',
+  options: [
+    'No podrà utilitzar l’autobús durant tres setmanes',
+    'Haurà d’agafar l’autobús en una parada diferent',
+    'Només podrà utilitzar l’autobús durant la nit',
+    'Haurà de travessar la zona amb cotxe particular'
+  ],
+  answer: 'Haurà d’agafar l’autobús en una parada diferent'
+},
+{
+  title: 'Curs de primers auxilis',
+  passage: 'El centre juvenil organitza un curs bàsic de primers auxilis dividit en dues sessions de tres hores. La primera sessió estarà dedicada a explicar com actuar davant de ferides, cremades i cops, mentre que la segona inclourà pràctiques de reanimació cardiopulmonar. Per obtenir el certificat final és obligatori assistir a les dues sessions i superar una activitat pràctica. Les persones que només assisteixin a una sessió podran seguir la formació, però no rebran cap certificat.',
+  question: 'Què necessita fer una persona per obtenir el certificat del curs?',
+  options: [
+    'Assistir només a la sessió pràctica',
+    'Assistir a les dues sessions i superar una prova pràctica',
+    'Assistir a una de les sessions i entregar un treball escrit',
+    'Participar només en la part dedicada a la reanimació'
+  ],
+  answer: 'Assistir a les dues sessions i superar una prova pràctica'
+},
+{
+  title: 'Projecte de reciclatge',
+  passage: 'Aquest trimestre l’escola ha iniciat un projecte per reduir la quantitat de residus que genera. A totes les aules s’han instal·lat contenidors separats per a paper, envasos i residus orgànics. A més, cada divendres un grup d’alumnes pesa els residus acumulats durant la setmana i registra les dades. L’objectiu no és només reciclar correctament, sinó comprovar si amb el pas de les setmanes es produeix menys brossa. Al final del trimestre, cada classe analitzarà les dades i proposarà una mesura per reduir encara més els residus.',
+  question: 'Quina és la finalitat principal de pesar els residus cada setmana?',
+  options: [
+    'Comprovar quin grup utilitza més contenidors',
+    'Saber si la quantitat de residus disminueix amb el temps',
+    'Decidir quins alumnes han de reciclar',
+    'Calcular quant costa comprar els contenidors'
+  ],
+  answer: 'Saber si la quantitat de residus disminueix amb el temps'
+},
+{
+  title: 'Reserva del laboratori',
+  passage: 'Els grups que vulguin utilitzar el laboratori de ciències per preparar el projecte final han de reservar-lo amb antelació. Les reserves es poden fer de dilluns a dijous i tenen una durada màxima d’una hora. Els dimecres a la tarda el laboratori està reservat exclusivament per al club de ciències, de manera que no es poden acceptar altres grups. A més, sempre hi ha d’haver un professor responsable present. Els alumnes poden consultar el calendari de disponibilitat a la plataforma virtual del centre.',
+  question: 'Per què un grup no podria reservar el laboratori dimecres a la tarda encara que hi hagués un professor disponible?',
+  options: [
+    'Perquè els dimecres el centre està tancat',
+    'Perquè les reserves només es fan els divendres',
+    'Perquè aquella franja està destinada exclusivament al club de ciències',
+    'Perquè cada reserva ha de durar més d’una hora'
+  ],
+  answer: 'Perquè aquella franja està destinada exclusivament al club de ciències'
+},
+{
+  title: 'Programa d’intercanvi',
+  passage: 'L’institut participarà aquest curs en un programa d’intercanvi amb una escola de França. Els alumnes francesos arribaran al març i s’allotjaran durant sis dies amb famílies dels alumnes participants. Al maig, els estudiants del nostre centre viatjaran a França i s’allotjaran amb les mateixes famílies que hauran rebut anteriorment. Per participar-hi cal tenir una autorització familiar, comprometre’s a acollir un alumne francès i assistir a dues reunions preparatòries. El coneixement del francès es valorarà, però no és un requisit obligatori.',
+  question: 'Quin alumne podria participar en l’intercanvi?',
+  options: [
+    'Un alumne que parla francès però no pot allotjar cap estudiant a casa',
+    'Un alumne que no parla gaire francès però pot acollir un estudiant i assistir a les reunions',
+    'Un alumne que només vol viatjar a França però no rebre ningú',
+    'Un alumne que no té autorització familiar però participa en totes les reunions'
+  ],
+  answer: 'Un alumne que no parla gaire francès però pot acollir un estudiant i assistir a les reunions'
+},
     {
       title: 'Laboratori de llengües',
       passage: 'El professor d\'acollida recorda que la sessió de demà serà al laboratori de llengües. Cal deixar les motxilles a les taquilles, entrar en silenci i connectar els auriculars als ordinadors. Durant els primers quinze minuts faran un exercici d\'escolta guiada.',
