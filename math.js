@@ -1492,6 +1492,7 @@ function genFunctions(level, opts={}) {
   const aspects = opts.aspects || { type: true };
   const difficulty = opts.difficulty || 1;
 
+  const selectedAspect = getRandomAspect(aspects);
   const availableTypes = [];
   if (types.lin) availableTypes.push('lin');
   if (types.quad) availableTypes.push('quad');
@@ -1502,8 +1503,13 @@ function genFunctions(level, opts={}) {
   if (types.log) availableTypes.push('log');
   if (availableTypes.length === 0) availableTypes.push('lin');
 
-  const selectedType = choice(availableTypes);
-  const selectedAspect = getRandomAspect(aspects);
+  // De moment, els estudis detallats només estan implementats per a funcions
+  // lineals i quadràtiques. La resta de generadors només saben crear preguntes
+  // d'identificació i no s'han de barrejar quan s'ha demanat un altre aspecte.
+  const compatibleTypes = selectedAspect === 'type'
+    ? availableTypes
+    : availableTypes.filter(type => type === 'lin' || type === 'quad');
+  const selectedType = choice(compatibleTypes.length ? compatibleTypes : ['lin']);
 
   return generateFunctionQuestion(selectedType, selectedAspect, difficulty, level);
 }
@@ -1546,6 +1552,9 @@ function generateFunctionQuestion(type, aspect, difficulty, level) {
     text: question.text,
     html: question.html || '',
     answer: question.answer,
+    options: aspect === 'type'
+      ? ['Lineal', 'Quadràtica', 'Polinòmica', 'Racional', 'Radical', 'Exponencial', 'Logarítmica']
+      : question.options,
     meta: question.meta || {}
   };
 }
@@ -1557,12 +1566,13 @@ function generateLinearFunction(aspect, difficulty, level) {
 
   switch (aspect) {
     case 'type':
-      return { text: `Quin tipus de funció és ${f}?`, answer: 'lineal' };
+      return { text: `Quin tipus de funció és ${f}?`, answer: 'lineal', options: ['Lineal', 'Quadràtica', 'Polinòmica', 'Racional', 'Radical', 'Exponencial', 'Logarítmica'] };
     case 'domain':
       return { text: `Quin és el domini de ${f}?`, answer: 'tots els reals' };
     case 'intercepts': {
-      const xIntercept = n !== 0 ? `(${-n/m}, 0)` : '(0, 0)';
-      return { text: `Quins són els punts de tall amb els eixos de ${f}? (Format: (x,0), (0,y))`, answer: `${xIntercept}, (0, ${n})` };
+      const x = n !== 0 ? -n/m : 0;
+      const xIntercept = `(${x}, 0)`;
+      return { text: `Quins són els punts de tall amb els eixos de ${f}?`, answer: `${xIntercept}, (0, ${n})`, meta: { intercepts: [{ axis:'x', x, y:0 }, { axis:'y', x:0, y:n }] } };
     }
     case 'symmetry':
       return { text: `Quina simetria té ${f}?`, answer: 'cap simetria' };
@@ -1589,22 +1599,26 @@ function generateQuadraticFunction(aspect, difficulty, level) {
 
   switch (aspect) {
     case 'type':
-      return { text: `Quin tipus de funció és ${f}?`, answer: 'quadràtica' };
+      return { text: `Quin tipus de funció és ${f}?`, answer: 'quadràtica', options: ['Lineal', 'Quadràtica', 'Polinòmica', 'Racional', 'Radical', 'Exponencial', 'Logarítmica'] };
     case 'domain':
       return { text: `Quin és el domini de ${f}?`, answer: 'tots els reals' };
     case 'intercepts': {
       let xIntercepts = '';
+      const intercepts = [];
       if (discriminant > 0) {
-        const x1 = (-b + Math.sqrt(discriminant))/(2*a);
-        const x2 = (-b - Math.sqrt(discriminant))/(2*a);
+        const x1 = roundTo((-b + Math.sqrt(discriminant))/(2*a), 2);
+        const x2 = roundTo((-b - Math.sqrt(discriminant))/(2*a), 2);
         xIntercepts = `(${roundTo(x1, 2)}, 0), (${roundTo(x2, 2)}, 0)`;
+        intercepts.push({ axis:'x', x:x1, y:0 }, { axis:'x', x:x2, y:0 });
       } else if (discriminant === 0) {
-        const x = -b/(2*a);
+        const x = roundTo(-b/(2*a), 2);
         xIntercepts = `(${roundTo(x, 2)}, 0)`;
+        intercepts.push({ axis:'x', x, y:0 });
       } else {
         xIntercepts = 'cap';
       }
-      return { text: `Quins són els punts de tall amb els eixos de ${f}? (Format: (x,0), (0,y))`, answer: `${xIntercepts}, (0, ${c})` };
+      intercepts.push({ axis:'y', x:0, y:c });
+      return { text: `Quins són els punts de tall amb els eixos de ${f}?`, answer: `${xIntercepts}, (0, ${c})`, meta: { intercepts, noXIntercept: discriminant < 0 } };
     }
     case 'symmetry': {
       const vertexX = -b/(2*a);

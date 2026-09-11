@@ -1016,14 +1016,14 @@ function openConfig(moduleId){
   </div>
 </div>
 <div class="controls">
-  <div class="group" role="group" aria-label="Aspectes a estudiar">
-    <label class="toggle"><input class="check" type="checkbox" id="f-type" checked> Identificar tipus</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-domain"> Domini i recorregut</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-intercepts"> Punts de tall</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-symmetry"> Simetria</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-limits"> Límits</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-extrema"> Extrems relatius</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-monotony"> Monotonia</label>
+  <div class="group" role="radiogroup" aria-label="Aspecte a estudiar">
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-type" value="type" checked> Identificar tipus</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-domain" value="domain"> Domini i recorregut</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-intercepts" value="intercepts"> Punts de tall</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-symmetry" value="symmetry"> Simetria</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-limits" value="limits"> Límits</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-extrema" value="extrema"> Extrems relatius</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-monotony" value="monotony"> Monotonia</label>
   </div>
 </div>
 <div class="controls">
@@ -1155,15 +1155,8 @@ function collectConfigValues(){
       exp: !!$('#f-exp')?.checked,
       log: !!$('#f-log')?.checked
     };
-    options.aspects = {
-      type: !!$('#f-type')?.checked,
-      domain: !!$('#f-domain')?.checked,
-      intercepts: !!$('#f-intercepts')?.checked,
-      symmetry: !!$('#f-symmetry')?.checked,
-      limits: !!$('#f-limits')?.checked,
-      extrema: !!$('#f-extrema')?.checked,
-      monotony: !!$('#f-monotony')?.checked
-    };
+    const aspect = document.querySelector('input[name="func-aspect"]:checked')?.value || 'type';
+    options.aspects = { [aspect]: true };
     options.difficulty = parseInt($('#func-diff').value || '1');
   }
 
@@ -1729,6 +1722,101 @@ function removeCoordQuadrantUI(){
   }
 }
 
+function removeStructuredAnswerUI(){
+  document.getElementById('fractionAnswerWrap')?.remove();
+  document.getElementById('functionInterceptAnswer')?.remove();
+  document.getElementById('functionTypeAnswer')?.remove();
+}
+
+function renderFractionAnswerUI(){
+  const answerRow = document.querySelector('.answer-row');
+  const answerInput = document.getElementById('answer');
+  if(!answerRow || !answerInput) return;
+
+  const wrap = document.createElement('div');
+  wrap.id = 'fractionAnswerWrap';
+  wrap.className = 'fraction-answer';
+  wrap.setAttribute('role', 'group');
+  wrap.setAttribute('aria-label', 'Escriu el numerador i el denominador de la fracció');
+  wrap.innerHTML = `
+    <label>
+      <span>Numerador</span>
+      <input id="fractionNumerator" inputmode="numeric" autocomplete="off" aria-label="Numerador" />
+    </label>
+    <span class="fraction-answer__bar" aria-hidden="true"></span>
+    <label>
+      <span>Denominador</span>
+      <input id="fractionDenominator" inputmode="numeric" autocomplete="off" aria-label="Denominador" />
+    </label>
+  `;
+  const syncAnswer = () => {
+    const numerator = document.getElementById('fractionNumerator')?.value.trim() || '';
+    const denominator = document.getElementById('fractionDenominator')?.value.trim() || '';
+    answerInput.value = numerator && denominator ? `${numerator}/${denominator}` : '';
+  };
+  wrap.addEventListener('input', syncAnswer);
+  wrap.addEventListener('keydown', event => {
+    if(event.key === 'Enter'){
+      event.preventDefault();
+      syncAnswer();
+      checkAnswer();
+    }
+  });
+  answerRow.insertBefore(wrap, answerInput);
+  setTimeout(() => document.getElementById('fractionNumerator')?.focus(), 0);
+}
+
+function renderFunctionTypeUI(options){
+  const answerRow = document.querySelector('.answer-row');
+  const answerInput = document.getElementById('answer');
+  if(!answerRow || !answerInput) return;
+  const wrap = document.createElement('div');
+  wrap.id = 'functionTypeAnswer';
+  wrap.className = 'function-type-answer';
+  wrap.innerHTML = createChoiceOptionsHtml(options);
+  bindChoiceOptionHandlers(wrap);
+  answerRow.insertBefore(wrap, answerInput);
+}
+
+function renderFunctionInterceptUI(q){
+  const answerRow = document.querySelector('.answer-row');
+  const answerInput = document.getElementById('answer');
+  const intercepts = q.meta?.intercepts;
+  if(!answerRow || !answerInput || !Array.isArray(intercepts)) return;
+
+  const wrap = document.createElement('div');
+  wrap.id = 'functionInterceptAnswer';
+  wrap.className = 'function-intercept-answer';
+  wrap.setAttribute('role', 'group');
+  wrap.setAttribute('aria-label', 'Completa les coordenades dels punts de tall');
+  const fields = intercepts.map((point, index) => {
+    const xFixed = point.axis === 'y';
+    const yFixed = point.axis === 'x';
+    return `<label class="function-point">
+      <span>Tall amb l’eix ${point.axis.toUpperCase()}</span>
+      <span class="function-point__coords">(
+        ${xFixed ? '<b>0</b>' : `<input data-intercept-index="${index}" data-coordinate="x" inputmode="decimal" aria-label="Coordenada x del punt ${index + 1}" placeholder="x" />`},
+        ${yFixed ? '<b>0</b>' : `<input data-intercept-index="${index}" data-coordinate="y" inputmode="decimal" aria-label="Coordenada y del punt ${index + 1}" placeholder="y" />`}
+      )</span>
+    </label>`;
+  }).join('');
+  wrap.innerHTML = `${q.meta.noXIntercept ? '<p class="function-no-intercept">La funció no talla l’eix X.</p>' : ''}${fields}`;
+  const syncAnswer = () => {
+    const values = Array.from(wrap.querySelectorAll('input')).map(input => input.value.trim());
+    answerInput.value = values.length && values.every(Boolean) ? values.join(',') : '';
+  };
+  wrap.addEventListener('input', syncAnswer);
+  wrap.addEventListener('keydown', event => {
+    if(event.key === 'Enter'){
+      event.preventDefault();
+      syncAnswer();
+      checkAnswer();
+    }
+  });
+  answerRow.insertBefore(wrap, answerInput);
+  setTimeout(() => wrap.querySelector('input')?.focus(), 0);
+}
+
 function renderCoordAnswerUI(){
   removeCoordAnswerUI();
   removeCoordQuadrantUI();
@@ -1861,9 +1949,10 @@ function renderQuestion(){
 
   const mod = MODULES.find(m => m.id === session.module);
   const quizEl = document.querySelector('.quiz');
-  quizEl?.classList.remove('coord-mode');
+  quizEl?.classList.remove('coord-mode', 'structured-answer-mode');
   removeCoordAnswerUI();
   removeCoordQuadrantUI();
+  removeStructuredAnswerUI();
 
   const toggleRightCol = (show) => {
     if (rightCol) {
@@ -1935,7 +2024,25 @@ function renderQuestion(){
     // 🔹 Matemàtiques → pissarra de treball a la dreta
     quizEl.classList.remove('sci-mode');
     $('#answer').type = 'text';
-    if(session.module === 'coord'){
+    if(session.module === 'frac'){
+      quizEl?.classList.add('structured-answer-mode');
+      $('#answer').style.display = 'none';
+      $('#answer').removeAttribute('inputmode');
+      toggleRightCol(false);
+      renderFractionAnswerUI();
+    } else if(session.module === 'func' && q.type.endsWith('-type')){
+      quizEl?.classList.add('structured-answer-mode');
+      $('#answer').style.display = 'none';
+      $('#answer').removeAttribute('inputmode');
+      toggleRightCol(false);
+      renderFunctionTypeUI(q.options || []);
+    } else if(session.module === 'func' && q.type.endsWith('-intercepts') && Array.isArray(q.meta?.intercepts)){
+      quizEl?.classList.add('structured-answer-mode');
+      $('#answer').style.display = 'none';
+      $('#answer').removeAttribute('inputmode');
+      toggleRightCol(false);
+      renderFunctionInterceptUI(q);
+    } else if(session.module === 'coord'){
       $('#answer').style.display = 'none';
       $('#answer').removeAttribute('inputmode');
       toggleRightCol(false);
@@ -2535,6 +2642,16 @@ function checkAnswer(){
 
   // Funcions
   else if(q.type && q.type.startsWith('func-')){
+    const interceptWrap = document.getElementById('functionInterceptAnswer');
+    if(q.type.endsWith('-intercepts') && interceptWrap && Array.isArray(q.meta?.intercepts)){
+      const inputs = Array.from(interceptWrap.querySelectorAll('input'));
+      ok = inputs.length === q.meta.intercepts.length && inputs.every((input, index) => {
+        const value = parseNumberOrFrac(input.value);
+        const point = q.meta.intercepts[index];
+        const expected = point.axis === 'x' ? point.x : point.y;
+        return Number.isFinite(value) && equalsTol(value, expected, 1e-6);
+      });
+    } else {
     const userAnswer = raw.toLowerCase()
       .replace(/\s+/g, ' ')
       .replace(/á/gi, 'a').replace(/é/gi, 'e').replace(/í/gi, 'i').replace(/ó/gi, 'o').replace(/ú/gi, 'u')
@@ -2552,6 +2669,7 @@ function checkAnswer(){
     if (!ok && q.meta && q.meta.numeric) {
       const num = parseFloat(raw.replace(',', '.'));
       ok = Number.isFinite(num) && equalsTol(num, q.meta.numeric, 1e-6);
+    }
     }
   }
 
