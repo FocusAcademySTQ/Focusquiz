@@ -1147,6 +1147,29 @@ a.btn-secondary{
 }
 .answer-row{display:flex; gap:10px; align-items:center}
 .answer{flex:1; font-size:1.2rem}
+.quiz.structured-answer-mode .answer-row{flex-wrap:wrap;align-items:flex-end}
+.quiz.structured-answer-mode .function-type-answer,
+.quiz.structured-answer-mode .function-intercept-answer{flex-basis:100%}
+.fraction-answer{flex:1 1 190px;max-width:230px;display:grid;justify-items:center;gap:5px;padding:12px 18px;border:1px solid #dbe3ef;border-radius:18px;background:#f8fafc}
+.fraction-answer label{display:grid;justify-items:center;gap:3px}
+.fraction-answer label span{font-size:.75rem;font-weight:800;color:var(--muted)}
+.fraction-answer input{width:92px;min-height:46px;border:2px solid #bfd3ff;border-radius:12px;background:#fff;color:var(--ink);font:800 1.25rem/1 inherit;text-align:center}
+.fraction-answer input:focus,.function-point input:focus{outline:none;box-shadow:var(--focus);border-color:var(--primary)}
+.fraction-answer__bar{width:112px;border-top:3px solid var(--ink)}
+.function-type-answer{flex:1 1 100%;width:100%}
+.function-type-answer .options{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
+.function-intercept-answer{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:12px;width:100%}
+.function-point{flex:1 1 180px;display:grid;justify-items:center;gap:8px;padding:14px;border:1px solid #dbe3ef;border-radius:16px;background:#f8fafc;font-weight:800}
+.function-point > span:first-child{font-size:.85rem;color:var(--muted)}
+.function-point__coords{display:flex;align-items:center;gap:7px;font-size:1.35rem}
+.function-point input{width:82px;min-height:46px;border:2px solid #bfd3ff;border-radius:11px;background:#fff;color:var(--ink);font:800 1.15rem/1 inherit;text-align:center}
+.function-no-intercept{flex-basis:100%;margin:0;padding:10px 14px;border-radius:12px;background:#eef2ff;color:#3730a3;font-weight:700}
+@media(max-width:640px){
+  .fraction-answer{max-width:none;width:100%}
+  .function-type-answer .options{grid-template-columns:1fr}
+  .function-intercept-answer{flex-direction:column}
+  .function-point{flex-basis:auto}
+}
 .quiz.coord-mode .answer-row{flex-wrap:wrap; gap:12px}
 .coord-answer{
   display:flex;
@@ -1550,6 +1573,8 @@ footer{opacity:.95; font-size:.9rem; padding:40px 0 60px; color:var(--muted)}
 .home-page .app-battle-cta .subtitle{max-width:570px;margin:0 0 1.4rem;color:#536074;font-size:1rem}
 .home-page .app-battle-cta__button{display:inline-flex;align-items:center;justify-content:center;gap:16px;min-height:48px;padding:11px 24px;border-radius:10px;background:#4969d8;color:#fff;font-weight:800;text-decoration:none;box-shadow:4px 4px 0 #2946ad;transition:transform .18s ease,box-shadow .18s ease}
 .home-page .app-battle-cta__button:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 #2946ad}
+.home-page .app-battle-cta__button.is-disabled{cursor:not-allowed;background:#94a3b8;box-shadow:none;opacity:.8}
+.home-page .app-battle-cta__button.is-disabled:hover{transform:none;box-shadow:none}
 .home-page .app-battle-cta__versus{position:relative;z-index:1;display:flex;align-items:center;gap:12px;font-weight:900;color:#4969d8}
 .home-page .app-battle-cta__versus span{width:58px;height:58px;display:grid;place-items:center;border:1.5px solid #132238;border-radius:50%;background:#fff;color:#132238;font-size:1.25rem;box-shadow:3px 3px 0 #132238}
 @media(max-width:650px){.home-page .app-battle-cta{grid-template-columns:1fr}.home-page .app-battle-cta__versus{grid-row:1;justify-content:center}.home-page .app-battle-cta__button{width:100%}}
@@ -2803,6 +2828,7 @@ body.landing-body {
 .battle-promo__versus span { width:54px; height:54px; display:grid; place-items:center; border:1.5px solid var(--landing-ink); border-radius:50%; background:#fff; }
 .battle-promo__versus b { color:var(--landing-blue); font-size:.85rem; }
 .battle-promo__button { min-height:52px; padding:14px 25px; display:inline-flex; align-items:center; justify-content:center; gap:16px; border-radius:10px; background:var(--landing-blue); color:#fff; font-weight:800; text-decoration:none; box-shadow:4px 4px 0 var(--landing-blue-dark); }
+.battle-promo__button.is-disabled{cursor:not-allowed;background:#94a3b8;box-shadow:none;opacity:.82}
 
 .landing-footer {
   width: min(1240px, calc(100% - 48px));
