@@ -1016,14 +1016,14 @@ function openConfig(moduleId){
   </div>
 </div>
 <div class="controls">
-  <div class="group" role="group" aria-label="Aspectes a estudiar">
-    <label class="toggle"><input class="check" type="checkbox" id="f-type" checked> Identificar tipus</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-domain"> Domini i recorregut</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-intercepts"> Punts de tall</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-symmetry"> Simetria</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-limits"> Límits</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-extrema"> Extrems relatius</label>
-    <label class="toggle"><input class="check" type="checkbox" id="f-monotony"> Monotonia</label>
+  <div class="group" role="radiogroup" aria-label="Aspecte a estudiar">
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-type" value="type" checked> Identificar tipus</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-domain" value="domain"> Domini i recorregut</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-intercepts" value="intercepts"> Punts de tall</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-symmetry" value="symmetry"> Simetria</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-limits" value="limits"> Límits</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-extrema" value="extrema"> Extrems relatius</label>
+    <label class="toggle"><input class="check" type="radio" name="func-aspect" id="f-monotony" value="monotony"> Monotonia</label>
   </div>
 </div>
 <div class="controls">
@@ -1155,15 +1155,8 @@ function collectConfigValues(){
       exp: !!$('#f-exp')?.checked,
       log: !!$('#f-log')?.checked
     };
-    options.aspects = {
-      type: !!$('#f-type')?.checked,
-      domain: !!$('#f-domain')?.checked,
-      intercepts: !!$('#f-intercepts')?.checked,
-      symmetry: !!$('#f-symmetry')?.checked,
-      limits: !!$('#f-limits')?.checked,
-      extrema: !!$('#f-extrema')?.checked,
-      monotony: !!$('#f-monotony')?.checked
-    };
+    const aspect = document.querySelector('input[name="func-aspect"]:checked')?.value || 'type';
+    options.aspects = { [aspect]: true };
     options.difficulty = parseInt($('#func-diff').value || '1');
   }
 

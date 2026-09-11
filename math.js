@@ -1492,6 +1492,7 @@ function genFunctions(level, opts={}) {
   const aspects = opts.aspects || { type: true };
   const difficulty = opts.difficulty || 1;
 
+  const selectedAspect = getRandomAspect(aspects);
   const availableTypes = [];
   if (types.lin) availableTypes.push('lin');
   if (types.quad) availableTypes.push('quad');
@@ -1502,8 +1503,13 @@ function genFunctions(level, opts={}) {
   if (types.log) availableTypes.push('log');
   if (availableTypes.length === 0) availableTypes.push('lin');
 
-  const selectedType = choice(availableTypes);
-  const selectedAspect = getRandomAspect(aspects);
+  // De moment, els estudis detallats només estan implementats per a funcions
+  // lineals i quadràtiques. La resta de generadors només saben crear preguntes
+  // d'identificació i no s'han de barrejar quan s'ha demanat un altre aspecte.
+  const compatibleTypes = selectedAspect === 'type'
+    ? availableTypes
+    : availableTypes.filter(type => type === 'lin' || type === 'quad');
+  const selectedType = choice(compatibleTypes.length ? compatibleTypes : ['lin']);
 
   return generateFunctionQuestion(selectedType, selectedAspect, difficulty, level);
 }
