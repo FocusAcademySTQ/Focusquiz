@@ -125,6 +125,37 @@ body{
   gap: 12px;
 }
 
+#returningStudent,
+#studentPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#returningStudent[hidden],
+#studentPicker[hidden],
+#existingStudents[hidden] {
+  display: none;
+}
+
+#existingStudents {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-wide {
+  width: 100%;
+  justify-content: center;
+}
+
+.login-device-note {
+  margin: 2px 0 0;
+  color: #64748b;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 .login-overlay.is-active .login-dialog {
   animation: overlay-pop 0.28s ease both;
 }

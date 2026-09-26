@@ -178,29 +178,27 @@
 </head>
   <!-- LOGIN LOCAL (overlay) -->
 <div id="loginOverlay" class="login-overlay" hidden>
-  <div class="login-dialog">
-    <h2 class="login-title">Accedeix a Focus Academy</h2>
-    <p class="login-subtitle">Tria un usuari existent o escriu un nom nou: així guardarem els exàmens i podràs veure els resultats només en aquest dispositiu.</p>
+  <div class="login-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <h2 id="loginTitle" class="login-title">Hola! Com et dius?</h2>
 
-    <label class="login-label" for="loginUserList">Usuaris existents</label>
-    <div class="login-row">
-      <select id="loginUserList" class="login-select"></select>
-      <button id="btnLoginSelect" class="pill login-small">Entrar</button>
+    <div id="returningStudent" hidden>
+      <button id="btnContinueUser" class="btn login-primary login-wide" type="button">Continua</button>
+      <button id="btnSwitchStudent" class="btn-ghost login-ghost login-wide" type="button">Canvia d'alumne</button>
     </div>
 
-    <div class="login-divider" role="presentation"></div>
-
-    <label class="login-label" for="newUserName">Crear nou usuari</label>
-    <p class="login-help">Posa-hi un nom senzill (per exemple «La classe de 4t» o el teu nom) per reconèixer on guardem els exàmens i notes.</p>
-    <input id="newUserName" class="login-input input" placeholder="Nom (mínim 2 caràcters)" />
-    <div class="login-row">
-      <button id="btnCreateUser" class="btn login-primary">Crea i entra</button>
-      <button id="btnDeleteUser" class="btn-ghost login-ghost">Suprimeix seleccionat</button>
+    <div id="studentPicker">
+      <div id="existingStudents" hidden>
+        <label class="login-label" for="loginUserList">Alumne</label>
+        <select id="loginUserList" class="login-select"></select>
+        <button id="btnLoginSelect" class="pill login-wide" type="button">Entra</button>
+        <div class="login-divider" role="presentation"></div>
+      </div>
+      <label class="login-label" for="newUserName">El teu nom</label>
+      <input id="newUserName" class="login-input input" placeholder="Escriu el teu nom" autocomplete="name" />
+      <button id="btnCreateUser" class="btn login-primary login-wide" type="button">Comença</button>
     </div>
 
-    <div class="login-footer">
-      <small>💡 Només cal posar un nom per tenir guardats els exàmens i consultar els resultats quan tornis. Tot queda en localStorage, sense servidors.</small>
-    </div>
+    <p class="login-device-note">Recorda que els perfils van per ordinadors: si poses el mateix nom en un altre ordinador, el compte és diferent.</p>
   </div>
 </div>
 
@@ -228,7 +226,7 @@
         <button id="activeUser" class="chip user-chip" type="button" aria-live="polite">
           👤 <span class="label">Sessió no iniciada</span>
         </button>
-        <button id="switchUserBtn" class="pill small" type="button">Canvia</button>
+        <button id="switchUserBtn" class="pill small" type="button">Canvia d'alumne</button>
         <button id="logoutBtn" class="pill small" type="button">Surt</button>
       </div>
 
@@ -811,10 +809,15 @@ Nil"></textarea></label>
   <script>
   document.addEventListener('DOMContentLoaded', ()=> {
     const overlay = document.querySelector('#loginOverlay');
+    const loginTitle = document.querySelector('#loginTitle');
+    const returningStudent = document.querySelector('#returningStudent');
+    const studentPicker = document.querySelector('#studentPicker');
+    const existingStudents = document.querySelector('#existingStudents');
     const userList = document.querySelector('#loginUserList');
     const btnSelect = document.querySelector('#btnLoginSelect');
+    const btnContinue = document.querySelector('#btnContinueUser');
+    const btnSwitchStudent = document.querySelector('#btnSwitchStudent');
     const btnCreate = document.querySelector('#btnCreateUser');
-    const btnDelete = document.querySelector('#btnDeleteUser');
     const inputNew = document.querySelector('#newUserName');
 
     function setOverlayVisible(open) {
@@ -827,23 +830,55 @@ Nil"></textarea></label>
     // 🔹 Carrega usuaris guardats
     function refreshUsers(){
       const users = JSON.parse(localStorage.getItem('students') || '[]');
-      userList.innerHTML = users.map(u=>`<option>${u}</option>`).join('');
+      userList.replaceChildren();
+      users.forEach((user) => {
+        const option = document.createElement('option');
+        option.value = user;
+        option.textContent = user;
+        userList.appendChild(option);
+      });
+      existingStudents.hidden = users.length === 0;
     }
 
-    // 🔹 Mostra overlay si no hi ha usuari actiu
+    function showStudentPicker() {
+      refreshUsers();
+      loginTitle.textContent = 'Hola! Com et dius?';
+      returningStudent.hidden = true;
+      studentPicker.hidden = false;
+      setOverlayVisible(true);
+      window.setTimeout(() => inputNew.focus(), 0);
+    }
+
+    function showWelcomeBack(name) {
+      loginTitle.textContent = `Hola, ${name}! Vols continuar?`;
+      returningStudent.hidden = false;
+      studentPicker.hidden = true;
+      setOverlayVisible(true);
+      window.setTimeout(() => btnContinue.focus(), 0);
+    }
+
+    function finishLogin() {
+      setOverlayVisible(false);
+      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
+    }
+
+    // Mostra sempre una entrada curta, adaptada a si l'alumne ja havia entrat.
     const current = localStorage.getItem('lastStudent');
-    setOverlayVisible(!current);
+    if (current) showWelcomeBack(current);
+    else showStudentPicker();
+
+    btnContinue.addEventListener('click', finishLogin);
+    btnSwitchStudent.addEventListener('click', showStudentPicker);
 
     // 🔹 Entrar amb usuari existent
     btnSelect.addEventListener('click', ()=>{
       const name = userList.value.trim();
       if(!name) return alert('Selecciona un usuari.');
       localStorage.setItem('lastStudent', name);
-      setOverlayVisible(false);
-      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
+      finishLogin();
     });
 
-    // 🔹 Crear nou usuari
+    // Crea un perfil d'alumne
     btnCreate.addEventListener('click', ()=>{
       const name = inputNew.value.trim();
       if(name.length < 2) return alert('Nom massa curt.');
@@ -853,22 +888,11 @@ Nil"></textarea></label>
       localStorage.setItem('lastStudent', name);
       refreshUsers();
       inputNew.value = '';
-      setOverlayVisible(false);
-      document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
+      finishLogin();
     });
 
-    // 🔹 Esborrar usuari
-    btnDelete.addEventListener('click', ()=>{
-      const name = userList.value.trim();
-      if(!name) return alert('Selecciona un usuari.');
-      const users = JSON.parse(localStorage.getItem('students') || '[]').filter(u => u !== name);
-      localStorage.setItem('students', JSON.stringify(users));
-      if(localStorage.getItem('lastStudent') === name) localStorage.removeItem('lastStudent');
-      refreshUsers();
-      if(!localStorage.getItem('lastStudent')){
-        setOverlayVisible(true);
-        document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
-      }
+    inputNew.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') btnCreate.click();
     });
 
     // 🔹 Botó "Canvia d'usuari"
@@ -876,7 +900,7 @@ Nil"></textarea></label>
     if (switchBtn) {
       switchBtn.addEventListener('click', () => {
         localStorage.removeItem('lastStudent');
-        setOverlayVisible(true);
+        showStudentPicker();
         document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
       });
     }
