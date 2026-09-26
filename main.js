@@ -7,7 +7,9 @@ function showModal(contentHTML, options = {}){
   const extraClass = options.innerClass ? ` ${options.innerClass}` : '';
   overlay.innerHTML = `<div class="modal-inner panel card${extraClass}" role="dialog" aria-modal="true">${contentHTML}</div>`;
   document.body.appendChild(overlay);
-  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
+  if(options.closeOnBackdrop !== false){
+    overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
+  }
 }
 
 function closeModal(){
@@ -22,6 +24,16 @@ function closeModalAndGoHome(){
   } catch (err) {
     console.error('No s\'ha pogut tornar a l\'inici.', err);
   }
+}
+
+function returnToAssignedClass(){
+  if(!session || !session.classCode){
+    closeModalAndGoHome();
+    return;
+  }
+  const classroomUrl = new URL('class.html', window.location.href);
+  classroomUrl.searchParams.set('code', session.classCode);
+  window.location.assign(classroomUrl.toString());
 }
 
 const DEEPSEEK_API_KEY = 'sk-7ee355e06a7946d8b5e3bd2ed8e95cf4';
@@ -1344,7 +1356,16 @@ function startQuizFromExisting(moduleId, options, questions, meta={}){
     secondsLeft: timeLimit>0 ? timeLimit*60 : 0,
     questions: normalized,
     options: opts,
-    levelLabel: meta.levelLabel || (level>0 ? `Nivell ${level}` : 'Personalitzat')
+    levelLabel: meta.levelLabel || (level>0 ? `Nivell ${level}` : 'Personalitzat'),
+    assignmentId: meta.assignmentId || null,
+    assignmentLabel: meta.label || null,
+    assignmentTitle: meta.title || meta.label || module?.name || moduleId,
+    assignmentTags: Array.isArray(meta.assignmentTags) ? meta.assignmentTags : [],
+    moduleName: module?.name || moduleId,
+    moduleTitle: meta.moduleTitle || module?.name || moduleId,
+    classCode: meta.classCode || null,
+    classId: meta.classId || null,
+    studentName: meta.studentName || null,
   };
 
   const moduleName = module?.name || moduleId;
@@ -2689,13 +2710,14 @@ function checkAnswer(){
     }
   }
 
+  const isLastQuestion = session.idx + 1 >= session.count;
   if(ok){
-  session.correct++;
-  feedback(true, `Correcte!`);
-}else{
-  session.wrongs.push({ ...q, user: raw });
-  feedback(false, `Incorrecte. Resposta correcta: <b>${fmtAns(q.answer)}</b>`);
-}
+    session.correct++;
+    if(!isLastQuestion) feedback(true, `Correcte!`);
+  }else{
+    session.wrongs.push({ ...q, user: raw });
+    if(!isLastQuestion) feedback(false, `Incorrecte. Resposta correcta: <b>${fmtAns(q.answer)}</b>`);
+  }
 
 // 🧠 Registra resultat de cada pregunta (només per a proves lliures)
 if (!isAssignedSession()) {
@@ -2704,7 +2726,7 @@ if (!isAssignedSession()) {
 
   session.idx++;
   updateProgress();
-  if(session.idx>=session.count){ finishQuiz(false) }
+  if(isLastQuestion){ finishQuiz(false) }
   else renderQuestion();
 }
 
@@ -2750,11 +2772,13 @@ function finishQuiz(timeUp){
     session.count = totalQuestions;
   }
   const score = totalQuestions ? Math.round((session.correct / totalQuestions) * 100) : 0;
-  const name = localStorage.getItem('lastStudent') || 'Anònim';
+  const assignedSession = isAssignedSession();
+  const name = assignedSession && session.studentName
+    ? session.studentName
+    : localStorage.getItem('lastStudent') || 'Anònim';
   const moduleObj = MODULES.find(m=>m.id===session.module);
   const moduleName = moduleObj?.name || session.module;
   const levelLabel = session.levelLabel || (session.level > 0 ? `Nivell ${session.level}` : 'Personalitzat');
-  const assignedSession = isAssignedSession();
 
   const entry = {
     at: new Date().toISOString(),
@@ -2824,7 +2848,13 @@ function finishQuiz(timeUp){
     console.error('No s\'ha pogut actualitzar la recomanació del tutor.', err);
   }
 
-  const wrongsBtn = session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
+  const wrongsBtn = !assignedSession && session.wrongs.length ? `<button onclick="redoWrongs()">Refés només els errors</button>` : '';
+  const finishActions = assignedSession
+    ? '<button class="btn-primary" onclick="returnToAssignedClass()">Torna a l\'aula</button>'
+    : `${wrongsBtn}
+          <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
+          <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
+          <button class="btn-ghost" onclick="closeModalAndGoHome()">Tanca</button>`;
   const mistakes = session.count - session.correct;
   const wrongs = Math.max(0, mistakes);
   const timeLimitLabel = session.time ? `Límit ${fmtTime(session.time)}` : 'Sense límit';
@@ -2854,10 +2884,7 @@ function finishQuiz(timeUp){
         <p class="exam-finish__score">${score}%</p>
         <p class="subtitle">${session.correct}/${session.count} correctes · Temps: ${fmtTime(elapsed)}</p>
         <div class="exam-finish__actions">
-          ${wrongsBtn}
-          <button onclick="openConfig('${session.module}')">Configura i torna-ho a fer</button>
-          <button class="btn-secondary" onclick="showView('results')">Veure resultats</button>
-          <button class="btn-ghost" onclick="closeModalAndGoHome()">Tanca</button>
+          ${finishActions}
         </div>
       </div>
     </div>
@@ -2872,7 +2899,10 @@ ${statsHTML}
     ${session.wrongs.length? renderWrongs(session.wrongs): '<div class="chip">Cap error 🎯</div>'}
   </section>
 </section>`;
-  showModal(html, { innerClass: 'modal-inner--balanced modal-inner--floating' });
+  showModal(html, {
+    innerClass: 'modal-inner--balanced modal-inner--floating',
+    closeOnBackdrop: false,
+  });
 }
 
 function redoWrongs(){
@@ -3880,7 +3910,12 @@ function setupTheoryDropdown(){
 function ensureUser(){
   const user = localStorage.getItem('lastStudent');
   const overlay = document.getElementById('loginOverlay');
-  if(!user){
+  const params = new URLSearchParams(window.location.search);
+  const assignedStudent = params.get('assignment')
+    && params.get('class')
+    && (params.get('classId') || params.get('class_id'))
+    && params.get('student');
+  if(!user && !assignedStudent){
     if(overlay){
       overlay.style.display = 'flex';
       overlay.classList.add('is-active');
@@ -3895,9 +3930,12 @@ function init(){
   setupTheoryDropdown();
   if(!ensureUser()) return; // ✅ comprova sessió abans d’inicialitzar
 
-  const current = localStorage.getItem('lastStudent');
-  if(initializedUser === current) return;
-  initializedUser = current;
+  const params = new URLSearchParams(window.location.search);
+  const assignedStudent = params.get('assignment') ? params.get('student') : '';
+  const current = assignedStudent || localStorage.getItem('lastStudent');
+  const userSessionKey = assignedStudent ? `assigned:${assignedStudent}` : current;
+  if(initializedUser === userSessionKey) return;
+  initializedUser = userSessionKey;
 
   buildHome();
   showView('home');

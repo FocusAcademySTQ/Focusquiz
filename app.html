@@ -862,9 +862,17 @@ Nil"></textarea></label>
       document.dispatchEvent(new CustomEvent('focusquiz:user-login'));
     }
 
-    // Mostra sempre una entrada curta, adaptada a si l'alumne ja havia entrat.
+    // Les proves assignades ja porten la identitat triada a l'aula.
+    const launchParams = new URLSearchParams(window.location.search);
+    const isAssignedLaunch = Boolean(
+      launchParams.get('assignment')
+      && launchParams.get('class')
+      && (launchParams.get('classId') || launchParams.get('class_id'))
+      && launchParams.get('student')
+    );
     const current = localStorage.getItem('lastStudent');
-    if (current) showWelcomeBack(current);
+    if (isAssignedLaunch) setOverlayVisible(false);
+    else if (current) showWelcomeBack(current);
     else showStudentPicker();
 
     btnContinue.addEventListener('click', finishLogin);
