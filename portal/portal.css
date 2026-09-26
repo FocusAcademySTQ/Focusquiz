@@ -3062,9 +3062,11 @@ body.teacher-portal > .topbar {
   padding: 33px 25px;
   overflow-y: auto;
   color: #fff;
-  background: var(--dashboard-navy);
+  background:
+    radial-gradient(circle at 12% 92%, rgba(113, 91, 238, 0.2), transparent 28%),
+    linear-gradient(165deg, #252649 0%, #1c1d38 68%, #191a33 100%);
   border: 0;
-  box-shadow: none;
+  box-shadow: 12px 0 38px rgba(21, 23, 52, 0.12);
 }
 
 body.teacher-portal > .topbar .header-bar {
@@ -3073,7 +3075,7 @@ body.teacher-portal > .topbar .header-bar {
   align-items: stretch;
   gap: 40px;
   width: 100%;
-  height: auto;
+  min-height: 100%;
   margin: 0;
   padding: 0;
 }
@@ -3094,7 +3096,7 @@ body.teacher-portal > .topbar .brand .logo {
   border-radius: 14px;
   color: #fff;
   background: linear-gradient(145deg, #7667fa, #5949df);
-  box-shadow: none;
+  box-shadow: 0 10px 28px rgba(91, 73, 223, 0.38), inset 0 1px rgba(255, 255, 255, 0.24);
   font-size: 1.15rem;
   font-weight: 900;
 }
@@ -3105,6 +3107,23 @@ body.teacher-portal > .topbar .brand h1 {
   font-size: 1.2rem;
   font-weight: 850;
   letter-spacing: -0.025em;
+}
+
+body.teacher-portal > .topbar .portal-brand-copy { display: grid; gap: 3px; }
+body.teacher-portal > .topbar .portal-brand-copy > span {
+  color: #989fc7;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+body.teacher-portal > .topbar .portal-nav-label {
+  margin: -9px 14px -28px;
+  color: #7f86ad;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 body.teacher-portal > .topbar .main-nav,
@@ -3149,6 +3168,7 @@ body.teacher-portal > .topbar .portal-tab {
   overflow: visible;
   transform: none;
   box-sizing: border-box;
+  transition: color 180ms ease, background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
 body.teacher-portal > .topbar .portal-tabs::before,
@@ -3163,6 +3183,17 @@ body.teacher-portal > .topbar .portal-tab span {
   font-size: 1.1rem;
 }
 
+body.teacher-portal > .topbar .main-nav .pill svg,
+body.teacher-portal > .topbar .portal-tab svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
 body.teacher-portal > .topbar .main-nav .pill:hover,
 body.teacher-portal > .topbar .portal-tab:hover,
 body.teacher-portal > .topbar .portal-tab--active {
@@ -3170,7 +3201,13 @@ body.teacher-portal > .topbar .portal-tab--active {
   background: rgba(255, 255, 255, 0.11);
 }
 
-body.teacher-portal > .topbar .portal-home-link { color: #fff; background: rgba(255, 255, 255, 0.11); }
+body.teacher-portal > .topbar .portal-home-link {
+  color: #fff;
+  background: linear-gradient(105deg, rgba(118, 103, 250, 0.36), rgba(255, 255, 255, 0.09));
+  box-shadow: inset 3px 0 #8c7cff, 0 10px 25px rgba(10, 11, 30, 0.14);
+}
+body.teacher-portal > .topbar .main-nav .pill:hover,
+body.teacher-portal > .topbar .portal-tab:hover { transform: translateX(3px); }
 body.teacher-portal > .topbar .portal-tab--active { color: #bdc3e2; background: transparent; }
 body.teacher-portal > .topbar .portal-tab--active:hover { color: #fff; background: rgba(255, 255, 255, 0.11); }
 body.teacher-portal > .topbar .portal-tab[aria-selected='true'] {
@@ -3184,6 +3221,33 @@ body.teacher-portal.dashboard-subpage > .topbar .portal-tab[aria-selected='true'
   color: #fff;
   background: rgba(255, 255, 255, 0.11);
 }
+
+body.teacher-portal > .topbar .portal-sidebar-tip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.055);
+  box-shadow: 0 14px 35px rgba(8, 9, 25, 0.13);
+}
+body.teacher-portal > .topbar .portal-tip-icon {
+  display: grid;
+  flex: 0 0 34px;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  color: #fff;
+  background: rgba(118, 103, 250, 0.34);
+  font-weight: 850;
+}
+body.teacher-portal > .topbar .portal-sidebar-tip div { display: grid; gap: 3px; }
+body.teacher-portal > .topbar .portal-sidebar-tip strong { font-size: 0.78rem; }
+body.teacher-portal > .topbar .portal-sidebar-tip a { color: #aeb4da; font-size: 0.69rem; text-decoration: none; }
+body.teacher-portal > .topbar .portal-sidebar-tip a:hover { color: #fff; }
 
 body.teacher-portal .portal-main {
   display: grid;
@@ -3490,6 +3554,9 @@ body.teacher-portal .portal-main textarea { border-color: var(--dashboard-border
   }
   body.teacher-portal > .topbar .header-bar { flex-direction: row; align-items: center; gap: 8px; }
   body.teacher-portal > .topbar .brand h1,
+  body.teacher-portal > .topbar .portal-brand-copy > span,
+  body.teacher-portal > .topbar .portal-nav-label,
+  body.teacher-portal > .topbar .portal-sidebar-tip,
   body.teacher-portal > .topbar .main-nav { display: none; }
   body.teacher-portal > .topbar .brand .logo { width: 45px; height: 45px; }
   body.teacher-portal > .topbar .portal-tabs { display: flex; justify-content: space-around; margin: 0; }
