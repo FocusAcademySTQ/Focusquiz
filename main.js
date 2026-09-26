@@ -3888,11 +3888,6 @@ function ensureUser(){
     }
     return false;
   }
-  if(overlay){
-    overlay.style.display = 'none';
-    overlay.classList.remove('is-active');
-    overlay.setAttribute('hidden', '');
-  }
   return true;
 }
 
