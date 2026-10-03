@@ -21,7 +21,8 @@ assert.equal(D.skillProgress(unknown,'algebra.linear').evidences[0].outcome,'unk
 const levels=D.createProfile('levels');
 D.recordEvidence(levels,'data.interpretation',{outcome:'correct',assistance:'none',difficulty:1,exerciseType:'graph',formatId:'bar'},'2026-11-01T09:00:00Z');
 D.recordEvidence(levels,'data.interpretation',{outcome:'correct',assistance:'none',difficulty:1,exerciseType:'graph',formatId:'table'},'2026-11-02T09:00:00Z');
-assert.equal(D.skillProgress(levels,'data.interpretation').estimatedLevel,2,'repeated autonomous success explores higher difficulty');
+D.recordEvidence(levels,'data.interpretation',{outcome:'correct',assistance:'none',difficulty:1,exerciseType:'graph',formatId:'bar'},'2026-11-03T09:00:00Z');
+assert.equal(D.skillProgress(levels,'data.interpretation').estimatedLevel,2,'diverse repeated autonomous success raises the estimate');
 const assisted=D.createProfile('assisted');
 for(let i=0;i<6;i++)D.recordEvidence(assisted,'data.interpretation',{outcome:'correct',assistance:'hint',difficulty:1,exerciseType:'graph',formatId:'bar'},`2026-11-0${i+1}T09:00:00Z`);
 assert.equal(D.skillProgress(assisted,'data.interpretation').status,'learning','assisted successes are not autonomous mastery');

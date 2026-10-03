@@ -13,8 +13,10 @@
     masteryAutonomous: 5,
     masteryMinDays: 2,
     masteryMinFormats: 1,
-    promoteAfterAutonomous: 2,
-    demoteAfterErrors: 2,
+    promoteAfterAutonomous: 3,
+    promoteMinFormats: 2,
+    demoteAfterErrors: 3,
+    demoteSameFormatAfter: 4,
     diagnosticProbeAfterAutonomous: 1,
     reviewDelaysDays: [1, 3, 7, 14]
   });
@@ -71,14 +73,15 @@
     }
   });
 
-  function blankProgress(){ return { status:'pending', evidenceState:'pending', estimatedLevel:1, confidence:0, level:1, targetLevel:4, evidences:[], retention:{days:{},formats:{}}, levelRun:{level:1,autonomous:0,errors:0,unknown:0}, reviewIndex:0, nextReview:null }; }
+  function blankProgress(){ return { status:'pending', evidenceState:'pending', estimatedLevel:1, confidence:0, level:1, targetLevel:4, evidences:[], retention:{days:{},formats:{}}, levelRun:{level:1,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}}, reviewIndex:0, nextReview:null }; }
   function createProfile(id='local'){ return { version:2, id, name:id, localOnly:true, skills:{}, sessions:[], dailySessions:[], extraSessions:[], activeSession:null, audit:[], recentSignatures:[] }; }
   function skillProgress(profile, id){
     const progress=profile.skills[id] || (profile.skills[id] = blankProgress());
     progress.evidences=progress.evidences||[];
     progress.retention=progress.retention||{days:{},formats:{}};
     if(!Object.keys(progress.retention.days).length&&progress.evidences.length)progress.evidences.filter(autonomous).forEach(e=>{progress.retention.days[dayOf(e.at)]=(progress.retention.days[dayOf(e.at)]||0)+1;if(e.formatId)progress.retention.formats[e.formatId]=(progress.retention.formats[e.formatId]||0)+1;});
-    progress.levelRun=progress.levelRun||{level:progress.estimatedLevel||progress.level||1,autonomous:0,errors:0,unknown:0};
+    progress.levelRun=progress.levelRun||{level:progress.estimatedLevel||progress.level||1,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}};
+    progress.levelRun.autonomousFormats=progress.levelRun.autonomousFormats||{};progress.levelRun.errorFormats=progress.levelRun.errorFormats||{};
     if(progress.estimatedLevel===undefined)progress.estimatedLevel=progress.level||1;
     if(progress.confidence===undefined)progress.confidence=Math.min(1,progress.evidences.length/6);
     if(!progress.evidenceState)progress.evidenceState=progress.evidences.length?'insufficient':'pending';
@@ -134,14 +137,15 @@
     }
     const coverage=CATALOG[skillId]?.exerciseModel?.levels||[1];
     const actualLevel=Number(evidence.difficulty)||progress.estimatedLevel||1;
-    if(progress.levelRun.level!==actualLevel)progress.levelRun={level:actualLevel,autonomous:0,errors:0,unknown:0};
-    if(autonomous(evidence))progress.levelRun.autonomous++;
-    else if(outcome==='incorrect'&&evidence.assistance==='none')progress.levelRun.errors++;
+    if(progress.levelRun.level!==actualLevel)progress.levelRun={level:actualLevel,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}};
+    if(autonomous(evidence)){progress.levelRun.autonomous++;progress.levelRun.errors=Math.max(0,progress.levelRun.errors-1);progress.levelRun.autonomousFormats[evidence.formatId||'default']=true;}
+    else if(outcome==='incorrect'&&evidence.assistance==='none'){progress.levelRun.errors++;progress.levelRun.autonomous=Math.max(0,progress.levelRun.autonomous-1);progress.levelRun.errorFormats[evidence.formatId||'default']=true;}
     else if(outcome==='unknown')progress.levelRun.unknown++;
     const currentIndex=Math.max(0,coverage.indexOf(progress.estimatedLevel));
     let changeReason='no-change';
-    if(progress.levelRun.autonomous>=CONFIG.promoteAfterAutonomous&&currentIndex<coverage.length-1){progress.estimatedLevel=coverage[currentIndex+1];progress.levelRun={level:progress.estimatedLevel,autonomous:0,errors:0,unknown:0};changeReason='repeated-autonomous-success';}
-    else if(progress.levelRun.errors>=CONFIG.demoteAfterErrors&&currentIndex>0){progress.estimatedLevel=coverage[currentIndex-1];progress.levelRun={level:progress.estimatedLevel,autonomous:0,errors:0,unknown:0};changeReason='repeated-errors';}
+    const availableFormats=CATALOG[skillId]?.exerciseModel?.formats?.length||1,promoteFormats=Math.min(CONFIG.promoteMinFormats,availableFormats);
+    if(progress.levelRun.autonomous>=CONFIG.promoteAfterAutonomous&&Object.keys(progress.levelRun.autonomousFormats).length>=promoteFormats&&currentIndex<coverage.length-1){progress.estimatedLevel=coverage[currentIndex+1];progress.levelRun={level:progress.estimatedLevel,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}};changeReason='diverse-autonomous-success';}
+    else if(progress.levelRun.errors>=CONFIG.demoteAfterErrors&&(Object.keys(progress.levelRun.errorFormats).length>=2||progress.levelRun.errors>=CONFIG.demoteSameFormatAfter)&&currentIndex>0){progress.estimatedLevel=coverage[currentIndex-1];progress.levelRun={level:progress.estimatedLevel,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}};changeReason='repeated-errors-across-formats';}
     progress.lastLevelChangeReason=changeReason;
     if (autonomous(evidence) && progress.nextReview && new Date(now)>=new Date(progress.nextReview)) progress.reviewIndex++;
     if (!evidence.correct) progress.reviewIndex=0;
@@ -251,13 +255,14 @@
     let reason='pràctica-ajustada';
     if(completedItem.phase==='diagnostic'&&completedItem.outcome==='correct'&&completedItem.assistance==='none'){
       const idx=levels.indexOf(completedItem.difficulty);requested=levels[Math.min(levels.length-1,Math.max(0,idx)+1)];reason='exploració-superior-diagnòstica';
-    }else if(progress.lastLevelChangeReason==='repeated-errors'||completedItem.outcome==='unknown'){requested=progress.estimatedLevel;reason=completedItem.outcome==='unknown'?'suport-després-no-ho-sé':'reforç-després-errors-repetits';}
+    }else if(completedItem.assistance==='solution'){requested=progress.estimatedLevel;reason='comprovació-després-solució';}
+    else if(progress.lastLevelChangeReason?.startsWith('repeated-errors')||completedItem.outcome==='unknown'){requested=progress.estimatedLevel;reason=completedItem.outcome==='unknown'?'suport-després-no-ho-sé':'reforç-després-errors-repetits';}
     session.items.forEach((item,index)=>{
       if(index<=session.index||item.completed||item.presented||item.exercise||item.skillId!==completedItem.skillId)return;
       const actual=supportedDifficulty(item.skillId,requested);
       if(item.difficulty!==actual||item.reason!==reason){changes.push({itemId:item.id,before:item.difficulty,requested,after:actual,reason});item.requestedDifficulty=requested;item.difficulty=actual;item.coverageLimited=actual!==requested;item.reason=reason;item.adaptedAt=now;}
     });
-    if((progress.lastLevelChangeReason==='repeated-errors'||completedItem.outcome==='unknown')&&CATALOG[completedItem.skillId].prerequisites.length){
+    if((progress.lastLevelChangeReason?.startsWith('repeated-errors')||completedItem.outcome==='unknown')&&CATALOG[completedItem.skillId].prerequisites.length){
       const prerequisite=CATALOG[completedItem.skillId].prerequisites.find(id=>skillProgress(profile,id).status!=='mastered');
       const candidate=session.items.find((item,index)=>index>session.index&&!item.presented&&!item.completed&&!item.exercise&&item.phase==='focus');
       if(prerequisite&&candidate){changes.push({itemId:candidate.id,beforeSkill:candidate.skillId,afterSkill:prerequisite,reason:'comprovació-prerequisit'});candidate.skillId=prerequisite;candidate.primarySkillId=prerequisite;candidate.phase='reinforcement';candidate.reason='Comprovació d’un prerequisit després de dificultats repetides.';candidate.requestedDifficulty=skillProgress(profile,prerequisite).estimatedLevel;candidate.difficulty=supportedDifficulty(prerequisite,candidate.requestedDifficulty);candidate.formatFamily=CATALOG[prerequisite].exerciseModel.formats[0];}
