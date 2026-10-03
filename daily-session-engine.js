@@ -132,7 +132,7 @@
     // Finestra prou ampla per conservar evidències de més d'un dia encara
     // que una sessió concentri diversos exercicis de la mateixa habilitat.
     const recent = attempts.slice(-30);
-    const independent = recent.filter(autonomous),incorrect=recent.filter(e=>e.outcome==='incorrect'&&e.assistance==='none');
+    const independent = recent.filter(autonomous),incorrect=recent.filter(e=>e.outcome==='incorrect'&&e.assistance==='none'&&!e.exploratory);
     const distinctDays = Object.keys(progress.retention?.days||{}).length;
     const distinctFormats = Object.keys(progress.retention?.formats||{}).length;
     const requiredFormats=progress.masteryMinFormats||CONFIG.masteryMinFormats;
@@ -160,7 +160,7 @@
     const outcome=data.outcome||((data.correct)?'correct':'incorrect');
     const format=describeFormat(data.formatId || data.exerciseType,data.exerciseType);
     const evidence={ evidenceId, at:now, sessionId:data.sessionId, exerciseType:data.exerciseType, rawFormatId:data.formatId || data.exerciseType, formatId:data.formatKey || format.formatKey, procedureId:data.procedureId || format.procedure, format,
-      variantId:data.variantId || '', outcome, difficulty:data.difficulty||1, correct:outcome==='correct', assistance:data.assistance || 'none',
+      variantId:data.variantId || '', exploratory:!!data.exploratory, outcome, difficulty:data.difficulty||1, correct:outcome==='correct', assistance:data.assistance || 'none',
       answerCorrect:data.answerCorrect === undefined ? !!data.correct : !!data.answerCorrect,
       justificationCorrect:data.justificationCorrect === undefined ? null : !!data.justificationCorrect,
       answer:String(data.answer ?? ''), selectionReason:data.selectionReason || '' };
@@ -174,7 +174,7 @@
     const actualLevel=Number(evidence.difficulty)||progress.estimatedLevel||1;
     if(progress.levelRun.level!==actualLevel)progress.levelRun={level:actualLevel,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}};
     if(autonomous(evidence)){progress.levelRun.autonomous++;progress.levelRun.errors=Math.max(0,progress.levelRun.errors-1);progress.levelRun.autonomousFormats[evidence.formatId||'default']=true;}
-    else if(outcome==='incorrect'&&evidence.assistance==='none'){progress.levelRun.errors++;progress.levelRun.autonomous=Math.max(0,progress.levelRun.autonomous-1);progress.levelRun.errorFormats[evidence.formatId||'default']=true;}
+    else if(outcome==='incorrect'&&evidence.assistance==='none'&&!evidence.exploratory){progress.levelRun.errors++;progress.levelRun.autonomous=Math.max(0,progress.levelRun.autonomous-1);progress.levelRun.errorFormats[evidence.formatId||'default']=true;}
     else if(outcome==='unknown')progress.levelRun.unknown++;
     const currentIndex=Math.max(0,coverage.indexOf(progress.estimatedLevel));
     let changeReason='no-change';
@@ -282,7 +282,7 @@
     if(session.status==='completed')return false;
     session.status='completed';session.completedAt=now;profile.activeSession=null;
     profile.sessions=profile.sessions||[];
-    if(!profile.sessions.some(s=>s.id===session.id))profile.sessions.push({id:session.id,day:session.day,kind:session.kind,focusSkillId:session.focusSkillId,startedAt:session.startedAt,completedAt:now,correct:session.correct,total:session.items.length});
+    if(!profile.sessions.some(s=>s.id===session.id))profile.sessions.push({id:session.id,day:session.day,kind:session.kind,focusSkillId:session.focusSkillId,startedAt:session.startedAt,completedAt:now,correct:session.correct,total:session.items.length,decisions:(session.decisions||[]).map(d=>({skillId:d.skillId,procedure:d.procedure,formatFamily:d.formatFamily,reason:d.reason}))});
     profile.audit.push({at:now,event:'session-completed',sessionId:session.id,kind:session.kind});return true;
   }
 
@@ -302,8 +302,8 @@
       if(item.difficulty!==actual||item.reason!==reason){changes.push({itemId:item.id,before:item.difficulty,requested,after:actual,reason});item.requestedDifficulty=requested;item.difficulty=actual;item.coverageLimited=actual!==requested;item.reason=reason;item.adaptedAt=now;}
     });
     if(completedItem.assistance==='solution'){
-      const check=session.items.find((item,index)=>index>session.index&&!item.presented&&!item.completed&&!item.exercise&&item.skillId===completedItem.skillId);
-      if(check){check.phase='verification';check.formatFamily=completedItem.formatFamily||check.formatFamily;check.reason='Comprovació autònoma del mateix procediment amb dades noves.';check.verifiesItemId=completedItem.id;check.mustDifferFromVariant=completedItem.exercise?.variantId||completedItem.variantId||'';changes.push({itemId:check.id,reason:'comprovació-autònoma-després-solució',formatFamily:check.formatFamily});}
+      const check=session.items.find((item,index)=>index>session.index&&!item.presented&&!item.completed&&!item.exercise);
+      if(check){check.phase='verification';check.skillId=completedItem.skillId;check.primarySkillId=completedItem.skillId;check.targetProcedure=completedItem.procedureId||completedItem.targetProcedure;check.procedureId=check.targetProcedure;check.requestedDifficulty=completedItem.difficulty;check.difficulty=completedItem.difficulty;check.formatFamily=completedItem.formatFamily||check.formatFamily;check.reason='Comprovació autònoma del mateix procediment amb dades noves.';check.verifiesItemId=completedItem.id;check.mustDifferFromVariant=completedItem.exercise?.variantId||completedItem.variantId||'';changes.push({itemId:check.id,reason:'comprovació-autònoma-després-solució',formatFamily:check.formatFamily});}
     }
 
     if(changes.length)profile.audit.push({at:now,event:'future-items-adapted',sessionId:session.id,skillId:completedItem.skillId,estimatedLevel:progress.estimatedLevel,confidence:progress.confidence,changes});

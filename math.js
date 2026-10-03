@@ -51,9 +51,9 @@ function levelRange(level){
 function genArith(level, opts={}){
   if(opts.dailyAdaptive){
     const L=clamp(level,1,4);
-    if(L===1){const b=rng(2,10),c=rng(2,10),divide=Math.random()<.5;return divide?{type:'arith',formatId:'arith-facts-division',difficulty:L,text:`${b*c} ÷ ${b} = ?`,answer:c}:{type:'arith',formatId:'arith-facts-multiplication',difficulty:L,text:`${b} × ${c} = ?`,answer:b*c};}
-    if(L===2){const a=rng(12,60),b=rng(2,9),divide=Math.random()<.5;return divide?{type:'arith',formatId:'arith-two-digit-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-two-digit-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
-    if(L===3){const a=rng(-12,-2),b=rng(2,12),divide=Math.random()<.5;return divide?{type:'arith',formatId:'arith-signed-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-signed-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
+    if(L===1){const b=rng(2,10),c=rng(2,10),divide=opts.targetProcedure?opts.targetProcedure.includes('division'):Math.random()<.5;return divide?{type:'arith',formatId:'arith-facts-division',difficulty:L,text:`${b*c} ÷ ${b} = ?`,answer:c}:{type:'arith',formatId:'arith-facts-multiplication',difficulty:L,text:`${b} × ${c} = ?`,answer:b*c};}
+    if(L===2){const a=rng(12,60),b=rng(2,9),divide=opts.targetProcedure?opts.targetProcedure.includes('division'):Math.random()<.5;return divide?{type:'arith',formatId:'arith-two-digit-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-two-digit-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
+    if(L===3){const a=rng(-12,-2),b=rng(2,12),divide=opts.targetProcedure?opts.targetProcedure.includes('division'):Math.random()<.5;return divide?{type:'arith',formatId:'arith-signed-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-signed-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
     const a=rng(3,12),b=rng(2,9),c=choice([2,3,4]),product=a*b*c;
     return {type:'arith',formatId:'arith-two-step',difficulty:L,text:`(${product} ÷ ${c}) × 2 = ?`,answer:(product/c)*2};
   }
@@ -206,7 +206,7 @@ function svgPieFraction(segments, filled){
 function genFracIdentify(level, opts={}){
   const L=clamp(level,1,2);
   const shapes = L===1?['bar','pie']:['grid','bar','pie'];
-  const shape = choice(shapes);
+  const shape = shapes.includes(opts.formatFamily)?opts.formatFamily:choice(shapes);
   let total, k, html;
   if(shape==='grid'){
     const presets = (opts.mixedGrids!==false)
@@ -237,7 +237,8 @@ function genFracArithmetic(level, opts={}){
   else d=rng(2,12);
   const a = rng(1, b-1), c = rng(1, d-1);
   const A = normFrac(a, b), B = normFrac(c, d);
-  const op = choice(L<=2?['+','−']:L===3?['+','−','×']:['+','−','×','÷']);
+  const requestedOp=opts.targetProcedure?.startsWith('add-')?'+':opts.targetProcedure?.startsWith('subtract-')?'−':opts.targetProcedure==='multiply-fractions'?'×':opts.targetProcedure==='divide-fractions'?'÷':null;
+  const allowedOps=L<=2?['+','−']:L===3?['+','−','×']:['+','−','×','÷'],op=allowedOps.includes(requestedOp)?requestedOp:choice(allowedOps);
   let res;
   if(op==='+') res = addFrac(A,B);
   else if(op==='−') res = subFrac(A,B);
