@@ -261,6 +261,22 @@ function genFracEquivalent(level, opts={}){
   };
 }
 
+function genFracEquivalent(level, opts={}){
+  const denominator = rng(2, level <= 1 ? 8 : 12);
+  const numerator = rng(1, denominator - 1);
+  const factor = rng(2, level <= 2 ? 4 : 7);
+  const askNumerator = rng(0, 1) === 0;
+  const left = fractionHtml(numerator, denominator);
+  const right = askNumerator
+    ? fractionHtml('?', denominator * factor, `incògnita sobre ${denominator * factor}`)
+    : fractionHtml(numerator * factor, '?', `${numerator * factor} sobre incògnita`);
+  return {
+    type:'frac-equivalent',
+    text:`Completa perquè siguin equivalents: ${left} = ${right}`,
+    answer:String(askNumerator ? numerator * factor : denominator * factor)
+  };
+}
+
 function genFractions(level, opts={}){
   const sub = opts.sub || 'identify';
   if(sub==='identify') return genFracIdentify(level, opts);
