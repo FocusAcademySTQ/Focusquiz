@@ -2760,6 +2760,9 @@ body.landing-body {
   transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
 .cta-primary { background: var(--landing-blue); color: #fff; box-shadow: 4px 4px 0 var(--landing-blue-dark); }
+.cta-daily { background:#153eaa; }
+.daily-menu-cta{margin-top:20px;padding:18px 22px;display:flex;align-items:center;gap:14px;border-radius:16px;background:linear-gradient(120deg,#244fd0,#426fec);color:#fff;text-decoration:none;box-shadow:0 12px 28px rgba(36,79,208,.24)}
+.daily-menu-cta>span:first-child{font-size:1.7rem}.daily-menu-cta>span:nth-child(2){display:grid;gap:3px}.daily-menu-cta strong{font-size:1.15rem}.daily-menu-cta small{opacity:.85}.daily-menu-cta>b{margin-left:auto;font-size:1.3rem}
 .cta-primary:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--landing-blue-dark); }
 .cta-secondary { border: 1.5px solid #c9ced7; background: #fffdf8; color: var(--landing-ink); }
 .cta-secondary:hover { border-color: var(--landing-blue); color: var(--landing-blue); }
