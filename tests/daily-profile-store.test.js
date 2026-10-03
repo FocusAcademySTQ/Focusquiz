@@ -13,3 +13,7 @@ const legacyStorage=new MemoryStorage({students:'["Laia"]',lastStudent:'Laia','f
 const migrated=Profiles.loadProfile(legacyStorage,Profiles.activeId(legacyStorage),Daily.createProfile);
 assert.equal(migrated.skills.legacy.status,'learning','existing daily profile is migrated without loss');
 console.log('daily-profile-store: persistence and isolation scenarios passed');
+{
+ const storage=new MemoryStorage();storage.setItem('students',JSON.stringify(['Legacy']));storage.setItem(Profiles.DATA,JSON.stringify({Legacy:{id:'Legacy',name:'Legacy',skills:{},sessions:[],dailySessions:[],extraSessions:[]}}));
+ const migratedLegacy=Profiles.loadProfile(storage,'Legacy',Daily.createProfile);assert.deepEqual(migratedLegacy.prerequisiteReviews,[]);assert.deepEqual(migratedLegacy.pendingPrerequisites,{});
+}
