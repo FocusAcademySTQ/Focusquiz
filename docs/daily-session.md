@@ -8,7 +8,7 @@ La primera versió ofereix perfils locals per dispositiu perquè FocusQuiz no di
 
 ## Catàleg i cobertura inicial
 
-El catàleg és independent dels generadors i descriu identificador, prerequisits, descripció, correspondència i cobertura. El recorregut verificat cobreix multiplicació/divisió, concepte visual de fracció, equivalències, simplificació i operacions; també incorpora decimals i percentatges, equacions lineals, àrees i perímetres, interpretació de gràfics, i longituds, escales i conversions. Les aplicacions contextualitzades avançades de fraccions consten com a `planned`, no com a contingut disponible.
+El catàleg és independent dels generadors i descriu identificador, prerequisits, descripció, correspondència i cobertura. El recorregut verificat cobreix multiplicació/divisió, concepte visual de fracció, equivalències, simplificació, operacions i quatre plantilles contextualitzades de fraccions; també incorpora decimals i percentatges, equacions lineals, àrees i perímetres, interpretació de gràfics, i longituds, escales i conversions.
 
 ## Regles provisionals
 
@@ -33,4 +33,10 @@ La planificació conserva la barreja de repàs, habilitat principal i aplicació
 
 Les sessions fan servir la data civil de `Europe/Madrid`. Una sessió diària pot estar `in-progress`, `completed` o `incomplete`; en canviar de dia, una sessió antiga en curs s'arxiva sense perdre evidències. La pràctica extra es desa separadament i no crea un segon dia d'aprenentatge.
 
-Queden planificats un banc més ampli de problemes de fraccions contextualitzats, longituds geomètriques compostes, més tipus de gràfics i contextos d'unitats, i patrons de retorn específic validats per professorat. No es declaren coberts fins que disposin d'activitats i proves pròpies.
+Queden planificats problemes multi-pas de fraccions, longituds geomètriques compostes, gràfics de sectors, conversions d'àrea i massa dins del recorregut, i més patrons de retorn específic validats per professorat. No es declaren coberts fins que disposin d'activitats i proves pròpies.
+
+## Previsualització i simulació
+
+`daily-preview.html` permet revisar cada habilitat, format i dificultat, regenerar variants i obrir pistes i solucions sense llegir ni escriure cap perfil. És l'accés de revisió visual quan no es disposa d'automatització de navegador.
+
+La simulació reproduïble de catorze dies és a `tests/daily-two-week-simulation.test.js`; el resum de la darrera execució es documenta a `docs/daily-session-simulation.md`.

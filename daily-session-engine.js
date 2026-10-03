@@ -39,7 +39,7 @@
     },
     'fractions.applications': {
       id:'fractions.applications', title:'Aplicacions de fraccions', description:'Problemes contextualitzats i multi-pas.',
-      prerequisites:['fractions.operations'], generator:null, coverage:'planned'
+      prerequisites:['fractions.equivalence'], generator:{module:'daily',activity:'fractions'}, coverage:'available', exerciseModel:{levels:[1,2,3],formats:['sharing','recipe','compare-context','scale'],contexts:['sharing','recipe','reading','route'],masteryMinFormats:2}
     },
     'numbers.decimals': {
       id:'numbers.decimals', title:'Decimals i connexió amb percentatges', description:'Comparar, ordenar i relacionar decimals, fraccions i percentatges.',
@@ -47,7 +47,7 @@
     },
     'percentages.meaning': {
       id:'percentages.meaning', title:'Percentatges', description:'Calcular i interpretar percentatges en situacions quotidianes.',
-      prerequisites:['numbers.decimals'], generator:{module:'daily',activity:'decimals'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['representation','application','compare'],contexts:['discount'],masteryMinFormats:2}
+      prerequisites:['numbers.decimals'], generator:{module:'daily',activity:'decimals'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['representation','application','increase','tax','compare'],contexts:['discount','increase','tax'],masteryMinFormats:2}
     },
     'algebra.linear': {
       id:'algebra.linear', title:'Equacions de primer grau', description:'Resoldre, completar passos i detectar errors en equacions lineals.',
@@ -59,11 +59,11 @@
     },
     'data.interpretation': {
       id:'data.interpretation', title:'Gràfics i dades', description:'Llegir valors, comparar dades i justificar conclusions.',
-      prerequisites:[], generator:{module:'daily',activity:'data'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['visual','compare','reasoning'],contexts:['bar-chart'],masteryMinFormats:2}
+      prerequisites:[], generator:{module:'daily',activity:'data'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['visual','compare','reasoning','table','trend'],contexts:['bar-chart','table','line-chart'],masteryMinFormats:2}
     },
     'measurement.units': {
       id:'measurement.units', title:'Unitats i conversions', description:'Convertir longituds, interpretar escales i estimar mesures.',
-      prerequisites:['calculation.muldiv'], generator:{module:'daily',activity:'units'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['calculation','application','estimate'],contexts:['scale'],masteryMinFormats:2}
+      prerequisites:['calculation.muldiv'], generator:{module:'daily',activity:'units'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['calculation','application','estimate','time','capacity'],contexts:['scale','time','capacity','length'],masteryMinFormats:2}
     }
   });
 
@@ -81,7 +81,9 @@
   function recalculate(progress, now){
     const attempts = progress.evidences;
     if (!attempts.length) return progress.status = 'pending';
-    const recent = attempts.slice(-8);
+    // Finestra prou ampla per conservar evidències de més d'un dia encara
+    // que una sessió concentri diversos exercicis de la mateixa habilitat.
+    const recent = attempts.slice(-30);
     const independent = recent.filter(autonomous);
     const distinctDays = new Set(independent.map(e=>dayOf(e.at))).size;
     const distinctFormats = new Set(independent.map(e=>e.formatId).filter(Boolean)).size;
@@ -122,7 +124,8 @@
   function chooseFocus(profile){
     const available=Object.values(CATALOG).filter(s=>s.coverage==='available');
     return available.find(s=>skillProgress(profile,s.id).status!=='mastered' && prerequisiteReadiness(profile,s).ready)
-      || available.find(s=>skillProgress(profile,s.id).status!=='mastered') || available[0];
+      || available.find(s=>skillProgress(profile,s.id).status!=='mastered')
+      || available[(profile.sessions?.length||0)%available.length];
   }
 
   function madridDay(now=new Date()){

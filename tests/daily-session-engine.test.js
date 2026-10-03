@@ -17,7 +17,8 @@ function ev(profile,id,correct,assistance,day,sessionId=day){D.recordEvidence(pr
  const p=D.createProfile();const op=D.CATALOG['fractions.operations'];
  assert.equal(D.prerequisiteReadiness(p,op).support,true,'missing prerequisites allow supported exploration');
  const session=D.planSession(p,'2026-01-01T00:00:00Z'); const resumed=D.planSession(p,'2026-01-01T01:00:00Z');assert.equal(resumed.id,session.id,'interrupted session resumes');
- assert.equal(D.CATALOG['fractions.applications'].coverage,'planned','insufficient content is explicit');
+ assert.equal(D.CATALOG['fractions.applications'].coverage,'available','implemented fraction contexts are available');
+ assert.equal(D.CATALOG['fractions.applications'].exerciseModel.formats.length,4,'fraction applications expose real templates');
 }
 {
  const p=D.createProfile('anna');const s=D.planSession(p,'2026-03-28T22:30:00Z');
