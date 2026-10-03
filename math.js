@@ -244,10 +244,27 @@ function genFracSimplify(level, opts={}){
   return { type:'frac-simplify', text:`Simplifica: ${frac}`, answer: `${fn}/${fd}` };
 }
 
+function genFracEquivalent(level, opts={}){
+  const denominator = rng(2, level <= 1 ? 8 : 12);
+  const numerator = rng(1, denominator - 1);
+  const factor = rng(2, level <= 2 ? 4 : 7);
+  const askNumerator = rng(0, 1) === 0;
+  const left = fractionHtml(numerator, denominator);
+  const right = askNumerator
+    ? fractionHtml('?', denominator * factor, `incògnita sobre ${denominator * factor}`)
+    : fractionHtml(numerator * factor, '?', `${numerator * factor} sobre incògnita`);
+  return {
+    type:'frac-equivalent',
+    text:`Completa perquè siguin equivalents: ${left} = ${right}`,
+    answer:String(askNumerator ? numerator * factor : denominator * factor)
+  };
+}
+
 function genFractions(level, opts={}){
   const sub = opts.sub || 'identify';
   if(sub==='identify') return genFracIdentify(level, opts);
   if(sub==='arith')    return genFracArithmetic(level, opts);
+  if(sub==='equivalent') return genFracEquivalent(level, opts);
   return genFracSimplify(level, opts);
 }
 
@@ -1708,7 +1725,14 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
     { id:'competencial', name:'Problemes competencials', desc:'Situacions reals amb diners, temps, unitats, gràfics, geometria, percentatges i raonament multistep.', gen: genCompetencial, category:'math' },
     { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', gen: genEq, category:'math' },
     { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', gen: genFunctions, category:'math' }
-];
+  ];
+
+  // API pública perquè recorreguts guiats puguin reutilitzar els mateixos
+  // generadors que la pràctica lliure, sense acoblar-hi la seva adaptació.
+  root.FocusMathGenerators = Object.freeze({
+    arithmetic: genArith,
+    fractions: genFractions
+  });
 
   if (typeof root.addModules === 'function') {
     root.addModules(MATH_MODULES);
