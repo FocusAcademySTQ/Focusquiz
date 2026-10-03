@@ -40,3 +40,13 @@ Queden planificats problemes multi-pas de fraccions, longituds geomètriques com
 `daily-preview.html` permet revisar cada habilitat, format i dificultat, regenerar variants i obrir pistes i solucions sense llegir ni escriure cap perfil. És l'accés de revisió visual quan no es disposa d'automatització de navegador.
 
 La simulació reproduïble de catorze dies és a `tests/daily-two-week-simulation.test.js`; el resum de la darrera execució es documenta a `docs/daily-session-simulation.md`.
+
+## Diagnòstic per àrees
+
+El diagnòstic distribueix una primera activitat introductòria entre nombres, àlgebra, geometria i dades. En sessions posteriors reserva fins a dues activitats per a àrees que encara no tenen cap evidència; els perfils existents només exploren els buits i no repeteixen un diagnòstic complet. Aquestes activitats no substitueixen el repàs, el focus ni el repte.
+
+Cada habilitat conserva separadament `estimatedLevel` (1–4), `confidence` (0–1) i `evidenceState`: `pending`, `insufficient`, `difficulty` o `sufficient`. Una sola resposta incorrecta queda com a evidència insuficient; calen dificultats repetides per marcar dificultat observada. «No ho sé» es desa com a `unknown`, no com a error.
+
+En una activitat diagnòstica, la interfície oculta les ajudes fins a registrar la primera resposta. Si és incorrecta o «No ho sé», desa aquesta primera evidència autònoma, obre les pistes i permet un segon intent assistit. Els encerts amb ajuda no acrediten autonomia. Els ajustos utilitzen resultats i ajudes, mai la velocitat.
+
+La cobertura diagnòstica real és: nombres (càlcul, fraccions, decimals, percentatges i conversions), àlgebra (equacions lineals), geometria (rectangles, àrees i perímetres) i dades (taules i gràfics de barres o línies). No diagnostica encara altres blocs d’àlgebra, geometria espacial ni probabilitat.
