@@ -41,6 +41,8 @@ Queden planificats problemes multi-pas de fraccions, longituds geomètriques com
 
 La simulació reproduïble de catorze dies és a `tests/daily-two-week-simulation.test.js`; el resum de la darrera execució es documenta a `docs/daily-session-simulation.md`.
 
+La cadena completa d'adaptació, els nivells matemàtics realment disponibles, els límits i exemples abans/després es documenten a `docs/daily-adaptation.md`.
+
 ## Diagnòstic per àrees
 
 El diagnòstic distribueix una primera activitat introductòria entre nombres, àlgebra, geometria i dades. En sessions posteriors reserva fins a dues activitats per a àrees que encara no tenen cap evidència; els perfils existents només exploren els buits i no repeteixen un diagnòstic complet. Aquestes activitats no substitueixen el repàs, el focus ni el repte.

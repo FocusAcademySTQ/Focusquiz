@@ -11,8 +11,9 @@ const expected={
 };
 for(const [activity,formats] of Object.entries(expected)){
  for(const formatFamily of formats){
+  const requestedLevel={increase:3,tax:3,sharing:1,'compare-context':1,recipe:2,scale:3,visual:1,table:1,compare:2,trend:2,reasoning:3,application:2,time:2,capacity:2,'error-detection':3,estimate:1,order:2,representation:1,calculation:1,complete:2}[formatFamily]||2;
   for(let i=0;i<80;i++){
-   const q=bank[activity](2,{formatFamily});
+   const q=bank[activity](requestedLevel,{formatFamily});
    assert.ok(q.text&&q.formatId&&q.answer!==undefined,`${activity}/${formatFamily} is complete`);
    assert.ok(q.templateId&&q.difficulty&&Array.isArray(q.prerequisites)&&q.hints.length>=2&&q.explanation,'template metadata is complete');
    if(q.choices){assert.equal(new Set(q.choices).size,q.choices.length,'choices are unique');assert.equal(q.choices.filter(v=>v===String(q.answer)).length,1,`${activity}/${formatFamily} has exactly one declared answer`);}
