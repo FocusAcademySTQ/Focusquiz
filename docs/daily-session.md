@@ -8,7 +8,7 @@ La primera versió ofereix perfils locals per dispositiu perquè FocusQuiz no di
 
 ## Catàleg i cobertura inicial
 
-El catàleg és independent dels generadors i descriu identificador, prerequisits, descripció, correspondència i cobertura. El recorregut verificat cobreix multiplicació/divisió, concepte visual de fracció, equivalències, simplificació i operacions. Les aplicacions contextualitzades consten com a `planned`, no com a contingut disponible.
+El catàleg és independent dels generadors i descriu identificador, prerequisits, descripció, correspondència i cobertura. El recorregut verificat cobreix multiplicació/divisió, concepte visual de fracció, equivalències, simplificació i operacions; també incorpora decimals i percentatges, equacions lineals, àrees i perímetres, interpretació de gràfics, i longituds, escales i conversions. Les aplicacions contextualitzades avançades de fraccions consten com a `planned`, no com a contingut disponible.
 
 ## Regles provisionals
 
@@ -27,4 +27,10 @@ Cada habilitat apunta a un generador i opcions dins `CATALOG`. Els generadors ha
 
 Per ampliar una habilitat, cal afegir al seu banc nivells progressius, formats o contextos diferenciats, explicacions resoltes, pistes ordenades de general a específica i patrons d'error només quan la resposta els identifiqui de manera fiable. Tot aquest material és estàtic, revisable pel professorat i no utilitza IA generativa.
 
+El banc inicial de formats variats (`daily-activity-bank.js`) conté exemples funcionals i autocorrectius de comparació i ordenació, passos incomplets, detecció d'errors, lectura i justificació de gràfics, geometria visual, estimació i problemes de descomptes i escales. Les opcions incorrectes representen confusions concretes i cada activitat té una explicació tancada. Les activitats de detecció d'errors només entren en la selecció després de dues evidències d'error en la mateixa habilitat.
+
+La planificació conserva la barreja de repàs, habilitat principal i aplicació. Dins de cada fase rota `formatFamily` i evita formats consecutius quan l'habilitat ofereix alternatives. Els reptes només trien habilitats disponibles amb prerequisits preparats. Els formats de justificació desen per separat `answerCorrect` i `justificationCorrect`; només l'encert complet compta com a correcte.
+
 Les sessions fan servir la data civil de `Europe/Madrid`. Una sessió diària pot estar `in-progress`, `completed` o `incomplete`; en canviar de dia, una sessió antiga en curs s'arxiva sense perdre evidències. La pràctica extra es desa separadament i no crea un segon dia d'aprenentatge.
+
+Queden planificats un banc més ampli de problemes de fraccions contextualitzats, longituds geomètriques compostes, més tipus de gràfics i contextos d'unitats, i patrons de retorn específic validats per professorat. No es declaren coberts fins que disposin d'activitats i proves pròpies.

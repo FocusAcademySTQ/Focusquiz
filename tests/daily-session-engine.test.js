@@ -43,3 +43,16 @@ function ev(profile,id,correct,assistance,day,sessionId=day){D.recordEvidence(pr
  assert.equal(old.status,'incomplete');assert.notEqual(current.id,old.id);assert.equal(old.items[0].completed,true,'stale evidence remains archived');
 }
 console.log('daily-session-engine: all acceptance scenarios passed');
+
+{
+ const p=D.createProfile('variety');
+ Object.keys(D.CATALOG).filter(id=>id!=='numbers.decimals'&&D.CATALOG[id].coverage==='available').forEach(id=>{D.skillProgress(p,id).status='mastered';});
+ const s=D.planSession(p,'2026-06-10T10:00:00Z');
+ const focusItems=s.items.filter(i=>i.phase==='focus');
+ assert.ok(new Set(focusItems.map(i=>i.formatFamily)).size>=3,'focus work rotates formats when available');
+ assert.equal(focusItems.some(i=>i.formatFamily==='error-detection'),false,'error detection waits for evidence of difficulty');
+ const q=D.createProfile('errors');Object.keys(D.CATALOG).filter(id=>id!=='geometry.measure'&&D.CATALOG[id].coverage==='available').forEach(id=>{D.skillProgress(q,id).status='mastered';});
+ const prog=D.skillProgress(q,'geometry.measure');prog.evidences.push({correct:false},{correct:false});
+ const extra=D.planSession(q,'2026-06-10T11:00:00Z',{kind:'extra'});
+ assert.ok(extra.items.some(i=>i.formatFamily==='error-detection'),'repeated errors unlock error-detection work');
+}

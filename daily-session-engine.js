@@ -40,12 +40,40 @@
     'fractions.applications': {
       id:'fractions.applications', title:'Aplicacions de fraccions', description:'Problemes contextualitzats i multi-pas.',
       prerequisites:['fractions.operations'], generator:null, coverage:'planned'
+    },
+    'numbers.decimals': {
+      id:'numbers.decimals', title:'Decimals i connexió amb percentatges', description:'Comparar, ordenar i relacionar decimals, fraccions i percentatges.',
+      prerequisites:['fractions.equivalence'], generator:{module:'daily',activity:'decimals'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['compare','order','representation','application'],contexts:['discount'],masteryMinFormats:2}
+    },
+    'percentages.meaning': {
+      id:'percentages.meaning', title:'Percentatges', description:'Calcular i interpretar percentatges en situacions quotidianes.',
+      prerequisites:['numbers.decimals'], generator:{module:'daily',activity:'decimals'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['representation','application','compare'],contexts:['discount'],masteryMinFormats:2}
+    },
+    'algebra.linear': {
+      id:'algebra.linear', title:'Equacions de primer grau', description:'Resoldre, completar passos i detectar errors en equacions lineals.',
+      prerequisites:['calculation.muldiv'], generator:{module:'daily',activity:'equations'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['calculation','complete','error-detection','reasoning'],contexts:[],masteryMinFormats:2}
+    },
+    'geometry.measure': {
+      id:'geometry.measure', title:'Àrees i perímetres', description:'Interpretar mesures i calcular àrees i perímetres en figures visuals.',
+      prerequisites:['calculation.muldiv'], generator:{module:'daily',activity:'geometry'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['visual','application','error-detection','estimate'],contexts:['frame'],masteryMinFormats:2}
+    },
+    'data.interpretation': {
+      id:'data.interpretation', title:'Gràfics i dades', description:'Llegir valors, comparar dades i justificar conclusions.',
+      prerequisites:[], generator:{module:'daily',activity:'data'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['visual','compare','reasoning'],contexts:['bar-chart'],masteryMinFormats:2}
+    },
+    'measurement.units': {
+      id:'measurement.units', title:'Unitats i conversions', description:'Convertir longituds, interpretar escales i estimar mesures.',
+      prerequisites:['calculation.muldiv'], generator:{module:'daily',activity:'units'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['calculation','application','estimate'],contexts:['scale'],masteryMinFormats:2}
     }
   });
 
   function blankProgress(){ return { status:'pending', level:1, targetLevel:4, evidences:[], reviewIndex:0, nextReview:null }; }
   function createProfile(id='local'){ return { version:2, id, name:id, localOnly:true, skills:{}, sessions:[], dailySessions:[], extraSessions:[], activeSession:null, audit:[], recentSignatures:[] }; }
-  function skillProgress(profile, id){ return profile.skills[id] || (profile.skills[id] = blankProgress()); }
+  function skillProgress(profile, id){
+    const progress=profile.skills[id] || (profile.skills[id] = blankProgress());
+    progress.masteryMinFormats=CATALOG[id]?.exerciseModel?.masteryMinFormats||CONFIG.masteryMinFormats;
+    return progress;
+  }
   function dayOf(value){ return String(value || '').slice(0,10); }
   function daysBetween(a,b){ return Math.floor((new Date(dayOf(b))-new Date(dayOf(a)))/86400000); }
   function autonomous(e){ return e.correct && e.assistance === 'none'; }
@@ -57,7 +85,8 @@
     const independent = recent.filter(autonomous);
     const distinctDays = new Set(independent.map(e=>dayOf(e.at))).size;
     const distinctFormats = new Set(independent.map(e=>e.formatId).filter(Boolean)).size;
-    if (independent.length >= CONFIG.masteryAutonomous && distinctDays >= CONFIG.masteryMinDays && distinctFormats >= CONFIG.masteryMinFormats) progress.status='mastered';
+    const requiredFormats=progress.masteryMinFormats||CONFIG.masteryMinFormats;
+    if (independent.length >= CONFIG.masteryAutonomous && distinctDays >= CONFIG.masteryMinDays && distinctFormats >= requiredFormats) progress.status='mastered';
     else if (independent.length >= CONFIG.consolidateAutonomous) progress.status='consolidating';
     else progress.status='learning';
     const last = attempts[attempts.length-1];
@@ -73,6 +102,8 @@
     if(existing)return existing;
     const evidence={ evidenceId, at:now, sessionId:data.sessionId, exerciseType:data.exerciseType, formatId:data.formatId || data.exerciseType,
       variantId:data.variantId || '', correct:!!data.correct, assistance:data.assistance || 'none',
+      answerCorrect:data.answerCorrect === undefined ? !!data.correct : !!data.answerCorrect,
+      justificationCorrect:data.justificationCorrect === undefined ? null : !!data.justificationCorrect,
       answer:String(data.answer ?? ''), selectionReason:data.selectionReason || '' };
     progress.evidences.push(evidence);
     if (progress.evidences.length > 100) progress.evidences.splice(0, progress.evidences.length-100);
@@ -125,8 +156,17 @@
       let phase, skillId, reason;
       if(i<reviewCount && due.length){ phase='review'; skillId=due[i%due.length]; reason='Repàs espaiat pendent per comprovar la retenció.'; }
       else if(i<CONFIG.sessionSize-2){ phase=noHistory && i<3?'diagnostic':'focus'; skillId=focus.id; reason=phase==='diagnostic'?'Diagnòstic breu i progressiu; no pressuposa dificultats.':'Pràctica de l’habilitat principal.'; }
-      else { phase='challenge'; const next=Object.values(CATALOG).find(s=>s.coverage==='available'&&s.prerequisites.includes(focus.id)); skillId=next?next.id:focus.id; reason=next?'Aplicació amb suport: explora la següent habilitat sense bloquejar-la.':'Repte variat dins la cobertura disponible.'; }
-      items.push({ id:`${Date.now()}-${i}`, phase, skillId, reason, completed:false });
+      else {
+        phase='challenge';
+        const candidates=Object.values(CATALOG).filter(s=>s.coverage==='available'&&s.id!==focus.id&&prerequisiteReadiness(profile,s).ready);
+        const next=candidates.length?candidates[(profile.sessions?.length+i)%candidates.length]:null;
+        skillId=next?next.id:focus.id;reason=next?'Aplicació o representació variada amb prerequisits adequats.':'Repte variat dins la cobertura disponible.';
+      }
+      const errors=skillProgress(profile,skillId).evidences.filter(e=>!e.correct).length;
+      const formats=(CATALOG[skillId].exerciseModel?.formats||[]).filter(f=>f!=='error-detection'||errors>=2);
+      const used=items.map(item=>item.formatFamily).filter(Boolean);
+      const formatFamily=formats.find(f=>f!==used[used.length-1]&&!used.slice(-3).includes(f))||formats.find(f=>f!==used[used.length-1])||formats[0]||null;
+      items.push({ id:`${Date.now()}-${i}`, phase, skillId, reason, formatFamily, estimatedMinutes:phase==='challenge'?2:1, completed:false });
     }
     const bucket=kind==='daily'?profile.dailySessions:profile.extraSessions;
     const session={ id:`${kind}-${day}-${new Date(now).getTime()}-${bucket.length}`, day, kind, status:'in-progress', startedAt:now, focusSkillId:focus.id, index:0, items, correct:0, assisted:0 };

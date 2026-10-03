@@ -9,6 +9,10 @@
   const clamp = root.clamp || ((x, a, b) => Math.max(a, Math.min(b, x)));
   const rng = root.rng || ((a, b) => Math.floor(Math.random() * (b - a + 1)) + a);
   const choice = root.choice || ((arr) => arr[Math.floor(Math.random() * arr.length)]);
+  const roundTo = root.roundTo || ((value, digits = 2) => {
+    const factor = 10 ** digits;
+    return Math.round((Number(value) + Number.EPSILON) * factor) / factor;
+  });
   const gcd = root.gcd || ((a, b) => {
     let x = Math.abs(a);
     let y = Math.abs(b);
@@ -256,22 +260,6 @@ function genFracEquivalent(level, opts={}){
   return {
     type:'frac-equivalent',
     formatId:askNumerator ? 'equivalent-missing-numerator' : 'equivalent-missing-denominator',
-    text:`Completa perquè siguin equivalents: ${left} = ${right}`,
-    answer:String(askNumerator ? numerator * factor : denominator * factor)
-  };
-}
-
-function genFracEquivalent(level, opts={}){
-  const denominator = rng(2, level <= 1 ? 8 : 12);
-  const numerator = rng(1, denominator - 1);
-  const factor = rng(2, level <= 2 ? 4 : 7);
-  const askNumerator = rng(0, 1) === 0;
-  const left = fractionHtml(numerator, denominator);
-  const right = askNumerator
-    ? fractionHtml('?', denominator * factor, `incògnita sobre ${denominator * factor}`)
-    : fractionHtml(numerator * factor, '?', `${numerator * factor} sobre incògnita`);
-  return {
-    type:'frac-equivalent',
     text:`Completa perquè siguin equivalents: ${left} = ${right}`,
     answer:String(askNumerator ? numerator * factor : denominator * factor)
   };
@@ -1748,7 +1736,13 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
   // generadors que la pràctica lliure, sense acoblar-hi la seva adaptació.
   root.FocusMathGenerators = Object.freeze({
     arithmetic: genArith,
-    fractions: genFractions
+    fractions: genFractions,
+    percentages: genPercent,
+    geometry: genGeometry,
+    equations: genEq,
+    statistics: genStats,
+    units: genUnits,
+    competencial: genCompetencial
   });
 
   if (typeof root.addModules === 'function') {
