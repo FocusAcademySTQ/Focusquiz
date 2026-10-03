@@ -9,6 +9,10 @@
   const clamp = root.clamp || ((x, a, b) => Math.max(a, Math.min(b, x)));
   const rng = root.rng || ((a, b) => Math.floor(Math.random() * (b - a + 1)) + a);
   const choice = root.choice || ((arr) => arr[Math.floor(Math.random() * arr.length)]);
+  const roundTo = root.roundTo || ((value, digits = 2) => {
+    const factor = 10 ** digits;
+    return Math.round((Number(value) + Number.EPSILON) * factor) / factor;
+  });
   const gcd = root.gcd || ((a, b) => {
     let x = Math.abs(a);
     let y = Math.abs(b);
@@ -45,6 +49,14 @@ function levelRange(level){
 /* ===== Aritmètica ===== */
 
 function genArith(level, opts={}){
+  if(opts.dailyAdaptive){
+    const L=clamp(level,1,4);
+    if(L===1){const b=rng(2,10),c=rng(2,10),divide=Math.random()<.5;return divide?{type:'arith',formatId:'arith-facts-division',difficulty:L,text:`${b*c} ÷ ${b} = ?`,answer:c}:{type:'arith',formatId:'arith-facts-multiplication',difficulty:L,text:`${b} × ${c} = ?`,answer:b*c};}
+    if(L===2){const a=rng(12,60),b=rng(2,9),divide=Math.random()<.5;return divide?{type:'arith',formatId:'arith-two-digit-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-two-digit-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
+    if(L===3){const a=rng(-12,-2),b=rng(2,12),divide=Math.random()<.5;return divide?{type:'arith',formatId:'arith-signed-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-signed-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
+    const a=rng(3,12),b=rng(2,9),c=choice([2,3,4]),product=a*b*c;
+    return {type:'arith',formatId:'arith-two-step',difficulty:L,text:`(${product} ÷ ${c}) × 2 = ?`,answer:(product/c)*2};
+  }
   const allowNeg = !!opts.allowNeg;
   const tri = !!opts.tri;
   const ops = (opts.ops && opts.ops.length)? opts.ops : ['+','-','×','÷'];
@@ -192,7 +204,8 @@ function svgPieFraction(segments, filled){
 }
 
 function genFracIdentify(level, opts={}){
-  const shapes = ['grid','bar','pie'];
+  const L=clamp(level,1,2);
+  const shapes = L===1?['bar','pie']:['grid','bar','pie'];
   const shape = choice(shapes);
   let total, k, html;
   if(shape==='grid'){
@@ -204,23 +217,27 @@ function genFracIdentify(level, opts={}){
     k = rng(1, total-1);
     html = svgGridFraction(cols, rows, k);
   } else if(shape==='bar'){
-    total = rng(4, 10);
+    total = rng(4, L===1?6:10);
     k = rng(1, total-1);
     html = svgBarFraction(total, k);
   } else {
-    total = rng(5, 12);
+    total = rng(4, L===1?6:12);
     k = rng(1, total-1);
     html = svgPieFraction(total, k);
   }
   const [sn, sd] = normFrac(k, total);
-  return { type:'frac-identify', text:`Identifica la fracció representada`, html, answer: `${sn}/${sd}` };
+  return { type:'frac-identify', formatId:`frac-identify-${shape}`, difficulty:L, text:`Identifica la fracció representada`, html, answer: `${sn}/${sd}` };
 }
 
 function genFracArithmetic(level, opts={}){
-  const a = rng(1, 9), b = rng(2, 10);
-  const c = rng(1, 9), d = rng(2, 10);
+  const L=clamp(level,1,4);
+  let b=rng(2,L<=2?8:12),d;
+  if(L===1)d=b;
+  else if(L===2)d=b*choice([2,3]);
+  else d=rng(2,12);
+  const a = rng(1, b-1), c = rng(1, d-1);
   const A = normFrac(a, b), B = normFrac(c, d);
-  const op = choice(['+','−','×','÷']);
+  const op = choice(L<=2?['+','−']:L===3?['+','−','×']:['+','−','×','÷']);
   let res;
   if(op==='+') res = addFrac(A,B);
   else if(op==='−') res = subFrac(A,B);
@@ -229,25 +246,40 @@ function genFracArithmetic(level, opts={}){
   const fracA = fractionHtml(A[0], A[1]);
   const fracB = fractionHtml(B[0], B[1]);
   const question = `Calcula: ${fracA} ${op} ${fracB} = ? `;
-  return { type:'frac-arith', text: question, answer: `${res[0]}/${res[1]}` };
+  return { type:'frac-arith', formatId:`frac-arith-${op}`, difficulty:L, text: question, answer: `${res[0]}/${res[1]}` };
 }
 
 function genFracSimplify(level, opts={}){
-  let n = rng(2, 30), d = rng(2, 30); if(n===d) d++;
-  const [sn, sd] = normFrac(n, d);
-  if(sn===n && sd===d){ // força a tenir simplificació
-    const n2 = n+1, d2 = d+2;
-    n = n2; d = d2;
-  }
+  const L=clamp(level,1,3),baseN=rng(1,L===1?5:9),baseD=rng(baseN+1,L===1?8:14),factor=rng(2,L===1?3:L===2?6:10);
+  let n=baseN*factor,d=baseD*factor;
   const [fn, fd] = normFrac(n, d);
   const frac = fractionHtml(n, d);
-  return { type:'frac-simplify', text:`Simplifica: ${frac}`, answer: `${fn}/${fd}` };
+  return { type:'frac-simplify', formatId:'frac-simplify-symbolic', difficulty:L, text:`Simplifica: ${frac}`, answer: `${fn}/${fd}` };
+}
+
+function genFracEquivalent(level, opts={}){
+  const L=clamp(level,1,3),denominator = rng(2, L === 1 ? 6 : L===2?10:15);
+  const numerator = rng(1, denominator - 1);
+  const factor = rng(2, L===1?3:L===2?5:9);
+  const askNumerator = rng(0, 1) === 0;
+  const left = fractionHtml(numerator, denominator);
+  const right = askNumerator
+    ? fractionHtml('?', denominator * factor, `incògnita sobre ${denominator * factor}`)
+    : fractionHtml(numerator * factor, '?', `${numerator * factor} sobre incògnita`);
+  return {
+    type:'frac-equivalent',
+    difficulty:L,
+    formatId:askNumerator ? 'equivalent-missing-numerator' : 'equivalent-missing-denominator',
+    text:`Completa perquè siguin equivalents: ${left} = ${right}`,
+    answer:String(askNumerator ? numerator * factor : denominator * factor)
+  };
 }
 
 function genFractions(level, opts={}){
   const sub = opts.sub || 'identify';
   if(sub==='identify') return genFracIdentify(level, opts);
   if(sub==='arith')    return genFracArithmetic(level, opts);
+  if(sub==='equivalent') return genFracEquivalent(level, opts);
   return genFracSimplify(level, opts);
 }
 
@@ -1708,7 +1740,20 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
     { id:'competencial', name:'Problemes competencials', desc:'Situacions reals amb diners, temps, unitats, gràfics, geometria, percentatges i raonament multistep.', gen: genCompetencial, category:'math' },
     { id:'eq',    name:'Equacions', desc:'1r grau, 2n grau, sistemes, fraccions i parèntesis.', gen: genEq, category:'math' },
     { id:'func',  name:'Estudi de funcions', desc:'Tipus, domini, punts de tall, simetria, límits, extrems i monotonia.', gen: genFunctions, category:'math' }
-];
+  ];
+
+  // API pública perquè recorreguts guiats puguin reutilitzar els mateixos
+  // generadors que la pràctica lliure, sense acoblar-hi la seva adaptació.
+  root.FocusMathGenerators = Object.freeze({
+    arithmetic: genArith,
+    fractions: genFractions,
+    percentages: genPercent,
+    geometry: genGeometry,
+    equations: genEq,
+    statistics: genStats,
+    units: genUnits,
+    competencial: genCompetencial
+  });
 
   if (typeof root.addModules === 'function') {
     root.addModules(MATH_MODULES);
