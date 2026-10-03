@@ -246,7 +246,7 @@ function genFracArithmetic(level, opts={}){
   const fracA = fractionHtml(A[0], A[1]);
   const fracB = fractionHtml(B[0], B[1]);
   const question = `Calcula: ${fracA} ${op} ${fracB} = ? `;
-  return { type:'frac-arith', formatId:`frac-arith-${op}`, difficulty:L, text: question, answer: `${res[0]}/${res[1]}` };
+  return { type:'frac-arith', formatId:`frac-arith-${op}`, difficulty:L, denominatorsDifferent:b!==d, text: question, answer: `${res[0]}/${res[1]}` };
 }
 
 function genFracSimplify(level, opts={}){
