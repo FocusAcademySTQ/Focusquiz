@@ -872,8 +872,9 @@ Nil"></textarea></label>
       && launchParams.get('student')
     );
     const current = localStorage.getItem('lastStudent');
-    if (isAssignedLaunch) setOverlayVisible(false);
-    else if (current) showWelcomeBack(current);
+    // Un perfil local actiu continua actiu entre pantalles i visites. Només
+    // obrim el selector quan no n'hi ha cap o l'usuari demana canviar-lo.
+    if (isAssignedLaunch || current) setOverlayVisible(false);
     else showStudentPicker();
 
     btnContinue.addEventListener('click', finishLogin);
@@ -884,6 +885,7 @@ Nil"></textarea></label>
       const name = userList.value.trim();
       if(!name) return alert('Selecciona un usuari.');
       localStorage.setItem('lastStudent', name);
+      localStorage.setItem('focusquiz-active-student-id', name);
       finishLogin();
     });
 
@@ -895,6 +897,7 @@ Nil"></textarea></label>
       if(!users.includes(name)) users.push(name);
       localStorage.setItem('students', JSON.stringify(users));
       localStorage.setItem('lastStudent', name);
+      localStorage.setItem('focusquiz-active-student-id', name);
       refreshUsers();
       inputNew.value = '';
       finishLogin();
@@ -909,6 +912,7 @@ Nil"></textarea></label>
     if (switchBtn) {
       switchBtn.addEventListener('click', () => {
         localStorage.removeItem('lastStudent');
+        localStorage.removeItem('focusquiz-active-student-id');
         showStudentPicker();
         document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));
       });
@@ -921,6 +925,7 @@ Nil"></textarea></label>
         const currentName = localStorage.getItem('lastStudent');
         if (!currentName || confirm(`Vols tancar la sessió de ${currentName}?`)) {
           localStorage.removeItem('lastStudent');
+          localStorage.removeItem('focusquiz-active-student-id');
           setOverlayVisible(true);
           if (currentName) alert('Sessió tancada.');
           document.dispatchEvent(new CustomEvent('focusquiz:user-logout'));

@@ -213,7 +213,7 @@ function genFracIdentify(level, opts={}){
     html = svgPieFraction(total, k);
   }
   const [sn, sd] = normFrac(k, total);
-  return { type:'frac-identify', text:`Identifica la fracció representada`, html, answer: `${sn}/${sd}` };
+  return { type:'frac-identify', formatId:`frac-identify-${shape}`, text:`Identifica la fracció representada`, html, answer: `${sn}/${sd}` };
 }
 
 function genFracArithmetic(level, opts={}){
@@ -229,7 +229,7 @@ function genFracArithmetic(level, opts={}){
   const fracA = fractionHtml(A[0], A[1]);
   const fracB = fractionHtml(B[0], B[1]);
   const question = `Calcula: ${fracA} ${op} ${fracB} = ? `;
-  return { type:'frac-arith', text: question, answer: `${res[0]}/${res[1]}` };
+  return { type:'frac-arith', formatId:`frac-arith-${op}`, text: question, answer: `${res[0]}/${res[1]}` };
 }
 
 function genFracSimplify(level, opts={}){
@@ -241,7 +241,24 @@ function genFracSimplify(level, opts={}){
   }
   const [fn, fd] = normFrac(n, d);
   const frac = fractionHtml(n, d);
-  return { type:'frac-simplify', text:`Simplifica: ${frac}`, answer: `${fn}/${fd}` };
+  return { type:'frac-simplify', formatId:'frac-simplify-symbolic', text:`Simplifica: ${frac}`, answer: `${fn}/${fd}` };
+}
+
+function genFracEquivalent(level, opts={}){
+  const denominator = rng(2, level <= 1 ? 8 : 12);
+  const numerator = rng(1, denominator - 1);
+  const factor = rng(2, level <= 2 ? 4 : 7);
+  const askNumerator = rng(0, 1) === 0;
+  const left = fractionHtml(numerator, denominator);
+  const right = askNumerator
+    ? fractionHtml('?', denominator * factor, `incògnita sobre ${denominator * factor}`)
+    : fractionHtml(numerator * factor, '?', `${numerator * factor} sobre incògnita`);
+  return {
+    type:'frac-equivalent',
+    formatId:askNumerator ? 'equivalent-missing-numerator' : 'equivalent-missing-denominator',
+    text:`Completa perquè siguin equivalents: ${left} = ${right}`,
+    answer:String(askNumerator ? numerator * factor : denominator * factor)
+  };
 }
 
 function genFracEquivalent(level, opts={}){

@@ -12,29 +12,30 @@
     consolidateAutonomous: 3,
     masteryAutonomous: 5,
     masteryMinDays: 2,
+    masteryMinFormats: 1,
     reviewDelaysDays: [1, 3, 7, 14]
   });
 
   const CATALOG = Object.freeze({
     'calculation.muldiv': {
       id:'calculation.muldiv', title:'Multiplicació i divisió', description:'Càlcul necessari per treballar amb fraccions.',
-      prerequisites:[], generator:{ module:'arithmetic', options:{ ops:['×','÷'] } }, coverage:'available'
+      prerequisites:[], generator:{ module:'arithmetic', options:{ ops:['×','÷'] } }, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['arith'],contexts:[],masteryMinFormats:1}
     },
     'fractions.concept': {
       id:'fractions.concept', title:'Concepte de fracció', description:'Interpretar una part d’un tot en formats visuals.',
-      prerequisites:[], generator:{ module:'fractions', options:{ sub:'identify' } }, coverage:'available'
+      prerequisites:[], generator:{ module:'fractions', options:{ sub:'identify' } }, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['grid','bar','pie'],contexts:[],masteryMinFormats:1}
     },
     'fractions.equivalence': {
       id:'fractions.equivalence', title:'Fraccions equivalents', description:'Completar fraccions multiplicant numerador i denominador pel mateix factor.',
-      prerequisites:['calculation.muldiv','fractions.concept'], generator:{ module:'fractions', options:{ sub:'equivalent' } }, coverage:'available'
+      prerequisites:['calculation.muldiv','fractions.concept'], generator:{ module:'fractions', options:{ sub:'equivalent' } }, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['missing-term'],contexts:[],masteryMinFormats:1}
     },
     'fractions.simplification': {
       id:'fractions.simplification', title:'Simplificació', description:'Expressar una fracció en forma irreductible.',
-      prerequisites:['fractions.equivalence'], generator:{ module:'fractions', options:{ sub:'simplify' } }, coverage:'available'
+      prerequisites:['fractions.equivalence'], generator:{ module:'fractions', options:{ sub:'simplify' } }, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['symbolic'],contexts:[],masteryMinFormats:1}
     },
     'fractions.operations': {
       id:'fractions.operations', title:'Operacions amb fraccions', description:'Sumar, restar, multiplicar i dividir fraccions.',
-      prerequisites:['calculation.muldiv','fractions.equivalence'], generator:{ module:'fractions', options:{ sub:'arith' } }, coverage:'available'
+      prerequisites:['calculation.muldiv','fractions.equivalence'], generator:{ module:'fractions', options:{ sub:'arith' } }, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['symbolic'],contexts:[],masteryMinFormats:1}
     },
     'fractions.applications': {
       id:'fractions.applications', title:'Aplicacions de fraccions', description:'Problemes contextualitzats i multi-pas.',
@@ -43,7 +44,7 @@
   });
 
   function blankProgress(){ return { status:'pending', level:1, targetLevel:4, evidences:[], reviewIndex:0, nextReview:null }; }
-  function createProfile(id='local'){ return { version:1, id, localOnly:true, skills:{}, sessions:[], activeSession:null, audit:[] }; }
+  function createProfile(id='local'){ return { version:2, id, name:id, localOnly:true, skills:{}, sessions:[], dailySessions:[], extraSessions:[], activeSession:null, audit:[], recentSignatures:[] }; }
   function skillProgress(profile, id){ return profile.skills[id] || (profile.skills[id] = blankProgress()); }
   function dayOf(value){ return String(value || '').slice(0,10); }
   function daysBetween(a,b){ return Math.floor((new Date(dayOf(b))-new Date(dayOf(a)))/86400000); }
@@ -55,7 +56,8 @@
     const recent = attempts.slice(-8);
     const independent = recent.filter(autonomous);
     const distinctDays = new Set(independent.map(e=>dayOf(e.at))).size;
-    if (independent.length >= CONFIG.masteryAutonomous && distinctDays >= CONFIG.masteryMinDays) progress.status='mastered';
+    const distinctFormats = new Set(independent.map(e=>e.formatId).filter(Boolean)).size;
+    if (independent.length >= CONFIG.masteryAutonomous && distinctDays >= CONFIG.masteryMinDays && distinctFormats >= CONFIG.masteryMinFormats) progress.status='mastered';
     else if (independent.length >= CONFIG.consolidateAutonomous) progress.status='consolidating';
     else progress.status='learning';
     const last = attempts[attempts.length-1];
@@ -66,8 +68,12 @@
 
   function recordEvidence(profile, skillId, data, now=new Date().toISOString()){
     const progress=skillProgress(profile, skillId);
-    const evidence={ at:now, sessionId:data.sessionId, exerciseType:data.exerciseType, correct:!!data.correct,
-      assistance:data.assistance || 'none', answer:String(data.answer ?? ''), selectionReason:data.selectionReason || '' };
+    const evidenceId=data.evidenceId || `${data.sessionId || 'session'}:${data.itemId || progress.evidences.length}`;
+    const existing=progress.evidences.find(e=>e.evidenceId===evidenceId);
+    if(existing)return existing;
+    const evidence={ evidenceId, at:now, sessionId:data.sessionId, exerciseType:data.exerciseType, formatId:data.formatId || data.exerciseType,
+      variantId:data.variantId || '', correct:!!data.correct, assistance:data.assistance || 'none',
+      answer:String(data.answer ?? ''), selectionReason:data.selectionReason || '' };
     progress.evidences.push(evidence);
     if (progress.evidences.length > 100) progress.evidences.splice(0, progress.evidences.length-100);
     if (autonomous(evidence) && progress.nextReview && new Date(now)>=new Date(progress.nextReview)) progress.reviewIndex++;
@@ -88,8 +94,28 @@
       || available.find(s=>skillProgress(profile,s.id).status!=='mastered') || available[0];
   }
 
-  function planSession(profile, now=new Date().toISOString()){
-    if (profile.activeSession && profile.activeSession.items.some(i=>!i.completed)) return profile.activeSession;
+  function madridDay(now=new Date()){
+    return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
+  }
+
+  function archiveStaleSessions(profile, day){
+    (profile.dailySessions || (profile.dailySessions=[])).forEach(s=>{
+      if(s.day!==day&&s.status==='in-progress'){
+        s.status='incomplete';s.archivedAt=new Date().toISOString();
+        profile.audit.push({at:s.archivedAt,event:'session-archived-incomplete',sessionId:s.id});
+      }
+    });
+    if(profile.activeSession&&profile.activeSession.day&&profile.activeSession.day!==day)profile.activeSession=null;
+  }
+
+  function planSession(profile, now=new Date().toISOString(), options={}){
+    const day=madridDay(now), kind=options.kind==='extra'?'extra':'daily';
+    profile.dailySessions=profile.dailySessions||[];profile.extraSessions=profile.extraSessions||[];profile.recentSignatures=profile.recentSignatures||[];
+    archiveStaleSessions(profile,day);
+    if(kind==='daily'){
+      const existing=profile.dailySessions.find(s=>s.day===day&&['in-progress','completed'].includes(s.status));
+      if(existing){profile.activeSession=existing.status==='in-progress'?existing:null;return existing;}
+    }
     const focus=chooseFocus(profile);
     const noHistory=Object.values(profile.skills).every(p=>!p.evidences.length);
     const items=[];
@@ -102,9 +128,20 @@
       else { phase='challenge'; const next=Object.values(CATALOG).find(s=>s.coverage==='available'&&s.prerequisites.includes(focus.id)); skillId=next?next.id:focus.id; reason=next?'Aplicació amb suport: explora la següent habilitat sense bloquejar-la.':'Repte variat dins la cobertura disponible.'; }
       items.push({ id:`${Date.now()}-${i}`, phase, skillId, reason, completed:false });
     }
-    profile.activeSession={ id:`daily-${Date.now()}`, startedAt:now, focusSkillId:focus.id, index:0, items, correct:0, assisted:0 };
-    profile.audit.push({at:now, event:'session-planned', focusSkillId:focus.id, reasons:items.map(i=>i.reason)});
-    return profile.activeSession;
+    const bucket=kind==='daily'?profile.dailySessions:profile.extraSessions;
+    const session={ id:`${kind}-${day}-${new Date(now).getTime()}-${bucket.length}`, day, kind, status:'in-progress', startedAt:now, focusSkillId:focus.id, index:0, items, correct:0, assisted:0 };
+    bucket.push(session);
+    profile.activeSession=session;
+    profile.audit.push({at:now,event:'session-planned',sessionId:session.id,kind,focusSkillId:focus.id,reasons:items.map(i=>i.reason)});
+    return session;
+  }
+
+  function finishSession(profile, session, now=new Date().toISOString()){
+    if(session.status==='completed')return false;
+    session.status='completed';session.completedAt=now;profile.activeSession=null;
+    profile.sessions=profile.sessions||[];
+    if(!profile.sessions.some(s=>s.id===session.id))profile.sessions.push({id:session.id,day:session.day,kind:session.kind,startedAt:session.startedAt,completedAt:now,correct:session.correct,total:session.items.length});
+    profile.audit.push({at:now,event:'session-completed',sessionId:session.id,kind:session.kind});return true;
   }
 
   function shouldOfferHelp(session, skillId){
@@ -112,5 +149,5 @@
     return completed.length===CONFIG.helpAfterErrors && completed.every(i=>!i.correct);
   }
 
-  return { CONFIG, CATALOG, createProfile, skillProgress, recordEvidence, recalculate, prerequisiteReadiness, chooseFocus, planSession, shouldOfferHelp, daysBetween };
+  return { CONFIG, CATALOG, createProfile, skillProgress, recordEvidence, recalculate, prerequisiteReadiness, chooseFocus, planSession, finishSession, archiveStaleSessions, madridDay, shouldOfferHelp, daysBetween };
 });
