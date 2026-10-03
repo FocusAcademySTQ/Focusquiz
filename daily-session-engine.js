@@ -57,7 +57,7 @@
     },
     'algebra.linear': {
       id:'algebra.linear', area:'algebra', title:'Equacions de primer grau', description:'Resoldre, completar passos i detectar errors en equacions lineals.',
-      prerequisites:['calculation.muldiv'], generator:{module:'daily',activity:'equations'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['calculation','complete','error-detection','reasoning'],contexts:[],masteryMinFormats:2}
+      prerequisites:['calculation.muldiv'], generator:{module:'daily',activity:'equations'}, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['calculation','complete','error-detection','reasoning'],contexts:[],masteryMinFormats:2,promoteMinFormatsByLevel:{1:1,2:2,3:2,4:2}}
     },
     'geometry.measure': {
       id:'geometry.measure', area:'geometry', title:'Àrees i perímetres', description:'Interpretar mesures i calcular àrees i perímetres en figures visuals.',
@@ -102,7 +102,7 @@
   }
 
   function blankProgress(){ return { status:'pending', evidenceState:'pending', estimatedLevel:1, confidence:0, level:1, targetLevel:4, evidences:[], retention:{days:{},formats:{}}, levelRun:{level:1,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}}, reviewIndex:0, nextReview:null }; }
-  function createProfile(id='local'){ return { version:2, id, name:id, localOnly:true, skills:{}, sessions:[], dailySessions:[], extraSessions:[], activeSession:null, audit:[], recentSignatures:[] }; }
+  function createProfile(id='local'){ return { version:2, id, name:id, localOnly:true, skills:{}, sessions:[], dailySessions:[], extraSessions:[], activeSession:null, audit:[], recentSignatures:[], prerequisiteReviews:[], pendingPrerequisites:{} }; }
   function skillProgress(profile, id){
     const progress=profile.skills[id] || (profile.skills[id] = blankProgress());
     progress.evidences=progress.evidences||[];
@@ -178,7 +178,7 @@
     else if(outcome==='unknown')progress.levelRun.unknown++;
     const currentIndex=Math.max(0,coverage.indexOf(progress.estimatedLevel));
     let changeReason='no-change';
-    const promoteFormats=Math.min(CONFIG.promoteMinFormats,progress.masteryMinFormats||1);
+    const model=CATALOG[skillId]?.exerciseModel||{},promoteFormats=Math.min(CONFIG.promoteMinFormats,model.promoteMinFormatsByLevel?.[actualLevel]||progress.masteryMinFormats||1);
     if(progress.levelRun.autonomous>=CONFIG.promoteAfterAutonomous&&Object.keys(progress.levelRun.autonomousFormats).length>=promoteFormats&&currentIndex<coverage.length-1){progress.estimatedLevel=coverage[currentIndex+1];progress.levelRun={level:progress.estimatedLevel,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}};changeReason='diverse-autonomous-success';}
     else if(progress.levelRun.errors>=CONFIG.demoteAfterErrors&&(Object.keys(progress.levelRun.errorFormats).length>=2||progress.levelRun.errors>=CONFIG.demoteSameFormatAfter)&&currentIndex>0){progress.estimatedLevel=coverage[currentIndex-1];progress.levelRun={level:progress.estimatedLevel,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}};changeReason='repeated-errors-across-formats';}
     progress.lastLevelChangeReason=changeReason;
@@ -210,7 +210,8 @@
       const areaCount=area=>available.filter(s=>s.area===area).reduce((n,s)=>n+skillProgress(profile,s.id).evidences.length,0);
       return need(pa)-need(pb)||areaCount(a.area)-areaCount(b.area)||pa.evidences.length-pb.evidences.length;
     });
-    const rotated=repeated&&ranked.length>1?ranked.find(s=>s.id!==repeated):ranked[0];
+    const rotationCandidates=repeated?available.filter(s=>s.id!==repeated&&prerequisiteReadiness(profile,s).ready):[];
+    const rotated=repeated?(ranked.find(s=>s.id!==repeated)||rotationCandidates.sort((a,b)=>skillProgress(profile,a.id).evidences.length-skillProgress(profile,b.id).evidences.length)[0]):ranked[0];
     return rotated || available.find(s=>skillProgress(profile,s.id).status!=='mastered')
       || available[(profile.sessions?.length||0)%available.length];
   }
@@ -304,11 +305,7 @@
       const check=session.items.find((item,index)=>index>session.index&&!item.presented&&!item.completed&&!item.exercise&&item.skillId===completedItem.skillId);
       if(check){check.phase='verification';check.formatFamily=completedItem.formatFamily||check.formatFamily;check.reason='Comprovació autònoma del mateix procediment amb dades noves.';check.verifiesItemId=completedItem.id;check.mustDifferFromVariant=completedItem.exercise?.variantId||completedItem.variantId||'';changes.push({itemId:check.id,reason:'comprovació-autònoma-després-solució',formatFamily:check.formatFamily});}
     }
-    if((progress.lastLevelChangeReason?.startsWith('repeated-errors')||completedItem.outcome==='unknown')&&CATALOG[completedItem.skillId].prerequisites.length){
-      const prerequisite=CATALOG[completedItem.skillId].prerequisites.find(id=>skillProgress(profile,id).status!=='mastered');
-      const candidate=session.items.find((item,index)=>index>session.index&&!item.presented&&!item.completed&&!item.exercise&&item.phase==='focus');
-      if(prerequisite&&candidate){changes.push({itemId:candidate.id,beforeSkill:candidate.skillId,afterSkill:prerequisite,reason:'comprovació-prerequisit'});candidate.skillId=prerequisite;candidate.primarySkillId=prerequisite;candidate.phase='reinforcement';candidate.reason='Comprovació d’un prerequisit després de dificultats repetides.';candidate.requestedDifficulty=skillProgress(profile,prerequisite).estimatedLevel;candidate.difficulty=supportedDifficulty(prerequisite,candidate.requestedDifficulty);candidate.formatFamily=CATALOG[prerequisite].exerciseModel.formats[0];}
-    }
+
     if(changes.length)profile.audit.push({at:now,event:'future-items-adapted',sessionId:session.id,skillId:completedItem.skillId,estimatedLevel:progress.estimatedLevel,confidence:progress.confidence,changes});
     return changes;
   }

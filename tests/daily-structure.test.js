@@ -1,0 +1,5 @@
+const assert=require('node:assert/strict'),fs=require('node:fs');
+for(const file of ['daily-session.html','daily-preview.html']){const html=fs.readFileSync(file,'utf8'),ids=[...html.matchAll(/\sid="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length,`${file} has unique ids`);for(const m of html.matchAll(/<button\b([^>]*)>(.*?)<\/button>/gs)){const attrs=m[1],text=m[2].replace(/<[^>]+>/g,'').trim();assert.ok(text||/aria-label=/.test(attrs),`${file} button has a label`);}assert.match(html,/meta name="viewport"/);}
+const css=fs.readFileSync('daily-session.css','utf8');assert.match(css,/focus-visible/);assert.match(css,/overflow-x:hidden/);assert.match(css,/prefers-reduced-motion/);assert.match(css,/min-height:48px/);
+const preview=fs.readFileSync('daily-preview.js','utf8');assert.doesNotMatch(preview,/localStorage|saveProfile|loadProfile/,'preview stays isolated from real data');
+console.log('daily-structure: unique ids, labels, focus, mobile overflow and preview isolation passed');
