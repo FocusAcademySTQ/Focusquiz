@@ -2,7 +2,7 @@ const assert=require('node:assert/strict');
 const D=require('../daily-session-engine.js');
 global.addModules=()=>{};require('../math.js');require('../daily-activity-bank.js');
 function generated(skillId,difficulty,formatFamily){const skill=D.CATALOG[skillId],source=skill.generator.module==='daily'?global.FocusDailyActivities:global.FocusMathGenerators;return source[skill.generator.activity||skill.generator.module](difficulty,{...(skill.generator.options||{}),formatFamily});}
-function evidence(p,id,outcome,difficulty,n,assistance='none'){D.recordEvidence(p,id,{evidenceId:`${id}-${n}-${outcome}-${assistance}`,sessionId:'s',exerciseType:'test',formatId:`f${n%2}`,outcome,correct:outcome==='correct',assistance,difficulty},`2026-12-${String(1+n).padStart(2,'0')}T09:00:00Z`);}
+function evidence(p,id,outcome,difficulty,n,assistance='none'){D.recordEvidence(p,id,{evidenceId:`${id}-${n}-${outcome}-${assistance}`,sessionId:'s',exerciseType:'test',formatId:n%2?'equation-complete-step':'equation-linear',outcome,correct:outcome==='correct',assistance,difficulty},`2026-12-${String(1+n).padStart(2,'0')}T09:00:00Z`);}
 
 const easyEq=generated('algebra.linear',1,'calculation'),hardEq=generated('algebra.linear',3,'reasoning');
 assert.equal(easyEq.formatId,'equation-one-step');assert.equal(hardEq.formatId,'equation-both-sides');assert.notEqual(easyEq.text,hardEq.text,'higher algebra changes structure, not only numbers');
