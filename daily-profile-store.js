@@ -36,12 +36,14 @@
   }
   function loadData(storage){return parse(storage,DATA,{});}
   function loadProfile(storage=localStorage,id,createProfile){
-    const data=loadData(storage);if(data[id])return data[id];
-    let profile;
+    const data=loadData(storage);let profile=data[id];
+    if(profile){profile.dailySessions=profile.dailySessions||[];profile.extraSessions=profile.extraSessions||[];profile.recentSignatures=profile.recentSignatures||[];profile.prerequisiteReviews=Array.isArray(profile.prerequisiteReviews)?profile.prerequisiteReviews:[];profile.pendingPrerequisites=profile.pendingPrerequisites&&typeof profile.pendingPrerequisites==='object'?profile.pendingPrerequisites:{};profile.stagnationStates=profile.stagnationStates&&typeof profile.stagnationStates==='object'&&!Array.isArray(profile.stagnationStates)?profile.stagnationStates:{};data[id]=profile;storage.setItem(DATA,JSON.stringify(data));return profile;}
+
     const legacy=parse(storage,LEGACY,null);
     if(legacy&&Object.keys(data).length===0){profile=Object.assign(createProfile(id),legacy,{id,name:id});storage.removeItem(LEGACY);}
     else profile=Object.assign(createProfile(id),{id,name:id});
     profile.dailySessions=profile.dailySessions||[];profile.extraSessions=profile.extraSessions||[];profile.recentSignatures=profile.recentSignatures||[];
+    profile.prerequisiteReviews=Array.isArray(profile.prerequisiteReviews)?profile.prerequisiteReviews:[];profile.pendingPrerequisites=profile.pendingPrerequisites&&typeof profile.pendingPrerequisites==='object'?profile.pendingPrerequisites:{};profile.stagnationStates=profile.stagnationStates&&typeof profile.stagnationStates==='object'&&!Array.isArray(profile.stagnationStates)?profile.stagnationStates:{};
     if(profile.activeSession&&!profile.activeSession.day){
       profile.activeSession.day=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(profile.activeSession.startedAt||Date.now()));
       profile.activeSession.kind='daily';profile.activeSession.status='in-progress';
