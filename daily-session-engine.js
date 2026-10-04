@@ -102,7 +102,7 @@
   }
 
   function blankProgress(){ return { status:'pending', evidenceState:'pending', estimatedLevel:1, confidence:0, level:1, targetLevel:4, evidences:[], retention:{days:{},formats:{}}, levelRun:{level:1,autonomous:0,errors:0,unknown:0,autonomousFormats:{},errorFormats:{}}, reviewIndex:0, nextReview:null }; }
-  function createProfile(id='local'){ return { version:2, id, name:id, localOnly:true, skills:{}, sessions:[], dailySessions:[], extraSessions:[], activeSession:null, audit:[], recentSignatures:[], prerequisiteReviews:[], pendingPrerequisites:{} }; }
+  function createProfile(id='local'){ return { version:2, id, name:id, localOnly:true, skills:{}, sessions:[], dailySessions:[], extraSessions:[], activeSession:null, audit:[], recentSignatures:[], prerequisiteReviews:[], pendingPrerequisites:{}, stagnationStates:{} }; }
   function skillProgress(profile, id){
     const progress=profile.skills[id] || (profile.skills[id] = blankProgress());
     progress.evidences=progress.evidences||[];

@@ -79,3 +79,7 @@ La vista «Decisió del selector» de `daily-preview.html` construeix un perfil 
 La simulació de 30 dies conserva percentatges de tots els motius, quota per habilitat i procediment, cadena màxima, patrons de longitud 2/3/4 i comparació del guanyador amb el segon candidat. Els resultats revisats, problemes detectats i correccions són a [`daily-selector-audit.md`](daily-selector-audit.md).
 
 Els llindars continuen sent provisionals. En particular, els perfils dependent d’ajuda i desigual exhaureixen sovint els procediments accessibles: després de reparació, ensenyament i comprovació, el selector els ajorna durant la sessió i només usa equilibri com a fallback si tots els candidats estan ajornats.
+
+## Estancament per procediment
+
+El selector consulta `daily-stagnation.js` durant la generació de candidats. Un estat actiu no introdueix una puntuació ni un selector paral·lel: manté un motiu principal controlat (`repair_after_error` o `guided_practice`) i afegeix diagnòstic, confiança i estratègia com a submotiu. Les regles, simulacions i llindars provisionals es documenten a [daily-stagnation.md](daily-stagnation.md).
