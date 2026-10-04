@@ -1,13 +1,11 @@
 # Simulació adaptativa de catorze dies
 
-Execució: `node tests/daily-two-week-simulation.test.js` amb dates de l'1 al 14 de setembre de 2026 i respostes autònomes correctes per poder observar la progressió màxima. Cada perfil completa 140 activitats.
+Execució: `node tests/daily-two-week-simulation.test.js`, dates de l’1 al 14 de setembre de 2026, llavor pseudoaleatòria fixa i 140 respostes autònomes correctes per perfil.
 
-| Perfil | Habilitats diferents | Parelles habilitat-format | Repàs | Focus | Repte | Diagnòstic |
+| Perfil | Habilitats | Formats cognitius habilitat-format | Repàs | Focus | Repte | Diagnòstic |
 |---|---:|---:|---:|---:|---:|---:|
-| Inicial | 12 | 32 | 36 | 65 | 28 | 11 |
-| Intermedi | 12 | 33 | 36 | 69 | 28 | 7 |
+| Inicial | 12 | 33 | 36 | 65 | 28 | 11 |
+| Intermedi | 12 | 27 | 36 | 69 | 28 | 7 |
 | Avançat | 12 | 33 | 30 | 82 | 28 | 0 |
 
-En els tres casos apareixen càlcul, concepte/equivalència/simplificació/operacions/aplicacions de fraccions, decimals, percentatges, equacions, geometria, dades i unitats. El perfil inicial progressa pels prerequisits; l'intermedi parteix amb càlcul i fonaments de fraccions dominats; l'avançat parteix amb totes les habilitats dominades i rota el focus en lloc de tornar permanentment al primer contingut.
-
-La prova falla si algun perfil visita menys de cinc habilitats, menys de vuit parelles habilitat-format, no rep repàs espaiat, encadena el mateix focus més de tres dies o rep un repte amb prerequisits no preparats. En aquesta execució no s'han detectat bucles ni habilitats inaccessibles. La simulació és determinista quant a planificació, però no substitueix l'observació amb respostes reals i patrons d'error diversos.
+La xifra antiga 32–33 comptava famílies de planificació. Ara cada activitat es genera i es classifica per procediment, representació, raonament, passos i resposta. Per tant, barra/pastís/graella no inflen el recompte i `symbolic` ja no amaga suma, producte o divisió. La prova també exigeix almenys cinc habilitats, vuit formats cognitius, repàs, prerequisits preparats i un màxim de tres dies seguits amb el mateix focus.
