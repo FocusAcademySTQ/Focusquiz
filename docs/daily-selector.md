@@ -60,11 +60,11 @@ La necessitat usa l’última evidència autònoma, l’estat de domini, el volu
 
 ## Transferència i falsa fluïdesa
 
-Amb tres èxits autònoms però només un format o representació, el selector busca una altra família del mateix procediment. Manté el nivell: canviar de representació no equival a augmentar dificultat. Si la cobertura no ofereix una alternativa real, el candidat no inventa contingut.
+Amb tres èxits autònoms però només un format o representació, el selector busca una representació encara no observada del mateix procediment. Manté el nivell. Una transferència equivalent no es repeteix abans de 7 dies ni sense 3 evidències autònomes noves; si la cobertura no ofereix una alternativa real, no inventa contingut.
 
 ## Exploració reversible
 
-Tres resultats autònoms recents permeten un objectiu del nivell següent ja existent. La decisió desa `isExploration: true`. Una resposta exploratòria incorrecta queda a l’historial, però no incrementa el comptador de descens ni provoca regressió automàtica. El següent torn torna a ser seleccionat amb l’evidència disponible.
+Tres resultats autònoms recents permeten un objectiu del nivell següent ja existent. La decisió desa `isExploration: true` i un `probeKey`. El mateix salt exigeix evidència autònoma intermèdia abans de repetir-se i hi ha tres activitats no exploratòries entre proves globals. Un error exploratori queda a l’historial però no incrementa el comptador de descens.
 
 ## Persistència i recorreguts pendents
 
@@ -74,24 +74,8 @@ Les obligacions ja iniciades es busquen abans de generar candidats. Si una compr
 
 La vista «Decisió del selector» de `daily-preview.html` construeix un perfil fictici en memòria. Mostra selecció, motiu, nivell, format, tipus, evidències, deu candidats considerats i deu descartats amb la causa. No llegeix ni escriu perfils reals.
 
-## Simulació de 30 dies (300 activitats per perfil)
+## Simulació i auditoria posterior
 
-| Perfil | Motius principals | Interval de repàs observat | Repetició procediment | Transferència | Exploracions | Reparacions | Prerequisits | Consolidacions | Màxima quota d’una habilitat |
-|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| Inicial | introducció 144; consolidació 79; reparació 50; repàs 19 | 7–18 dies | 1% | 3% | 0 | 50 | 0 | 79 | 54% |
-| Intermedi | consolidació 155; introducció 42; repàs 39; reparació 35 | 2–14 dies | 7% | 10% | 0 | 35 | 0 | 155 | 37% |
-| Avançat | transferència 139; introducció 59; repàs 53; exploració 30 | 14–26 dies | 0% | 46% | 30 | 0 | 0 | 19 | 56% |
-| Irregular | reparació 141; introducció 97; consolidació 60 | — | 21% | 0% | 0 | 141 | 2 | 60 | 56% |
-| Dependent d’ajuda | reparació 287; introducció 8 | — | 19% | 0% | 0 | 287 | 0 | 5 | 52% |
-| Desigual | reparació 289; introducció 7 | — | 16% | 0% | 0 | 289 | 0 | 4 | 52% |
-| Falsa fluïdesa | introducció 170; consolidació 86; repàs 37; transferència 7 | 2–15 dies | 0% | 2% | 0 | 0 | 0 | 86 | 56% |
+La simulació de 30 dies conserva percentatges de tots els motius, quota per habilitat i procediment, cadena màxima, patrons de longitud 2/3/4 i comparació del guanyador amb el segon candidat. Els resultats revisats, problemes detectats i correccions són a [`daily-selector-audit.md`](daily-selector-audit.md).
 
-La simulació verifica que no hi ha repeticions de plantilla sense motiu, cap cadena supera dues reparacions consecutives del mateix procediment, cap habilitat supera el 70% de la ruta, l’alumnat avançat rep exploració i la falsa fluïdesa rep transferència.
-
-## Problemes i decisions provisionals
-
-- Els perfils dependent d’ajuda i desigual continuen generant molta reparació. Els guards eviten un bucle local i reparteixen habilitats, però no converteixen ajuda en autonomia ni amaguen la necessitat. Cal validació d’aula abans de canviar llindars.
-- La transferència només pot usar representacions que ja existeixen; algunes habilitats tenen poca varietat real.
-- Els intervals de repàs són inicials. Les simulacions mostren 2–26 dies segons estat i errors, però no demostren que aquests intervals siguin òptims.
-- La introducció és freqüent en perfils sense historial perquè el banc conté molts procediments. El selector evita repetir plantilla i habilitat, però l’ordre curricular fi continua limitat pels prerequisits existents.
-- La mètrica «quota d’una habilitat» agrupa procediments; una quota alta pot ser legítima en reparació, per això es documenta i no es transforma en una penalització opaca.
+Els llindars continuen sent provisionals. En particular, els perfils dependent d’ajuda i desigual exhaureixen sovint els procediments accessibles: després de reparació, ensenyament i comprovació, el selector els ajorna durant la sessió i només usa equilibri com a fallback si tots els candidats estan ajornats.

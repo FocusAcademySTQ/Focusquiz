@@ -51,9 +51,9 @@ function levelRange(level){
 function genArith(level, opts={}){
   if(opts.dailyAdaptive){
     const L=clamp(level,1,4);
-    if(L===1){const b=rng(2,10),c=rng(2,10),divide=opts.targetProcedure?opts.targetProcedure.includes('division'):Math.random()<.5;return divide?{type:'arith',formatId:'arith-facts-division',difficulty:L,text:`${b*c} ÷ ${b} = ?`,answer:c}:{type:'arith',formatId:'arith-facts-multiplication',difficulty:L,text:`${b} × ${c} = ?`,answer:b*c};}
-    if(L===2){const a=rng(12,60),b=rng(2,9),divide=opts.targetProcedure?opts.targetProcedure.includes('division'):Math.random()<.5;return divide?{type:'arith',formatId:'arith-two-digit-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-two-digit-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
-    if(L===3){const a=rng(-12,-2),b=rng(2,12),divide=opts.targetProcedure?opts.targetProcedure.includes('division'):Math.random()<.5;return divide?{type:'arith',formatId:'arith-signed-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-signed-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
+    if(L===1){const b=rng(2,10),c=rng(2,10),divide=opts.targetProcedure?(/divide|division/.test(opts.targetProcedure)):Math.random()<.5;return divide?{type:'arith',formatId:'arith-facts-division',difficulty:L,text:`${b*c} ÷ ${b} = ?`,answer:c}:{type:'arith',formatId:'arith-facts-multiplication',difficulty:L,text:`${b} × ${c} = ?`,answer:b*c};}
+    if(L===2){const a=rng(12,60),b=rng(2,9),divide=opts.targetProcedure?(/divide|division/.test(opts.targetProcedure)):Math.random()<.5;return divide?{type:'arith',formatId:'arith-two-digit-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-two-digit-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
+    if(L===3){const a=rng(-12,-2),b=rng(2,12),divide=opts.targetProcedure?(/divide|division/.test(opts.targetProcedure)):Math.random()<.5;return divide?{type:'arith',formatId:'arith-signed-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-signed-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
     const a=rng(3,12),b=rng(2,9),c=choice([2,3,4]),product=a*b*c;
     return {type:'arith',formatId:'arith-two-step',difficulty:L,text:`(${product} ÷ ${c}) × 2 = ?`,answer:(product/c)*2};
   }

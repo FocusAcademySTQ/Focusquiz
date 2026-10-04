@@ -282,7 +282,7 @@
     if(session.status==='completed')return false;
     session.status='completed';session.completedAt=now;profile.activeSession=null;
     profile.sessions=profile.sessions||[];
-    if(!profile.sessions.some(s=>s.id===session.id))profile.sessions.push({id:session.id,day:session.day,kind:session.kind,focusSkillId:session.focusSkillId,startedAt:session.startedAt,completedAt:now,correct:session.correct,total:session.items.length,decisions:(session.decisions||[]).map(d=>({skillId:d.skillId,procedure:d.procedure,formatFamily:d.formatFamily,reason:d.reason}))});
+    if(!profile.sessions.some(s=>s.id===session.id))profile.sessions.push({id:session.id,day:session.day,kind:session.kind,focusSkillId:session.focusSkillId,startedAt:session.startedAt,completedAt:now,correct:session.correct,total:session.items.length,decisions:(session.decisions||[]).map(d=>{const item=session.items.find(i=>i.id===d.itemId)||{};return {skillId:d.skillId,procedure:d.procedure,cognitiveFormat:d.cognitiveFormat,formatFamily:d.formatFamily,activityType:d.activityType,reason:d.reason,probeKey:d.probeKey,decidedAt:d.decidedAt,correct:item.correct,assistance:item.assistance,outcome:item.outcome};})});
     profile.audit.push({at:now,event:'session-completed',sessionId:session.id,kind:session.kind});return true;
   }
 
