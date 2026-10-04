@@ -22,9 +22,9 @@
   function generate(item){
     if(item.exercise)return item.exercise;
     const skill=FocusDaily.CATALOG[item.skillId],source=skill.generator.module==='daily'?FocusDailyActivities:FocusMathGenerators,gen=source[skill.generator.activity||skill.generator.module],recent=new Set(profile.recentSignatures||[]);let next;
-    const options={...(skill.generator.options||{}),formatFamily:item.formatFamily,targetProcedure:item.targetProcedure};
+    const options={...(skill.generator.options||{}),formatFamily:item.formatFamily,targetProcedure:item.targetProcedure,simplified:!!item.pedagogicalDecision?.simplified};
     for(let i=0;i<15;i++){next=gen(item.difficulty||FocusDaily.skillProgress(profile,item.skillId).level,options);if(!recent.has(signature(next)))break;}
-    item.exercise={...next,answer:String(next.answer),html:next.html||'',formatId:next.formatId||next.type,variantId:signature(next),requestedDifficulty:item.requestedDifficulty||item.difficulty,actualDifficulty:next.actualDifficulty||next.difficulty||item.difficulty};
+    const normalized={...next,answer:String(next.answer),html:next.html||'',formatId:next.formatId||next.type,variantId:signature(next),requestedDifficulty:item.requestedDifficulty||item.difficulty,actualDifficulty:next.actualDifficulty||next.difficulty||item.difficulty};item.exercise=FocusDailyBankMetadata.enrich(normalized);
     const cognitive=FocusDaily.describeFormat(item.exercise,item.exercise.type);item.procedureId=cognitive.procedure;item.exercise.procedureId=cognitive.procedure;
     profile.audit.push({at:new Date().toISOString(),event:'exercise-generated',sessionId:session.id,itemId:item.id,skillId:item.skillId,estimatedLevel:FocusDaily.skillProgress(profile,item.skillId).estimatedLevel,requestedDifficulty:item.requestedDifficulty||item.difficulty,actualDifficulty:item.exercise.actualDifficulty,templateId:item.exercise.templateId||'',formatId:item.exercise.formatId,cognitiveFormat:FocusDaily.describeFormat(item.exercise,item.exercise.type),reason:item.reason,coverageLimited:!!item.coverageLimited});
     profile.recentSignatures=[...(profile.recentSignatures||[]),item.exercise.variantId].slice(-40);save();return item.exercise;

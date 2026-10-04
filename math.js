@@ -51,6 +51,10 @@ function levelRange(level){
 function genArith(level, opts={}){
   if(opts.dailyAdaptive){
     const L=clamp(level,1,4);
+    const target=opts.targetProcedure||'',divide=/divide|division/.test(target);
+    if(/written-/.test(target)){const a=rng(L<2?6:12,L<2?20:60),b=rng(2,L<2?5:9);return divide?{type:'arith',formatId:'arith-two-digit-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-two-digit-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
+    if(/signed-/.test(target)){const a=rng(L<3?-6:-12,-2),b=rng(2,L<3?6:12);return divide?{type:'arith',formatId:'arith-signed-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-signed-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
+    if(target==='mixed-calculation'){const a=rng(3,L<4?6:12),b=rng(2,L<4?5:9),c=choice([2,3]),product=a*b*c;return {type:'arith',formatId:'arith-two-step',difficulty:L,text:`(${product} ÷ ${c}) × 2 = ?`,answer:(product/c)*2};}
     if(L===1){const b=rng(2,10),c=rng(2,10),divide=opts.targetProcedure?(/divide|division/.test(opts.targetProcedure)):Math.random()<.5;return divide?{type:'arith',formatId:'arith-facts-division',difficulty:L,text:`${b*c} ÷ ${b} = ?`,answer:c}:{type:'arith',formatId:'arith-facts-multiplication',difficulty:L,text:`${b} × ${c} = ?`,answer:b*c};}
     if(L===2){const a=rng(12,60),b=rng(2,9),divide=opts.targetProcedure?(/divide|division/.test(opts.targetProcedure)):Math.random()<.5;return divide?{type:'arith',formatId:'arith-two-digit-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-two-digit-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
     if(L===3){const a=rng(-12,-2),b=rng(2,12),divide=opts.targetProcedure?(/divide|division/.test(opts.targetProcedure)):Math.random()<.5;return divide?{type:'arith',formatId:'arith-signed-division',difficulty:L,text:`${a*b} ÷ ${b} = ?`,answer:a}:{type:'arith',formatId:'arith-signed-multiplication',difficulty:L,text:`${a} × ${b} = ?`,answer:a*b};}
@@ -205,6 +209,7 @@ function svgPieFraction(segments, filled){
 
 function genFracIdentify(level, opts={}){
   const L=clamp(level,1,2);
+  if(opts.formatFamily==='verbal-model'){const total=rng(3,8),k=rng(1,total-1),[sn,sd]=normFrac(k,total);return {type:'choice',formatId:'fraction-meaning-verbal',difficulty:L,text:`Una capsa té ${total} peces iguals i se n’han utilitzat ${k}. Quina fracció representa la part utilitzada?`,answer:`${sn}/${sd}`,choices:[`${sn}/${sd}`,`${sd}/${sn}`,`1/${sd}`,`${Math.max(1,sn-1)}/${sd}`].filter((v,i,a)=>a.indexOf(v)===i),explanation:'El numerador compta les peces utilitzades i el denominador totes les peces.'};}
   const shapes = L===1?['bar','pie']:['grid','bar','pie'];
   const shape = shapes.includes(opts.formatFamily)?opts.formatFamily:choice(shapes);
   let total, k, html;
@@ -231,14 +236,14 @@ function genFracIdentify(level, opts={}){
 
 function genFracArithmetic(level, opts={}){
   const L=clamp(level,1,4);
-  let b=rng(2,L<=2?8:12),d;
-  if(L===1)d=b;
+  let b=rng(2,opts.simplified?4:L<=2?8:12),d;
+  if(L===1)d=/different-denominator/.test(opts.targetProcedure||'')?b*2:b;
   else if(L===2)d=b*choice([2,3]);
   else d=rng(2,12);
   const a = rng(1, b-1), c = rng(1, d-1);
   const A = normFrac(a, b), B = normFrac(c, d);
   const requestedOp=opts.targetProcedure?.startsWith('add-')?'+':opts.targetProcedure?.startsWith('subtract-')?'−':opts.targetProcedure==='multiply-fractions'?'×':opts.targetProcedure==='divide-fractions'?'÷':null;
-  const allowedOps=L<=2?['+','−']:L===3?['+','−','×']:['+','−','×','÷'],op=allowedOps.includes(requestedOp)?requestedOp:choice(allowedOps);
+  const allowedOps=L<=2?['+','−']:L===3?['+','−','×']:['+','−','×','÷'],op=requestedOp||choice(allowedOps);
   let res;
   if(op==='+') res = addFrac(A,B);
   else if(op==='−') res = subFrac(A,B);
@@ -246,6 +251,12 @@ function genFracArithmetic(level, opts={}){
   else res = divFrac(A,B);
   const fracA = fractionHtml(A[0], A[1]);
   const fracB = fractionHtml(B[0], B[1]);
+  if(opts.formatFamily==='operation-step'){
+    if(op==='+'||op==='−'){const common=b*d/gcd(b,d);return {type:'choice',formatId:'fraction-operation-step',difficulty:L,denominatorsDifferent:b!==d,procedureId:`${op==='+'?'add':'subtract'}-${b===d?'same':'different'}-denominator`,text:`Per calcular ${fracA} ${op} ${fracB}, quin denominador comú permet continuar?`,answer:String(common),choices:[String(common),String(b+d),String(b*d),String(Math.max(b,d))].filter((v,i,a)=>a.indexOf(v)===i),explanation:'Cal un múltiple comú dels dos denominadors; el mínim redueix la càrrega.'};}
+    const action=op==='×'?'Multiplicar numeradors i denominadors':'Invertir la segona fracció i multiplicar';return {type:'choice',formatId:'fraction-operation-step',difficulty:L,procedureId:op==='×'?'multiply-fractions':'divide-fractions',text:`Quin és el pas adequat per començar ${fracA} ${op} ${fracB}?`,answer:action,choices:[action,'Sumar els denominadors','Invertir la primera fracció','Igualar els numeradors'].filter((v,i,a)=>a.indexOf(v)===i),explanation:op==='×'?'En una multiplicació es multipliquen els termes corresponents.':'Dividir per una fracció equival a multiplicar per la seva inversa.'};
+  }
+  if(opts.formatFamily==='operation-error'){const answer=op==='÷'?'No s’ha invertit la segona fracció':op==='×'?'S’han sumat els denominadors':b!==d?'S’han operat denominadors diferents directament':'S’ha canviat el denominador';return {type:'choice',formatId:'fraction-operation-error',difficulty:L,denominatorsDifferent:b!==d,procedureId:op==='+'?`add-${b===d?'same':'different'}-denominator`:op==='−'?`subtract-${b===d?'same':'different'}-denominator`:op==='×'?'multiply-fractions':'divide-fractions',text:`Quin error seria rellevant en resoldre ${fracA} ${op} ${fracB}?`,answer,choices:[answer,'S’ha simplificat el resultat','S’ha escrit una fracció equivalent','No hi pot haver cap error'].filter((v,i,a)=>a.indexOf(v)===i),explanation:'La resposta identifica la regla específica que cal comprovar en aquest procediment.'};}
+  if(opts.formatFamily==='operation-context'){return {type:'choice',formatId:'fraction-operation-context',difficulty:L,denominatorsDifferent:b!==d,procedureId:op==='+'?`add-${b===d?'same':'different'}-denominator`:op==='−'?`subtract-${b===d?'same':'different'}-denominator`:op==='×'?'multiply-fractions':'divide-fractions',text:`En una situació de mesura cal calcular ${A[0]}/${A[1]} ${op} ${B[0]}/${B[1]}. Quin resultat representa la mesura final?`,answer:`${res[0]}/${res[1]}`,choices:[`${res[0]}/${res[1]}`,`${A[0]+B[0]}/${A[1]+B[1]}`,`${res[1]}/${res[0]}`].filter((v,i,a)=>a.indexOf(v)===i),explanation:'Tria l’operació indicada i aplica la regla de fraccions abans d’interpretar la mesura.'};}
   const question = `Calcula: ${fracA} ${op} ${fracB} = ? `;
   return { type:'frac-arith', formatId:`frac-arith-${op}`, difficulty:L, denominatorsDifferent:b!==d, text: question, answer: `${res[0]}/${res[1]}` };
 }
@@ -255,6 +266,7 @@ function genFracSimplify(level, opts={}){
   let n=baseN*factor,d=baseD*factor;
   const [fn, fd] = normFrac(n, d);
   const frac = fractionHtml(n, d);
+  if(opts.formatFamily==='simplify-error')return {type:'choice',formatId:'fraction-simplify-error',difficulty:L,text:`Quin pas simplifica correctament ${frac}?`,answer:`Dividir numerador i denominador per ${factor}`,choices:[`Dividir numerador i denominador per ${factor}`,`Restar ${factor} als dos termes`,`Dividir només el numerador per ${factor}`,'Canviar l’ordre dels termes'],explanation:'Una fracció equivalent es manté si dividim els dos termes pel mateix factor.'};
   return { type:'frac-simplify', formatId:'frac-simplify-symbolic', difficulty:L, text:`Simplifica: ${frac}`, answer: `${fn}/${fd}` };
 }
 
@@ -262,6 +274,7 @@ function genFracEquivalent(level, opts={}){
   const L=clamp(level,1,3),denominator = rng(2, L === 1 ? 6 : L===2?10:15);
   const numerator = rng(1, denominator - 1);
   const factor = rng(2, L===1?3:L===2?5:9);
+  if(opts.formatFamily==='visual-equivalence'){const equivalent=`${numerator*factor}/${denominator*factor}`;return {type:'choice',difficulty:L,formatId:'fraction-equivalence-choice',text:`Quina fracció representa la mateixa part que ${numerator}/${denominator}?`,answer:equivalent,choices:[equivalent,`${numerator+factor}/${denominator+factor}`,`${numerator}/${denominator*factor}`,`${numerator*factor}/${denominator}`].filter((v,i,a)=>a.indexOf(v)===i),explanation:'Multiplica numerador i denominador pel mateix factor.'};}
   const askNumerator = rng(0, 1) === 0;
   const left = fractionHtml(numerator, denominator);
   const right = askNumerator
@@ -1745,9 +1758,10 @@ function generateLogarithmicFunction(aspect, difficulty, level) {
 
   // API pública perquè recorreguts guiats puguin reutilitzar els mateixos
   // generadors que la pràctica lliure, sense acoblar-hi la seva adaptació.
+  const dailyEnriched=generator=>(level,opts={})=>{const question=generator(level,opts);return opts.dailyAdaptive&&root.FocusDailyBankMetadata?root.FocusDailyBankMetadata.enrich(question):question;};
   root.FocusMathGenerators = Object.freeze({
-    arithmetic: genArith,
-    fractions: genFractions,
+    arithmetic: dailyEnriched(genArith),
+    fractions: dailyEnriched(genFractions),
     percentages: genPercent,
     geometry: genGeometry,
     equations: genEq,
