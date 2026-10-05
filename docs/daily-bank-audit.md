@@ -2,6 +2,8 @@
 
 Data: 4 d’octubre de 2026. No s’han afegit àrees curriculars ni s’han canviat els llindars de domini, progressió o estancament.
 
+> Aquest document conserva la línia base de 85 formats. L’auditoria funcional posterior i les sis alternatives mínimes de fets bàsics es documenten a [`daily-functional-coverage-audit.md`](daily-functional-coverage-audit.md).
+
 ## Inventari abans de l’ampliació
 
 L’inventari de partida contenia **50 candidats seleccionables**, **47 parelles habilitat–procediment** i només **2 procediments amb més d’una família seleccionable** (`solve-two-step` i `rectangle-area`). La taxonomia contenia sobretot un format per procediment. Els punts especialment limitats eren:

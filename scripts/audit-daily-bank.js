@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+'use strict';
+const Daily=require('../daily-session-engine'),Metadata=require('../daily-bank-metadata'),Selector=require('../daily-pedagogical-selector'),Audit=require('../daily-bank-functional-audit');
+global.addModules=global.addModules||(()=>{});require('../math');require('../daily-activity-bank');
+const result=Audit.audit({catalog:Daily.CATALOG,targets:Selector.TARGETS,metadata:Metadata,activities:global.FocusDailyActivities,math:global.FocusMathGenerators});
+const missingByCapability=Object.fromEntries(Audit.FUNCTIONS.map(capability=>[capability,result.rows.filter(row=>row.capabilities[capability]===Audit.MISSING).length]));
+const payload={generatedAt:new Date().toISOString(),counts:Object.fromEntries(Object.entries(result.groups).map(([group,rows])=>[group,rows.length])),missingByCapability,procedures:result.rows.map(row=>({skillId:row.skillId,procedure:row.procedure,group:row.group,priority:row.priority,justification:row.justification,capabilities:row.capabilities,missing:row.missing,formats:row.formats.map(f=>({formatFamily:f.formatFamily,representation:f.representation,reasoningType:f.reasoningType,answerType:f.answerType,diagnosticTags:f.diagnosticTags,supportsSimplification:f.supportsSimplification,supportsTransfer:f.supportsTransfer}))})),bottlenecks:result.bottlenecks};
+if(process.argv.includes('--json'))process.stdout.write(`${JSON.stringify(payload,null,2)}\n`);else{console.log(`Functional bank audit: A=${payload.counts.A}, B=${payload.counts.B}, C=${payload.counts.C}`);for(const row of payload.procedures)console.log(`${row.group}\t${row.skillId}\t${row.procedure}\t${row.missing.join(',')||'complete/not applicable'}\t${row.justification}`);}

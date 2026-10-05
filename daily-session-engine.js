@@ -25,7 +25,7 @@
   const CATALOG = Object.freeze({
     'calculation.muldiv': {
       id:'calculation.muldiv', area:'numbers', title:'Multiplicació i divisió', description:'Càlcul necessari per treballar amb fraccions.',
-      prerequisites:[], generator:{ module:'arithmetic', options:{ ops:['×','÷'],dailyAdaptive:true } }, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['arith'],contexts:[],masteryMinFormats:1}
+      prerequisites:[], generator:{ module:'arithmetic', options:{ ops:['×','÷'],dailyAdaptive:true } }, coverage:'available', exerciseModel:{levels:[1,2,3,4],formats:['arith','fact-family','operation-choice','fact-error'],contexts:['equal-groups'],masteryMinFormats:1}
     },
     'fractions.concept': {
       id:'fractions.concept', area:'numbers', title:'Concepte de fracció', description:'Interpretar una part d’un tot en formats visuals.',
@@ -77,6 +77,7 @@
   // does not create a new format. The taxonomy is shared by evidence and audits.
   const FORMAT_TAXONOMY = Object.freeze({
     'arith-facts-division':['divide-facts','symbolic','execute',1,'numeric'], 'arith-facts-multiplication':['multiply-facts','symbolic','execute',1,'numeric'],
+    'arith-multiplication-fact-family':['multiply-facts','fact-family','relate-inverse',1,'choice'], 'arith-division-fact-family':['divide-facts','fact-family','relate-inverse',1,'choice'], 'arith-multiplication-operation-choice':['multiply-facts','verbal-context','select-operation',1,'choice'], 'arith-division-operation-choice':['divide-facts','verbal-context','select-operation',1,'choice'], 'arith-multiplication-error':['multiply-facts','worked-error','diagnose',1,'choice'], 'arith-division-error':['divide-facts','worked-error','diagnose',1,'choice'],
     'arith-two-digit-division':['written-division','symbolic','execute',1,'numeric'], 'arith-two-digit-multiplication':['written-multiplication','symbolic','execute',1,'numeric'],
     'arith-signed-division':['signed-division','symbolic','execute',1,'numeric'], 'arith-signed-multiplication':['signed-multiplication','symbolic','execute',1,'numeric'], 'arith-two-step':['mixed-calculation','symbolic','execute',2,'numeric'],
     'frac-identify-grid':['fraction-meaning','area-model','interpret',1,'choice'], 'frac-identify-bar':['fraction-meaning','area-model','interpret',1,'choice'], 'frac-identify-pie':['fraction-meaning','area-model','interpret',1,'choice'],
