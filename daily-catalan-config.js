@@ -6,8 +6,8 @@
   const CATALOG={
     'ca.orthography.accentuation':skill('ca.orthography.accentuation','orthography','Accentuació',[1,2,3],['classify','apply','sentence-error']),
     'ca.orthography.apostrophe':skill('ca.orthography.apostrophe','orthography','Apostrofació',[1,2],['choose','sentence-error']),
-    'ca.morphology.categories':skill('ca.morphology.categories','morphology','Categories gramaticals',[1,2,3],['identify','context']),
-    'ca.morphology.agreement':skill('ca.morphology.agreement','morphology','Concordança nominal i verbal',[1,2,3],['choose','repair'],['ca.morphology.categories']),
+    'ca.morphology.categories':skill('ca.morphology.categories','morphology','Categories gramaticals',[1,2],['identify','context']),
+    'ca.morphology.agreement':skill('ca.morphology.agreement','morphology','Concordança nominal i verbal',[1,2],['choose','repair'],['ca.morphology.categories']),
     'ca.syntax.subject':skill('ca.syntax.subject','syntax','Subjecte, verb i predicat',[1,2,3],['identify','implicit','error'],['ca.morphology.categories']),
     'ca.reading.comprehension':skill('ca.reading.comprehension','reading','Comprensió lectora',[1,2,3,4],['literal','reference','inference','supported-conclusion']),
     'ca.writing.cohesion':skill('ca.writing.cohesion','writing','Coherència i cohesió',[1,2,3],['connector','sentence-order','irrelevant-sentence']),

@@ -51,3 +51,36 @@ Les simulacions deterministes de 30 i 60 dies cobreixen perfils inicial, irregul
 4. No s'avalua automàticament una redacció oberta.
 5. Les simulacions no substitueixen un pilot amb alumnat ni una revisió d'accessibilitat amb tecnologies assistives reals.
 6. El motor matemàtic conserva la implementació històrica mentre el nou factory dona servei a Català; una futura fase pot adoptar el factory internament només si les proves de caracterització demostren equivalència completa.
+
+## Auditoria executable del banc
+
+La cobertura catalana es pot inspeccionar amb `node scripts/audit-daily-catalan.js` o obtenir en JSON amb `--json`. L'auditoria recorre els 22 procediments seleccionables i comprova continguts independents, nivell, simplificació, transferència, diagnòstic, reparació, microlliçó, prerequisits i traçabilitat dels textos de lectura.
+
+Després d'aquesta ampliació, els 22 procediments disposen d'almenys dos continguts humans revisats (44 continguts independents en total). Aquesta xifra és una protecció contra la repetició literal, no una afirmació que la cobertura curricular sigui completa. Les variants de contingut no es declaren com a transferència: `supportsTransfer` només podrà activar-se quan existeixi una alternativa del mateix procediment amb representació o raonament realment diferents.
+
+Les comprovacions post-solució conserven `mustDifferFromContentId`. Si no hi ha alternativa, la comprovació torna a `pendingVerifications` i ocupa el primer espai de la sessió posterior; mai es registra la pregunta original com a evidència nova.
+
+## Pauta de revisió pendent
+
+### Revisió lingüística
+
+- validar norma, resposta, distractors, naturalitat i absència d'ambigüitat;
+- registrar varietat normativa i alternatives només després de revisió humana;
+- comprovar accents, dièresi, ela geminada, apostrofació, guionets i puntuació;
+- confirmar que els textos són originals o tenen una llicència compatible.
+
+### Revisió pedagògica
+
+- confirmar que nivell, simplificació i prerequisits representen salts cognitius reals;
+- revisar que les pistes orienten sense revelar la resposta;
+- comprovar que el diagnòstic només atribueix patrons discriminables;
+- observar si dues variants aporten evidència independent i no només memòria d'ítems.
+
+### Pilot amb alumnat
+
+- mesurar temps, comprensió de les instruccions i dependència d'ajuda;
+- registrar preguntes ambigües, falsos diagnòstics i abandonaments;
+- comparar rendiment en paraula, frase i text nou;
+- revisar accessibilitat amb teclat, zoom, lector de pantalla i dispositius mòbils.
+
+Aquesta pauta encara no s'ha executat. Les simulacions de 30 i 60 dies validen estabilitat del programari i ús del selector real, però no validen científicament els llindars ni substitueixen un pilot.
