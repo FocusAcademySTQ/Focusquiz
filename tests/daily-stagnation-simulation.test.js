@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');const D=require('../daily-session-engine'),T=require('../daily-stagnation');
+const base='2026-10-',now='2026-10-12T09:00:00Z',session={id:'simulation',items:[]};
+function evidence(p,skill,procedure,pattern){const x=D.skillProgress(p,skill);pattern.forEach((r,i)=>x.evidences.push({evidenceId:`${p.id}-${i}`,at:`${base}${String(r.day).padStart(2,'0')}T09:00:00Z`,procedureId:procedure,correct:r.result==='success',outcome:r.result==='success'?'correct':'incorrect',assistance:r.help?'hint':'none',difficulty:r.level||1,formatId:r.format||'symbolic',format:{representation:r.representation||'symbolic'}}));}
+function repairs(p,skill,procedure,n=2){p.sessions=[{id:'previous',decisions:Array.from({length:n},(_,i)=>({skillId:skill,procedure,reason:'repair_after_error',decidedAt:`${base}0${7+i}T09:00:00Z`,correct:false,assistance:'none'}))}];}
+function run(name,skill,procedure,pattern,prepare,after){const p=D.createProfile(name);evidence(p,skill,procedure,pattern);repairs(p,skill,procedure);if(prepare)prepare(p);let out=T.inspect(p,session,skill,procedure,now);const detected=out.state?.reason||null;if(out.state){const choice=T.nextStrategy(out.state,now);T.recordStrategy(p,skill,procedure,choice.strategy,`${name}-strategy`,now);}if(after){after(p);out=T.inspect(p,session,skill,procedure,'2026-10-16T09:00:00Z');}return {profile:name,detected,status:out.state?.status||'not_detected',strategies:out.state?.strategiesTried.map(s=>s.strategy)||[],metrics:T.metrics(p,'2026-10-16T09:00:00Z')};}
+const failures=[1,3,5,7].map((day,i)=>({day,result:'error',format:i%2?'context':'symbolic'}));
+const reports=[
+ run('fraction-conceptual','fractions.operations','divide-fractions',failures,p=>p.prerequisiteReviews=[{originalSkillId:'fractions.operations',originalProcedureId:'divide-fractions',result:'needs-reinforcement'}]),
+ run('equation-help','algebra.linear','solve-two-step',[1,3,5,7].map(day=>({day,result:'success',help:true}))),
+ run('context-transfer','algebra.linear','solve-two-step',[{day:1,result:'success'},{day:2,result:'success'},{day:3,result:'success'},{day:5,result:'error',format:'context',representation:'verbal-context'},{day:7,result:'error',format:'context',representation:'verbal-context'}]),
+ run('overload','algebra.linear','solve-two-step',[{day:1,result:'success',level:1},{day:3,result:'error',level:3},{day:5,result:'error',level:3},{day:7,result:'error',level:3}]),
+ run('reteach-improves','algebra.linear','solve-two-step',failures,null,p=>evidence(p,'algebra.linear','solve-two-step',[{day:13,result:'success',format:'after-a'},{day:15,result:'success',format:'after-b'}])),
+ run('persistent','data.interpretation','read-value',failures),
+ (()=>{const p=D.createProfile('one-bad-session');evidence(p,'algebra.linear','solve-two-step',failures.map(x=>({...x,day:9})));const out=T.inspect(p,session,'algebra.linear','solve-two-step',now);return {profile:p.id,detected:out.state?.reason||null,status:out.state?.status||'not_detected',strategies:[],metrics:T.metrics(p)};})()
+];
+assert.equal(reports[0].detected,'conceptual');assert.equal(reports[1].detected,'help_dependence');assert.equal(reports[2].detected,'false_fluency');assert.equal(reports[3].detected,'difficulty_overload');assert.equal(reports[4].status,'stagnation_resolved');assert.equal(reports[5].status,'active');assert.equal(reports[6].status,'not_detected');
+console.log(JSON.stringify(reports,null,2));
