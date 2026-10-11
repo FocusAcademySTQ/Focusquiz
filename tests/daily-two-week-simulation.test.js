@@ -1,5 +1,7 @@
 const assert=require('node:assert/strict');
-const D=require('../daily-session-engine.js');
+let seed=421337;Math.random=()=>((seed=seed*48271%2147483647)-1)/2147483646;
+const D=require('../daily-session-engine.js');global.addModules=()=>{};require('../math.js');require('../daily-activity-bank.js');
+function generate(item){const skill=D.CATALOG[item.skillId],source=skill.generator.module==='daily'?global.FocusDailyActivities:global.FocusMathGenerators;return source[skill.generator.activity||skill.generator.module](item.difficulty,{...(skill.generator.options||{}),formatFamily:item.formatFamily});}
 const available=Object.values(D.CATALOG).filter(s=>s.coverage==='available');
 function prepare(kind){
  const p=D.createProfile(kind);
@@ -15,9 +17,9 @@ function simulate(kind){
   for(const item of s.items){
    const skill=D.CATALOG[item.skillId];assert.equal(skill.coverage,'available');
    if(item.phase==='challenge')assert.equal(D.prerequisiteReadiness(p,skill).ready,true,'challenge respects prerequisites');
-   const format=item.formatFamily||'numeric';skills.add(item.skillId);formats.add(`${item.skillId}:${format}`);daySkills.add(item.skillId);dayFormats.add(format);phases[item.phase]++;
+   const exercise=generate(item),format=D.describeFormat(exercise.formatId,exercise.type).formatKey;skills.add(item.skillId);formats.add(`${item.skillId}:${format}`);daySkills.add(item.skillId);dayFormats.add(format);phases[item.phase]++;
    item.completed=true;item.correct=true;item.assistance='none';
-   D.recordEvidence(p,item.skillId,{evidenceId:`${s.id}:${item.id}`,sessionId:s.id,itemId:item.id,exerciseType:'simulation',formatId:format,variantId:`${format}-${day}`,correct:true,assistance:'none'},at);
+   D.recordEvidence(p,item.skillId,{evidenceId:`${s.id}:${item.id}`,sessionId:s.id,itemId:item.id,exerciseType:'simulation',formatId:exercise.formatId,variantId:`${format}-${day}`,correct:true,assistance:'none'},at);
   }
   s.correct=s.items.length;s.index=s.items.length;D.finishSession(p,s,at);days.push({day:s.day,focus:s.focusSkillId,skills:[...daySkills],formats:[...dayFormats]});
  }

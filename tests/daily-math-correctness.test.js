@@ -10,8 +10,11 @@ for(let i=0;i<250;i++){
   const scale=bank.fractions(3,{formatFamily:'scale'}),sc=scale.verification;
   assert.equal(Number(scale.answer),sc.total/sc.part,'route scale solution is exact');
   for(const format of ['increase','tax']){const q=bank.decimals(3,{formatFamily:format}),v=q.verification;assert.equal(Number(q.answer),v.base*(1+v.percent/100),'percentage total is exact');}
+  {const q=bank.decimals(2,{formatFamily:'percent-part'}),v=q.verification;assert.equal(Number(q.answer),v.total*v.percent/100,'percentage part is exact');}
+  {const q=bank.decimals(3,{formatFamily:'percent-total'}),v=q.verification;assert.equal(Number(q.answer),v.part*100/v.percent,'inverse percentage total is exact');}
   const table=bank.data(1,{formatFamily:'table'}),tv=table.verification;assert.equal(Number(table.answer),tv.values.reduce((a,b)=>a+b,0),'table total matches data');
   const trend=bank.data(2,{formatFamily:'trend'});assert.ok(trend.verification.values.every((v,j,a)=>j===0||v>a[j-1]),'line-chart conclusion matches points');
+  const unsupported=bank.data(3,{formatFamily:'unsupported'});assert.equal(unsupported.verification.unsupported,'causal-claim','graph diagnostic only rejects an unsupported causal claim');
   for(const format of ['time','capacity']){const q=bank.units(2,{formatFamily:format}),v=q.verification;if(format==='time')assert.equal(Number(q.answer),v.hours*60);else assert.equal(Number(q.answer),v.litres*1000);assert.equal(q.answerSpec.tolerance,0,'conversion tolerance is explicit');}
 }
 assert.equal(Answer.validate('0,5',{answer:'1/2',answerSpec:{kind:'fraction'}}).correct,false,'decimal is not silently accepted when a fraction is requested');

@@ -19,16 +19,16 @@ assert.equal(D.skillProgress(unknown,'algebra.linear').evidenceState,'insufficie
 assert.equal(D.skillProgress(unknown,'algebra.linear').evidences[0].outcome,'unknown','I do not know is distinct from incorrect');
 
 const levels=D.createProfile('levels');
-D.recordEvidence(levels,'data.interpretation',{outcome:'correct',assistance:'none',difficulty:1,exerciseType:'graph',formatId:'bar'},'2026-11-01T09:00:00Z');
-D.recordEvidence(levels,'data.interpretation',{outcome:'correct',assistance:'none',difficulty:1,exerciseType:'graph',formatId:'table'},'2026-11-02T09:00:00Z');
-D.recordEvidence(levels,'data.interpretation',{outcome:'correct',assistance:'none',difficulty:1,exerciseType:'graph',formatId:'bar'},'2026-11-03T09:00:00Z');
+D.recordEvidence(levels,'data.interpretation',{outcome:'correct',assistance:'none',difficulty:1,exerciseType:'graph',formatId:'graph-read-value'},'2026-11-01T09:00:00Z');
+D.recordEvidence(levels,'data.interpretation',{outcome:'correct',assistance:'none',difficulty:1,exerciseType:'graph',formatId:'data-table-total'},'2026-11-02T09:00:00Z');
+D.recordEvidence(levels,'data.interpretation',{outcome:'correct',assistance:'none',difficulty:1,exerciseType:'graph',formatId:'graph-read-value'},'2026-11-03T09:00:00Z');
 assert.equal(D.skillProgress(levels,'data.interpretation').estimatedLevel,2,'diverse repeated autonomous success raises the estimate');
 const assisted=D.createProfile('assisted');
-for(let i=0;i<6;i++)D.recordEvidence(assisted,'data.interpretation',{outcome:'correct',assistance:'hint',difficulty:1,exerciseType:'graph',formatId:'bar'},`2026-11-0${i+1}T09:00:00Z`);
+for(let i=0;i<6;i++)D.recordEvidence(assisted,'data.interpretation',{outcome:'correct',assistance:'hint',difficulty:1,exerciseType:'graph',formatId:'graph-read-value'},`2026-11-0${i+1}T09:00:00Z`);
 assert.equal(D.skillProgress(assisted,'data.interpretation').status,'learning','assisted successes are not autonomous mastery');
 
 const uneven=D.createProfile('uneven');
-for(let i=0;i<3;i++)D.recordEvidence(uneven,'geometry.measure',{outcome:'correct',assistance:'none',difficulty:2,exerciseType:'visual',formatId:`g${i}`},`2026-10-${20+i}T09:00:00Z`);
+for(let i=0;i<3;i++)D.recordEvidence(uneven,'geometry.measure',{outcome:'correct',assistance:'none',difficulty:2,exerciseType:'visual',formatId:i%2?'geometry-context':'geometry-visual-area'},`2026-10-${20+i}T09:00:00Z`);
 for(let i=0;i<2;i++)D.recordEvidence(uneven,'calculation.muldiv',{outcome:'incorrect',assistance:'none',difficulty:1,exerciseType:'arith',formatId:'arith'},`2026-10-${20+i}T09:00:00Z`);
 const unevenSession=D.planSession(uneven,'2026-11-03T09:00:00Z');
 assert.equal(unevenSession.focusSkillId,'calculation.muldiv','difficulty in numbers can drive focus independently of stronger geometry');

@@ -1,0 +1,6 @@
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;root.FocusDayCatalanAnswer=api;})(typeof window!=='undefined'?window:globalThis,function(){
+  'use strict';
+  function normalize(value,policy={}){let text=String(value??'').normalize('NFC');if(policy.trim!==false)text=text.trim();if(policy.collapseWhitespace!==false)text=text.replace(/\s+/g,' ');if(policy.apostropheEquivalent)text=text.replace(/[’‘`´]/g,"'");if(!policy.punctuationSensitive)text=text.replace(/[.!?]+$/,'').trim();if(!policy.caseSensitive)text=text.toLocaleLowerCase('ca');if(policy.accentSensitive===false)text=text.normalize('NFD').replace(/\p{M}/gu,'').normalize('NFC');return text;}
+  function validate(value,exercise){if(exercise.answerType==='non_autocorrective'||exercise.autocorrect===false)return {correct:null,conclusive:false,normalized:String(value??'')};const policy=exercise.normalizationPolicy||{},actual=normalize(value,policy),accepted=(exercise.acceptedAnswers?.length?exercise.acceptedAnswers:[exercise.answer]).map(v=>normalize(v,policy));return {correct:accepted.includes(actual),conclusive:true,normalized:actual,accepted};}
+  return {normalize,validate};
+});
