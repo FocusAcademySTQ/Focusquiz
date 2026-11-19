@@ -67,44 +67,40 @@ function genArith(level, opts={}){
     const a=rng(3,12),b=rng(2,9),c=choice([2,3,4]),product=a*b*c;
     return {type:'arith',formatId:'arith-two-step',difficulty:L,text:`(${product} ÷ ${c}) × 2 = ?`,answer:(product/c)*2};
   }
-  const allowNeg = !!opts.allowNeg;
-  const tri = !!opts.tri;
-  const ops = (opts.ops && opts.ops.length)? opts.ops : ['+','-','×','÷'];
+  const ops = (opts.ops && opts.ops.length) ? opts.ops : ['+', '-', '×', '÷'];
   const [mn, mx] = levelRange(level);
-  const low = allowNeg ? mn : 0;
+  const low = opts.allowNeg ? mn : 0;
+  const op1 = choice(ops);
+  const op2 = opts.tri ? choice(ops) : null;
+  const needsParentheses = (op1 === '+' || op1 === '-') && (op2 === '×' || op2 === '÷');
 
-  function makeDivisible(xmin, xmax, lvl=1){
-    const L = clamp(lvl,1,4);
-    const maxDiv = [0,14,20,30,40][L]; // divisor més gran a nivells alts
-    const y = rng(2, maxDiv);
-    const mult = rng(2, 8 + 4*L);      // fa el dividend més gran
-    const prod = y * mult;
-    return [prod, y];
+  function makeDivisible(){
+    const L = clamp(level, 1, 4);
+    const divisor = rng(2, [0, 14, 20, 30, 40][L]);
+    return [divisor * rng(2, 8 + 4 * L), divisor];
   }
 
-  const a = rng(low, mx), b = rng(low, mx);
-  const op = choice(ops);
+  function question(x, y, z){
+    const first = `${x} ${op1} ${y}`;
+    const firstResult = evalArith(x, op1, y);
+    if (!op2) return { type: 'arith', text: `${first} = ?`, answer: firstResult };
 
-  let text, ans;
-
-  if(tri){
-    let c = rng(low, mx);
-    let expOp1 = op;
-    let expOp2 = choice(ops);
-    let x=a, y=b, z=c;
-    if(expOp1==='÷'){ [x,y] = makeDivisible(low, mx, level); }
-    if(expOp2==='÷'){ [y,z] = makeDivisible(low, mx, level); }
-    text = `${x} ${expOp1} ${y} ${expOp2} ${z} = ?`;
-    ans = evalArith(x, expOp1, y);
-    ans = evalArith(ans, expOp2, z);
-  } else {
-    let x=a, y=b, expOp = op;
-    if(expOp==='÷'){ [x,y] = makeDivisible(low, mx, level); }
-    text = `${x} ${expOp} ${y} = ?`;
-    ans = evalArith(x, expOp, y);
+    const left = needsParentheses ? `(${first})` : first;
+    return { type: 'arith', text: `${left} ${op2} ${z} = ?`, answer: evalArith(firstResult, op2, z) };
   }
 
-  return { type:'arith', text, answer: ans };
+  for (let attempt = 0; attempt < 32; attempt++) {
+    let x = rng(low, mx), y = rng(low, mx);
+    let z = op2 ? rng(low, mx) : 0;
+    if (op1 === '÷') [x, y] = makeDivisible();
+    if (op2 === '÷') [y, z] = makeDivisible();
+
+    const candidate = question(x, y, z);
+    if (opts.allowNegResult || candidate.answer >= 0) return candidate;
+  }
+
+  // Aquests operands donen un resultat positiu amb qualsevol combinació.
+  return question(12, 2, 2);
 }
 
 function evalArith(x, op, y){

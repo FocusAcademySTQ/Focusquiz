@@ -223,7 +223,7 @@ const chemCompoundSubthemes = [
 ];
 
 function arithmeticDefaults() {
-  return { ops: arithmeticOps.slice(), allowNeg: false, tri: false };
+  return { ops: arithmeticOps.slice(), allowNeg: false, allowNegResult: false, tri: false };
 }
 
 function arithmeticNormalize(options = {}) {
@@ -234,6 +234,7 @@ function arithmeticNormalize(options = {}) {
   return {
     ops,
     allowNeg: Boolean(options.allowNeg),
+    allowNegResult: Boolean(options.allowNegResult),
     tri: Boolean(options.tri),
   };
 }
@@ -254,7 +255,8 @@ const arithmeticDefinition = {
         </div>
       </div>
       <div class="controls">
-        <label class="toggle"><input class="check" type="checkbox" data-field="arith-allow-neg" ${CHECKED(opts.allowNeg)}> Permetre negatius</label>
+        <label class="toggle"><input class="check" type="checkbox" data-field="arith-allow-neg" ${CHECKED(opts.allowNeg)}> Permetre nombres negatius</label>
+        <label class="toggle"><input class="check" type="checkbox" data-field="arith-allow-neg-result" ${CHECKED(opts.allowNegResult)}> Permetre resultats negatius</label>
         <label class="toggle"><input class="check" type="checkbox" data-field="arith-tri" ${CHECKED(opts.tri)}> Operar amb 3 números</label>
       </div>
     `);
@@ -268,8 +270,9 @@ const arithmeticDefinition = {
     if (isChecked(scope, '[data-field="arith-op-times"]')) ops.push('×');
     if (isChecked(scope, '[data-field="arith-op-div"]')) ops.push('÷');
     const allowNeg = isChecked(scope, '[data-field="arith-allow-neg"]');
+    const allowNegResult = isChecked(scope, '[data-field="arith-allow-neg-result"]');
     const tri = isChecked(scope, '[data-field="arith-tri"]');
-    return arithmeticNormalize({ ops, allowNeg, tri });
+    return arithmeticNormalize({ ops, allowNeg, allowNegResult, tri });
   },
   summarize(options = {}) {
     const opts = arithmeticNormalize(options);
@@ -279,7 +282,8 @@ const arithmeticDefinition = {
     } else {
       parts.push('Operacions: cap seleccionada');
     }
-    if (opts.allowNeg) parts.push('Permet negatius');
+    if (opts.allowNeg) parts.push('Permet nombres negatius');
+    if (opts.allowNegResult) parts.push('Permet resultats negatius');
     if (opts.tri) parts.push('Operacions amb 3 nombres');
     return parts.join(' · ');
   },
