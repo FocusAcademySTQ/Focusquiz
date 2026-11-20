@@ -852,7 +852,8 @@ function openConfig(moduleId){
         </div>
       </div>
       <div class="controls">
-        <label class="toggle"><input class="check" type="checkbox" id="allow-neg"> Permetre negatius</label>
+        <label class="toggle"><input class="check" type="checkbox" id="allow-neg"> Permetre nombres negatius</label>
+        <label class="toggle"><input class="check" type="checkbox" id="allow-neg-result"> Permetre resultats negatius</label>
         <label class="toggle"><input class="check" type="checkbox" id="tri-numbers"> Operar amb 3 números</label>
       </div>
     `;
@@ -1118,6 +1119,7 @@ function collectConfigValues(){
     if(!ops.length){ alert('Selecciona almenys una operació.'); return null; }
     options.ops = ops;
     options.allowNeg = !!$('#allow-neg').checked;
+    options.allowNegResult = !!$('#allow-neg-result').checked;
     options.tri = !!$('#tri-numbers').checked;
   } else if(pendingModule.id==='frac'){
     const sub = document.querySelector('input[name="frac-sub"]:checked')?.value || 'identify';
