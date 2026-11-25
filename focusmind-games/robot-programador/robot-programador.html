@@ -27,7 +27,7 @@
       <div class="fm-setup-visual" aria-hidden="true"><span>🤖</span><span>➡️</span><span>🧱</span><span>🏁</span></div>
     </section>
 
-    <section id="play-screen" class="panel hidden" aria-live="polite">
+    <section id="play-screen" class="panel hidden">
       <div class="topbar">
         <div class="stat"><span>Nivell</span><strong id="stat-level">1</strong></div>
         <div class="stat"><span>Punts</span><strong id="stat-points">0</strong></div>
@@ -35,8 +35,12 @@
         <div class="stat"><span>Passos</span><strong id="stat-steps">0</strong></div>
       </div>
       <div class="play-area robot-layout">
-        <div id="board" class="robot-board" aria-label="Tauler del robot"></div>
+        <div>
+          <p id="robot-heading" class="robot-heading"></p>
+          <div id="board" class="robot-board" role="group" aria-label="Tauler del robot" aria-describedby="robot-heading"></div>
+        </div>
         <section class="program-panel" aria-label="Programa">
+          <p class="program-help">La fletxa indica cap on mira el robot. Avança una casella en aquell sentit. Girar canvia la direcció sense moure’l. Salta un obstacle si darrere hi ha una casella lliure.</p>
           <div class="command-grid">
             <button class="tool-button" type="button" data-command="forward">Avança</button>
             <button class="tool-button" type="button" data-command="right">Gira dreta</button>
@@ -51,7 +55,7 @@
             <button id="clear-button" class="secondary-button" type="button">Netejar</button>
           </div>
         </section>
-        <p id="feedback" class="feedback">Planifica abans de prémer executar.</p>
+        <p id="feedback" class="feedback" role="status">Planifica abans de prémer executar.</p>
       </div>
     </section>
 
