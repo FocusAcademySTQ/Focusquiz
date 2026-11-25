@@ -51,23 +51,39 @@
 
 .sequencia-lluminosa__board {
   display: grid;
-  grid-template-columns: repeat(3, minmax(74px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 480px;
   gap: clamp(10px, 2vw, 18px);
 }
 
+.sequencia-lluminosa [hidden] { display: none; }
+
 .sequencia-lluminosa__pad {
-  min-height: clamp(88px, 18vw, 150px);
-  border: 0;
-  border-radius: 24px;
-  background: linear-gradient(145deg, #dbeafe, #c7d2fe);
-  box-shadow: inset 0 -10px 20px rgba(37, 99, 235, 0.12), 0 18px 36px -28px rgba(37, 99, 235, 0.75);
+  --pad-color: #2462aa;
+  min-height: clamp(72px, 16vw, 132px);
+  border: 4px solid transparent;
+  border-radius: 20px;
+  background: var(--pad-color);
+  color: white;
+  font-size: clamp(1.4rem, 4vw, 2.6rem);
+  font-weight: 800;
   cursor: pointer;
-  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
 }
 
-.sequencia-lluminosa__pad:hover,
+.sequencia-lluminosa__pad:nth-child(2) { --pad-color: #9b4a10; }
+.sequencia-lluminosa__pad:nth-child(3) { --pad-color: #157156; }
+.sequencia-lluminosa__pad:nth-child(4) { --pad-color: #6e429d; }
+.sequencia-lluminosa__pad[aria-disabled="true"] { cursor: default; }
+.sequencia-lluminosa__pad:focus-visible { outline: 3px solid #18213a; outline-offset: 3px; }
+
 .sequencia-lluminosa__pad.is-on {
-  transform: translateY(-2px);
-  filter: brightness(1.12) saturate(1.15);
-  box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.16), 0 24px 48px -30px rgba(37, 99, 235, 0.85);
+  background: #fff8d2;
+  border-color: var(--pad-color);
+  color: #18213a;
+  box-shadow: 0 0 0 3px #18213a;
+}
+
+.sequencia-lluminosa__pad.is-wrong {
+  background: #8e2424;
+  border-color: #ffe0e0;
 }

@@ -1,10 +1,3 @@
-const feedbackOptions = [
-  "Torna-ho a provar amb calma.",
-  "Observa el camí abans d'executar.",
-  "Bona estratègia, revisa el detall.",
-  "Respira i ajusta el programa."
-];
-
 const config = {
   1: { size: 5, rounds: 6, blocks: 2, waters: 0, maxCommands: 14, points: 18 },
   2: { size: 6, rounds: 7, blocks: 5, waters: 2, maxCommands: 18, points: 22 },
@@ -13,6 +6,9 @@ const config = {
 
 const directions = ["up", "right", "down", "left"];
 const deltas = { up: [-1, 0], right: [0, 1], down: [1, 0], left: [0, -1] };
+const headings = {
+  up: ["↑", "amunt"], right: ["→", "a la dreta"], down: ["↓", "avall"], left: ["←", "a l’esquerra"]
+};
 const labels = { forward: "Avança", right: "Gira dreta", left: "Gira esquerra", jump: "Salta", repeat: "Repeteix l'anterior" };
 
 const state = {
@@ -25,6 +21,7 @@ const playScreen = document.getElementById("play-screen");
 const endScreen = document.getElementById("end-screen");
 const board = document.getElementById("board");
 const programList = document.getElementById("program-list");
+const heading = document.getElementById("robot-heading");
 const feedback = document.getElementById("feedback");
 const statLevel = document.getElementById("stat-level");
 const statPoints = document.getElementById("stat-points");
@@ -65,7 +62,8 @@ function nextChallenge() {
   renderBoard();
   renderProgram();
   updateStats();
-  setFeedback("Programa el robot fins a la meta.");
+  setFeedback("Programa el robot fins a l’estrella.");
+  setControls(true);
 }
 
 function generateMap() {
@@ -77,7 +75,13 @@ function generateMap() {
   const endSide = (startSide + 2) % 4;
   state.start = edgeCell(startSide);
   state.goal = edgeCell(endSide);
-  state.robot = { ...state.start, dir: directions[Math.floor(Math.random() * directions.length)] };
+  const [dr, dc] = state.goal.row !== state.start.row
+    ? [Math.sign(state.goal.row - state.start.row), 0]
+    : [0, Math.sign(state.goal.col - state.start.col)];
+  const initialHeading = state.level === 1
+    ? directions.find(dir => deltas[dir][0] === dr && deltas[dir][1] === dc)
+    : directions[Math.floor(Math.random() * directions.length)];
+  state.robot = { ...state.start, dir: initialHeading };
   const protectedCells = pathBetween(state.start, state.goal);
   placeItems(state.blocks, c.blocks, protectedCells);
   placeItems(state.waters, c.waters, protectedCells);
@@ -113,7 +117,9 @@ function placeItems(targetSet, count, protectedCells) {
 
 function renderBoard() {
   board.innerHTML = "";
-  board.style.gridTemplateColumns = `repeat(${state.size}, 1fr)`;
+  const [arrow, direction] = headings[state.robot.dir];
+  heading.textContent = `El robot mira ${direction} (${arrow})`;
+  board.style.gridTemplateColumns = board.style.gridTemplateRows = `repeat(${state.size}, minmax(0, 1fr))`;
   for (let row = 0; row < state.size; row++) {
     for (let col = 0; col < state.size; col++) {
       const tile = document.createElement("div");
@@ -124,8 +130,9 @@ function renderBoard() {
       if (row === state.goal.row && col === state.goal.col) tile.className = "tile goal";
       if (row === state.robot.row && col === state.robot.col) {
         const robot = document.createElement("div");
-        robot.className = `robot ${state.robot.dir}`;
-        robot.innerHTML = '<span class="robot-eye"></span><span class="robot-core"></span>';
+        robot.className = "robot";
+        robot.setAttribute("aria-hidden", "true");
+        robot.textContent = arrow;
         tile.appendChild(robot);
       }
       board.appendChild(tile);
@@ -141,7 +148,6 @@ function addCommand(command) {
   }
   state.program.push(command);
   renderProgram();
-  updateStats();
 }
 
 function renderProgram() {
@@ -151,6 +157,8 @@ function renderProgram() {
     item.textContent = labels[command];
     programList.appendChild(item);
   });
+  updateStats();
+  document.getElementById("run-button").disabled = state.running || !state.program.length;
 }
 
 async function runProgram() {
@@ -160,29 +168,32 @@ async function runProgram() {
   state.attempts += 1;
   const original = { ...state.robot };
   const expanded = expandProgram(state.program);
-  let ok = false;
-  for (const command of expanded) {
-    applyCommand(command);
+  for (const [index, command] of expanded.entries()) {
+    const problem = applyCommand(command);
+    if (problem) {
+      setFeedback(`Pas ${index + 1} (${labels[command]}): ${problem}`);
+      break;
+    }
+    setFeedback(`Pas ${index + 1}: ${labels[command]}.`);
     renderBoard();
     await wait(260);
-    if (isGoal()) { ok = true; break; }
+    if (isGoal()) {
+      state.solved += 1;
+      state.points += Math.max(5, config[state.level].points - Math.max(0, state.program.length - 6));
+      setFeedback("Has arribat a la meta!");
+      updateStats();
+      await wait(800);
+      state.running = false;
+      nextChallenge();
+      return;
+    }
+    if (index === expanded.length - 1) setFeedback("El programa s’ha acabat abans d’arribar a la meta.");
   }
-  if (ok) {
-    state.solved += 1;
-    state.points += Math.max(5, config[state.level].points - Math.max(0, state.program.length - 6));
-    setFeedback("Has arribat a la meta. Bona planificació.");
-    state.running = false;
-    setControls(true);
-    updateStats();
-    setTimeout(nextChallenge, 800);
-  } else {
-    state.robot = original;
-    renderBoard();
-    setFeedback(feedbackOptions[Math.floor(Math.random() * feedbackOptions.length)]);
-    state.running = false;
-    setControls(true);
-    updateStats();
-  }
+  state.robot = original;
+  renderBoard();
+  feedback.textContent += " El robot torna al punt de sortida.";
+  state.running = false;
+  setControls(true);
 }
 
 function expandProgram(program) {
@@ -203,20 +214,22 @@ function applyCommand(command) {
   const distance = command === "jump" ? 2 : 1;
   const [dr, dc] = deltas[state.robot.dir];
   const next = { row: state.robot.row + dr * distance, col: state.robot.col + dc * distance };
-  const middle = { row: state.robot.row + dr, col: state.robot.col + dc };
-  if (!inside(next.row, next.col)) return;
-  if (command === "forward" && (state.blocks.has(key(next.row, next.col)) || state.waters.has(key(next.row, next.col)))) return;
-  if (command === "jump" && state.blocks.has(key(next.row, next.col))) return;
-  if (command === "jump" && state.waters.has(key(middle.row, middle.col))) {
-    state.robot.row = next.row; state.robot.col = next.col; return;
+  if (!inside(next.row, next.col)) return "aquest moviment surt del tauler.";
+  const destination = key(next.row, next.col);
+  if (state.blocks.has(destination) || state.waters.has(destination)) {
+    return command === "jump" ? "el robot ha d’aterrar en una casella lliure." : "hi ha un obstacle al davant.";
   }
-  if (command === "jump" && !state.blocks.has(key(middle.row, middle.col))) return;
-  state.robot.row = next.row; state.robot.col = next.col;
+  const middle = key(state.robot.row + dr, state.robot.col + dc);
+  if (command === "jump" && !state.blocks.has(middle) && !state.waters.has(middle)) {
+    return "salta només quan hi ha un obstacle a la casella del davant.";
+  }
+  state.robot.row = next.row;
+  state.robot.col = next.col;
 }
 
 function setControls(enabled) {
-  document.querySelectorAll("button").forEach((button) => {
-    if (!button.classList.contains("level-option")) button.disabled = !enabled;
+  playScreen.querySelectorAll("button").forEach(button => {
+    button.disabled = !enabled || (button.id === "run-button" && !state.program.length);
   });
 }
 
@@ -232,6 +245,7 @@ function updateStats() {
 function finishGame() {
   playScreen.classList.add("hidden");
   endScreen.classList.remove("hidden");
+  document.getElementById("restart-button").focus();
   const accuracy = state.attempts ? Math.round((state.solved / state.attempts) * 100) : 0;
   document.getElementById("end-accuracy").textContent = `${accuracy}%`;
   document.getElementById("end-points").textContent = state.points;
