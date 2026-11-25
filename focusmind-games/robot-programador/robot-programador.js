@@ -62,7 +62,7 @@ function nextChallenge() {
   renderBoard();
   renderProgram();
   updateStats();
-  setFeedback("Programa el robot fins a l’estrella.");
+  setFeedback("Programa el robot fins a la bandera.");
   setControls(true);
 }
 
@@ -159,6 +159,7 @@ function renderProgram() {
   });
   updateStats();
   document.getElementById("run-button").disabled = state.running || !state.program.length;
+  programList.scrollTop = programList.scrollHeight;
 }
 
 async function runProgram() {
@@ -171,7 +172,7 @@ async function runProgram() {
   for (const [index, command] of expanded.entries()) {
     const problem = applyCommand(command);
     if (problem) {
-      setFeedback(`Pas ${index + 1} (${labels[command]}): ${problem}`);
+      setFeedback(`Pas ${index + 1} (${labels[command]}): ${problem}`, "error");
       break;
     }
     setFeedback(`Pas ${index + 1}: ${labels[command]}.`);
@@ -180,14 +181,14 @@ async function runProgram() {
     if (isGoal()) {
       state.solved += 1;
       state.points += Math.max(5, config[state.level].points - Math.max(0, state.program.length - 6));
-      setFeedback("Has arribat a la meta!");
+      setFeedback("Has arribat a la meta!", "success");
       updateStats();
       await wait(800);
       state.running = false;
       nextChallenge();
       return;
     }
-    if (index === expanded.length - 1) setFeedback("El programa s’ha acabat abans d’arribar a la meta.");
+    if (index === expanded.length - 1) setFeedback("El programa s’ha acabat abans d’arribar a la meta.", "error");
   }
   state.robot = original;
   renderBoard();
@@ -251,5 +252,8 @@ function finishGame() {
   document.getElementById("end-points").textContent = state.points;
   document.getElementById("end-rounds").textContent = state.solved;
 }
-function setFeedback(message) { feedback.textContent = message; }
+function setFeedback(message, tone = "neutral") {
+  feedback.textContent = message;
+  feedback.dataset.tone = tone;
+}
 function wait(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
