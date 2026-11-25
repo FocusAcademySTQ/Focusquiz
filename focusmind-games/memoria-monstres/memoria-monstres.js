@@ -1,10 +1,3 @@
-const feedbackOptions = [
-  "Torna-ho a provar amb calma.",
-  "Observa abans de respondre.",
-  "Bona estratègia, revisa el detall.",
-  "Respira i prova el següent."
-];
-
 const colors = [
   { name: "blau", value: "#55a6df" },
   { name: "lila", value: "#a08de8" },
@@ -14,8 +7,8 @@ const colors = [
   { name: "turquesa", value: "#5cc7c7" }
 ];
 const sizes = [
-  { name: "petit", width: 74, height: 82 },
-  { name: "mitjà", width: 88, height: 98 },
+  { name: "petita", width: 74, height: 82 },
+  { name: "mitjana", width: 88, height: 98 },
   { name: "gran", width: 104, height: 116 }
 ];
 const shapes = ["round", "square", "tall"];
@@ -42,6 +35,8 @@ const questionText = document.getElementById("question-text");
 const choices = document.getElementById("choices");
 const feedback = document.getElementById("feedback");
 const phaseLabel = document.getElementById("phase-label");
+const playArea = phaseLabel.closest(".play-area");
+const timer = document.querySelector(".observation-timer");
 const statLevel = document.getElementById("stat-level");
 const statPoints = document.getElementById("stat-points");
 const statRound = document.getElementById("stat-round");
@@ -76,36 +71,31 @@ function nextRound() {
   state.acceptingInput = false;
   questionPanel.classList.add("hidden");
   stage.classList.remove("hidden");
-  phaseLabel.textContent = "Observa els monstres";
+  setPhase("observe", "Observa");
   state.monsters = createMonsterSet(config[state.level].monsters);
   renderMonsters(state.monsters);
   updateStats();
-  setFeedback("Observa color, ulls, banyes, mida i patró.");
-  state.timeout = setTimeout(showQuestion, config[state.level].observeMs);
+  setFeedback("Recorda el nom i els detalls de cada monstre.");
+  phaseLabel.focus();
+  const duration = config[state.level].observeMs;
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    timer.getAnimations().forEach(animation => animation.cancel());
+    timer.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0)" }], duration);
+  }
+  state.timeout = setTimeout(showQuestion, duration);
 }
 
 function createMonsterSet(count) {
-  const used = new Set();
-  const monsters = [];
-  let guard = 0;
-  while (monsters.length < count && guard < 500) {
-    guard += 1;
-    const monster = {
-      name: names[(state.round + monsters.length + Math.floor(Math.random() * names.length)) % names.length],
-      color: pick(colors),
-      eyes: 1 + Math.floor(Math.random() * 4),
-      horns: Math.floor(Math.random() * 4),
-      size: pick(sizes),
-      shape: pick(shapes),
-      pattern: pick(patterns)
-    };
-    const id = `${monster.color.name}-${monster.eyes}-${monster.horns}-${monster.size.name}-${monster.shape}-${monster.pattern}`;
-    if (!used.has(id)) {
-      used.add(id);
-      monsters.push(monster);
-    }
-  }
-  return monsters;
+  const roundNames = shuffle(names);
+  return shuffle(colors).slice(0, count).map((color, index) => ({
+    name: roundNames[index],
+    color,
+    eyes: 1 + Math.floor(Math.random() * 4),
+    horns: Math.floor(Math.random() * 4),
+    size: pick(sizes),
+    shape: pick(shapes),
+    pattern: pick(patterns)
+  }));
 }
 
 function renderMonsters(monsters) {
@@ -128,7 +118,10 @@ function drawMonster(monster) {
   element.style.setProperty("--monster-color", monster.color.value);
   element.style.setProperty("--monster-width", `${monster.size.width}px`);
   element.style.setProperty("--monster-height", `${monster.size.height}px`);
-  ["left", "center", "right"].slice(0, monster.horns).forEach((position) => {
+  element.setAttribute("role", "img");
+  element.setAttribute("aria-label", monsterAttributes(monster).join(", "));
+  const hornPositions = [[], ["center"], ["left", "right"], ["left", "center", "right"]];
+  hornPositions[monster.horns].forEach((position) => {
     const horn = document.createElement("span");
     horn.className = `horn ${position}`;
     element.appendChild(horn);
@@ -162,25 +155,37 @@ function drawMonster(monster) {
 function showQuestion() {
   stage.classList.add("hidden");
   questionPanel.classList.remove("hidden");
-  phaseLabel.textContent = "Recorda el monstre";
+  setPhase("answer", "Respon");
   const target = pick(state.monsters);
   const attrs = chooseQuestionAttributes(target);
   state.answer = target;
   questionText.textContent = `Quin monstre tenia ${attrs.join(" i ")}?`;
   renderChoices(target);
   state.acceptingInput = true;
-  setFeedback("Tria amb calma.");
+  setFeedback("Tria el nom del monstre.");
+  questionText.focus();
 }
 
-function chooseQuestionAttributes(monster) {
-  const options = [
+function monsterAttributes(monster) {
+  return [
     `${monster.eyes} ${monster.eyes === 1 ? "ull" : "ulls"}`,
     `color ${monster.color.name}`,
     `${monster.horns} ${monster.horns === 1 ? "banya" : "banyes"}`,
     `mida ${monster.size.name}`,
-    `patró ${monster.pattern === "llis" ? "llis" : monster.pattern === "spotted" ? "amb punts" : "amb ratlles"}`
+    `${monster.pattern === "llis" ? "pell llisa" : monster.pattern === "spotted" ? "punts" : "ratlles"}`,
+    `forma ${{ round: "rodona", square: "quadrada", tall: "allargada" }[monster.shape]}`
   ];
-  return shuffle(options).slice(0, config[state.level].questionAttrs);
+}
+
+function chooseQuestionAttributes(monster) {
+  const attributes = monsterAttributes(monster);
+  const otherAttributes = state.monsters.filter(other => other !== monster).map(monsterAttributes);
+  const candidates = config[state.level].questionAttrs === 1
+    ? attributes.map(attribute => [attribute])
+    : attributes.flatMap((attribute, index) => attributes.slice(index + 1).map(second => [attribute, second]));
+  return pick(candidates.filter(clues =>
+    otherAttributes.every(other => !clues.every(clue => other.includes(clue)))
+  ));
 }
 
 function renderChoices(target) {
@@ -190,22 +195,28 @@ function renderChoices(target) {
     const button = document.createElement("button");
     button.className = "choice-button";
     button.type = "button";
-    button.textContent = `${monster.name}: ${monster.color.name}, ${monster.eyes} ulls, ${monster.horns} banyes, ${monster.size.name}`;
-    button.addEventListener("click", () => answer(monster === target));
+    button.textContent = monster.name;
+    button.addEventListener("click", () => answer(monster === target, button));
     choices.appendChild(button);
   });
 }
 
-function answer(ok) {
+function answer(ok, button) {
   if (!state.acceptingInput) return;
   state.acceptingInput = false;
   state.attempts += 1;
+  setPhase("review", ok ? "Correcte!" : "Revisa la resposta");
+  for (const option of choices.children) {
+    option.setAttribute("aria-disabled", "true");
+    if (option.textContent === state.answer.name) option.dataset.result = "correct";
+  }
+  if (!ok) button.dataset.result = "incorrect";
   if (ok) {
     state.correct += 1;
     state.points += config[state.level].points;
     setFeedback("Ben recordat. Has recuperat el detall.");
   } else {
-    setFeedback(feedbackOptions[Math.floor(Math.random() * feedbackOptions.length)]);
+    setFeedback(`La resposta era ${state.answer.name}.`);
   }
   updateStats();
   state.timeout = setTimeout(nextRound, ok ? 760 : 1100);
@@ -218,6 +229,7 @@ function finishGame() {
   document.getElementById("end-accuracy").textContent = `${getAccuracy()}%`;
   document.getElementById("end-points").textContent = state.points;
   document.getElementById("end-rounds").textContent = state.round;
+  document.getElementById("restart-button").focus();
 }
 
 function updateStats() {
@@ -235,5 +247,9 @@ function shuffle(items) {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
+}
+function setPhase(phase, label) {
+  playArea.dataset.phase = phase;
+  phaseLabel.textContent = label;
 }
 function setFeedback(message) { feedback.textContent = message; }
