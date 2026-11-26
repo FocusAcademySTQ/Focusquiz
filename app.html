@@ -651,21 +651,27 @@ Nil"></textarea></label>
           <section id="multiplicationBalloons" class="challenge-wrap balloons-game" data-challenge-panel="balloons" aria-labelledby="balloonsTitle" hidden>
             <header class="balloons-header">
               <h3 id="balloonsTitle">Els globus multiplicadors</h3>
-              <p class="balloons-score" aria-live="polite">Encerts <strong id="balloonsScore">0</strong></p>
+              <div class="balloons-hud">
+                <p class="balloons-stage" id="balloonsStage" hidden></p>
+                <p class="balloons-score" aria-live="polite">Encerts <strong id="balloonsScore">0</strong></p>
+              </div>
             </header>
             <div id="balloonsIntro" class="balloons-intro">
-              <span class="balloons-illustration" aria-hidden="true">🎈</span>
+              <div class="balloons-illustration" aria-hidden="true">
+                <i class="balloon-shape"></i><i class="balloon-shape">×</i><i class="balloon-shape"></i>
+              </div>
               <p>Tria el globus amb el resultat correcte. Pots jugar al teu ritme. La partida s’acaba amb el primer error.</p>
               <button type="button" class="balloons-action" id="balloonsStart">Comença</button>
             </div>
             <div id="balloonsRound" hidden>
               <h4 id="balloonsEquation" class="balloons-equation" tabindex="-1"></h4>
               <div class="balloons-options" role="group" aria-labelledby="balloonsEquation">
-                <button type="button" class="answer-balloon"></button>
-                <button type="button" class="answer-balloon"></button>
-                <button type="button" class="answer-balloon"></button>
-                <button type="button" class="answer-balloon"></button>
+                <button type="button" class="answer-balloon balloon-shape"></button>
+                <button type="button" class="answer-balloon balloon-shape"></button>
+                <button type="button" class="answer-balloon balloon-shape"></button>
+                <button type="button" class="answer-balloon balloon-shape"></button>
               </div>
+              <p class="balloons-feedback" id="balloonsFeedback" role="status"></p>
               <details id="balloonsHint" class="balloons-hint">
                 <summary>Mostra una pista</summary>
                 <p id="balloonsHintText"></p>
