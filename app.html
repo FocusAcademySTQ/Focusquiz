@@ -175,6 +175,7 @@
     }
   </style>
 
+  <link rel="stylesheet" href="challenges/multiplication-balloons.css">
 </head>
   <!-- LOGIN LOCAL (overlay) -->
 <div id="loginOverlay" class="login-overlay" hidden>
@@ -376,7 +377,7 @@
         <div class="row" style="align-items:center; margin-bottom:.8rem">
           <div>
             <h2 class="title" style="margin:0">Reptes</h2>
-            <p class="subtitle">Tria un joc i configura la partida per mòdul.</p>
+            <p class="subtitle">Tria un repte per començar.</p>
           </div>
           <div class="controls">
             <button class="btn-secondary" type="button" onclick="leaveChallenges()">← Torna</button>
@@ -397,9 +398,14 @@
               <h3>Joc de les xapes</h3>
               <p>Resposta correcta = tir de xapa fins al primer gol.</p>
             </article>
+            <article class="challenge-card" role="button" tabindex="0" data-open-challenge="balloons">
+              <span class="icon" aria-hidden="true">🎈</span>
+              <h3>Els globus multiplicadors</h3>
+              <p>Practica les taules i encerta tants globus com puguis.</p>
+            </article>
           </div>
         </section>
-<section id="challengesSection" class="panel card challenge-section" aria-labelledby="challengesTitle">
+        <section id="challengesSection" class="panel card challenge-section" aria-labelledby="challengesTitle">
           <div class="challenge-wrap" id="ttmGame" data-challenge-panel="tug">
             <!-- Modal de configuració inicial (3 passos) -->
             <div class="ttm-modal" id="ttmModal" role="dialog" aria-modal="true" aria-labelledby="ttmSetupTitle">
@@ -642,6 +648,36 @@ Nil"></textarea></label>
             </div>
             <div class="ttm-result" id="capResult" hidden><div class="ttm-result-card"><p class="portal-section-title">Partida finalitzada</p><h3 id="capWinnerTitle">Gol!</h3><p id="capWinnerStats"></p><button class="pill" type="button" id="capRestartBtn">Tornar a jugar</button></div></div>
           </div>
+          <section id="multiplicationBalloons" class="challenge-wrap balloons-game" data-challenge-panel="balloons" aria-labelledby="balloonsTitle" hidden>
+            <header class="balloons-header">
+              <h3 id="balloonsTitle">Els globus multiplicadors</h3>
+              <p class="balloons-score" aria-live="polite">Encerts <strong id="balloonsScore">0</strong></p>
+            </header>
+            <div id="balloonsIntro" class="balloons-intro">
+              <span class="balloons-illustration" aria-hidden="true">🎈</span>
+              <p>Tria el globus amb el resultat correcte. Pots jugar al teu ritme. La partida s’acaba amb el primer error.</p>
+              <button type="button" class="balloons-action" id="balloonsStart">Comença</button>
+            </div>
+            <div id="balloonsRound" hidden>
+              <h4 id="balloonsEquation" class="balloons-equation" tabindex="-1"></h4>
+              <div class="balloons-options" role="group" aria-labelledby="balloonsEquation">
+                <button type="button" class="answer-balloon"></button>
+                <button type="button" class="answer-balloon"></button>
+                <button type="button" class="answer-balloon"></button>
+                <button type="button" class="answer-balloon"></button>
+              </div>
+              <details id="balloonsHint" class="balloons-hint">
+                <summary>Mostra una pista</summary>
+                <p id="balloonsHintText"></p>
+                <div id="balloonsDots" class="balloons-dots" aria-hidden="true"></div>
+              </details>
+            </div>
+            <div id="balloonsEnd" class="balloons-end" hidden>
+              <h4 id="balloonsEndTitle" tabindex="-1">Fi de la partida</h4>
+              <p id="balloonsCorrection"></p>
+              <button type="button" class="balloons-action" id="balloonsRestart">Torna a jugar</button>
+            </div>
+          </section>
         </section>
       </div>
     </section>
@@ -2237,6 +2273,7 @@ Nil"></textarea></label>
   <script src="main.js" defer></script>
   <script src="focusmind.js" defer></script>
   <script src="math.js" defer></script>
+  <script src="challenges/multiplication-balloons.js" defer></script>
 
   <script>
     (() => {

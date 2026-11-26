@@ -1,0 +1,173 @@
+.challenges-cards:has([data-open-challenge="balloons"]) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.challenge-wrap.balloons-game {
+  padding: clamp(16px, 4vw, 42px);
+  border-color: #c4d9ef;
+  border-radius: 28px;
+  color: #172d4b;
+  background:
+    radial-gradient(ellipse at 3% 64%, #fff9 0 11%, transparent 11.5%),
+    radial-gradient(ellipse at 98% 42%, #fff9 0 12%, transparent 12.5%),
+    linear-gradient(160deg, #e5f1ff, #f5f2ff 75%, #fff6e5);
+}
+
+.balloons-game [hidden] { display: none; }
+
+.balloons-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .65rem 1rem;
+}
+
+.balloons-header h3 {
+  margin: 0;
+  color: #163463;
+  font-size: clamp(1.4rem, 4vw, 2.6rem);
+  letter-spacing: -.04em;
+  line-height: 1.1;
+}
+
+.balloons-score {
+  margin: 0;
+  padding: .5rem .85rem;
+  border: 1px solid #c9dbed;
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 750;
+}
+
+.balloons-score strong { margin-inline-start: .35em; color: #175c79; }
+
+.balloons-intro, .balloons-end {
+  width: min(100%, 530px);
+  margin: clamp(24px, 5vw, 52px) auto 0;
+  padding: clamp(12px, 4vw, 32px);
+  border: 1px solid #d6dfed;
+  border-radius: 24px;
+  background: #fffc;
+  text-align: center;
+}
+
+.balloons-illustration { display: block; font-size: clamp(3rem, 8vw, 5.5rem); }
+.balloons-intro p, .balloons-end p { margin: .75rem 0 1rem; }
+.balloons-end h4 { margin: 0; font-size: clamp(1.3rem, 3vw, 2rem); }
+
+.balloons-game .balloons-action {
+  min-height: 48px;
+  padding: .6rem 1.2rem;
+  border: 1px solid #173e7a;
+  border-radius: 14px;
+  background: #204b8e;
+  color: #fff;
+  font: inherit;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.balloons-game .balloons-equation {
+  width: fit-content;
+  max-width: 100%;
+  margin: clamp(18px, 4vw, 40px) auto 0;
+  padding: .4rem 1.15rem;
+  border: 1px solid #c9dbed;
+  border-radius: 20px;
+  background: #fff;
+  color: #14335e;
+  font-size: clamp(1.65rem, 7vw, 3.6rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.04em;
+  text-align: center;
+}
+
+.balloons-equation:focus, .balloons-end h4:focus { outline: none; }
+
+.balloons-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-items: center;
+  gap: clamp(10px, 3vw, 24px);
+  width: min(100%, 740px);
+  margin: clamp(16px, 4vw, 34px) auto 38px;
+}
+
+.balloons-game .answer-balloon {
+  --balloon-light: #358ed1;
+  --balloon-dark: #2054a0;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 136px);
+  aspect-ratio: .88;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50% 50% 47% 47% / 45% 45% 55% 55%;
+  background:
+    radial-gradient(ellipse at 28% 23%, #fff6, transparent 22%),
+    linear-gradient(150deg, var(--balloon-light), var(--balloon-dark) 58%);
+  color: white;
+  box-shadow: inset 0 -6px 14px #15214238, 0 7px 18px #21406333;
+  font: inherit;
+  font-size: clamp(1.4rem, 5vw, 2.6rem);
+  font-weight: 900;
+  text-shadow: 0 2px 2px #172d4b66;
+  cursor: pointer;
+  transition: transform 140ms ease;
+}
+
+.balloons-game .answer-balloon:nth-child(2) { --balloon-light: #e0707a; --balloon-dark: #9c3153; }
+.balloons-game .answer-balloon:nth-child(3) { --balloon-light: #45a886; --balloon-dark: #1e695c; }
+.balloons-game .answer-balloon:nth-child(4) { --balloon-light: #9a78d9; --balloon-dark: #64439e; }
+
+.answer-balloon::before, .answer-balloon::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  translate: -50%;
+  pointer-events: none;
+}
+
+.answer-balloon::before { border: 5px solid transparent; border-bottom-color: var(--balloon-dark); border-top: 0; }
+.answer-balloon::after { width: 1px; height: 14px; margin-top: 5px; background: #485b79; }
+.balloons-game :is(button, summary):focus-visible { outline: 3px solid #1b375c; outline-offset: 4px; }
+
+@media (hover: hover) {
+  .balloons-game .answer-balloon:hover { transform: translateY(-5px); }
+}
+
+.balloons-hint {
+  width: min(100%, 640px);
+  margin: 0 auto;
+  padding: .7rem .9rem;
+  border: 1px solid #c9dbed;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.balloons-hint summary { font-weight: 750; cursor: pointer; }
+.balloons-hint p { margin: .55rem 0; }
+
+.balloons-dots { display: flex; flex-wrap: wrap; gap: 6px; }
+.balloons-dots span {
+  display: grid;
+  grid-template-columns: repeat(5, 7px);
+  gap: 4px;
+  padding: 6px;
+  border-radius: 6px;
+  background: #e8effc;
+}
+.balloons-dots i { height: 7px; border-radius: 50%; background: #315ca5; }
+
+@media (max-width: 600px) {
+  .challenges-cards:has([data-open-challenge="balloons"]) { grid-template-columns: 1fr; }
+  .balloons-options { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
+  .balloons-game .answer-balloon { width: min(100%, 95px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .balloons-game .answer-balloon { transition: none; }
+}
