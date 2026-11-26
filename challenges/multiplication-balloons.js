@@ -3,6 +3,7 @@
   const feedback = game.querySelector('#balloonsFeedback');
   const stageLabel = game.querySelector('#balloonsStage');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const popSound = game.querySelector('#balloonsPopSound');
   const scoreLabel = game.querySelector('#balloonsScore');
   const intro = game.querySelector('#balloonsIntro');
   const round = game.querySelector('#balloonsRound');
@@ -81,6 +82,9 @@
       if (!question || transition !== null) return;
       const { groups, size, answer } = question;
       if (Number(button.textContent) === answer) {
+        popSound.currentTime = 0;
+        // Audio availability should not affect the next question.
+        popSound.play().catch(() => {});
         score++;
         scoreLabel.textContent = score;
         feedback.textContent = score === 5 ? 'Molt bé! Ara hi ha més taules.'
