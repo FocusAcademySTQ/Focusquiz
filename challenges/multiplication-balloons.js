@@ -1,5 +1,8 @@
 (() => {
   const game = document.getElementById('multiplicationBalloons');
+  const feedback = game.querySelector('#balloonsFeedback');
+  const stageLabel = game.querySelector('#balloonsStage');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const scoreLabel = game.querySelector('#balloonsScore');
   const intro = game.querySelector('#balloonsIntro');
   const round = game.querySelector('#balloonsRound');
@@ -15,6 +18,7 @@
 
   let score = 0;
   let question = null;
+  let transition = null;
 
   const pick = values => values[Math.floor(Math.random() * values.length)];
 
@@ -39,7 +43,11 @@
     const distractors = [...new Set([answer + size, answer - size, answer + 1, answer - 1, answer + 2, answer + 3])]
       .filter(value => value > 0);
     const values = shuffle([answer, ...shuffle(distractors).slice(0, 3)]);
-    choices.forEach((button, index) => { button.textContent = values[index]; });
+    choices.forEach((button, index) => {
+      button.textContent = values[index];
+      button.disabled = false;
+      button.classList.remove('is-popping');
+    });
 
     equation.textContent = `${groups} × ${size} = ?`;
     equation.setAttribute('aria-label', `Quant fan ${groups} multiplicat per ${size}?`);
@@ -50,11 +58,16 @@
       for (let index = 0; index < size; index++) group.appendChild(document.createElement('i'));
       return group;
     }));
+    stageLabel.textContent = score < 5 ? 'Taules inicials' : score < 10 ? 'Més taules' : 'Totes les taules';
     equation.focus({ preventScroll: true });
   }
 
   function start() {
+    clearTimeout(transition);
+    transition = null;
     score = 0;
+    feedback.textContent = '';
+    stageLabel.hidden = false;
     scoreLabel.textContent = score;
     question = null;
     intro.hidden = true;
@@ -65,12 +78,24 @@
 
   choices.forEach(button => {
     button.addEventListener('click', () => {
-      if (!question) return;
+      if (!question || transition !== null) return;
       const { groups, size, answer } = question;
       if (Number(button.textContent) === answer) {
         score++;
         scoreLabel.textContent = score;
-        nextQuestion();
+        feedback.textContent = score === 5 ? 'Molt bé! Ara hi ha més taules.'
+          : score === 10 ? 'Genial! Ja jugues amb totes les taules.'
+          : 'Encert!';
+        if (reducedMotion.matches) {
+          nextQuestion();
+          return;
+        }
+        button.classList.add('is-popping');
+        choices.forEach(choice => { choice.disabled = true; });
+        transition = setTimeout(() => {
+          transition = null;
+          nextQuestion();
+        }, 360);
         return;
       }
 
@@ -78,6 +103,7 @@
       correction.textContent = `Has triat ${button.textContent}. La resposta correcta és ${groups} × ${size} = ${answer}.`;
       endTitle.textContent = `Fi de la partida · ${score} ${score === 1 ? 'encert' : 'encerts'}`;
       round.hidden = true;
+      stageLabel.hidden = true;
       end.hidden = false;
       endTitle.focus({ preventScroll: true });
     });
